@@ -95,55 +95,23 @@ def scpout(oh):
     file.write("position="+c_position+"\n")
     file.write("talents="+c_talents+"\n")
     file.write("glyphs="+c_glyphs+"\n")
-    file.write("head="+c_head+"\n")
-    file.write("neck="+c_neck+"\n")
-    file.write("shoulders="+c_shoulders+"\n")
-    file.write("back="+c_back+"\n")
-    file.write("chest="+c_chest+"\n")
-    file.write("wrists="+c_wrists+"\n")
-    file.write("hands="+c_hands+"\n")
-    file.write("waist="+c_waist+"\n")
-    file.write("legs="+c_legs+"\n")
-    file.write("feet="+c_feet+"\n")
-    file.write("finger1="+c_finger1+"\n")
-    file.write("finger2="+c_finger2+"\n")
-    file.write("trinket1="+c_trinket1+"\n")
-    file.write("trinket2="+c_trinket2+"\n")
-    file.write("main_hand="+c_main_hand+"\n")
+    file.write("head="+l_gear[0]+"\n")
+    file.write("neck="+l_gear[1]+"\n")
+    file.write("shoulders="+l_gear[2]+"\n")
+    file.write("back="+l_gear[3]+"\n")
+    file.write("chest="+l_gear[4]+"\n")
+    file.write("wrists="+l_gear[5]+"\n")
+    file.write("hands="+l_gear[6]+"\n")
+    file.write("waist="+l_gear[7]+"\n")
+    file.write("legs="+l_gear[8]+"\n")
+    file.write("feet="+l_gear[9]+"\n")
+    file.write("finger1="+l_gear[10]+"\n")
+    file.write("finger2="+l_gear[11]+"\n")
+    file.write("trinket1="+l_gear[12]+"\n")
+    file.write("trinket2="+l_gear[13]+"\n")
+    file.write("main_hand="+l_gear[14]+"\n")
     if oh==1:
-        file.write("off_hand="+c_off_hand+"\n\n")
-    else:
-        file.write("\n")
-    c_profileid+=1
-    return()
-
-def scpopout(oh):
-    global c_profileid
-    file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-    file.write("specialization="+c_spec+"\n")
-    file.write("race="+c_race+"\n")
-    file.write("level="+c_level+"\n")
-    file.write("role="+c_role+"\n")
-    file.write("position="+c_position+"\n")
-    file.write("talents="+c_talents+"\n")
-    file.write("glyphs="+c_glyphs+"\n")
-    file.write("head="+l_enchant[0]+"\n")
-    file.write("neck="+l_enchant[1]+"\n")
-    file.write("shoulders="+l_enchant[2]+"\n")
-    file.write("back="+l_enchant[3]+"\n")
-    file.write("chest="+l_enchant[4]+"\n")
-    file.write("wrists="+l_enchant[5]+"\n")
-    file.write("hands="+l_enchant[6]+"\n")
-    file.write("waist="+l_enchant[7]+"\n")
-    file.write("legs="+l_enchant[8]+"\n")
-    file.write("feet="+l_enchant[9]+"\n")
-    file.write("finger1="+l_enchant[10]+"\n")
-    file.write("finger2="+l_enchant[11]+"\n")
-    file.write("trinket1="+l_enchant[12]+"\n")
-    file.write("trinket2="+l_enchant[13]+"\n")
-    file.write("main_hand="+l_enchant[14]+"\n")
-    if oh==1:
-        file.write("off_hand="+l_enchant[15]+"\n\n")
+        file.write("off_hand="+l_gear[15]+"\n\n")
     else:
         file.write("\n")
     c_profileid+=1
@@ -151,117 +119,118 @@ def scpopout(oh):
 
 file=open('output.txt','w')
 if len(l_head)+len(l_neck)+len(l_shoulders)+len(l_back)+len(l_chest)+len(l_wrists)+len(l_hands)+len(l_waist)+len(l_legs)+len(l_feet)+len(l_finger1)+len(l_finger2)+len(l_trinket1)+len(l_trinket2)+len(l_main_hand)+len(l_off_hand)!=16:
+    l_gear=["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
     for a in range(len(l_head)):
-        c_head=l_head[a]
+        l_gear[0]=l_head[a]
         for b in range (len(l_neck)):
-            c_neck=l_neck[b]
+            l_gear[1]=l_neck[b]
             for c in range (len(l_shoulders)):
-                c_shoulders=l_shoulders[c]
+                l_gear[2]=l_shoulders[c]
                 for d in range (len(l_back)):
-                    c_back=l_back[d]
+                    l_gear[3]=l_back[d]
                     for e in range (len(l_chest)):
-                        c_chest=l_chest[e]
+                        l_gear[4]=l_chest[e]
                         for f in range (len(l_wrists)):
-                            c_wrists=l_wrists[f]
+                            l_gear[5]=l_wrists[f]
                             for g in range (len(l_hands)):
-                                c_hands=l_hands[g]
+                                l_gear[6]=l_hands[g]
                                 for h in range (len(l_waist)):
-                                    c_waist=l_waist[h]
+                                    l_gear[7]=l_waist[h]
                                     for i in range (len(l_legs)):
-                                        c_legs=l_legs[i]
+                                        l_gear[8]=l_legs[i]
                                         for j in range (len(l_feet)):
-                                            c_feet=l_feet[j]
+                                            l_gear[9]=l_feet[j]
                                             for k in range (len(l_finger1)):
-                                                c_finger1=l_finger1[k]
+                                                l_gear[10]=l_finger1[k]
                                                 for l in range (len(l_finger2)):
-                                                    c_finger2=l_finger2[l]
+                                                    l_gear[11]=l_finger2[l]
                                                     for m in range (len(l_trinket1)):
-                                                        c_trinket1=l_trinket1[m]
+                                                        l_gear[12]=l_trinket1[m]
                                                         for n in range (len(l_trinket2)):
-                                                            c_trinket2=l_trinket2[n]
+                                                            l_gear[13]=l_trinket2[n]
                                                             if c_off_hand!="0":
                                                                 for o in range (len(l_main_hand)):
-                                                                    c_main_hand=l_main_hand[o]
+                                                                    l_gear[14]=l_main_hand[o]
                                                                     for p in range (len(l_off_hand)):
-                                                                        c_off_hand=l_off_hand[p]
+                                                                        l_gear[15]=l_off_hand[p]
                                                                         scpout(1)
                                                             else:
                                                                 for o in range (len(l_main_hand)):
-                                                                    c_main_hand=l_main_hand[o]
+                                                                    l_gear[14]=l_main_hand[o]
                                                                     scpout(0)
 else:
     if c_off_hand!="0":
         for a in range(len(en_oh[0])):
-            l_enchant=[c_head,c_neck,c_shoulders,c_back,c_chest,c_wrists,c_hands,c_waist,c_legs,c_feet,c_finger1,c_finger2,c_trinket1,c_trinket2,c_main_hand,c_off_hand]
+            l_gear=[c_head,c_neck,c_shoulders,c_back,c_chest,c_wrists,c_hands,c_waist,c_legs,c_feet,c_finger1,c_finger2,c_trinket1,c_trinket2,c_main_hand,c_off_hand]
             
             for b in range(en_oh[0][a]):
-                l_enchant[b]=l_enchant[b]+",gem_id="+c_en_gem_s1
+                l_gear[b]=l_gear[b]+",gem_id="+c_en_gem_s1
             for c in range(en_oh[1][a]):
                 ca=en_oh[0][a]
-                l_enchant[c+ca]=l_enchant[c+ca]+",gem_id="+c_en_gem_s2
+                l_gear[c+ca]=l_gear[c+ca]+",gem_id="+c_en_gem_s2
             
             if en_oh[2][a]==2:
-                l_enchant[10]=l_enchant[10]+",enchant_id="+c_en_ring_s1
-                l_enchant[11]=l_enchant[11]+",enchant_id="+c_en_ring_s1
+                l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s1
+                l_gear[11]=l_gear[11]+",enchant_id="+c_en_ring_s1
             elif en_oh[3][a]==2:
-                l_enchant[10]=l_enchant[10]+",enchant_id="+c_en_ring_s2
-                l_enchant[11]=l_enchant[11]+",enchant_id="+c_en_ring_s2
+                l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s2
+                l_gear[11]=l_gear[11]+",enchant_id="+c_en_ring_s2
             else:
-                l_enchant[10]=l_enchant[10]+",enchant_id="+c_en_ring_s1
-                l_enchant[11]=l_enchant[11]+",enchant_id="+c_en_ring_s2
+                l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s1
+                l_gear[11]=l_gear[11]+",enchant_id="+c_en_ring_s2
             
             if en_oh[4][a]==1:
-                l_enchant[1]=l_enchant[1]+",enchant_id="+c_en_neck_s1
+                l_gear[1]=l_gear[1]+",enchant_id="+c_en_neck_s1
             elif en_oh[5][a]==1:
-                l_enchant[1]=l_enchant[1]+",enchant_id="+c_en_neck_s2
+                l_gear[1]=l_gear[1]+",enchant_id="+c_en_neck_s2
             
             if en_oh[6][a]==1:
-                l_enchant[3]=l_enchant[3]+",enchant_id="+c_en_back_s1
+                l_gear[3]=l_gear[3]+",enchant_id="+c_en_back_s1
             elif en_oh[7][a]==1:
-                l_enchant[3]=l_enchant[3]+",enchant_id="+c_en_back_s2
+                l_gear[3]=l_gear[3]+",enchant_id="+c_en_back_s2
             
             if c_en_main_hand!="0":
                 for d in range(len(l_en_main_hand)):
-                    l_enchant[14]=l_enchant[14]+",enchant_id="+c_en_main_hand
+                    l_gear[14]=l_gear[14]+",enchant_id="+c_en_main_hand
                     for e in range(len(l_en_off_hand)):
-                        l_enchant[15]=l_enchant[15]+",enchant_id="+c_en_off_hand
-                        scpopout(1)
+                        l_gear[15]=l_gear[15]+",enchant_id="+c_en_off_hand
+                        scpout(1)
             else:
-                scpopout(1)
+                scpout(1)
     else:
         for a in range(len(en_mh[0])):
-            l_enchant=[c_head,c_neck,c_shoulders,c_back,c_chest,c_wrists,c_hands,c_waist,c_legs,c_feet,c_finger1,c_finger2,c_trinket1,c_trinket2,c_main_hand]
+            l_gear=[c_head,c_neck,c_shoulders,c_back,c_chest,c_wrists,c_hands,c_waist,c_legs,c_feet,c_finger1,c_finger2,c_trinket1,c_trinket2,c_main_hand]
             
             for b in range(en_mh[0][a]):
-                l_enchant[b]=l_enchant[b]+",gem_id="+c_en_gem_s1
+                l_gear[b]=l_gear[b]+",gem_id="+c_en_gem_s1
             for c in range(en_mh[1][a]):
                 ca=en_mh[0][a]
-                l_enchant[c+ca]=l_enchant[c+ca]+",gem_id="+c_en_gem_s2
+                l_gear[c+ca]=l_gear[c+ca]+",gem_id="+c_en_gem_s2
             
             if en_mh[2][a]==2:
-                l_enchant[10]=l_enchant[10]+",enchant_id="+c_en_ring_s1
-                l_enchant[11]=l_enchant[11]+",enchant_id="+c_en_ring_s1
+                l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s1
+                l_gear[11]=l_gear[11]+",enchant_id="+c_en_ring_s1
             elif en_mh[3][a]==2:
-                l_enchant[10]=l_enchant[10]+",enchant_id="+c_en_ring_s2
-                l_enchant[11]=l_enchant[11]+",enchant_id="+c_en_ring_s2
+                l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s2
+                l_gear[11]=l_gear[11]+",enchant_id="+c_en_ring_s2
             else:
-                l_enchant[10]=l_enchant[10]+",enchant_id="+c_en_ring_s1
-                l_enchant[11]=l_enchant[11]+",enchant_id="+c_en_ring_s2
+                l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s1
+                l_gear[11]=l_gear[11]+",enchant_id="+c_en_ring_s2
             
             if en_mh[4][a]==1:
-                l_enchant[1]=l_enchant[1]+",enchant_id="+c_en_neck_s1
+                l_gear[1]=l_gear[1]+",enchant_id="+c_en_neck_s1
             elif en_mh[5][a]==1:
-                l_enchant[1]=l_enchant[1]+",enchant_id="+c_en_neck_s2
+                l_gear[1]=l_gear[1]+",enchant_id="+c_en_neck_s2
             
             if en_mh[6][a]==1:
-                l_enchant[3]=l_enchant[3]+",enchant_id="+c_en_back_s1
+                l_gear[3]=l_gear[3]+",enchant_id="+c_en_back_s1
             elif en_mh[7][a]==1:
-                l_enchant[3]=l_enchant[3]+",enchant_id="+c_en_back_s2
+                l_gear[3]=l_gear[3]+",enchant_id="+c_en_back_s2
             
             if c_en_main_hand!="0":
                 for d in range(len(l_en_main_hand)):
-                    l_enchant[14]=l_enchant[14]+",enchant_id="+c_en_main_hand
-                    scpopout(0)
+                    l_gear[14]=l_gear[14]+",enchant_id="+c_en_main_hand
+                    scpout(0)
             else:
-                scpopout(0)
+                scpout(0)
 file.close
