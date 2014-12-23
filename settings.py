@@ -1,5 +1,5 @@
 ### Vars Init ###
-# You have to fill variables as it is on simcraft.
+#You have to fill variables as it is on simcraft.
 c_profilename="Asteriksme"
 c_profileid=0
 c_class="monk"
@@ -17,8 +17,8 @@ c_glyphs="touch_of_death/fortuitous_spheres/floating_butterfly/spirit_roll/water
 #Example : c_other="initial_chi=4\nactions+=/stance,choose=fierce_tiger"
 c_other=""
 
-# If you want to optimize your gearset, specify only 1 item per slot and fill enchants on the section below.
-# If you want to find BiS gearset, specify items that you want to compare in each slots.
+#If you want to optimize your gearset, specify only 1 item per slot and fill enchants on the section below.
+#If you want to find BiS gearset, specify items that you want to compare in each slots.
 c_head="runeenscribed_hood,id=113845,bonus_id=561/564/566,gem_id=115813"
 c_neck="reavers_nose_ring,id=113851,bonus_id=561/564/566,gem_id=115813,enchant_id=5320|flechetteriddled_chain,id=113647,bonus_id=561/564/566,gem_id=115813,enchant_id=5320"
 c_shoulders="deep_walker_paulders,id=113661,bonus_id=561/564/566,gem_id=115813"
@@ -36,7 +36,7 @@ c_trinket2="scales_of_doom,id=113612,bonus_id=561/564/566,gem_id=115813"
 c_main_hand="the_bladefist,id=113591,bonus_id=561/564/566,gem_id=115813,enchant_id=5331|phemos_double_slasher,id=113667,bonus_id=561/564/566,gem_id=115813,enchant_id=5331"
 c_off_hand="the_bladefist,id=113591,bonus_id=561/564/566,gem_id=115813,enchant_id=5331|phemos_double_slasher,id=113667,bonus_id=561/564/566,gem_id=115813,enchant_id=5331"
 
-# You have to add id of gems and enchants you want to compare, you can only compare 2 stats at a time.
+#You have to add id of gems and enchants you want to compare, you can only compare 2 stats at a time.
 #If you add main_hand enchant(s), you must add off_hand enchant(s), they may be differents.
 #If you add off_hand enchant(s), you must add main_hand enchant(s), they may be differents.
 c_en_gem_s1="gs1test"
