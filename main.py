@@ -1,7 +1,55 @@
 from enchant_table import *
-from settings import *
 
-### Split Vars to Lists ###
+### Reading settings.ini to init vars
+import configparser
+config = configparser.ConfigParser()
+config.read('settings.ini')
+profile = config['Profile']
+gear = config['Gear']
+enchant = config['Enchant']
+
+c_profilename=profile['profilename']
+c_profileid=int(profile['profileid'])
+c_class=profile['class']
+c_race=profile['race']
+c_level=profile['level']
+c_spec=profile['spec']
+c_role=profile['role']
+c_position=profile['position']
+c_talents=profile['talents']
+c_glyphs=profile['glyphs']
+
+c_other=profile['other']
+
+c_head=gear['head']
+c_neck=gear['neck']
+c_shoulders=gear['shoulders']
+c_back=gear['back']
+c_chest=gear['chest']
+c_wrists=gear['wrists']
+c_hands=gear['hands']
+c_waist=gear['waist']
+c_legs=gear['legs']
+c_feet=gear['feet']
+c_finger1=gear['finger1']
+c_finger2=gear['finger2']
+c_trinket1=gear['trinket1']
+c_trinket2=gear['trinket2']
+c_main_hand=gear['main_hand']
+c_off_hand=gear['off_hand']
+
+c_en_gem_s1=enchant['gem_stat1']
+c_en_gem_s2=enchant['gem_stat2']
+c_en_ring_s1=enchant['ring_stat1']
+c_en_ring_s2=enchant['ring_stat2']
+c_en_neck_s1=enchant['neck_stat1']
+c_en_neck_s2=enchant['neck_stat2']
+c_en_back_s1=enchant['back_stat1']
+c_en_back_s2=enchant['back_stat2']
+c_en_main_hand=enchant['main_hand']
+c_en_off_hand=enchant['off_hand']
+
+### Split vars to lists ###
 l_head=c_head.split('|')
 l_neck=c_neck.split('|')
 l_shoulders=c_shoulders.split('|')
@@ -130,9 +178,11 @@ else:
             
             if c_en_main_hand!="":
                 for d in range(len(l_en_main_hand)):
-                    l_gear[14]=l_gear[14]+",enchant_id="+c_en_main_hand
+                    l_gear[14]=c_main_hand
+                    l_gear[14]=l_gear[14]+",enchant_id="+l_en_main_hand[d]
                     for e in range(len(l_en_off_hand)):
-                        l_gear[15]=l_gear[15]+",enchant_id="+c_en_off_hand
+                        l_gear[15]=c_off_hand
+                        l_gear[15]=l_gear[15]+",enchant_id="+l_en_off_hand[e]
                         scpout(1)
             else:
                 scpout(1)
@@ -168,7 +218,8 @@ else:
             
             if c_en_main_hand!="":
                 for d in range(len(l_en_main_hand)):
-                    l_gear[14]=l_gear[14]+",enchant_id="+c_en_main_hand
+                    l_gear[14]=c_main_hand
+                    l_gear[14]=l_gear[14]+",enchant_id="+l_en_main_hand[d]
                     scpout(0)
             else:
                 scpout(0)
