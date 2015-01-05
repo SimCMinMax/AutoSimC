@@ -1,4 +1,4 @@
-from enchant_table import *
+from lib_enchant_table import *
 
 ### Reading settings.ini to init vars
 import configparser
