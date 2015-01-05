@@ -1,5 +1,5 @@
 file=open('talents.simc','w')
-l=[1,1,1,1,1,1,1]
+l=[0,0,0,0,0,0,0]
 
 ### Comment or uncomment and indent for & l[x] line as you need, this example is for a dps monk
 
