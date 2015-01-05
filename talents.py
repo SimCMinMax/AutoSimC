@@ -20,4 +20,8 @@ for b in range(1,4):
                 file.write("copy=%i%i%i%i%i%i%i\n" % (l[0],l[1],l[2],l[3],l[4],l[5],l[6]))
                 file.write("talents=%i%i%i%i%i%i%i\n\n" % (l[0],l[1],l[2],l[3],l[4],l[5],l[6]))
                 
+<<<<<<< HEAD
 file.close
+=======
+file.close
+>>>>>>> FETCH_HEAD
