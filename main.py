@@ -23,10 +23,10 @@ c_other=profile['other']
 
 c_head=gear['head']
 c_neck=gear['neck']
-c_shoulders=gear['shoulder']
+c_shoulders=gear['shoulders']
 c_back=gear['back']
 c_chest=gear['chest']
-c_wrists=gear['wrist']
+c_wrists=gear['wrists']
 c_hands=gear['hands']
 c_waist=gear['waist']
 c_legs=gear['legs']
@@ -84,10 +84,10 @@ def scpout(oh):
     if c_other!="": file.write(c_other+"\n")
     file.write("head="+l_gear[0]+"\n")
     file.write("neck="+l_gear[1]+"\n")
-    file.write("shoulder="+l_gear[2]+"\n")
+    file.write("shoulders="+l_gear[2]+"\n")
     file.write("back="+l_gear[3]+"\n")
     file.write("chest="+l_gear[4]+"\n")
-    file.write("wrist="+l_gear[5]+"\n")
+    file.write("wrists="+l_gear[5]+"\n")
     file.write("hands="+l_gear[6]+"\n")
     file.write("waist="+l_gear[7]+"\n")
     file.write("legs="+l_gear[8]+"\n")
