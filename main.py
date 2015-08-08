@@ -193,11 +193,11 @@ else:
         for a in range(len(en_mh[0])):
             l_gear=[c_head,c_neck,c_shoulders,c_back,c_chest,c_wrists,c_hands,c_waist,c_legs,c_feet,c_finger1,c_finger2,c_trinket1,c_trinket2,c_main_hand]
             
-            for b in range(en_mh[0][a]):
-                l_gear[b]=l_gear[b]+",gem_id="+c_en_gem_s1
-            for c in range(en_mh[1][a]):
-                ca=en_mh[0][a]
-                l_gear[c+ca]=l_gear[c+ca]+",gem_id="+c_en_gem_s2
+            #for b in range(en_mh[0][a]):
+                #l_gear[b]=l_gear[b]+",gem_id="+c_en_gem_s1
+            #for c in range(en_mh[1][a]):
+                #ca=en_mh[0][a]
+                #l_gear[c+ca]=l_gear[c+ca]+",gem_id="+c_en_gem_s2
             
             if en_mh[2][a]==2:
                 l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s1
