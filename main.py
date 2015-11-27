@@ -75,8 +75,28 @@ l_en_off_hand=c_en_off_hand.split('|')
 
 ### Function wich print a simc profile ###
 def scpout(oh):
-    global c_profileid, c_other
-    file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+    global c_profileid
+    if c_profilemaxid < 100:
+        if c_profileid > 0 and c_profileid < 10:
+            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+        else:
+            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+    elif c_profilemaxid < 1000:
+        if c_profileid > 0 and c_profileid < 10:
+            file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+        elif c_profileid < 100:
+            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+        else:
+            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+    elif c_profilemaxid < 10000:
+        if c_profileid > 0 and c_profileid < 10:
+            file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
+        elif c_profileid < 100:
+            file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+        elif c_profileid < 1000:
+            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+        else:
+            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
     file.write("specialization="+c_spec+"\n")
     file.write("race="+c_race+"\n")
     file.write("level="+c_level+"\n")
@@ -110,6 +130,7 @@ def scpout(oh):
 file=open('out.simc','w')
 if len(l_head)+len(l_neck)+len(l_shoulders)+len(l_back)+len(l_chest)+len(l_wrists)+len(l_hands)+len(l_waist)+len(l_legs)+len(l_feet)+len(l_finger1)+len(l_finger2)+len(l_trinket1)+len(l_trinket2)+len(l_main_hand)+len(l_off_hand)!=16:
     l_gear=["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
+    c_profilemaxid = len(l_head)*len(l_neck)*len(l_shoulders)*len(l_back)*len(l_chest)*len(l_wrists)*len(l_hands)*len(l_waist)*len(l_legs)*len(l_feet)*len(l_finger1)*len(l_finger2)*len(l_trinket1)*len(l_trinket2)*len(l_main_hand)*len(l_off_hand)
     for a in range(len(l_head)):
         l_gear[0]=l_head[a]
         for b in range (len(l_neck)):
@@ -153,11 +174,11 @@ else:
         for a in range(len(en_oh[0])):
             l_gear=[c_head,c_neck,c_shoulders,c_back,c_chest,c_wrists,c_hands,c_waist,c_legs,c_feet,c_finger1,c_finger2,c_trinket1,c_trinket2,c_main_hand,c_off_hand]
             
-            for b in range(en_oh[0][a]):
-                l_gear[b]=l_gear[b]+",gem_id="+c_en_gem_s1
-            for c in range(en_oh[1][a]):
-                ca=en_oh[0][a]
-                l_gear[c+ca]=l_gear[c+ca]+",gem_id="+c_en_gem_s2
+            #for b in range(en_oh[0][a]):
+                #l_gear[b]=l_gear[b]+",gem_id="+c_en_gem_s1
+            #for c in range(en_oh[1][a]):
+                #ca=en_oh[0][a]
+                #l_gear[c+ca]=l_gear[c+ca]+",gem_id="+c_en_gem_s2
             
             if en_oh[2][a]==2:
                 l_gear[10]=l_gear[10]+",enchant_id="+c_en_ring_s1
