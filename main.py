@@ -17,7 +17,6 @@ c_spec=profile['spec']
 c_role=profile['role']
 c_position=profile['position']
 c_talents=profile['talents']
-c_glyphs=profile['glyphs']
 
 c_other=profile['other']
 
@@ -76,6 +75,7 @@ l_en_off_hand=c_en_off_hand.split('|')
 ### Function wich print a simc profile ###
 def scpout(oh):
     global c_profileid
+    print(c_profileid)
     if c_profilemaxid < 100:
         if c_profileid > 0 and c_profileid < 10:
             file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
@@ -103,7 +103,6 @@ def scpout(oh):
     file.write("role="+c_role+"\n")
     file.write("position="+c_position+"\n")
     file.write("talents="+c_talents+"\n")
-    file.write("glyphs="+c_glyphs+"\n")
     if c_other!="": file.write(c_other+"\n")
     file.write("head="+l_gear[0]+"\n")
     file.write("neck="+l_gear[1]+"\n")
