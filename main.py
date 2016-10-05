@@ -17,6 +17,7 @@ c_spec=profile['spec']
 c_role=profile['role']
 c_position=profile['position']
 c_talents=profile['talents']
+c_artifact=profile['artifact']
 
 c_other=profile['other']
 
@@ -103,6 +104,7 @@ def scpout(oh):
     file.write("role="+c_role+"\n")
     file.write("position="+c_position+"\n")
     file.write("talents="+c_talents+"\n")
+    file.write("artifact="+c_artifact+"\n")
     if c_other!="": file.write(c_other+"\n")
     file.write("head="+l_gear[0]+"\n")
     file.write("neck="+l_gear[1]+"\n")
