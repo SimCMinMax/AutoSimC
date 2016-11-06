@@ -98,6 +98,17 @@ def scpout(oh):
             file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
         else:
             file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+    elif c_profilemaxid < 100000:
+        if c_profileid > 0 and c_profileid < 10:
+            file.write(c_class+"="+c_profilename+"_0000"+str(c_profileid)+"\n")
+        elif c_profileid < 100:
+            file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
+        elif c_profileid < 1000:
+            file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+        elif c_profileid < 10000:
+            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+        else:
+            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
     file.write("specialization="+c_spec+"\n")
     file.write("race="+c_race+"\n")
     file.write("level="+c_level+"\n")
