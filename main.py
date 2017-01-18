@@ -7,6 +7,7 @@ config.read('settings.ini')
 profile = config['Profile']
 gear = config['Gear']
 enchant = config['Enchant']
+c_profilemaxid=0
 
 c_profilename=profile['profilename']
 c_profileid=int(profile['profileid'])
