@@ -2,12 +2,14 @@ from lib_enchant_table import *
 
 ### Reading settings.ini to init vars
 import configparser
+import sys
 config = configparser.ConfigParser()
-config.read('settings.ini')
+config.read(sys.argv[1])
 profile = config['Profile']
 gear = config['Gear']
-enchant = config['Enchant']
+#enchant = config['Enchant']
 c_profilemaxid=0
+gearlist=['head','neck','shoulder','back','chest','wrist','hands','waist','legs','feet','finger1','finger2','trinket1','trinket2']
 
 c_profilename=profile['profilename']
 c_profileid=int(profile['profileid'])
@@ -42,16 +44,16 @@ c_main_hand=gear['main_hand']
 if config.has_option('Gear', 'off_hand'): c_off_hand=gear['off_hand']
 else: c_off_hand=""
 
-c_en_gem_s1=enchant['gem_stat1']
-c_en_gem_s2=enchant['gem_stat2']
-c_en_ring_s1=enchant['ring_stat1']
-c_en_ring_s2=enchant['ring_stat2']
-c_en_neck_s1=enchant['neck_stat1']
-c_en_neck_s2=enchant['neck_stat2']
-c_en_back_s1=enchant['back_stat1']
-c_en_back_s2=enchant['back_stat2']
-c_en_main_hand=enchant['main_hand']
-c_en_off_hand=enchant['off_hand']
+#c_en_gem_s1=enchant['gem_stat1']
+#c_en_gem_s2=enchant['gem_stat2']
+#c_en_ring_s1=enchant['ring_stat1']
+#c_en_ring_s2=enchant['ring_stat2']
+#c_en_neck_s1=enchant['neck_stat1']
+#c_en_neck_s2=enchant['neck_stat2']
+#c_en_back_s1=enchant['back_stat1']
+#c_en_back_s2=enchant['back_stat2']
+#c_en_main_hand=enchant['main_hand']
+#c_en_off_hand=enchant['off_hand']
 
 ### Split vars to lists ###
 l_head=c_head.split('|')
@@ -71,75 +73,147 @@ l_trinket2=c_trinket2.split('|')
 l_main_hand=c_main_hand.split('|')
 l_off_hand=c_off_hand.split('|')
 
-l_en_main_hand=c_en_main_hand.split('|')
-l_en_off_hand=c_en_off_hand.split('|')
+
+#finger1=,id=142172,enchant_id=5428,bonus_id=1808/3453/1482/3336,gem_id=130220
+#gearlist=['head','neck','shoulder','back','chest','wrist','hands','waist','legs','feet','finger1','finger2','trinket1','trinket2']
+
+def addToTab(x):
+    stringToAdd="L,id="+x[1]+(",bonus_id="+x[2] if x[2]!="" else "")+(",enchant_id="+x[3] if x[3]!="" else "")+(",gem_id="+x[4] if x[4]!="" else "")
+    if x[0]=='head': 
+        l_head.append(stringToAdd)
+    elif x[0]=='neck': 
+        l_neck.append(stringToAdd)
+    elif x[0]=='shoulders': 
+        l_shoulders.append(stringToAdd)
+    elif x[0]=='back': 
+        l_back.append(stringToAdd)
+    elif x[0]=='chest': 
+        l_chest.append(stringToAdd)
+    elif ex[0]=='wrist': 
+        l_wrists.append(stringToAdd)
+    elif x[0]=='hands': 
+        l_hands.append(stringToAdd)
+    elif x[0]=='waist': 
+        l_waist.append(stringToAdd)
+    elif x[0]=='legs': 
+        l_legs.append(stringToAdd)
+    elif x[0]=='feet': 
+        l_feet.append(stringToAdd)
+    elif x[0]=='finger1': 
+        l_finger1.append(stringToAdd)
+    elif x[0]=='finger2': 
+        l_finger2.append(stringToAdd)
+    elif x[0]=='trinket1': 
+        l_trinket1.append(stringToAdd)
+    elif x[0]=='trinket2': 
+        l_trinket2.append(stringToAdd)
+ 
+
+def handlePermutation(elements):
+    for element in elements:
+        pieces = element.split('|')
+        addToTab(pieces)
+
+    
+#l_en_main_hand=c_en_main_hand.split('|')
+#l_en_off_hand=c_en_off_hand.split('|')
+
+#check if permutation is valid
+def checkUsability():
+    legmin=int(sys.argv[3][0] if len(sys.argv)==4 else "0")
+    legmax=int(sys.argv[3][2] if (len(sys.argv)==4 and len(sys.argv[3])==3) else "20")
+    nbLeg=0
+    for a in range(len(l_gear)):
+        if l_gear[a][0]=="L":
+            nbLeg=nbLeg+1
+    if nbLeg<legmin:
+        return str(nbLeg)+" leg (too low)"
+    if nbLeg>legmax:
+        return str(nbLeg)+" leg (too much)"
+		
+    if l_gear[10]==l_gear[11]:
+        return "same ring"
+    if l_gear[12]==l_gear[13]:
+        return "same trinket"
+    
+    return ""
 
 ### Function wich print a simc profile ###
 def scpout(oh):
     global c_profileid
-    print(c_profileid)
-    if c_profilemaxid < 100:
-        if c_profileid > 0 and c_profileid < 10:
-            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-        else:
-            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-    elif c_profilemaxid < 1000:
-        if c_profileid > 0 and c_profileid < 10:
-            file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-        elif c_profileid < 100:
-            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-        else:
-            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-    elif c_profilemaxid < 10000:
-        if c_profileid > 0 and c_profileid < 10:
-            file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
-        elif c_profileid < 100:
-            file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-        elif c_profileid < 1000:
-            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-        else:
-            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-    elif c_profilemaxid < 100000:
-        if c_profileid > 0 and c_profileid < 10:
-            file.write(c_class+"="+c_profilename+"_0000"+str(c_profileid)+"\n")
-        elif c_profileid < 100:
-            file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
-        elif c_profileid < 1000:
-            file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-        elif c_profileid < 10000:
-            file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-        else:
-            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-    file.write("specialization="+c_spec+"\n")
-    file.write("race="+c_race+"\n")
-    file.write("level="+c_level+"\n")
-    file.write("role="+c_role+"\n")
-    file.write("position="+c_position+"\n")
-    file.write("talents="+c_talents+"\n")
-    file.write("artifact="+c_artifact+"\n")
-    if c_other!="": file.write(c_other+"\n")
-    file.write("head="+l_gear[0]+"\n")
-    file.write("neck="+l_gear[1]+"\n")
-    file.write("shoulders="+l_gear[2]+"\n")
-    file.write("back="+l_gear[3]+"\n")
-    file.write("chest="+l_gear[4]+"\n")
-    file.write("wrists="+l_gear[5]+"\n")
-    file.write("hands="+l_gear[6]+"\n")
-    file.write("waist="+l_gear[7]+"\n")
-    file.write("legs="+l_gear[8]+"\n")
-    file.write("feet="+l_gear[9]+"\n")
-    file.write("finger1="+l_gear[10]+"\n")
-    file.write("finger2="+l_gear[11]+"\n")
-    file.write("trinket1="+l_gear[12]+"\n")
-    file.write("trinket2="+l_gear[13]+"\n")
-    file.write("main_hand="+l_gear[14]+"\n")
-    if oh==1:
-        file.write("off_hand="+l_gear[15]+"\n\n")
+    result = checkUsability()
+    if result!="":
+        print(str(c_profileid)+' Impossible combination : '+result)
     else:
-        file.write("\n")
+        print(c_profileid)
+        if c_profilemaxid < 100:
+            if c_profileid > 0 and c_profileid < 10:
+                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+            else:
+                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        elif c_profilemaxid < 1000:
+            if c_profileid > 0 and c_profileid < 10:
+                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+            elif c_profileid < 100:
+                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+            else:
+                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        elif c_profilemaxid < 10000:
+            if c_profileid > 0 and c_profileid < 10:
+                file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
+            elif c_profileid < 100:
+                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+            elif c_profileid < 1000:
+                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+            else:
+                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        elif c_profilemaxid < 100000:
+            if c_profileid > 0 and c_profileid < 10:
+                file.write(c_class+"="+c_profilename+"_0000"+str(c_profileid)+"\n")
+            elif c_profileid < 100:
+                file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
+            elif c_profileid < 1000:
+                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+            elif c_profileid < 10000:
+                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
+            else:
+                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        file.write("specialization="+c_spec+"\n")
+        file.write("race="+c_race+"\n")
+        file.write("level="+c_level+"\n")
+        file.write("role="+c_role+"\n")
+        file.write("position="+c_position+"\n")
+        file.write("talents="+c_talents+"\n")
+        file.write("artifact="+c_artifact+"\n")
+        if c_other!="": file.write(c_other+"\n")
+        file.write("head="+ (l_gear[0] if l_gear[0][0]!="L" else l_gear[0][1:]) +"\n")
+        file.write("neck="+ (l_gear[1] if l_gear[1][0]!="L" else l_gear[1][1:]) +"\n")
+        file.write("shoulders="+ (l_gear[2] if l_gear[2][0]!="L" else l_gear[2][1:]) +"\n")
+        file.write("back="+ (l_gear[3] if l_gear[3][0]!="L" else l_gear[3][1:]) +"\n")
+        file.write("chest="+ (l_gear[4] if l_gear[4][0]!="L" else l_gear[4][1:]) +"\n")
+        file.write("wrists="+ (l_gear[5] if l_gear[5][0]!="L" else l_gear[5][1:]) +"\n")
+        file.write("hands="+ (l_gear[6] if l_gear[6][0]!="L" else l_gear[6][1:]) +"\n")
+        file.write("waist="+ (l_gear[7] if l_gear[7][0]!="L" else l_gear[7][1:]) +"\n")
+        file.write("legs="+ (l_gear[8] if l_gear[8][0]!="L" else l_gear[8][1:]) +"\n")
+        file.write("feet="+ (l_gear[9] if l_gear[9][0]!="L" else l_gear[9][1:]) +"\n")
+        file.write("finger1="+ (l_gear[10] if l_gear[10][0]!="L" else l_gear[10][1:]) +"\n")
+        file.write("finger2="+ (l_gear[11] if l_gear[11][0]!="L" else l_gear[11][1:]) +"\n")
+        file.write("trinket1="+ (l_gear[12] if l_gear[12][0]!="L" else l_gear[12][1:]) +"\n")
+        file.write("trinket2="+ (l_gear[13] if l_gear[13][0]!="L" else l_gear[13][1:]) +"\n")
+        file.write("main_hand="+l_gear[14]+"\n")
+        if oh==1:
+            file.write("off_hand="+l_gear[15]+"\n\n")
+        else:
+            file.write("\n")
     c_profileid+=1
     return()
 
+
+
+if len(sys.argv)>2:
+    elements=sys.argv[2].split(',')
+    handlePermutation(elements)
+    
 file=open('out.simc','w')
 if len(l_head)+len(l_neck)+len(l_shoulders)+len(l_back)+len(l_chest)+len(l_wrists)+len(l_hands)+len(l_waist)+len(l_legs)+len(l_feet)+len(l_finger1)+len(l_finger2)+len(l_trinket1)+len(l_trinket2)+len(l_main_hand)+len(l_off_hand)!=16:
     l_gear=["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
