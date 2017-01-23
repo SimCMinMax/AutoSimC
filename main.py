@@ -120,8 +120,8 @@ def handlePermutation(elements):
 
 #check if permutation is valid
 def checkUsability():
-    legmin=int(sys.argv[3][0] if len(sys.argv)==4 else "0")
-    legmax=int(sys.argv[3][2] if (len(sys.argv)==4 and len(sys.argv[3])==3) else "20")
+    legmin=int(sys.argv[4][0] if len(sys.argv)==5 else "0")
+    legmax=int(sys.argv[4][2] if (len(sys.argv)==5 and len(sys.argv[4])==3) else "20")
     nbLeg=0
     for a in range(len(l_gear)):
         if l_gear[a][0]=="L":
@@ -210,11 +210,11 @@ def scpout(oh):
 
 
 
-if len(sys.argv)>2:
-    elements=sys.argv[2].split(',')
+if len(sys.argv)>3:
+    elements=sys.argv[3].split(',')
     handlePermutation(elements)
     
-file=open('out.simc','w')
+file=open(sys.argv[2],'w')
 if len(l_head)+len(l_neck)+len(l_shoulders)+len(l_back)+len(l_chest)+len(l_wrists)+len(l_hands)+len(l_waist)+len(l_legs)+len(l_feet)+len(l_finger1)+len(l_finger2)+len(l_trinket1)+len(l_trinket2)+len(l_main_hand)+len(l_off_hand)!=16:
     l_gear=["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
     c_profilemaxid = len(l_head)*len(l_neck)*len(l_shoulders)*len(l_back)*len(l_chest)*len(l_wrists)*len(l_hands)*len(l_waist)*len(l_legs)*len(l_feet)*len(l_finger1)*len(l_finger2)*len(l_trinket1)*len(l_trinket2)*len(l_main_hand)*len(l_off_hand)
