@@ -1,0 +1,1 @@
+python main.py settings.ini out_T19.simc

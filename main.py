@@ -120,8 +120,13 @@ def handlePermutation(elements):
 
 #check if permutation is valid
 def checkUsability():
+    if l_gear[10]==l_gear[11]:
+        return "same ring"
+    if l_gear[12]==l_gear[13]:
+        return "same trinket"
+
     legmin=int(sys.argv[4][0] if len(sys.argv)==5 else "0")
-    legmax=int(sys.argv[4][2] if (len(sys.argv)==5 and len(sys.argv[4])==3) else "20")
+    legmax=int(sys.argv[4][2] if (len(sys.argv)==5 and len(sys.argv[4])==3) else "2")
     nbLeg=0
     for a in range(len(l_gear)):
         if l_gear[a][0]=="L":
@@ -130,11 +135,6 @@ def checkUsability():
         return str(nbLeg)+" leg (too low)"
     if nbLeg>legmax:
         return str(nbLeg)+" leg (too much)"
-		
-    if l_gear[10]==l_gear[11]:
-        return "same ring"
-    if l_gear[12]==l_gear[13]:
-        return "same trinket"
     
     return ""
 
