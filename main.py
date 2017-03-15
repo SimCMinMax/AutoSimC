@@ -120,8 +120,13 @@ def handlePermutation(elements):
 
 #check if permutation is valid
 def checkUsability():
-    legmin=int(sys.argv[3][0] if len(sys.argv)==4 else "0")
-    legmax=int(sys.argv[3][2] if (len(sys.argv)==4 and len(sys.argv[3])==3) else "20")
+    if l_gear[10]==l_gear[11]:
+        return "same ring"
+    if l_gear[12]==l_gear[13]:
+        return "same trinket"
+
+    legmin=int(sys.argv[4][0] if len(sys.argv)==5 else "0")
+    legmax=int(sys.argv[4][2] if (len(sys.argv)==5 and len(sys.argv[4])==3) else "2")
     nbLeg=0
     for a in range(len(l_gear)):
         if l_gear[a][0]=="L":
@@ -130,11 +135,6 @@ def checkUsability():
         return str(nbLeg)+" leg (too low)"
     if nbLeg>legmax:
         return str(nbLeg)+" leg (too much)"
-		
-    if l_gear[10]==l_gear[11]:
-        return "same ring"
-    if l_gear[12]==l_gear[13]:
-        return "same trinket"
     
     return ""
 
@@ -143,9 +143,9 @@ def scpout(oh):
     global c_profileid
     result = checkUsability()
     if result!="":
-        print(str(c_profileid)+' Impossible combination : '+result)
+        print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid)+' Error:'+result)
     else:
-        print(c_profileid)
+        print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid))
         if c_profilemaxid < 100:
             if c_profileid > 0 and c_profileid < 10:
                 file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
@@ -178,6 +178,21 @@ def scpout(oh):
                 file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
             else:
                 file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        elif c_profilemaxid < 1000000:
+            if c_profileid > 0 and c_profileid < 10:
+                file.write(c_class+"="+c_profilename+"_00000"+str(c_profileid)+"\n")
+            elif c_profileid < 100:
+                file.write(c_class+"="+c_profilename+"_0000"+str(c_profileid)+"\n")
+            elif c_profileid < 1000:
+                file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
+            elif c_profileid < 10000:
+                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
+            elif c_profileid < 100000:
+                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")    
+            else:
+                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        else:
+            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
         file.write("specialization="+c_spec+"\n")
         file.write("race="+c_race+"\n")
         file.write("level="+c_level+"\n")
@@ -210,11 +225,11 @@ def scpout(oh):
 
 
 
-if len(sys.argv)>2:
-    elements=sys.argv[2].split(',')
+if len(sys.argv)>3:
+    elements=sys.argv[3].split(',')
     handlePermutation(elements)
     
-file=open('out.simc','w')
+file=open(sys.argv[2],'w')
 if len(l_head)+len(l_neck)+len(l_shoulders)+len(l_back)+len(l_chest)+len(l_wrists)+len(l_hands)+len(l_waist)+len(l_legs)+len(l_feet)+len(l_finger1)+len(l_finger2)+len(l_trinket1)+len(l_trinket2)+len(l_main_hand)+len(l_off_hand)!=16:
     l_gear=["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
     c_profilemaxid = len(l_head)*len(l_neck)*len(l_shoulders)*len(l_back)*len(l_chest)*len(l_wrists)*len(l_hands)*len(l_waist)*len(l_legs)*len(l_feet)*len(l_finger1)*len(l_finger2)*len(l_trinket1)*len(l_trinket2)*len(l_main_hand)*len(l_off_hand)
