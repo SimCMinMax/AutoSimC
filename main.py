@@ -142,57 +142,15 @@ def checkUsability():
 def scpout(oh):
     global c_profileid
     result = checkUsability()
+    digits = len(str(c_profilemaxid))
+    mask = '00000000000000000000000000000000000'
+    maskedProfileID=(mask+str(c_profileid))[-digits:]
+    #x[-2:]
     if result!="":
         print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid)+' Error:'+result)
     else:
         print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid))
-        if c_profilemaxid < 100:
-            if c_profileid > 0 and c_profileid < 10:
-                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-            else:
-                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-        elif c_profilemaxid < 1000:
-            if c_profileid > 0 and c_profileid < 10:
-                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-            elif c_profileid < 100:
-                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-            else:
-                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-        elif c_profilemaxid < 10000:
-            if c_profileid > 0 and c_profileid < 10:
-                file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
-            elif c_profileid < 100:
-                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-            elif c_profileid < 1000:
-                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-            else:
-                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-        elif c_profilemaxid < 100000:
-            if c_profileid > 0 and c_profileid < 10:
-                file.write(c_class+"="+c_profilename+"_0000"+str(c_profileid)+"\n")
-            elif c_profileid < 100:
-                file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
-            elif c_profileid < 1000:
-                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-            elif c_profileid < 10000:
-                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")
-            else:
-                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-        elif c_profilemaxid < 1000000:
-            if c_profileid > 0 and c_profileid < 10:
-                file.write(c_class+"="+c_profilename+"_00000"+str(c_profileid)+"\n")
-            elif c_profileid < 100:
-                file.write(c_class+"="+c_profilename+"_0000"+str(c_profileid)+"\n")
-            elif c_profileid < 1000:
-                file.write(c_class+"="+c_profilename+"_000"+str(c_profileid)+"\n")
-            elif c_profileid < 10000:
-                file.write(c_class+"="+c_profilename+"_00"+str(c_profileid)+"\n")
-            elif c_profileid < 100000:
-                file.write(c_class+"="+c_profilename+"_0"+str(c_profileid)+"\n")    
-            else:
-                file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
-        else:
-            file.write(c_class+"="+c_profilename+"_"+str(c_profileid)+"\n")
+        file.write(c_class+"="+c_profilename+"_"+maskedProfileID+"\n")
         file.write("specialization="+c_spec+"\n")
         file.write("race="+c_race+"\n")
         file.write("level="+c_level+"\n")
