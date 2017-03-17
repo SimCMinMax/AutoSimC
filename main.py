@@ -89,7 +89,7 @@ def addToTab(x):
         l_back.append(stringToAdd)
     elif x[0]=='chest': 
         l_chest.append(stringToAdd)
-    elif ex[0]=='wrist': 
+    elif x[0]=='wrist': 
         l_wrists.append(stringToAdd)
     elif x[0]=='hands': 
         l_hands.append(stringToAdd)
@@ -145,7 +145,6 @@ def scpout(oh):
     digits = len(str(c_profilemaxid))
     mask = '00000000000000000000000000000000000'
     maskedProfileID=(mask+str(c_profileid))[-digits:]
-    #x[-2:]
     if result!="":
         print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid)+' Error:'+result)
     else:
