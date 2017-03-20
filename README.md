@@ -7,7 +7,7 @@ Python script to create multiple profiles for SimulationCraft to find Best-in-Sl
 You must have python installed on you computer for this to work.
 - Download the project and extract it.
 - Open Settings.ini and enter parameters dependings on your character (see below for more informations). Save and close.
-- Launch execute.bat (see below for more parameters)
+- Launch launch.bat (see below for more parameters)
 - The .simc file is generated and ready to be used with Simc.
 - If you are using Simc GUI, open the .simc file with notepad and copy/paste the text in simc
 
@@ -23,14 +23,14 @@ Example :
 
     other=initial_chi=4\nactions+=/stance,choose=fierce_tiger
 
-For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to permute different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
+For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
 Example : 
 
     neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
 
 You can also use SimPermut to generate the string directly with the gear you have equiped and in you bag (See below).
 
-## Execute.bat
+## Launch.bat
 Command :
 
     python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]]
@@ -40,7 +40,7 @@ What can be changed (command prefix are case sensistive):
 - -o outputFile : this is the output file. As the input file, you can have different output file (ie : out.simc)
   
   
-After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class
+After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
 - -l Leg_List : List of legendaries to add to the template. Format :
 
     "leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."
@@ -50,7 +50,7 @@ After are parameters that I added to help Aethys build SimulationCraft's best le
 - Max_Leg : Maximum number of lengendaries in the permutations. Default : 2
 
 ## SimPermut complementarity
-SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allow you to extract a settings.ini file to directly calculate the profiles with the items you have in your bags.
+SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to extract a settings.ini file to directly calculate the profiles with the items you have in your bags.
 Just copy the text you get in SimPermut and paste it in you settings.ini file (erase what was already in it) and launch the script as you described above.
 
 ## Known issues and developement plan
