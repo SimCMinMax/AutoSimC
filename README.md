@@ -33,15 +33,15 @@ You can also use SimPermut to generate the string directly with the gear you hav
 ## Execute.bat
 Command :
 
-    python main.py input output [Leg_list [Min_leg]:[Max_Leg]]
+    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]]
 
-What can be changed :
-- Input : This is the input file. You can have multiple settings.ini files in case you have multiple char/spec/want to test different things. just type the settings file. (ie : settings.ini)
-- Output : this is the output file. As the input file, you can have different output file (ie : out.simc)
+What can be changed (command prefix are case sensistive):
+- -i inputFile : This is the input file. You can have multiple settings.ini files in case you have multiple char/spec/want to test different things. just type the settings file. (ie : settings.ini)
+- -o outputFile : this is the output file. As the input file, you can have different output file (ie : out.simc)
   
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class
-- Leg_List : List of legendaries to add to the template. Format :
+- -l Leg_List : List of legendaries to add to the template. Format :
 
     "leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."
 

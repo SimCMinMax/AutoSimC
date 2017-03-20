@@ -1,72 +1,13 @@
-#from lib_enchant_table import *
-
-# Read settings.ini to init vars
 import configparser
 import sys
-config = configparser.ConfigParser()
-config.read(sys.argv[1])
-profile = config['Profile']
-gear = config['Gear']
 
-# Var init
+#Var init with default value
 c_profileid=0
 c_profilemaxid=0
 legmin=0
 legmax=2
-
-
-# Read settings.ini
-#   Profile
-c_profilename=profile['profilename']
-c_profileid=int(profile['profileid'])
-c_class=profile['class']
-c_race=profile['race']
-c_level=profile['level']
-c_spec=profile['spec']
-c_role=profile['role']
-c_position=profile['position']
-c_talents=profile['talents']
-c_artifact=profile['artifact']
-c_other=profile['other']
-
-#   Gear
-c_head=gear['head']
-c_neck=gear['neck']
-if config.has_option('Gear', 'shoulders'): c_shoulders=gear['shoulders']
-else: c_shoulders=gear['shoulder']
-c_back=gear['back']
-c_chest=gear['chest']
-if config.has_option('Gear', 'wrists'): c_wrists=gear['wrists']
-else: c_wrists=gear['wrist']
-c_hands=gear['hands']
-c_waist=gear['waist']
-c_legs=gear['legs']
-c_feet=gear['feet']
-c_finger1=gear['finger1']
-c_finger2=gear['finger2']
-c_trinket1=gear['trinket1']
-c_trinket2=gear['trinket2']
-c_main_hand=gear['main_hand']
-if config.has_option('Gear', 'off_hand'): c_off_hand=gear['off_hand']
-else: c_off_hand=""
-
-# Split vars to lists
-l_head=c_head.split('|')
-l_neck=c_neck.split('|')
-l_shoulders=c_shoulders.split('|')
-l_back=c_back.split('|')
-l_chest=c_chest.split('|')
-l_wrists=c_wrists.split('|')
-l_hands=c_hands.split('|')
-l_waist=c_waist.split('|')
-l_legs=c_legs.split('|')
-l_feet=c_feet.split('|')
-l_finger1=c_finger1.split('|')
-l_finger2=c_finger2.split('|')
-l_trinket1=c_trinket1.split('|')
-l_trinket2=c_trinket2.split('|')
-l_main_hand=c_main_hand.split('|')
-l_off_hand=c_off_hand.split('|')
+outputFileName="settings.ini"
+inputFileName="out.simc"
 
 # Add legendary to the right tab
 def addToTab(x):
@@ -169,19 +110,91 @@ def scpout(oh):
 
 # Manage command line parameters
 def handleCommandLine():
+    global inputFileName
     global outputFileName
     global legmin
     global legmax
-    legmin=int(sys.argv[4][0] if len(sys.argv)==5 else "0")
-    legmax=int(sys.argv[4][2] if (len(sys.argv)==5 and len(sys.argv[4])==3) else "2")
-    if len(sys.argv)>3:
-        elements=sys.argv[3].split(',')
-        handlePermutation(elements)
-    outputFileName=sys.argv[2]
     
-# Program start
-handleCommandLine()
+    for a in range(1,len(sys.argv)):
+        if sys.argv[a]=="-i":inputFileName=sys.argv[a+1]
+        if sys.argv[a]=="-o":outputFileName=sys.argv[a+1]
+        if sys.argv[a]=="-l":
+            elements=sys.argv[a+1].split(',')
+            handlePermutation(elements) 
+            #number of leg
+            if sys.argv[a+2][0]!="-":
+                legNb =sys.argv[a+2].split(':')
+                legmin=int(legNb[0])
+                legmax=int(legNb[1])
+    
+    
+#########################   
+#### Program Start ###### 
+#########################   
+    
+handleCommandLine() 
 
+# Read settings.ini to init vars
+config = configparser.ConfigParser()
+config.read(inputFileName)
+profile = config['Profile']
+gear = config['Gear']
+
+# Read settings.ini
+#   Profile
+c_profilename=profile['profilename']
+c_profileid=int(profile['profileid'])
+c_class=profile['class']
+c_race=profile['race']
+c_level=profile['level']
+c_spec=profile['spec']
+c_role=profile['role']
+c_position=profile['position']
+c_talents=profile['talents']
+c_artifact=profile['artifact']
+c_other=profile['other']
+
+#   Gear
+c_head=gear['head']
+c_neck=gear['neck']
+if config.has_option('Gear', 'shoulders'): c_shoulders=gear['shoulders']
+else: c_shoulders=gear['shoulder']
+c_back=gear['back']
+c_chest=gear['chest']
+if config.has_option('Gear', 'wrists'): c_wrists=gear['wrists']
+else: c_wrists=gear['wrist']
+c_hands=gear['hands']
+c_waist=gear['waist']
+c_legs=gear['legs']
+c_feet=gear['feet']
+c_finger1=gear['finger1']
+c_finger2=gear['finger2']
+c_trinket1=gear['trinket1']
+c_trinket2=gear['trinket2']
+c_main_hand=gear['main_hand']
+if config.has_option('Gear', 'off_hand'): c_off_hand=gear['off_hand']
+else: c_off_hand=""
+
+# Split vars to lists
+l_head=c_head.split('|')
+l_neck=c_neck.split('|')
+l_shoulders=c_shoulders.split('|')
+l_back=c_back.split('|')
+l_chest=c_chest.split('|')
+l_wrists=c_wrists.split('|')
+l_hands=c_hands.split('|')
+l_waist=c_waist.split('|')
+l_legs=c_legs.split('|')
+l_feet=c_feet.split('|')
+l_finger1=c_finger1.split('|')
+l_finger2=c_finger2.split('|')
+l_trinket1=c_trinket1.split('|')
+l_trinket2=c_trinket2.split('|')
+l_main_hand=c_main_hand.split('|')
+l_off_hand=c_off_hand.split('|')
+
+
+# Make permutations
 outputFile=open(outputFileName,'w')
 l_gear=["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
 c_profilemaxid = len(l_head)*len(l_neck)*len(l_shoulders)*len(l_back)*len(l_chest)*len(l_wrists)*len(l_hands)*len(l_waist)*len(l_legs)*len(l_feet)*len(l_finger1)*len(l_finger2)*len(l_trinket1)*len(l_trinket2)*len(l_main_hand)*len(l_off_hand)
