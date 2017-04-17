@@ -50,9 +50,9 @@ def handlePermutation(elements):
 # Check if permutation is valid
 def checkUsability():
     if l_gear[10]==l_gear[11]:
-        return "same ring"
+        return " Same ring"
     if l_gear[12]==l_gear[13]:
-        return "same trinket"
+        return " Same trinket"
 
     
     nbLeg=0
@@ -74,7 +74,7 @@ def scpout(oh):
     mask = '00000000000000000000000000000000000'
     maskedProfileID=(mask+str(c_profileid))[-digits:]
     if result!="":
-        print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid)+' Error:'+result)
+        print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid)+' Profile not printed:'+result)
     else:
         print("Profile:"+str(c_profileid)+"/"+str(c_profilemaxid))
         outputFile.write(c_class+"="+c_profilename+"_"+maskedProfileID+"\n")
