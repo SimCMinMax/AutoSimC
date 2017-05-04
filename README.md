@@ -1,4 +1,11 @@
-AutoSimC
+AutoSimC_Optimized
+
+This is a fork of the original AutoSimC (https://github.com/SimCMinMax/AutoSimC)
+It optimizes permutations for ring-trinket-combinations and therefore reduces the sample size by up to 75%.
+
+Explanation:
+The original version simulates every combination of rings and trinkets. Therefore, if having 3 rings available, it calculates (12,13,23,21,31,32). This optimized version removes the duplicates (12=21), cutting result-size in half. Trinkets are handled accordingly, therefore 1/2*1/2=1/4 calculations are needed.
+
 ========
 
 Python script to create multiple profiles for SimulationCraft to find Best-in-Slot and best enchants/gems/talents combination.
