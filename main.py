@@ -291,7 +291,7 @@ for a in range(len(l_head)):
                                             fingers = l_fingers[k].split('|')
                                             l_gear[10] = fingers[0]
                                             l_gear[11] = fingers[1]
-                                            for k in range(len(l_trinkets)):
+                                            for l in range(len(l_trinkets)):
                                                 trinkets = l_trinkets[k].split('|')
                                                 l_gear[12] = trinkets[0]
                                                 l_gear[13] = trinkets[1]
