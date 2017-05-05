@@ -1,5 +1,4 @@
 AutoSimC
-
 ========
 
 Python script to create multiple profiles for SimulationCraft to find Best-in-Slot and best enchants/gems/talents combination.
