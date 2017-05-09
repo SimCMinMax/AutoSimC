@@ -292,7 +292,7 @@ for a in range(len(l_head)):
                                             l_gear[10] = fingers[0]
                                             l_gear[11] = fingers[1]
                                             for l in range(len(l_trinkets)):
-                                                trinkets = l_trinkets[k].split('|')
+                                                trinkets = l_trinkets[l].split('|')
                                                 l_gear[12] = trinkets[0]
                                                 l_gear[13] = trinkets[1]
                                                 if c_off_hand != "":
