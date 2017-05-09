@@ -1,14 +1,23 @@
 import configparser
 import sys
+import datetime
 
 # Var init with default value
-c_profileid = 0
-c_profilemaxid = 0
-legmin = 0
-legmax = 2
-outputFileName = "settings.ini"
-inputFileName = "out.simc"
+c_profileid     = 0
+c_profilemaxid  = 0
+legmin          = 0
+legmax          = 2
+outputFileName  = "settings.ini"
+inputFileName   = "out.simc"
+logFileName     = "logs.txt"
+errorFileName   = "error.txt"
 
+#   Error handle
+def printLog(stringToPrint):
+    print(stringToPrint)
+    today = datetime.date.today()
+    logFile.write(str(today)+":"+stringToPrint+ "\n")
+    
 
 # Add legendary to the right tab
 def addToTab(x):
@@ -69,7 +78,6 @@ def checkUsability():
 
     return ""
 
-
 # Print a simc profile
 def scpout(oh):
     global c_profileid
@@ -78,9 +86,9 @@ def scpout(oh):
     mask = '00000000000000000000000000000000000'
     maskedProfileID = (mask + str(c_profileid))[-digits:]
     if result != "":
-        print("Profile:" + str(c_profileid) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
+        printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
     else:
-        print("Profile:" + str(c_profileid) + "/" + str(c_profilemaxid))
+        print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
         outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
         outputFile.write("specialization=" + c_spec + "\n")
         outputFile.write("race=" + c_race + "\n")
@@ -121,8 +129,12 @@ def handleCommandLine():
     global legmax
 
     for a in range(1, len(sys.argv)):
-        if sys.argv[a] == "-i": inputFileName = sys.argv[a + 1]
-        if sys.argv[a] == "-o": outputFileName = sys.argv[a + 1]
+        if sys.argv[a] == "-i": 
+            inputFileName = sys.argv[a + 1]
+            printLog("Input file changed to "+inputFileName)
+        if sys.argv[a] == "-o": 
+            outputFileName = sys.argv[a + 1]
+            printLog("Output file changed to "+outputFileName)
         if sys.argv[a] == "-l":
             elements = sys.argv[a + 1].split(',')
             handlePermutation(elements)
@@ -131,11 +143,14 @@ def handleCommandLine():
                 legNb = sys.argv[a + 2].split(':')
                 legmin = int(legNb[0])
                 legmax = int(legNb[1])
+                printLog("Set legendary to  "+str(legmin)+"/"+str(legmax))
 
 
 #########################   
 #### Program Start ###### 
 #########################   
+sys.stderr = open(errorFileName, 'w')
+logFile = open(logFileName, 'w')
 
 handleCommandLine()
 
@@ -266,6 +281,7 @@ l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "wais
 c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
     l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
     l_off_hand)
+printLog("Starting permutations : "+str(c_profilemaxid))   
 for a in range(len(l_head)):
     l_gear[0] = l_head[a]
     for b in range(len(l_neck)):
@@ -305,4 +321,7 @@ for a in range(len(l_head)):
                                                     for o in range(len(l_main_hand)):
                                                         l_gear[14] = l_main_hand[o]
                                                         scpout(0)
+
+printLog("Ending permutations")
 outputFile.close
+logFile.close
