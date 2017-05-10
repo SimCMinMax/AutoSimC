@@ -3,26 +3,32 @@ import sys
 import datetime
 
 # Var init with default value
-c_profileid     = 0
-c_profilemaxid  = 0
-legmin          = 0
-legmax          = 2
-outputFileName  = "settings.ini"
-inputFileName   = "out.simc"
-logFileName     = "logs.txt"
-errorFileName   = "error.txt"
+c_profileid = 0
+c_profilemaxid = 0
+legmin = 0
+legmax = 2
+outputFileName = "settings.ini"
+inputFileName = "out.simc"
+logFileName = "logs.txt"
+errorFileName = "error.txt"
+# quiet_mode for faster output; console is very slow
+b_quiet = 0
+
 
 #   Error handle
 def printLog(stringToPrint):
-    print(stringToPrint)
+    if not b_quiet:
+        # should this console-output be here at all? outputting to file AND console could be handled separately
+        # e.g. via simple debug-toggle (if b_debug: print(...))
+        print(stringToPrint)
     today = datetime.date.today()
-    logFile.write(str(today)+":"+stringToPrint+ "\n")
-    
+    logFile.write(str(today) + ":" + stringToPrint + "\n")
+
 
 # Add legendary to the right tab
 def addToTab(x):
     stringToAdd = "L,id=" + x[1] + (",bonus_id=" + x[2] if x[2] != "" else "") + (
-    ",enchant_id=" + x[3] if x[3] != "" else "") + (",gem_id=" + x[4] if x[4] != "" else "")
+        ",enchant_id=" + x[3] if x[3] != "" else "") + (",gem_id=" + x[4] if x[4] != "" else "")
     if x[0] == 'head':
         l_head.append(stringToAdd)
     elif x[0] == 'neck':
@@ -78,6 +84,7 @@ def checkUsability():
 
     return ""
 
+
 # Print a simc profile
 def scpout(oh):
     global c_profileid
@@ -88,7 +95,9 @@ def scpout(oh):
     if result != "":
         printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
     else:
-        print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
+        if not b_quiet:
+            print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
+        outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
         outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
         outputFile.write("specialization=" + c_spec + "\n")
         outputFile.write("race=" + c_race + "\n")
@@ -97,7 +106,8 @@ def scpout(oh):
         outputFile.write("position=" + c_position + "\n")
         outputFile.write("talents=" + c_talents + "\n")
         outputFile.write("artifact=" + c_artifact + "\n")
-        if c_other != "": outputFile.write(c_other + "\n")
+        if c_other != "":
+            outputFile.write(c_other + "\n")
         outputFile.write("head=" + (l_gear[0] if l_gear[0][0] != "L" else l_gear[0][1:]) + "\n")
         outputFile.write("neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
         outputFile.write("shoulders=" + (l_gear[2] if l_gear[2][0] != "L" else l_gear[2][1:]) + "\n")
@@ -127,14 +137,15 @@ def handleCommandLine():
     global outputFileName
     global legmin
     global legmax
+    global b_quiet
 
     for a in range(1, len(sys.argv)):
-        if sys.argv[a] == "-i": 
+        if sys.argv[a] == "-i":
             inputFileName = sys.argv[a + 1]
-            printLog("Input file changed to "+inputFileName)
-        if sys.argv[a] == "-o": 
+            printLog("Input file changed to " + inputFileName)
+        if sys.argv[a] == "-o":
             outputFileName = sys.argv[a + 1]
-            printLog("Output file changed to "+outputFileName)
+            printLog("Output file changed to " + outputFileName)
         if sys.argv[a] == "-l":
             elements = sys.argv[a + 1].split(',')
             handlePermutation(elements)
@@ -143,7 +154,10 @@ def handleCommandLine():
                 legNb = sys.argv[a + 2].split(':')
                 legmin = int(legNb[0])
                 legmax = int(legNb[1])
-                printLog("Set legendary to  "+str(legmin)+"/"+str(legmax))
+                printLog("Set legendary to  " + str(legmin) + "/" + str(legmax))
+        if sys.argv[a] == "-quiet":
+            printLog("Quiet-Mode enabled")
+            b_quiet = 1
 
 
 #########################   
@@ -277,11 +291,11 @@ outputFile = open(outputFileName, 'w')
 l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
           "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
 
-#changed according to merged fields
+# changed according to merged fields
 c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
     l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
     l_off_hand)
-printLog("Starting permutations : "+str(c_profilemaxid))   
+printLog("Starting permutations : " + str(c_profilemaxid))
 for a in range(len(l_head)):
     l_gear[0] = l_head[a]
     for b in range(len(l_neck)):
