@@ -36,11 +36,12 @@ You can also use SimPermut to generate the string directly with the gear you hav
 ## Launch.bat
 Command :
 
-    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]]
+    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]] [-quiet]
 
 What can be changed (command prefix are case sensistive):
 - -i inputFile : This is the input file. You can have multiple settings.ini files in case you have multiple char/spec/want to test different things. just type the settings file. (ie : settings.ini)
 - -o outputFile : this is the output file. As the input file, you can have different output file (ie : out.simc)
+- -quiet : Option for disabling Console-output. Generates the outputfile much faster for large permuation-size
   
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
@@ -58,7 +59,6 @@ Just copy the text you get in SimPermut and paste it in you settings.ini file (e
 
 ## Known issues and developement plan
 - Better management of command line  
-- Reduce number of copies with ring/trinket inversion
 
 [-Relic comparison]
 
