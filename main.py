@@ -13,6 +13,7 @@ logFileName = "logs.txt"
 errorFileName = "error.txt"
 # quiet_mode for faster output; console is very slow
 b_quiet = 0
+i_generatedProfiles = 0
 
 
 #   Error handle
@@ -88,16 +89,21 @@ def checkUsability():
 # Print a simc profile
 def scpout(oh):
     global c_profileid
+    global i_generatedProfiles
     result = checkUsability()
     digits = len(str(c_profilemaxid))
     mask = '00000000000000000000000000000000000'
     maskedProfileID = (mask + str(c_profileid))[-digits:]
+    # output status every 5000 permutations, user should get at least a minor progress shown; also doesn´t slow down
+    # computation very much
+    if int(maskedProfileID) % 5000 == 0:
+        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
+            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
     if result != "":
         printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
     else:
         if not b_quiet:
             print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
-        outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
         outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
         outputFile.write("specialization=" + c_spec + "\n")
         outputFile.write("race=" + c_race + "\n")
@@ -127,6 +133,7 @@ def scpout(oh):
             outputFile.write("off_hand=" + l_gear[15] + "\n\n")
         else:
             outputFile.write("\n")
+        i_generatedProfiles += 1
     c_profileid += 1
     return ()
 
@@ -337,5 +344,10 @@ for a in range(len(l_head)):
                                                         scpout(0)
 
 printLog("Ending permutations")
+print("Generated permutations: " + str(i_generatedProfiles))
+if i_generatedProfiles > 10000:
+    user_input = input("-----> Beware: Computation with Simcraft might take a long time with this amount of profiles! <----- (Press Enter)")
+if i_generatedProfiles > 100000:
+    user_input = input("-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter)")
 outputFile.close
 logFile.close
