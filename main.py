@@ -1,19 +1,30 @@
 import configparser
 import sys
 import datetime
+import os
+
+import splitter
 
 # Var init with default value
 c_profileid = 0
 c_profilemaxid = 0
 legmin = 0
 legmax = 2
-outputFileName = "settings.ini"
-inputFileName = "out.simc"
+# this filenaming is confusing as hell! why should input be named out.simc and output named settings.ini by default?
+# imho scrap this scheme completely and rely solely on commandline-inputs
+# outputFileName = "settings.ini"
+# inputFileName = "out.simc"
+outputFileName = "output.simc"
+# txt, because standard-user cannot be trusted
+inputFileName = "input.txt"
+
 logFileName = "logs.txt"
 errorFileName = "error.txt"
 # quiet_mode for faster output; console is very slow
 b_quiet = 0
 i_generatedProfiles = 0
+
+b_simcraft_enabled = False
 
 
 #   Error handle
@@ -145,14 +156,38 @@ def handleCommandLine():
     global legmin
     global legmax
     global b_quiet
+    global b_simcraft_enabled
+
+    # parameter-list, so they are "protected" if user enters wrong commandline
+    set_parameters = set()
+    set_parameters.add("-i")
+    set_parameters.add("-o")
+    set_parameters.add("-l")
+    set_parameters.add("-quiet")
+    set_parameters.add("-sim")
 
     for a in range(1, len(sys.argv)):
         if sys.argv[a] == "-i":
             inputFileName = sys.argv[a + 1]
-            printLog("Input file changed to " + inputFileName)
+            if inputFileName not in set_parameters:
+                if os.path.isfile(inputFileName):
+                    printLog("Input file changed to " + inputFileName)
+                else:
+                    print("Error: Input file does not exist")
+                    sys.exit(1)
+            else:
+                print("Error: No or invalid input file declared: " + inputFileName)
+                sys.exit(1)
         if sys.argv[a] == "-o":
             outputFileName = sys.argv[a + 1]
-            printLog("Output file changed to " + outputFileName)
+            if outputFileName not in set_parameters:
+                printLog("Output file changed to " + outputFileName)
+                # if os.path.isfile(outputFileName):
+                #    print("Error: Output file already exists")
+                #    sys.exit(1)
+            else:
+                print("Error: No or invalid output file declared: " + outputFileName)
+                sys.exit(1)
         if sys.argv[a] == "-l":
             elements = sys.argv[a + 1].split(',')
             handlePermutation(elements)
@@ -165,6 +200,9 @@ def handleCommandLine():
         if sys.argv[a] == "-quiet":
             printLog("Quiet-Mode enabled")
             b_quiet = 1
+        if sys.argv[a] == "-sim":
+            printLog("SimulationCraft-Mode enabled")
+            b_simcraft_enabled = True
 
 
 #########################   
@@ -346,8 +384,32 @@ for a in range(len(l_head)):
 printLog("Ending permutations")
 print("Generated permutations: " + str(i_generatedProfiles))
 if i_generatedProfiles > 10000:
-    user_input = input("-----> Beware: Computation with Simcraft might take a long time with this amount of profiles! <----- (Press Enter)")
+    user_input = input(
+        "-----> Beware: Computation with Simcraft might take a long time with this amount of profiles! <----- (Press Enter)")
 if i_generatedProfiles > 100000:
-    user_input = input("-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter)")
-outputFile.close
-logFile.close
+    user_input = input(
+        "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter)")
+outputFile.close()
+logFile.close()
+
+# here comes the fun part, which makes autosimc a true automatic simcraft-tool
+# it splits the generated output-file into smaller chunks (default is 50), so they can be simmed faster
+# and memory-efficient, with small iterations (i=100)to generate fast results
+# afterwards, it grabs the n top results and sims these again, this time with i=1000 iterations
+# afterwards, for a third time, the top 3 results get simmed with i=10000, html-output and scalefactors enabled
+
+if b_simcraft_enabled:
+    # split into chunks of 50
+    splitter.split(outputFileName, 50)
+    # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
+    splitter.sim(splitter.subdir1, 100, 1)
+
+    # now grab the top 100 of these and put the profiles into the 2nd temp_dir
+    splitter.grabBest(100, splitter.subdir1, splitter.subdir2, outputFileName)
+    # where they are simmed again, now with 1000 iterations
+    splitter.sim(splitter.subdir2, 1000, 1)
+
+    # again, for a third time, get top 3 profiles and put them into subdir3
+    splitter.grabBest(3, splitter.subdir2, splitter.subdir3, outputFileName)
+    # sim them finally with all options enabled; html-output remains in this folder
+    splitter.sim(splitter.subdir3, 10000, 2)
