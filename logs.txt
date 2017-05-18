@@ -1,0 +1,13 @@
+2017-05-18:Input file changed to input.txt
+2017-05-18:Output file changed to output2.simc
+2017-05-18:Quiet-Mode enabled
+2017-05-18:SimCraft-Mode enabled
+2017-05-18:Starting permutations : 13440
+2017-05-18:Ending permutations
+Using: Analysis.json
+Mode2 chosen
+Sim: Chosen Class/Spec: Fury Warrior
+Sim: Number of permutations: 13440
+Sim: Chosen calculation:11
+Sim: (11): Target Error: 1.0%:Time/Profile:0.32 => Est. calc. time: 4340.0 sec
+Estimated calculation time: 4340.0

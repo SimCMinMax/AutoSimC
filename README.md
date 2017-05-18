@@ -37,13 +37,20 @@ You can also use SimPermut to generate the string directly with the gear you hav
 ## Launch.bat
 Command :
 
-    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]] [-quiet] [-sim]
+    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]] [-quiet] [-sim [stage1|stage2|stage3]]
 
 What can be changed (command prefix are case sensitive):
 - -i inputFile : This is the input file. You can have multiple settings.ini files in case you have multiple char/spec/want to test different things. just type the settings file. (ie : input.txt)
 - -o outputFile : this is the output file. As the input file, you can have different output file (ie : out.simc)
 - -quiet : Option for disabling Console-output. Generates the outputfile much faster for large permuation-size
 - -sim : Enabled automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations. Edit the simcraft-path in splitter.py to point to your simc-installation. The result.html will be saved in temp_step3.
+         There are 2 modes available for calculating the possible huge amount of permutations:
+         Static and dynamic mode:
+         Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are 100, 1000 and 10000 for each stage.
+         Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.4, and 0.1 for the final stage 3.
+         (These numbers might be changed in future versions)
+         It is now also possible to "resume" at stage1, 2 or 3, if a previous stage has been fully calculated and generated a .result in the equivalent folder. Please use this feature with care.
+         (default: -sim stage1)
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
 - -l Leg_List : List of legendaries to add to the template. Format :
@@ -53,6 +60,12 @@ After are parameters that I added to help Aethys build SimulationCraft's best le
 (seperate each leg with a comma (",") and wrap everything with double quote (" " ")
 - Min_leg : Minimum number of legendaries in the permutations. Default : 0
 - Max_Leg : Maximum number of legendaries in the permutations. Default : 2
+
+## Analyzer:
+Included is Analyzer.py, which uses the standard-simc-profiles for each class to generate a Analysis.json (in profiles-folder), which represents calculation data for each class/spec.
+ It is used in the main-program to show the approximate calculation times, therefore it is only needed to be recalculated at major WoW- and Simcraft-updates, e.g. 7.2.5
+
+ Modules needed: marshmallow (pip install marshmallow) for generating json-files easier
 
 ## SimPermut complementarity
 SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to extract a settings.ini file to directly calculate the profiles with the items you have in your bags.
