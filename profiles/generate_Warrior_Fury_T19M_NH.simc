@@ -1,0 +1,40 @@
+# T19M_NH
+# Tier 19 Mythic Nighthold
+# * Ilvl Cap: 910
+# * Artifact Rank Cap: 54
+# * 3 Relics with max ilevel of 910
+# * No Legendaries (see Raid_T19x_Legendary.simc)
+# * No items from World Bosses / World Quests / BoEs
+# * Mythic+ gear is permitted up to the Mythic+ item level cap
+# * No Random Gems (ie. Bonus RNG Gem Slots)
+# * No Tertiary Stats
+# * No Hardcoded Stats (generally if an item gives wrong stats: either bonus_id is wrong, either the item no longer exists in-game)
+# * It is recommended to use enchant name (ex : ",enchant=binding_of_mastery") rather than id/hardcoded stats.
+
+
+# Warrior Fury T19M NH
+warrior="Warrior_Fury_T19M_NH"
+level=110
+race=troll
+role=attack
+position=back
+talents=2333232
+artifact=35:0:0:0:0:980:1:981:1:982:1:984:1:985:1:986:1:987:1:988:3:989:3:990:3:991:3:992:3:993:3:994:3:995:3:996:3:1357:1:1394:20
+spec=fury
+
+head=,id=138357,bonus_id=3519
+neck=radiant_string_of_scorpid_eyes,id=140898,bonus_id=3519,enchant=mark_of_the_hidden_satyr
+shoulders=,id=138363,bonus_id=3519
+back=,id=138374,bonus_id=3519,enchant=binding_of_strength
+chest=,id=140913,bonus_id=3519
+wrists=,id=140902,bonus_id=3519
+hands=,id=138354,bonus_id=3519
+waist=,id=140892,bonus_id=3519
+legs=,id=140882,bonus_id=3519
+feet=,id=140891,bonus_id=3519
+finger1=,id=134542,bonus_id=3519,enchant=binding_of_haste
+finger2=,id=142173,bonus_id=3519,enchant=binding_of_haste
+trinket1=draught_of_souls,id=140808,bonus_id=3519
+trinket2=,id=140806,bonus_id=3519
+main_hand=warswords_of_the_valarjar,id=128908,bonus_id=751,gem_id=142516/140841/140815,relic_ilevel=910/910/910
+off_hand=warswords_of_the_valarjar,id=134553
