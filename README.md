@@ -9,7 +9,7 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 ## How does it work ?
 You must have python installed on you computer for this to work.
 - Download the project and extract it.
-- Open Settings.ini and enter parameters dependings on your character (see below for more informations). Save and close.
+- Open Settings.ini and enter parameters dependings on your character (Use a real editor like Notepad++)(see below for more informations). Save and close. 
 - Launch launch.bat (see below for more parameters)
 - The .simc file is generated and ready to be used with Simc.
 - If you are using Simc GUI, open the .simc file with notepad and copy/paste the text in simc
