@@ -446,7 +446,7 @@ if b_simcraft_enabled:
         choice = input(
             "Do you want to use existing data to get a better estimation of calculation times? y/n: ")
         if choice == "y":
-            logFile.write("Using: " + str(Analyzer.analysis_filename) + "\n")
+            printLog("Using: " + str(Analyzer.analysis_filename) + "\n")
             print("Using " + str(Analyzer.analysis_filename) + " as database\n")
             class_spec = ""
             if c_class == "deathknight":
@@ -511,7 +511,7 @@ if b_simcraft_enabled:
                 elif c_spec == "destruction":
                     class_spec = "Destruction Warlock"
             else:
-                logFile.write("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
+                printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
                 print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
 
             print("You have to choose one of the following modes for calculation:")
@@ -525,9 +525,9 @@ if b_simcraft_enabled:
 
             # static mode
             if str(sim_mode) == str(1):
-                logFile.write("Mode" + str(sim_mode) + " chosen")
+                printLog("Mode" + str(sim_mode) + " chosen")
                 if s_stage == "stage1":
-                    logFile("Entering stage 1\n")
+                    printLog("Entering stage 1\n")
                     # split into chunks of 50
                     splitter.split(outputFileName, 50)
                     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
@@ -535,7 +535,7 @@ if b_simcraft_enabled:
                     s_stage = "stage2"
 
                 if s_stage == "stage2":
-                    logFile("Entering stage 2")
+                    printLog("Entering stage 2")
                     # check if files exist
                     if os.path.exists(os.path.join(os.getcwd(), splitter.subdir1)):
                         does_file_exist = False
@@ -558,7 +558,7 @@ if b_simcraft_enabled:
                         print("No path was created in stage1\n")
 
                 if s_stage == "stage3":
-                    logFile("Entering stage 3")
+                    printLog("Entering stage 3")
                     if os.path.exists(os.path.join(os.getcwd(), splitter.subdir2)):
                         does_file_exist = False
                         for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir2)):
@@ -580,7 +580,7 @@ if b_simcraft_enabled:
 
             # dynamic mode
             if str(sim_mode) == str(2):
-                logFile.write("Mode" + str(sim_mode) + " chosen\n")
+                printLog("Mode" + str(sim_mode) + " chosen\n")
                 result_data = Analyzer.get_data(class_spec)
                 print("Listing options:\n")
                 print("Estimated calculation times based on your data:\n")
@@ -600,19 +600,19 @@ if b_simcraft_enabled:
                     print("Quitting application")
                     sys.exit(0)
                 if int(calc_choice) < len(result_data) and int(calc_choice) > 0:
-                    logFile.write("Sim: Chosen Class/Spec: " + str(class_spec) + "\n")
-                    logFile.write("Sim: Number of permutations: " + str(i_generatedProfiles) + "\n")
-                    logFile.write("Sim: Chosen calculation:" + str(int(calc_choice)) + "\n")
+                    printLog("Sim: Chosen Class/Spec: " + str(class_spec) + "\n")
+                    printLog("Sim: Number of permutations: " + str(i_generatedProfiles) + "\n")
+                    printLog("Sim: Chosen calculation:" + str(int(calc_choice)) + "\n")
 
                     te = result_data[int(calc_choice)][0]
                     tp = round(float(result_data[int(calc_choice)][2]), 2)
                     est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
 
-                    logFile.write(
+                    printLog(
                         "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + "Time/Profile:" + str(
                             tp) + " => Est. calc. time: " + str(est) + " sec\n")
                     time_all = round(est, 0)
-                    logFile.write("Estimated calculation time: " + str(time_all) + "\n")
+                    printLog("Estimated calculation time: " + str(time_all) + "\n")
                     if time_all > 86400:
                         proceed = input(
                             "Warning: This might take a *VERY* long time (>24h) (q to quit, Enter to continue: )")
