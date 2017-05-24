@@ -230,11 +230,11 @@ def handleCommandLine():
 
             # check path of simc.exe
             if not os.path.exists(splitter.simc_path):
-                print("Path to simc.exe: " + str(splitter.simc_path))
-                input = input("Error: Invalid path for simc.exe, please edit splitter.py (Hit ""enter"" to exit")
+                printLog("Path to simc.exe: " + str(splitter.simc_path))
+                printLog("Error: Invalid path for simc.exe, please edit splitter.py (Hit ""enter"" to exit")
                 sys.exit(1)
             else:
-                print("Path to simc.exe valid, proceeding...")
+                printLog("Path to simc.exe valid, proceeding...")
 
 
 #########################
