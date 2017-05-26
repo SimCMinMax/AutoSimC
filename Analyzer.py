@@ -4,9 +4,10 @@ import json
 import subprocess
 import sys
 import hashlib
+from settings import settings
 from marshmallow import Schema, fields
 
-path = "profiles"
+path = settings.analyzer_path
 combined_path = os.path.join(os.getcwd(), path)
 simc_path = splitter.simc_path
 
@@ -165,22 +166,6 @@ def generate_json_analysis():
                     if s.reference_hash == pdata.hash:
                         if s not in pdata.specdata:
                             pdata.specdata.append(s)
-
-
-# returns target_error, iterations, elapsed_time_seconds for a given class_spec
-def get_data(class_spec):
-    result = []
-    f = open(os.path.join(combined_path, analysis_filename), "r")
-    file = json.load(f)
-    for variant in file[0]:
-        for p in variant["playerdata"]:
-            if p["specialization"] == class_spec:
-                for s in range(len(p["specdata"])):
-                    item = (
-                    variant["target_error"], p["specdata"][s]["iterations"], p["specdata"][s]["elapsed_time_seconds"])
-                    result.append(item)
-    return result
-
 
 def main():
     if input("Removing existing result-files (Press enter)"):

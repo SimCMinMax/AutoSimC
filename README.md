@@ -8,14 +8,18 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 ## How does it work ?
 You must have python (ideally >3.6) installed on you computer for this to work.
+- Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
 - Download the project and extract it.
-- Open input.txt and enter parameters dependings on your character (see below for more informations). Save and close.
+- Open input.txt and enter parameters depending on your character (see below for more informations). Save and close.
+- Edit settings.py for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
 - Launch launch.bat (see below for more parameters)
 - The .simc file is generated and ready to be used with Simc.
 - If you are using Simc GUI, open the .simc file with notepad and copy/paste the text in simc
+- You can use the -sim-option to simulate it without using the Simcraft-Gui
 
 ## Input.txt
 [This might not work fully with the current [-sim]-option]
+
 You have to fill variables as it is on SimulationCraft.
 
 If you want to add rotations, stance or others advanced SimulationCraft feature, add them with the "other=" field :

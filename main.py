@@ -2,24 +2,25 @@ import configparser
 import sys
 import datetime
 import os
+import json
+from settings import settings
 
 import splitter
-import Analyzer
 
 # Var init with default value
 c_profileid = 0
 c_profilemaxid = 0
-legmin = 0
-legmax = 2
+legmin = settings.default_leg_min
+legmax = settings.default_leg_max
 
-outputFileName = "out.simc"
+outputFileName = settings.default_outputFileName
 # txt, because standard-user cannot be trusted
-inputFileName = "input.txt"
+inputFileName = settings.default_inputFileName
 
-logFileName = "logs.txt"
-errorFileName = "error.txt"
+logFileName = settings.logFileName
+errorFileName = settings.errorFileName
 # quiet_mode for faster output; console is very slow
-b_quiet = 0
+b_quiet = settings.b_quiet
 i_generatedProfiles = 0
 
 b_simcraft_enabled = False
@@ -149,6 +150,7 @@ def scpout(oh):
 
 
 # Manage command line parameters
+# todo: include logic to split into smaller/larger files (default 50)
 def handleCommandLine():
     global inputFileName
     global outputFileName
@@ -190,7 +192,8 @@ def handleCommandLine():
                 sys.exit(1)
         if sys.argv[a] == "-l":
             elements = sys.argv[a + 1].split(',')
-            # produced an error if <-l "" 2:2> was entered, therefore check for emptyness
+            # produces an error if <-l "" 2:2> was entered, what is the correct syntax?
+            # i handle this in settings.py
             if elements:
                 handlePermutation(elements)
             # number of leg
@@ -237,6 +240,22 @@ def handleCommandLine():
                 print("Path to simc.exe valid, proceeding...")
 
 
+# returns target_error, iterations, elapsed_time_seconds for a given class_spec
+def get_data(class_spec):
+    result = []
+    f = open(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename), "r")
+    file = json.load(f)
+    for variant in file[0]:
+        for p in variant["playerdata"]:
+            if p["specialization"] == class_spec:
+                for s in range(len(p["specdata"])):
+                    item = (
+                        variant["target_error"], p["specdata"][s]["iterations"],
+                        p["specdata"][s]["elapsed_time_seconds"])
+                    result.append(item)
+    return result
+
+
 #########################
 #### Program Start ###### 
 #########################   
@@ -245,177 +264,187 @@ logFile = open(logFileName, 'w')
 
 handleCommandLine()
 
-# Read input.txt to init vars
-config = configparser.ConfigParser()
-config.read(inputFileName)
-profile = config['Profile']
-gear = config['Gear']
+if b_simcraft_enabled:
+    if not os.path.exists(settings.simc_path):
+        printLog("Error: Simc.exe not found, please edit settings.py.")
 
-# Read input.txt
-#   Profile
-c_profilename = profile['profilename']
-c_profileid = int(profile['profileid'])
-c_class = profile['class']
-c_race = profile['race']
-c_level = profile['level']
-c_spec = profile['spec']
-c_role = profile['role']
-c_position = profile['position']
-c_talents = profile['talents']
-c_artifact = profile['artifact']
-c_other = profile['other']
+if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
+    printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
+        legmax) + ". Please check settings.py for these parameters!")
+    sys.exit(1)
 
-#   Gear
-c_head = gear['head']
-c_neck = gear['neck']
-if config.has_option('Gear', 'shoulders'):
-    c_shoulders = gear['shoulders']
-else:
-    c_shoulders = gear['shoulder']
-c_back = gear['back']
-c_chest = gear['chest']
-if config.has_option('Gear', 'wrists'):
-    c_wrists = gear['wrists']
-else:
-    c_wrists = gear['wrist']
-c_hands = gear['hands']
-c_waist = gear['waist']
-c_legs = gear['legs']
-c_feet = gear['feet']
-c_finger1 = gear['finger1']
-c_finger2 = gear['finger2']
-c_trinket1 = gear['trinket1']
-c_trinket2 = gear['trinket2']
-c_main_hand = gear['main_hand']
-if config.has_option('Gear', 'off_hand'):
-    c_off_hand = gear['off_hand']
-else:
-    c_off_hand = ""
+if s_stage != "stage2" and s_stage != "stage3":
+    # Read input.txt to init vars
+    config = configparser.ConfigParser()
+    config.read(inputFileName, encoding='utf-8-sig')
+    profile = config['Profile']
+    gear = config['Gear']
 
-# Split vars to lists
-l_head = c_head.split('|')
-l_neck = c_neck.split('|')
-l_shoulders = c_shoulders.split('|')
-l_back = c_back.split('|')
-l_chest = c_chest.split('|')
-l_wrists = c_wrists.split('|')
-l_hands = c_hands.split('|')
-l_waist = c_waist.split('|')
-l_legs = c_legs.split('|')
-l_feet = c_feet.split('|')
-l_finger1 = c_finger1.split('|')
-l_finger2 = c_finger2.split('|')
-l_trinket1 = c_trinket1.split('|')
-l_trinket2 = c_trinket2.split('|')
-l_main_hand = c_main_hand.split('|')
-l_off_hand = c_off_hand.split('|')
+    # Read input.txt
+    #   Profile
+    c_profilename = profile['profilename']
+    c_profileid = int(profile['profileid'])
+    c_class = profile['class']
+    c_race = profile['race']
+    c_level = profile['level']
+    c_spec = profile['spec']
+    c_role = profile['role']
+    c_position = profile['position']
+    c_talents = profile['talents']
+    c_artifact = profile['artifact']
+    c_other = profile['other']
 
-# better handle rings and trinket-combinations
+    #   Gear
+    c_head = gear['head']
+    c_neck = gear['neck']
+    if config.has_option('Gear', 'shoulders'):
+        c_shoulders = gear['shoulders']
+    else:
+        c_shoulders = gear['shoulder']
+    c_back = gear['back']
+    c_chest = gear['chest']
+    if config.has_option('Gear', 'wrists'):
+        c_wrists = gear['wrists']
+    else:
+        c_wrists = gear['wrist']
+    c_hands = gear['hands']
+    c_waist = gear['waist']
+    c_legs = gear['legs']
+    c_feet = gear['feet']
+    c_finger1 = gear['finger1']
+    c_finger2 = gear['finger2']
+    c_trinket1 = gear['trinket1']
+    c_trinket2 = gear['trinket2']
+    c_main_hand = gear['main_hand']
+    if config.has_option('Gear', 'off_hand'):
+        c_off_hand = gear['off_hand']
+    else:
+        c_off_hand = ""
 
-for a in l_finger2:
-    if l_finger1.count(a) == 0:
-        l_finger1.append(a)
+    # Split vars to lists
+    l_head = c_head.split('|')
+    l_neck = c_neck.split('|')
+    l_shoulders = c_shoulders.split('|')
+    l_back = c_back.split('|')
+    l_chest = c_chest.split('|')
+    l_wrists = c_wrists.split('|')
+    l_hands = c_hands.split('|')
+    l_waist = c_waist.split('|')
+    l_legs = c_legs.split('|')
+    l_feet = c_feet.split('|')
+    l_finger1 = c_finger1.split('|')
+    l_finger2 = c_finger2.split('|')
+    l_trinket1 = c_trinket1.split('|')
+    l_trinket2 = c_trinket2.split('|')
+    l_main_hand = c_main_hand.split('|')
+    l_off_hand = c_off_hand.split('|')
 
-for b in l_trinket2:
-    if l_trinket1.count(b) == 0:
-        l_trinket1.append(b)
+    # better handle rings and trinket-combinations
 
-set_fingers = set()
-set_trinkets = set()
+    for a in l_finger2:
+        if l_finger1.count(a) == 0:
+            l_finger1.append(a)
 
-# compare items using simple string.compare-function, so "lowest" item (bitwise) will always be in front
-# if combination is not in our result-set, concatenate and insert "|"-splitter
-for ring in l_finger1:
-    for ring2 in l_finger1:
-        if ring == ring2:
-            continue
-        else:
-            if ring < ring2:
-                ring_combo = ring + "|" + ring2
-                if ring_combo not in set_fingers:
-                    set_fingers.add(ring_combo)
+    for b in l_trinket2:
+        if l_trinket1.count(b) == 0:
+            l_trinket1.append(b)
+
+    set_fingers = set()
+    set_trinkets = set()
+
+    # compare items using simple string.compare-function, so "lowest" item (bitwise) will always be in front
+    # if combination is not in our result-set, concatenate and insert "|"-splitter
+    for ring in l_finger1:
+        for ring2 in l_finger1:
+            if ring == ring2:
+                continue
             else:
-                ring_combo = ring2 + "|" + ring
-                if ring_combo not in set_fingers:
-                    set_fingers.add(ring_combo)
+                if ring < ring2:
+                    ring_combo = ring + "|" + ring2
+                    if ring_combo not in set_fingers:
+                        set_fingers.add(ring_combo)
+                else:
+                    ring_combo = ring2 + "|" + ring
+                    if ring_combo not in set_fingers:
+                        set_fingers.add(ring_combo)
 
-for trinket in l_trinket1:
-    for trinket2 in l_trinket1:
-        if trinket == trinket2:
-            continue
-        else:
-            if trinket < trinket2:
-                trinket_combo = trinket + "|" + trinket2
-                set_trinkets.add(trinket_combo)
+    for trinket in l_trinket1:
+        for trinket2 in l_trinket1:
+            if trinket == trinket2:
+                continue
             else:
-                trinket_combo = trinket2 + "|" + trinket
-                set_trinkets.add(trinket_combo)
+                if trinket < trinket2:
+                    trinket_combo = trinket + "|" + trinket2
+                    set_trinkets.add(trinket_combo)
+                else:
+                    trinket_combo = trinket2 + "|" + trinket
+                    set_trinkets.add(trinket_combo)
 
-# convert set into list, i did not want to change the "theme" of the original data-structure
-l_fingers = []
-l_trinkets = []
-while set_fingers:
-    l_fingers.append(set_fingers.pop())
-while set_trinkets:
-    l_trinkets.append(set_trinkets.pop())
+    # convert set into list, i did not want to change the "theme" of the original data-structure
+    l_fingers = []
+    l_trinkets = []
+    while set_fingers:
+        l_fingers.append(set_fingers.pop())
+    while set_trinkets:
+        l_trinkets.append(set_trinkets.pop())
 
-# free some memory
-del set_fingers
-del set_trinkets
+    # free some memory
+    del set_fingers
+    del set_trinkets
 
-# Make permutations
-outputFile = open(outputFileName, 'w')
-l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
-          "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
+    # Make permutations
+    outputFile = open(outputFileName, 'w')
+    l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
+              "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
 
-# changed according to merged fields
-c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
-    l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
-    l_off_hand)
-printLog("Starting permutations : " + str(c_profilemaxid))
-for a in range(len(l_head)):
-    l_gear[0] = l_head[a]
-    for b in range(len(l_neck)):
-        l_gear[1] = l_neck[b]
-        for c in range(len(l_shoulders)):
-            l_gear[2] = l_shoulders[c]
-            for d in range(len(l_back)):
-                l_gear[3] = l_back[d]
-                for e in range(len(l_chest)):
-                    l_gear[4] = l_chest[e]
-                    for f in range(len(l_wrists)):
-                        l_gear[5] = l_wrists[f]
-                        for g in range(len(l_hands)):
-                            l_gear[6] = l_hands[g]
-                            for h in range(len(l_waist)):
-                                l_gear[7] = l_waist[h]
-                                for i in range(len(l_legs)):
-                                    l_gear[8] = l_legs[i]
-                                    for j in range(len(l_feet)):
-                                        l_gear[9] = l_feet[j]
-                                        # changed according to new concatenated fields
-                                        for k in range(len(l_fingers)):
-                                            fingers = l_fingers[k].split('|')
-                                            l_gear[10] = fingers[0]
-                                            l_gear[11] = fingers[1]
-                                            for l in range(len(l_trinkets)):
-                                                trinkets = l_trinkets[l].split('|')
-                                                l_gear[12] = trinkets[0]
-                                                l_gear[13] = trinkets[1]
-                                                if c_off_hand != "":
-                                                    for o in range(len(l_main_hand)):
-                                                        l_gear[14] = l_main_hand[o]
-                                                        for p in range(len(l_off_hand)):
-                                                            l_gear[15] = l_off_hand[p]
-                                                            scpout(1)
-                                                else:
-                                                    for o in range(len(l_main_hand)):
-                                                        l_gear[14] = l_main_hand[o]
-                                                        scpout(0)
+    # changed according to merged fields
+    c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
+        l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
+        l_off_hand)
+    printLog("Starting permutations : " + str(c_profilemaxid))
+    for a in range(len(l_head)):
+        l_gear[0] = l_head[a]
+        for b in range(len(l_neck)):
+            l_gear[1] = l_neck[b]
+            for c in range(len(l_shoulders)):
+                l_gear[2] = l_shoulders[c]
+                for d in range(len(l_back)):
+                    l_gear[3] = l_back[d]
+                    for e in range(len(l_chest)):
+                        l_gear[4] = l_chest[e]
+                        for f in range(len(l_wrists)):
+                            l_gear[5] = l_wrists[f]
+                            for g in range(len(l_hands)):
+                                l_gear[6] = l_hands[g]
+                                for h in range(len(l_waist)):
+                                    l_gear[7] = l_waist[h]
+                                    for i in range(len(l_legs)):
+                                        l_gear[8] = l_legs[i]
+                                        for j in range(len(l_feet)):
+                                            l_gear[9] = l_feet[j]
+                                            # changed according to new concatenated fields
+                                            for k in range(len(l_fingers)):
+                                                fingers = l_fingers[k].split('|')
+                                                l_gear[10] = fingers[0]
+                                                l_gear[11] = fingers[1]
+                                                for l in range(len(l_trinkets)):
+                                                    trinkets = l_trinkets[l].split('|')
+                                                    l_gear[12] = trinkets[0]
+                                                    l_gear[13] = trinkets[1]
+                                                    if c_off_hand != "":
+                                                        for o in range(len(l_main_hand)):
+                                                            l_gear[14] = l_main_hand[o]
+                                                            for p in range(len(l_off_hand)):
+                                                                l_gear[15] = l_off_hand[p]
+                                                                scpout(1)
+                                                    else:
+                                                        for o in range(len(l_main_hand)):
+                                                            l_gear[14] = l_main_hand[o]
+                                                            scpout(0)
 
-printLog("Ending permutations")
-print("Generated permutations: " + str(i_generatedProfiles))
-outputFile.close()
+    printLog("Ending permutations")
+    print("Generated permutations: " + str(i_generatedProfiles))
+    outputFile.close()
 
 # here comes the fun part, which makes autosimc a true automatic simcraft-tool
 # it splits the generated output-file into smaller chunks (default is 50), so they can be simmed faster
@@ -423,9 +452,12 @@ outputFile.close()
 # afterwards, it grabs the n top results and sims these again, this time with i=1000 iterations
 # afterwards, for a third time, the top 3 results get simmed with i=10000, html-output and scalefactors enabled
 
-iterations_firstpart = 100
-iterations_secondpart = 1000
-iterations_thirdpart = 10000
+iterations_firstpart = settings.default_iterations_stage1
+iterations_secondpart = settings.default_iterations_stage2
+iterations_thirdpart = settings.default_iterations_stage3
+
+target_error_secondpart = settings.default_target_error_stage2
+target_error_thirdpart = settings.default_target_error_stage3
 
 user_input = ""
 if i_generatedProfiles > 10000:
@@ -436,18 +468,18 @@ if i_generatedProfiles > 100000:
         "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)")
 
 if user_input == "q":
-    print("Program exit by user")
+    printLog("Program exit by user")
     sys.exit(0)
 
 if b_simcraft_enabled:
-    if os.path.exists(os.path.join(Analyzer.combined_path, Analyzer.analysis_filename)):
+    if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
+        printLog("Analyzer-file found")
         # uses target_error as default
         target_error_mode = True
         choice = input(
-            "Do you want to use existing data to get a better estimation of calculation times? y/n: ")
+            "Do you want to use precalculated data (Analyzer.py) to get a better estimation of calculation times? y/n: ")
         if choice == "y":
-            logFile.write("Using: " + str(Analyzer.analysis_filename) + "\n")
-            print("Using " + str(Analyzer.analysis_filename) + " as database\n")
+            printLog("Using " + str(settings.analyzer_filename) + " as database\n")
             class_spec = ""
             if c_class == "deathknight":
                 if c_spec == "frost":
@@ -497,7 +529,7 @@ if b_simcraft_enabled:
                     class_spec = "Outlaw Rogue"
                 elif c_spec == "assassination":
                     class_spec = "Assassination Rogue"
-            # todo check the following names
+            # todo check the following names, also add tanks and healers
             elif c_class == "warrior":
                 if c_spec == "fury":
                     class_spec = "Fury Warrior"
@@ -511,23 +543,25 @@ if b_simcraft_enabled:
                 elif c_spec == "destruction":
                     class_spec = "Destruction Warlock"
             else:
-                logFile.write("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
-                print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
+                printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
 
             print("You have to choose one of the following modes for calculation:")
             print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
                 iterations_firstpart) + "," + str(iterations_secondpart) + "," + str(iterations_thirdpart) + ")")
             print("It is however faster if simulating huge amounts of profiles")
-            print("2) Dynamic mode lets you choose a specific 'correctness' of the calculation, but takes more time.")
             print(
-                "It uses the chosen correctness for the first part; in finetuning part the error lowers to 0.4 and 0.1 for the final top 3")
+                "2) Dynamic mode lets you choose a specific 'correctness' of the calculation, but takes more time.")
+            print(
+                "It uses the chosen correctness for the first part; in finetuning part the error lowers to " + str(
+                    target_error_secondpart) + " and " + str(
+                    target_error_thirdpart) + " for the final top 3")
             sim_mode = input("Please choose your mode: ")
 
             # static mode
             if str(sim_mode) == str(1):
-                logFile.write("Mode" + str(sim_mode) + " chosen")
+                printLog("Mode" + str(sim_mode) + " chosen")
                 if s_stage == "stage1":
-                    logFile("Entering stage 1\n")
+                    printLog("Entering stage: " + str(s_stage))
                     # split into chunks of 50
                     splitter.split(outputFileName, 50)
                     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
@@ -535,7 +569,7 @@ if b_simcraft_enabled:
                     s_stage = "stage2"
 
                 if s_stage == "stage2":
-                    logFile("Entering stage 2")
+                    printLog("Entering stage 2\n")
                     # check if files exist
                     if os.path.exists(os.path.join(os.getcwd(), splitter.subdir1)):
                         does_file_exist = False
@@ -558,7 +592,7 @@ if b_simcraft_enabled:
                         print("No path was created in stage1\n")
 
                 if s_stage == "stage3":
-                    logFile("Entering stage 3")
+                    printLog("Entering stage 3\n")
                     if os.path.exists(os.path.join(os.getcwd(), splitter.subdir2)):
                         does_file_exist = False
                         for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir2)):
@@ -580,92 +614,136 @@ if b_simcraft_enabled:
 
             # dynamic mode
             if str(sim_mode) == str(2):
-                logFile.write("Mode" + str(sim_mode) + " chosen\n")
-                result_data = Analyzer.get_data(class_spec)
-                print("Listing options:\n")
-                print("Estimated calculation times based on your data:\n")
-                print("Class/Spec: " + str(class_spec) + "\n")
-                print("Number of permutations to simulate: " + str(i_generatedProfiles) + "\n")
-                for current in range(len(result_data)):
-                    te = result_data[current][0]
-                    tp = round(float(result_data[current][2]), 2)
-                    est = round(float(result_data[current][2]) * i_generatedProfiles, 0)
-                    h = round(est / 3600, 1)
+                printLog("Mode" + str(sim_mode) + " chosen\n")
+                if s_stage == "stage1":
+                    printLog("Entering stage 1\n")
+                    result_data = get_data(class_spec)
+                    print("Listing options:\n")
+                    print("Estimated calculation times based on your data:\n")
+                    print("Class/Spec: " + str(class_spec) + "\n")
+                    print("Number of permutations to simulate: " + str(i_generatedProfiles) + "\n")
+                    for current in range(len(result_data)):
+                        te = result_data[current][0]
+                        tp = round(float(result_data[current][2]), 2)
+                        est = round(float(result_data[current][2]) * i_generatedProfiles, 0)
+                        h = round(est / 3600, 1)
 
-                    print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
-                        tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
+                        print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
+                            tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
 
-                calc_choice = input("Please enter the type of calculation to perform (q to quit):")
-                if calc_choice == "q":
-                    print("Quitting application")
-                    sys.exit(0)
-                if int(calc_choice) < len(result_data) and int(calc_choice) > 0:
-                    logFile.write("Sim: Chosen Class/Spec: " + str(class_spec) + "\n")
-                    logFile.write("Sim: Number of permutations: " + str(i_generatedProfiles) + "\n")
-                    logFile.write("Sim: Chosen calculation:" + str(int(calc_choice)) + "\n")
+                    calc_choice = input("Please enter the type of calculation to perform (q to quit):")
+                    if calc_choice == "q":
+                        printLog("Quitting application")
+                        sys.exit(0)
+                    if int(calc_choice) < len(result_data) and int(calc_choice) > 0:
+                        printLog("Sim: Chosen Class/Spec: " + str(class_spec) + "\n")
+                        printLog("Sim: Number of permutations: " + str(i_generatedProfiles) + "\n")
+                        printLog("Sim: Chosen calculation:" + str(int(calc_choice)) + "\n")
 
-                    te = result_data[int(calc_choice)][0]
-                    tp = round(float(result_data[int(calc_choice)][2]), 2)
-                    est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
+                        te = result_data[int(calc_choice)][0]
+                        tp = round(float(result_data[int(calc_choice)][2]), 2)
+                        est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
 
-                    logFile.write(
-                        "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + "Time/Profile:" + str(
-                            tp) + " => Est. calc. time: " + str(est) + " sec\n")
-                    time_all = round(est, 0)
-                    logFile.write("Estimated calculation time: " + str(time_all) + "\n")
-                    if time_all > 86400:
-                        proceed = input(
-                            "Warning: This might take a *VERY* long time (>24h) (q to quit, Enter to continue: )")
-                        if proceed == "q":
-                            print("Quitting application")
-                            sys.exit(0)
-                    if s_stage == "stage1":
+                        printLog(
+                            "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + "Time/Profile:" + str(
+                                tp) + " => Est. calc. time: " + str(est) + " sec\n")
+                        time_all = round(est, 0)
+                        printLog("Estimated calculation time: " + str(time_all) + "\n")
+                        if time_all > 86400:
+                            proceed = input(
+                                "Warning: This might take a *VERY* long time (>24h) (q to quit, Enter to continue: )")
+                            if proceed == "q":
+                                print("Quitting application")
+                                sys.exit(0)
+
                         # split into chunks of n (max 100) to not destroy the hdd
                         # todo: calculate dynamic amount of n
                         splitter.split(outputFileName, 50)
-                        # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
                         splitter.sim_targeterror(splitter.subdir1, str(te), 1)
+                        # if the user chose a target_error which is lower than the default_one for the next step
+                        # he is given an option to either skip stage 2 or adjust the target_error
+                        if float(te) <= float(settings.default_target_error_stage2):
+                            printLog("Target_Error chosen in stage 1: " + str(te) + " <= Target_Error stage 2: " + str(
+                                target_error_secondpart) + "\n")
+                            print("Warning!\n")
+                            print("Target_Error chosen in stage 1: " + str(te) + " <= Target_Error stage 2: " + str(
+                                target_error_secondpart) + "\n")
+                            new_value = input(
+                                "Do you want to continue (y), quit (q) or enter a new target_error for stage2 (n)?: ")
+                            printLog("User chose: " + str(new_value))
+                            if new_value == "q":
+                                sys.exit(0)
+                            if new_value == "n":
+                                target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
+                                printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
+                                s_stage = "stage2"
+                            else:
+                                s_stage = "stage2"
                         s_stage = "stage2"
 
-                    if s_stage == "stage2":
-                        # check if files exist
-                        if os.path.exists(os.path.join(os.getcwd(), splitter.subdir1)):
-                            does_file_exist = False
-                            for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir1)):
-                                for file in files:
-                                    if file.endswith(".sim"):
-                                        does_file_exist = True
-                                        print("Stage 2: .sim-files found, proceeding..")
-                                        break
+                if s_stage == "stage2":
+                    printLog("Entering stage 2\n")
+                    # check if files exist
+                    if os.path.exists(os.path.join(os.getcwd(), splitter.subdir1)):
+                        does_file_exist = False
+                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir1)):
+                            for file in files:
+                                if file.endswith(".sim"):
+                                    does_file_exist = True
+                                    printLog("Stage 2: .sim-files found, proceeding..")
+                                    print("Stage 2: .sim-files found, proceeding..")
+                                    break
 
-                            if does_file_exist:
-                                # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-                                splitter.grabBest(100, splitter.subdir1, splitter.subdir2, outputFileName)
-                                # where they are simmed again, now with higher quality
-                                splitter.sim_targeterror(splitter.subdir2, str(0.4), 1)
-                                s_stage = "stage3"
-                            else:
-                                print("Error: No files exist in stage1-directory")
+                        if does_file_exist:
+                            # now grab the top 100 of these and put the profiles into the 2nd temp_dir
+                            splitter.grabBest(settings.default_top_n_stage2, splitter.subdir1, splitter.subdir2,
+                                              outputFileName)
+                            # where they are simmed again, now with higher quality
+                            splitter.sim_targeterror(splitter.subdir2, target_error_secondpart, 1)
+                            # if the user chose a target_error which is lower than the default_one for the next step
+                            # he is given an option to either skip stage 2 or adjust the target_error
+                            if float(target_error_secondpart) <= float(target_error_thirdpart):
+                                printLog("Target_Error chosen in stage 2: " + str(target_error_secondpart) + " <= Target_Error stage 3: " + str(
+                                    target_error_thirdpart) + "\n")
+                                print("Warning!\n")
+                                new_value = input(
+                                    "Do you want to continue (y), quit (q) or enter a new target_error for stage2 (n)?: ")
+                                printLog("User chose: " + str(new_value))
+                                if new_value == "q":
+                                    sys.exit(0)
+                                if new_value == "n":
+                                    target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
+                                    printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
+                                    s_stage = "stage3"
+                                else:
+                                    s_stage = "stage3"
+                            s_stage = "stage3"
+
                         else:
-                            print("No path was created in stage1")
+                            print("Error: No files exist in stage1-directory")
+                    else:
+                        print("No path was created in stage1")
 
-                    if s_stage == "stage3":
-                        if os.path.exists(os.path.join(os.getcwd(), splitter.subdir2)):
-                            does_file_exist = False
-                            for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir2)):
-                                for file in files:
-                                    if file.endswith(".sim"):
-                                        does_file_exist = True
-                                        print("Stage 3: .sim-files found, proceeding..")
-                                        break
+                if s_stage == "stage3":
+                    printLog("Entering stage 3\n")
+                    if os.path.exists(os.path.join(os.getcwd(), splitter.subdir2)):
+                        does_file_exist = False
+                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir2)):
+                            for file in files:
+                                if file.endswith(".sim"):
+                                    does_file_exist = True
+                                    printLog("Stage 3: .sim-files found, proceeding..")
+                                    print("Stage 3: .sim-files found, proceeding..")
+                                    break
 
-                            if does_file_exist:
-                                # again, for a third time, get top 3 profiles and put them into subdir3
-                                splitter.grabBest(3, splitter.subdir2, splitter.subdir3, outputFileName)
-                                # sim them finally with all options enabled; html-output remains in this folder
-                                splitter.sim_targeterror(splitter.subdir3, str(0.1), 2)
-                            else:
-                                print("Error: No files exist in stage2-directory")
+                        if does_file_exist:
+                            # again, for a third time, get top 3 profiles and put them into subdir3
+                            splitter.grabBest(settings.default_top_n_stage3, splitter.subdir2, splitter.subdir3,
+                                              outputFileName)
+                            # sim them finally with all options enabled; html-output remains in this folder
+                            splitter.sim_targeterror(splitter.subdir3, target_error_thirdpart, 2)
                         else:
-                            print("No path was created in stage2")
+                            print("Error: No files exist in stage2-directory")
+                    else:
+                        print("No path was created in stage2")
 logFile.close()

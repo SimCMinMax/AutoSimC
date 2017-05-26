@@ -3,15 +3,15 @@ import shutil
 import sys
 import subprocess
 import time
+from settings import settings
 
 # change path accordingly to your location
 # don´t forget to add double-backslash for subdirs, as shown below
-# todo: integrate simc into autosimc-folderstructure?
-simc_path = 'd:\\downloads\\simc-720-03-win64\\simc.exe'
+simc_path = settings.simc_path
 
-subdir1 = "temp_step1"
-subdir2 = "temp_step2"
-subdir3 = "temp_step3"
+subdir1 = settings.subdir1
+subdir2 = settings.subdir2
+subdir3 = settings.subdir3
 
 
 # deletes and creates needed folders
@@ -44,7 +44,7 @@ def split(inputfile, size=50):
         profile_max = size
         profile_count = 0
 
-        tempOutput = "";
+        tempOutput = ""
         empty = True
 
         # true if weapon was detected so a profile-block can be closed
@@ -105,13 +105,25 @@ def sim(subdir, iterations=10000, command=1):
                 if command == 1:
                     cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                            'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                           'iterations=' + str(iterations),
-                           'process_priority=low', 'single_actor_batch=1']
+                           'iterations=' + str(iterations), 'threads=' + str(settings.simc_threads),
+                           'fight_style=' + str(settings.default_fightstyle),
+                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                 if command == 2:
-                    cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
-                           'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
-                           'iterations=' + str(iterations), 'calculate_scale_factors=1',
-                           'process_priority=low', 'single_actor_batch=1']
+                    if settings.simc_scale_factors_stage3:
+                        cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
+                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'iterations=' + str(iterations), 'calculate_scale_factors=1',
+                               'threads=' + str(settings.simc_threads),
+                               'fight_style=' + str(settings.default_fightstyle),
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                    else:
+                        cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
+                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'iterations=' + str(iterations),
+                               'threads=' + str(settings.simc_threads),
+                               'fight_style=' + str(settings.default_fightstyle),
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+
                 print(cmd)
                 print("-----------------------------------------------------------------")
                 print("Automated Simulation within AutoSimC.")
@@ -122,7 +134,7 @@ def sim(subdir, iterations=10000, command=1):
                     duration = time.time() - starttime
                     avg_calctime_hist = duration / files_processed
                     remaining_time = (amount_of_generated_splits - files_processed) * avg_calctime_hist
-                    print("Remaining calculation time (est.): " + str(round(remaining_time,0)) + " seconds")
+                    print("Remaining calculation time (est.): " + str(round(remaining_time, 0)) + " seconds")
                     print("Finish time for Step 1(est.): " + time.asctime(time.localtime(time.time() + remaining_time)))
                     print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
                 print("-----------------------------------------------------------------")
@@ -150,13 +162,24 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                 if command == 1:
                     cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                            'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                           'target_error=' + str(targeterror),
-                           'process_priority=low', 'single_actor_batch=1']
+                           'fight_style=' + str(settings.default_fightstyle),
+                           'target_error=' + str(targeterror), 'threads=' + str(settings.simc_threads),
+                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                 if command == 2:
-                    cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
-                           'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
-                           'target_error=' + str(targeterror), 'calculate_scale_factors=1',
-                           'process_priority=low', 'single_actor_batch=1']
+                    if settings.simc_scale_factors_stage3:
+                        cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
+                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'target_error=' + str(targeterror), 'calculate_scale_factors=1',
+                               'threads=' + str(settings.simc_threads),
+                               'fight_style=' + str(settings.default_fightstyle),
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                    else:
+                        cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
+                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'target_error=' + str(targeterror),
+                               'threads=' + str(settings.simc_threads),
+                               'fight_style=' + str(settings.default_fightstyle),
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                 print(cmd)
                 print("-----------------------------------------------------------------")
                 print("Automated Simulation within AutoSimC.")
@@ -169,7 +192,7 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                     remaining_time = (amount_of_generated_splits - files_processed) * avg_calctime_hist
                     print("Remaining calculation time (est.): " + str(remaining_time) + " seconds")
                     print("Finish time for Step 1(est.): " + time.asctime(time.localtime(time.time() + remaining_time)))
-                    print("Step 1 is the most time consuming, Step 2 and 3 will take a flat ~5 minutes combined")
+                    print("Step 1 is the most time consuming, Step 2 and 3 will take ~10-20 minutes combined")
                 print("-----------------------------------------------------------------")
                 subprocess.call(cmd)
                 files_processed += 1
