@@ -221,23 +221,23 @@ def handleCommandLine():
             if sys.argv[a + 1]:
                 stage = sys.argv[a + 1]
                 if stage in set_parameters:
-                    printLog("Wrong parameter for -sim: " + stage)
+                    printLog("Wrong parameter for -sim: " + str(stage))
                     print("Wrong parameter for ""-sim"" option: " + str(stage))
                     sys.exit(1)
                 if not stage:
                     printLog("Missing parameter for -sim: " + stage)
                     print("Missing parameter for ""-sim"" option: " + str(stage))
                     sys.exit(1)
-                if stage != "stage1" or stage != "stage2" or stage != "stage3":
-                    s_stage = stage
+                if stage != "stage1" and stage != "stage2" and stage != "stage3":
+                    printLog("Wrong Parameter for Stage: "+str(stage))
+                    sys.exit(1)
 
             # check path of simc.exe
-            if not os.path.exists(splitter.simc_path):
-                print("Path to simc.exe: " + str(splitter.simc_path))
-                input = input("Error: Invalid path for simc.exe, please edit splitter.py (Hit ""enter"" to exit")
+            if not os.path.exists(settings.simc_path):
+                printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
                 sys.exit(1)
             else:
-                print("Path to simc.exe valid, proceeding...")
+                printLog("Path to simc.exe valid, proceeding...")
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
@@ -263,10 +263,6 @@ sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
 
 handleCommandLine()
-
-if b_simcraft_enabled:
-    if not os.path.exists(settings.simc_path):
-        printLog("Error: Simc.exe not found, please edit settings.py.")
 
 if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
     printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
@@ -544,6 +540,7 @@ if b_simcraft_enabled:
                     class_spec = "Destruction Warlock"
             else:
                 printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
+                print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
 
             print("You have to choose one of the following modes for calculation:")
             print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
