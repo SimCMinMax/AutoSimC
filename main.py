@@ -560,17 +560,17 @@ if b_simcraft_enabled:
                 if s_stage == "stage1":
                     printLog("Entering stage: " + str(s_stage))
                     # split into chunks of 50
-                    splitter.split(outputFileName, 50)
+                    splitter.split(outputFileName, settings.splitting_size)
                     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-                    splitter.sim(splitter.subdir1, iterations_firstpart, 1)
+                    splitter.sim(settings.subdir1, iterations_firstpart, 1)
                     s_stage = "stage2"
 
                 if s_stage == "stage2":
                     printLog("Entering stage 2\n")
                     # check if files exist
-                    if os.path.exists(os.path.join(os.getcwd(), splitter.subdir1)):
+                    if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
                         does_file_exist = False
-                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir1)):
+                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir1)):
                             for file in files:
                                 if file.endswith(".sim"):
                                     does_file_exist = True
@@ -579,9 +579,9 @@ if b_simcraft_enabled:
 
                         if does_file_exist:
                             # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-                            splitter.grabBest(100, splitter.subdir1, splitter.subdir2, outputFileName)
+                            splitter.grabBest(100, settings.subdir1, settings.subdir2, outputFileName)
                             # where they are simmed again, now with 1000 iterations
-                            splitter.sim(splitter.subdir2, iterations_secondpart, 1)
+                            splitter.sim(settings.subdir2, iterations_secondpart, 1)
                             s_stage = "stage3"
                         else:
                             print("Error: No files exist in stage1-directory\n")
@@ -590,9 +590,9 @@ if b_simcraft_enabled:
 
                 if s_stage == "stage3":
                     printLog("Entering stage 3\n")
-                    if os.path.exists(os.path.join(os.getcwd(), splitter.subdir2)):
+                    if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
                         does_file_exist = False
-                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir2)):
+                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir2)):
                             for file in files:
                                 if file.endswith(".sim"):
                                     does_file_exist = True
@@ -601,9 +601,9 @@ if b_simcraft_enabled:
 
                         if does_file_exist:
                             # again, for a third time, get top 3 profiles and put them into subdir3
-                            splitter.grabBest(3, splitter.subdir2, splitter.subdir3, outputFileName)
+                            splitter.grabBest(3, settings.subdir2, settings.subdir3, outputFileName)
                             # sim them finally with all options enabled; html-output remains in this folder
-                            splitter.sim(splitter.subdir3, iterations_thirdpart, 2)
+                            splitter.sim(settings.subdir3, iterations_thirdpart, 2)
                         else:
                             print("Error: No files exist in stage2-directory\n")
                     else:
@@ -655,8 +655,8 @@ if b_simcraft_enabled:
 
                         # split into chunks of n (max 100) to not destroy the hdd
                         # todo: calculate dynamic amount of n
-                        splitter.split(outputFileName, 50)
-                        splitter.sim_targeterror(splitter.subdir1, str(te), 1)
+                        splitter.split(outputFileName, settings.splitting_size)
+                        splitter.sim_targeterror(settings.subdir1, str(te), 1)
                         # if the user chose a target_error which is lower than the default_one for the next step
                         # he is given an option to either skip stage 2 or adjust the target_error
                         if float(te) <= float(settings.default_target_error_stage2):
@@ -681,9 +681,9 @@ if b_simcraft_enabled:
                 if s_stage == "stage2":
                     printLog("Entering stage 2\n")
                     # check if files exist
-                    if os.path.exists(os.path.join(os.getcwd(), splitter.subdir1)):
+                    if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
                         does_file_exist = False
-                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir1)):
+                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir1)):
                             for file in files:
                                 if file.endswith(".sim"):
                                     does_file_exist = True
@@ -693,10 +693,10 @@ if b_simcraft_enabled:
 
                         if does_file_exist:
                             # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-                            splitter.grabBest(settings.default_top_n_stage2, splitter.subdir1, splitter.subdir2,
+                            splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2,
                                               outputFileName)
                             # where they are simmed again, now with higher quality
-                            splitter.sim_targeterror(splitter.subdir2, target_error_secondpart, 1)
+                            splitter.sim_targeterror(settings.subdir2, target_error_secondpart, 1)
                             # if the user chose a target_error which is lower than the default_one for the next step
                             # he is given an option to either skip stage 2 or adjust the target_error
                             if float(target_error_secondpart) <= float(target_error_thirdpart):
@@ -723,9 +723,9 @@ if b_simcraft_enabled:
 
                 if s_stage == "stage3":
                     printLog("Entering stage 3\n")
-                    if os.path.exists(os.path.join(os.getcwd(), splitter.subdir2)):
+                    if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
                         does_file_exist = False
-                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), splitter.subdir2)):
+                        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir2)):
                             for file in files:
                                 if file.endswith(".sim"):
                                     does_file_exist = True
@@ -735,10 +735,10 @@ if b_simcraft_enabled:
 
                         if does_file_exist:
                             # again, for a third time, get top 3 profiles and put them into subdir3
-                            splitter.grabBest(settings.default_top_n_stage3, splitter.subdir2, splitter.subdir3,
+                            splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3,
                                               outputFileName)
                             # sim them finally with all options enabled; html-output remains in this folder
-                            splitter.sim_targeterror(splitter.subdir3, target_error_thirdpart, 2)
+                            splitter.sim_targeterror(settings.subdir3, target_error_thirdpart, 2)
                         else:
                             print("Error: No files exist in stage2-directory")
                     else:
