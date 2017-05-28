@@ -24,8 +24,8 @@ class settings():
 
     # for the -sim option
     # path to your simcraft .exe
-    # don´t forget to include double-backslash for subfolders
-    simc_path= 'D:\\Downloads\\simc-720-03-win64-6bfab13\\simc-720-03-win64\\simc.exe'
+    # don´t forget to include double-backslash for subfolders, as shown below
+    simc_path= 'D:\\Downloads\\simc-720-03-win64-6ea38df\\simc-720-03-win64\\simc.exe'
     # these folders will be created during calculation
     # stage 1,2,3 correspond accordingly
     subdir1 = "temp_step1"
@@ -64,3 +64,5 @@ class settings():
     # For Analysis.py
     analyzer_path = "profiles"
     analyzer_filename = "Analysis.json"
+
+    # todo: flag for cleaning up
