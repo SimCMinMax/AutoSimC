@@ -3,6 +3,7 @@ import sys
 import datetime
 import os
 import json
+import shutil
 from settings import settings
 
 import splitter
@@ -108,6 +109,9 @@ def scpout(oh):
     # output status every 5000 permutations, user should get at least a minor progress shown; also doesn´t slow down
     # computation very much
     if int(maskedProfileID) % 5000 == 0:
+        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
+            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
+    if int(maskedProfileID) == c_profilemaxid:
         print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
             round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
     if result != "":
@@ -229,7 +233,7 @@ def handleCommandLine():
                     print("Missing parameter for ""-sim"" option: " + str(stage))
                     sys.exit(1)
                 if stage != "stage1" and stage != "stage2" and stage != "stage3":
-                    printLog("Wrong Parameter for Stage: "+str(stage))
+                    printLog("Wrong Parameter for Stage: " + str(stage))
                     sys.exit(1)
 
             # check path of simc.exe
@@ -254,6 +258,30 @@ def get_data(class_spec):
                         p["specdata"][s]["elapsed_time_seconds"])
                     result.append(item)
     return result
+
+
+def cleanup():
+    printLog("Cleaning up")
+    if not os.path.exists(os.path.join(os.getcwd(), settings.result_subfolder)):
+        printLog("Result-subfolder does not exist: " + str(settings.result_subfolder) + ", creating it")
+        os.makedirs(settings.result_subfolder)
+
+    if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
+        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir3)):
+            for file in files:
+                if file.endswith(".html"):
+                    printLog("Moving file: " + str(file))
+                    shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
+                                os.path.join(os.getcwd(), settings.result_subfolder, file))
+    if input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
+        printLog("Removing: " + settings.subdir1)
+        shutil.rmtree(settings.subdir1)
+    if input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
+        shutil.rmtree(settings.subdir2)
+        printLog("Removing: " + settings.subdir2)
+    if input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
+        shutil.rmtree(settings.subdir3)
+        printLog("Removing: " + settings.subdir3)
 
 
 #########################
@@ -397,6 +425,12 @@ if s_stage != "stage2" and s_stage != "stage3":
     c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
         l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
         l_off_hand)
+
+    if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
+            round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue: ") == "y":
+        printLog("User exit")
+        sys.exit(0)
+
     printLog("Starting permutations : " + str(c_profilemaxid))
     for a in range(len(l_head)):
         l_gear[0] = l_head[a]
@@ -697,7 +731,8 @@ if b_simcraft_enabled:
                         # if the user chose a target_error which is lower than the default_one for the next step
                         # he is given an option to either skip stage 2 or adjust the target_error
                         if float(target_error_secondpart) <= float(target_error_thirdpart):
-                            printLog("Target_Error chosen in stage 2: " + str(target_error_secondpart) + " <= Target_Error stage 3: " + str(
+                            printLog("Target_Error chosen in stage 2: " + str(
+                                target_error_secondpart) + " <= Target_Error stage 3: " + str(
                                 target_error_thirdpart) + "\n")
                             print("Warning!\n")
                             new_value = input(
@@ -741,5 +776,8 @@ if b_simcraft_enabled:
                 else:
                     print("No path was created in stage2")
         else:
-            printLog("Wrong mode: "+str(sim_mode))
+            printLog("Wrong mode: " + str(sim_mode))
+
+if settings.clean_up_after_step3:
+    cleanup()
 logFile.close()

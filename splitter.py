@@ -3,6 +3,7 @@ import shutil
 import sys
 import subprocess
 import time
+import datetime
 from settings import settings
 
 # change path accordingly to your location
@@ -86,8 +87,10 @@ def split(inputfile, size=50):
 
 # Calls simcraft to simulate all .sim-files in a subdir
 # iterations: can be specifically changed to finetune a stage; standard is 10000
-# todo: command: calls a specific command-line for simcraft, e.g. one for patchwerk, for aoe etc.
 def sim(subdir, iterations=10000, command=1):
+    output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
+        datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
+        datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
     starttime = time.time()
 
     # some minor progress-bar-initialization
@@ -111,14 +114,14 @@ def sim(subdir, iterations=10000, command=1):
                 if command == 2:
                     if settings.simc_scale_factors_stage3:
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'iterations=' + str(iterations), 'calculate_scale_factors=1',
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
                                'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                     else:
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'iterations=' + str(iterations),
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
@@ -143,8 +146,11 @@ def sim(subdir, iterations=10000, command=1):
 
 
 # Calls simcraft to simulate all .sim-files in a subdir
-# todo: command: calls a specific command-line for simcraft, e.g. one for patchwerk, for aoe etc.
+# uses target_error as function
 def sim_targeterror(subdir, targeterror=1, command=1):
+    output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
+        datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
+        datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
     starttime = time.time()
 
     # some minor progress-bar-initialization
@@ -168,14 +174,14 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                 if command == 2:
                     if settings.simc_scale_factors_stage3:
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'target_error=' + str(targeterror), 'calculate_scale_factors=1',
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
                                'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                     else:
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, name) + '.html',
+                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'target_error=' + str(targeterror),
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
@@ -303,7 +309,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
     subfolder = os.path.join(os.getcwd(), target_subdir)
     purge_subfolder(subfolder)
 
-    output = open(os.path.join(os.getcwd(), target_subdir, "best" + str(count) + ".sim"), "w")
+    output = open(os.path.join(os.getcwd(), target_subdir, "best.sim"), "w")
     for line in bestprofiles:
         output.write(line)
 
