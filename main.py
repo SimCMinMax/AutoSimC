@@ -273,15 +273,18 @@ def cleanup():
                     printLog("Moving file: " + str(file))
                     shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
                                 os.path.join(os.getcwd(), settings.result_subfolder, file))
-    if input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
-        printLog("Removing: " + settings.subdir1)
-        shutil.rmtree(settings.subdir1)
-    if input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
-        shutil.rmtree(settings.subdir2)
-        printLog("Removing: " + settings.subdir2)
-    if input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
-        shutil.rmtree(settings.subdir3)
-        printLog("Removing: " + settings.subdir3)
+    if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
+        if input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
+            printLog("Removing: " + settings.subdir1)
+            shutil.rmtree(settings.subdir1)
+    if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
+        if input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
+            shutil.rmtree(settings.subdir2)
+            printLog("Removing: " + settings.subdir2)
+    if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
+        if input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
+            shutil.rmtree(settings.subdir3)
+            printLog("Removing: " + settings.subdir3)
 
 
 #########################
