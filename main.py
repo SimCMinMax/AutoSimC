@@ -509,7 +509,7 @@ if b_simcraft_enabled:
         printLog("Analyzer-file found")
         # uses target_error as default
         target_error_mode = True
-        printLog("Using " + str(settings.analyzer_filename) + " as database\n")
+        printLog("Using " + str(settings.analyzer_filename) + " as database")
         class_spec = ""
         if c_class == "deathknight":
             if c_spec == "frost":
@@ -573,7 +573,7 @@ if b_simcraft_enabled:
             elif c_spec == "destruction":
                 class_spec = "Destruction Warlock"
         else:
-            printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
+            printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec))
             print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
 
         print("You have to choose one of the following modes for calculation:")
@@ -585,11 +585,11 @@ if b_simcraft_enabled:
         print(
             "   It uses the chosen correctness for the first part; in finetuning part the error lowers to " + str(
                 target_error_secondpart) + " and " + str(
-                target_error_thirdpart) + " for the final top 3")
+                target_error_thirdpart) + " for the final top "+str(settings.default_top_n_stage3))
         sim_mode = input("Please choose your mode: ")
 
         # static mode
-        if str(sim_mode) == str(1):
+        if sim_mode == "1":
             printLog("Mode" + str(sim_mode) + " chosen")
             if s_stage == "stage1":
                 printLog("Entering stage: " + str(s_stage))
@@ -600,7 +600,7 @@ if b_simcraft_enabled:
                 s_stage = "stage2"
 
             if s_stage == "stage2":
-                printLog("Entering stage 2\n")
+                printLog("Entering stage 2")
                 # check if files exist
                 if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
                     does_file_exist = False
@@ -618,12 +618,12 @@ if b_simcraft_enabled:
                         splitter.sim(settings.subdir2, iterations_secondpart, 1)
                         s_stage = "stage3"
                     else:
-                        print("Error: No files exist in stage1-directory\n")
+                        print("Error: No files exist in stage1-directory")
                 else:
-                    print("No path was created in stage1\n")
+                    print("No path was created in stage1")
 
             if s_stage == "stage3":
-                printLog("Entering stage 3\n")
+                printLog("Entering stage 3")
                 if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
                     does_file_exist = False
                     for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir2)):
@@ -639,20 +639,20 @@ if b_simcraft_enabled:
                         # sim them finally with all options enabled; html-output remains in this folder
                         splitter.sim(settings.subdir3, iterations_thirdpart, 2)
                     else:
-                        print("Error: No files exist in stage2-directory\n")
+                        print("Error: No files exist in stage2-directory")
                 else:
-                    print("No path was created in stage2\n")
+                    print("No path was created in stage2")
 
         # dynamic mode
-        if str(sim_mode) == str(2):
-            printLog("Mode" + str(sim_mode) + " chosen\n")
+        if sim_mode == "2":
+            printLog("Mode" + str(sim_mode) + " chosen")
             if s_stage == "stage1":
-                printLog("Entering stage 1\n")
+                printLog("Entering stage 1")
                 result_data = get_data(class_spec)
-                print("Listing options:\n")
-                print("Estimated calculation times based on your data:\n")
-                print("Class/Spec: " + str(class_spec) + "\n")
-                print("Number of permutations to simulate: " + str(i_generatedProfiles) + "\n")
+                print("Listing options:")
+                print("Estimated calculation times based on your data:")
+                print("Class/Spec: " + str(class_spec))
+                print("Number of permutations to simulate: " + str(i_generatedProfiles))
                 for current in range(len(result_data)):
                     te = result_data[current][0]
                     tp = round(float(result_data[current][2]), 2)
@@ -667,19 +667,19 @@ if b_simcraft_enabled:
                     printLog("Quitting application")
                     sys.exit(0)
                 if int(calc_choice) < len(result_data) and int(calc_choice) > 0:
-                    printLog("Sim: Chosen Class/Spec: " + str(class_spec) + "\n")
-                    printLog("Sim: Number of permutations: " + str(i_generatedProfiles) + "\n")
-                    printLog("Sim: Chosen calculation:" + str(int(calc_choice)) + "\n")
+                    printLog("Sim: Chosen Class/Spec: " + str(class_spec))
+                    printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
+                    printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
 
                     te = result_data[int(calc_choice)][0]
                     tp = round(float(result_data[int(calc_choice)][2]), 2)
                     est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
 
                     printLog(
-                        "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + "Time/Profile:" + str(
-                            tp) + " => Est. calc. time: " + str(est) + " sec\n")
+                        "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + " Time/Profile:" + str(
+                            tp) + " => Est. calc. time: " + str(est) + " sec")
                     time_all = round(est, 0)
-                    printLog("Estimated calculation time: " + str(time_all) + "\n")
+                    printLog("Estimated calculation time: " + str(time_all) + "")
                     if time_all > 86400:
                         proceed = input(
                             "Warning: This might take a *VERY* long time (>24h) (q to quit, Enter to continue: )")
@@ -713,7 +713,7 @@ if b_simcraft_enabled:
                     s_stage = "stage2"
 
             if s_stage == "stage2":
-                printLog("Entering stage 2\n")
+                printLog("Entering stage 2")
                 # check if files exist
                 if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
                     does_file_exist = False
@@ -736,7 +736,7 @@ if b_simcraft_enabled:
                         if float(target_error_secondpart) <= float(target_error_thirdpart):
                             printLog("Target_Error chosen in stage 2: " + str(
                                 target_error_secondpart) + " <= Target_Error stage 3: " + str(
-                                target_error_thirdpart) + "\n")
+                                target_error_thirdpart))
                             print("Warning!\n")
                             new_value = input(
                                 "Do you want to continue (y), quit (q) or enter a new target_error for stage2 (n)?: ")
@@ -757,7 +757,7 @@ if b_simcraft_enabled:
                     print("No path was created in stage1")
 
             if s_stage == "stage3":
-                printLog("Entering stage 3\n")
+                printLog("Entering stage 3")
                 if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
                     does_file_exist = False
                     for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir2)):
