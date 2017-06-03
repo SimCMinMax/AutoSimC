@@ -25,7 +25,7 @@ class settings():
     # for the -sim option
     # path to your simcraft .exe
     # don´t forget to include double-backslash for subfolders
-    simc_path= 'D:\\Downloads\\simc-720-03-win64-96c9cf0\\simc-720-03-win64\\simc.exe'
+    simc_path = 'D:\\Downloads\\simc-720-03-win64-4d83aa8\\simc-720-03-win64\\simc.exe'
     # these folders will be created during calculation
     # stage 1,2,3 correspond accordingly
     subdir1 = "temp_step1"
@@ -36,7 +36,6 @@ class settings():
     # the resulting html will be renamed to: <Date - best<-n>.html> with n incrementing
     clean_up_after_step3 = True
     result_subfolder = "results"
-
 
     # for static mode
     default_iterations_stage1 = 100
@@ -64,7 +63,9 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = True
+    simc_scale_factors_stage3 = False
+    # 0|1
+    simc_ptr = 1
 
     # For Analysis.py
     analyzer_path = "profiles"

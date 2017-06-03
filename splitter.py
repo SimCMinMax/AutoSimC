@@ -109,7 +109,7 @@ def sim(subdir, iterations=10000, command=1):
                     cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                            'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                            'iterations=' + str(iterations), 'threads=' + str(settings.simc_threads),
-                           'fight_style=' + str(settings.default_fightstyle),
+                           'fight_style=' + str(settings.default_fightstyle), 'ptr='+str(settings.simc_ptr),
                            'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                 if command == 2:
                     if settings.simc_scale_factors_stage3:
@@ -117,14 +117,14 @@ def sim(subdir, iterations=10000, command=1):
                                'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'iterations=' + str(iterations), 'calculate_scale_factors=1',
                                'threads=' + str(settings.simc_threads),
-                               'fight_style=' + str(settings.default_fightstyle),
+                               'fight_style=' + str(settings.default_fightstyle), 'ptr='+str(settings.simc_ptr),
                                'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                     else:
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                                'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'iterations=' + str(iterations),
                                'threads=' + str(settings.simc_threads),
-                               'fight_style=' + str(settings.default_fightstyle),
+                               'fight_style=' + str(settings.default_fightstyle), 'ptr='+str(settings.simc_ptr),
                                'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
 
                 print(cmd)
@@ -168,7 +168,7 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                 if command == 1:
                     cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                            'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                           'fight_style=' + str(settings.default_fightstyle),
+                           'fight_style=' + str(settings.default_fightstyle), 'ptr='+str(settings.simc_ptr),
                            'target_error=' + str(targeterror), 'threads=' + str(settings.simc_threads),
                            'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                 if command == 2:
@@ -176,13 +176,13 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                                'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
                                'target_error=' + str(targeterror), 'calculate_scale_factors=1',
-                               'threads=' + str(settings.simc_threads),
+                               'threads=' + str(settings.simc_threads), 'ptr='+str(settings.simc_ptr),
                                'fight_style=' + str(settings.default_fightstyle),
                                'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
                     else:
                         cmd = [simc_path, os.path.join(os.getcwd(), subdir, file),
                                'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
-                               'target_error=' + str(targeterror),
+                               'target_error=' + str(targeterror), 'ptr='+str(settings.simc_ptr),
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
                                'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
