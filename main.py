@@ -693,6 +693,7 @@ if b_simcraft_enabled:
                     splitter.sim_targeterror(settings.subdir1, str(te), 1)
                     # if the user chose a target_error which is lower than the default_one for the next step
                     # he is given an option to either skip stage 2 or adjust the target_error
+                    s_stage = "stage2"
                     if float(te) <= float(settings.default_target_error_stage2):
                         printLog("Target_Error chosen in stage 1: " + str(te) + " <= Target_Error stage 2: " + str(
                             target_error_secondpart) + "\n")
@@ -700,17 +701,17 @@ if b_simcraft_enabled:
                         print("Target_Error chosen in stage 1: " + str(te) + " <= Target_Error stage 2: " + str(
                             target_error_secondpart) + "\n")
                         new_value = input(
-                            "Do you want to continue (y), quit (q) or enter a new target_error for stage2 (n)?: ")
+                            "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error for stage2 (n)?: ")
                         printLog("User chose: " + str(new_value))
                         if new_value == "q":
                             sys.exit(0)
                         if new_value == "n":
                             target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
                             printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                            s_stage = "stage2"
-                        else:
-                            s_stage = "stage2"
-                    s_stage = "stage2"
+                        if new_value == "s":
+                            s_stage = "stage3"
+                            # todo ugly, fix this somehow
+                            settings.subdir2 = settings.subdir1
 
             if s_stage == "stage2":
                 printLog("Entering stage 2")
