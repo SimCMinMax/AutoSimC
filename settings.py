@@ -65,7 +65,13 @@ class settings():
     # True|False
     simc_scale_factors_stage3 = False
     # 0|1
-    simc_ptr = 1
+    simc_ptr = 0
+    # additional input you might want to sim according to
+    # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
+    # the file must be present in the autosimc-folder
+    # if you don´t want to use this, set it no "nul"
+    additional_input_file = "nul"
+    #additional_input_file= "additional_input.txt"
 
     # For Analysis.py
     analyzer_path = "profiles"
