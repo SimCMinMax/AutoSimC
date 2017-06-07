@@ -13,6 +13,8 @@ c_profileid = 0
 c_profilemaxid = 0
 legmin = settings.default_leg_min
 legmax = settings.default_leg_max
+t19 = settings.default_equip_t19_min
+t20 = settings.default_equip_t20_min
 
 outputFileName = settings.default_outputFileName
 # txt, because standard-user cannot be trusted
@@ -81,6 +83,20 @@ def handlePermutation(elements):
 
 # Check if permutation is valid
 def checkUsability():
+    temp_t19 = 0
+    temp_t20 = 0
+
+    for i in range(len(l_gear)):
+        print(l_gear[i][0:3])
+        if l_gear[i][0:3] == "T19":
+            temp_t19 = temp_t19 + 1
+        if l_gear[i][0:3] == "T20":
+            temp_t20 = temp_t20 + 1
+    if temp_t19 < int(t19):
+        return str(temp_t19) + ": too few T19-items"
+    if temp_t20 < int(t20):
+        return str(temp_t20) + ": too few T20-items"
+
     if l_gear[10] == l_gear[11]:
         return "Same ring"
     if l_gear[12] == l_gear[13]:
@@ -129,15 +145,53 @@ def scpout(oh):
         outputFile.write("artifact=" + c_artifact + "\n")
         if c_other != "":
             outputFile.write(c_other + "\n")
-        outputFile.write("head=" + (l_gear[0] if l_gear[0][0] != "L" else l_gear[0][1:]) + "\n")
+        if l_gear[0][0] == "L":
+            outputFile.write("head=" + l_gear[0][1:] + "\n")
+        elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
+            outputFile.write("head=" + l_gear[0][3:] + "\n")
+        else:
+            outputFile.write("head=" + l_gear[0] + "\n")
         outputFile.write("neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
-        outputFile.write("shoulders=" + (l_gear[2] if l_gear[2][0] != "L" else l_gear[2][1:]) + "\n")
-        outputFile.write("back=" + (l_gear[3] if l_gear[3][0] != "L" else l_gear[3][1:]) + "\n")
-        outputFile.write("chest=" + (l_gear[4] if l_gear[4][0] != "L" else l_gear[4][1:]) + "\n")
+
+        if l_gear[2][0] == "L":
+            outputFile.write("shoulders=" + l_gear[2][1:] + "\n")
+        elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20"):
+            outputFile.write("shoulders=" + l_gear[2][3:] + "\n")
+        else:
+            outputFile.write("shoulders=" + l_gear[2] + "\n")
+
+        if l_gear[3][0] == "L":
+            outputFile.write("back=" + l_gear[3][1:] + "\n")
+        elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20"):
+            outputFile.write("back=" + l_gear[3][3:] + "\n")
+        else:
+            outputFile.write("back=" + l_gear[3] + "\n")
+
+        if l_gear[4][0] == "L":
+            outputFile.write("chest=" + l_gear[4][1:] + "\n")
+        elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20"):
+            outputFile.write("chest=" + l_gear[4][3:] + "\n")
+        else:
+            outputFile.write("chest=" + l_gear[4] + "\n")
+
         outputFile.write("wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
-        outputFile.write("hands=" + (l_gear[6] if l_gear[6][0] != "L" else l_gear[6][1:]) + "\n")
+
+        if l_gear[6][0] == "L":
+            outputFile.write("hands=" + l_gear[6][1:] + "\n")
+        elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20"):
+            outputFile.write("hands=" + l_gear[6][3:] + "\n")
+        else:
+            outputFile.write("hands=" + l_gear[6] + "\n")
+
         outputFile.write("waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
-        outputFile.write("legs=" + (l_gear[8] if l_gear[8][0] != "L" else l_gear[8][1:]) + "\n")
+
+        if l_gear[8][0] == "L":
+            outputFile.write("legs=" + l_gear[8][1:] + "\n")
+        elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20"):
+            outputFile.write("legs=" + l_gear[8][3:] + "\n")
+        else:
+            outputFile.write("legs=" + l_gear[8] + "\n")
+
         outputFile.write("feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
         outputFile.write("finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
         outputFile.write("finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
@@ -295,9 +349,15 @@ logFile = open(logFileName, 'w')
 
 handleCommandLine()
 
+# validate amount of legendaries
 if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
     printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
         legmax) + ". Please check settings.py for these parameters!")
+    sys.exit(1)
+# validate tier-set
+if int(t19) + int(t20) > 6:
+    printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
+        t20) + ". Please check settings.py for these parameters!")
     sys.exit(1)
 
 if s_stage != "stage2" and s_stage != "stage3":
@@ -475,7 +535,7 @@ if s_stage != "stage2" and s_stage != "stage3":
                                                             l_gear[14] = l_main_hand[o]
                                                             scpout(0)
 
-    printLog("Ending permutations")
+    printLog("Ending permutations. Valid: " + str(i_generatedProfiles))
     print("Generated permutations: " + str(i_generatedProfiles))
     outputFile.close()
 
@@ -503,6 +563,10 @@ if i_generatedProfiles > 100000:
 if user_input == "q":
     printLog("Program exit by user")
     sys.exit(0)
+
+if i_generatedProfiles == 0:
+    print("No valid combinations found. Please check settings.py and your simpermut-export.")
+    sys.exit(1)
 
 if b_simcraft_enabled:
     if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
@@ -585,7 +649,7 @@ if b_simcraft_enabled:
         print(
             "   It uses the chosen correctness for the first part; in finetuning part the error lowers to " + str(
                 target_error_secondpart) + " and " + str(
-                target_error_thirdpart) + " for the final top "+str(settings.default_top_n_stage3))
+                target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
         sim_mode = input("Please choose your mode: ")
 
         # static mode

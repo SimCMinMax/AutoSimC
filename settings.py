@@ -15,6 +15,15 @@ class settings():
     default_leg_min = 2
     default_leg_max = 2
 
+    # ----------------------------------------------------------------------
+    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
+    # ----------------------------------------------------------------------
+    # set the amount of minimum tier-items you want to include in your output
+    # this reduces the number of permutations generated if you know what you want to sim
+    # if you have no clue which items do what (= sim every combination), set both to 0
+    default_equip_t19_min = 4
+    default_equip_t20_min = 0
+
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
     b_quiet = 1
@@ -71,7 +80,7 @@ class settings():
     # the file must be present in the autosimc-folder
     # if you don´t want to use this, set it no "nul"
     additional_input_file = "nul"
-    #additional_input_file= "additional_input.txt"
+    # additional_input_file= "additional_input.txt"
 
     # For Analysis.py
     analyzer_path = "profiles"

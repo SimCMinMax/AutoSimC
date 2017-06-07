@@ -7,6 +7,7 @@ IF ERRORLEVEL 1 (
 ) ELSE (
     ECHO Python.exe exists. Launching AutoSimC!
    python.exe main.py -i input.txt -o out.simc -quiet -sim stage1
+   pause
 )
 
 REM For legendary permutations in command line, use this command :
