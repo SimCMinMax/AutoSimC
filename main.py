@@ -87,7 +87,6 @@ def checkUsability():
     temp_t20 = 0
 
     for i in range(len(l_gear)):
-        print(l_gear[i][0:3])
         if l_gear[i][0:3] == "T19":
             temp_t19 = temp_t19 + 1
         if l_gear[i][0:3] == "T20":
