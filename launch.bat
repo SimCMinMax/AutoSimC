@@ -2,8 +2,7 @@
 where /q python.exe
 IF ERRORLEVEL 1 (
    ECHO Python.exe is missing. Ensure it is installed and placed in your PATH.
-   timeout 10
-   EXIT /B
+   pause
 ) ELSE (
     ECHO Python.exe exists. Launching AutoSimC!
    python.exe main.py -i input.txt -o out.simc -quiet -sim stage1
