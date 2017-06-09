@@ -55,6 +55,7 @@ What can be changed (command prefix are case sensitive):
          (These numbers might be changed in future versions)
          It is now also possible to "resume" at stage1, 2 or 3, if a previous stage has been fully calculated and generated a .result in the equivalent folder. Please use this feature with care.
          (default: -sim stage1)
+		 You have to set the simc path in the setttings.py file.
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
 - -l Leg_List : List of legendaries to add to the template. Format :
@@ -64,6 +65,8 @@ After are parameters that I added to help Aethys build SimulationCraft's best le
 (seperate each leg with a comma (",") and wrap everything with double quote (" " ")
 - Min_leg : Minimum number of legendaries in the permutations. Default : 0
 - Max_Leg : Maximum number of legendaries in the permutations. Default : 2
+
+You can change a good number of settings in the settings.py file.
 
 ## Analyzer:
 Included is Analyzer.py, which uses the standard-simc-profiles for each class to generate a Analysis.json (in profiles-folder), which represents calculation data for each class/spec.
@@ -87,4 +90,6 @@ Aethys
 
 Kutikuti (SimPermut integration)
 
-[Quichons guild](http://www.quichons.fr/) from EU-Elune (fr).
+Bickus (All the fancy things)
+
+
