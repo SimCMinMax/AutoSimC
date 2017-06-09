@@ -34,7 +34,7 @@ class settings():
     # for the -sim option
     # path to your simcraft .exe
     # don´t forget to include double-backslash for subfolders
-    simc_path = 'D:\\Downloads\\simc-720-03-win64-4d83aa8\\simc-720-03-win64\\simc.exe'
+    simc_path = 'D:\\Downloads\\simc-720-03-win64-fd68135\\simc-720-03-win64\\simc.exe'
     # these folders will be created during calculation
     # stage 1,2,3 correspond accordingly
     subdir1 = "temp_step1"
@@ -42,7 +42,7 @@ class settings():
     subdir3 = "temp_step3"
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
-    # the resulting html will be renamed to: <Date - best<-n>.html> with n incrementing
+    # the resulting html will be renamed to: <Timestamp - best.html>
     clean_up_after_step3 = True
     result_subfolder = "results"
 

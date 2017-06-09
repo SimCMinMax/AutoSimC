@@ -489,7 +489,7 @@ if s_stage != "stage2" and s_stage != "stage3":
         l_off_hand)
 
     if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
-            round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue: ") == "y":
+            round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue, Enter to exit: ") == "y":
         printLog("User exit")
         sys.exit(0)
 
@@ -535,7 +535,7 @@ if s_stage != "stage2" and s_stage != "stage3":
                                                             scpout(0)
 
     printLog("Ending permutations. Valid: " + str(i_generatedProfiles))
-    print("Generated permutations: " + str(i_generatedProfiles))
+    print("Generated permutations. Valid: " + str(i_generatedProfiles))
     outputFile.close()
 
 # here comes the fun part, which makes autosimc a true automatic simcraft-tool
@@ -649,7 +649,7 @@ if b_simcraft_enabled:
             "   It uses the chosen correctness for the first part; in finetuning part the error lowers to " + str(
                 target_error_secondpart) + " and " + str(
                 target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
-        sim_mode = input("Please choose your mode: ")
+        sim_mode = input("Please choose your mode (Enter to exit): ")
 
         # static mode
         if sim_mode == "1":
