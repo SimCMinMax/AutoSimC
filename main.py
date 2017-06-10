@@ -292,6 +292,7 @@ def handleCommandLine():
             # check path of simc.exe
             if not os.path.exists(settings.simc_path):
                 printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+                print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
                 sys.exit(1)
             else:
                 printLog("Path to simc.exe valid, proceeding...")
