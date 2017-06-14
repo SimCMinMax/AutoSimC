@@ -580,14 +580,22 @@ if b_simcraft_enabled:
                 class_spec = "Frost Death Knight"
             elif c_spec == "unholy":
                 class_spec = "Unholy Death Knight"
+            elif c_spec == "blood":
+                class_spec = "Blood Death Knight"
         elif c_class == "demonhunter":
             if c_spec == "havoc":
                 class_spec = "Havoc Demon Hunter"
+            elif c_spec == "vengeance":
+                class_spec = "Vengeance Demon Hunter"
         elif c_class == "druid":
             if c_spec == "balance":
                 class_spec = "Balance Druid"
             elif c_spec == "feral":
                 class_spec = "Feral Druid"
+            elif c_spec == "guardian":
+                class_spec = "Guardian Druid"
+            elif c_spec == "restoration":
+                class_spec = "Restoration Druid"
         elif c_class == "hunter":
             if c_spec == "beast_mastery":
                 class_spec = "Beast Mastery Hunter"
@@ -605,17 +613,31 @@ if b_simcraft_enabled:
         elif c_class == "priest":
             if c_spec == "shadow":
                 class_spec = "Shadow Priest"
+            elif c_spec == "diszipline":
+                class_spec = "Diszipline Priest"
+            elif c_spec == "holy":
+                class_spec = "Holy Priest"
         elif c_class == "paladin":
             if c_spec == "retribution":
                 class_spec = "Retribution Paladin"
+            elif c_spec == "holy":
+                class_spec = "Holy Paladin"
+            elif c_spec == "protection":
+                class_spec = "Protection Paladin"
         elif c_class == "monk":
             if c_spec == "windwalker":
                 class_spec = "Windwalker Monk"
+            elif c_spec == "brewmaster":
+                class_spec = "Brewmaster Monk"
+            elif c_spec == "mistweaver":
+                class_spec = "Mistweaver Monk"
         elif c_class == "shaman":
             if c_spec == "enhancement":
                 class_spec = "Enhancement Shaman"
             elif c_spec == "elemental":
                 class_spec = "Elemental Shaman"
+            elif c_spec == "restoration":
+                class_spec = "Restoration Shaman"
         elif c_class == "rogue":
             if c_spec == "subtlety":
                 class_spec = "Subtlety Rogue"
@@ -623,12 +645,13 @@ if b_simcraft_enabled:
                 class_spec = "Outlaw Rogue"
             elif c_spec == "assassination":
                 class_spec = "Assassination Rogue"
-        # todo check the following names, also add tanks and healers
         elif c_class == "warrior":
             if c_spec == "fury":
                 class_spec = "Fury Warrior"
             elif c_spec == "arms":
                 class_spec = "Arms Warrior"
+            elif c_spec == "protection":
+                class_spec = "Protection Warrior"
         elif c_class == "warlock":
             if c_spec == "affliction":
                 class_spec = "Affliction Warlock"
