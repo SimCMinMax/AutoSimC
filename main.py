@@ -753,7 +753,7 @@ if b_simcraft_enabled:
                 if calc_choice == "q":
                     printLog("Quitting application")
                     sys.exit(0)
-                if int(calc_choice) < len(result_data) and int(calc_choice) > 0:
+                if int(calc_choice) < len(result_data) and int(calc_choice) >= 0:
                     printLog("Sim: Chosen Class/Spec: " + str(class_spec))
                     printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
                     printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
