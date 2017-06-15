@@ -1,0 +1,27 @@
+hunter="Hunter_Marksmanship_T20M"
+level=110
+race=troll
+role=attack
+position=ranged_back
+talents=1303013
+artifact=55:0:0:0:0:307:1:308:1:309:1:310:1:311:1:312:4:313:4:314:4:315:4:316:4:317:4:318:4:319:4:320:4:321:1:322:1:1337:1:1369:1:1521:4:1522:1:1523:1:1524:1:1637:1
+spec=marksmanship
+
+head=wildstalker_helmet,id=147142,bonus_id=1512/3563
+neck=locket_of_splintered_souls,id=147014,bonus_id=1512/3563,enchant=mark_of_the_hidden_satyr
+shoulders=wildstalker_spaulders,id=147144,bonus_id=1512/3563
+back=wildstalker_cape,id=147140,bonus_id=1512/3563,enchant=binding_of_agility
+chest=wildstalker_chestguard,id=147139,bonus_id=1512/3563
+wrists=painsinged_armguards,id=147057,bonus_id=1512/3563
+hands=vicegrip_of_the_unrepentant,id=147048,bonus_id=1522/3563
+# hands=mkii_gyroscopic_stabilizer,id=144303,bonus_id=3570
+waist=waistguard_of_interminable_unity,id=147056,bonus_id=1512/3563
+legs=legguards_of_siphoned_power,id=147052,bonus_id=1512/3563
+feet=ullrs_feather_snowshoes,id=137033,bonus_id=3570
+# feet=starstalker_treads,id=147046,bonus_id=1522/3563
+finger1=soul_of_the_huntmaster,id=151641,bonus_id=3570,gems=150mastery,enchant=binding_of_mastery
+# finger1=scaled_band_of_servitude,id=147020,bonus_id=1512/3563,enchant=binding_of_mastery
+finger2=seal_of_the_second_duumvirate,id=147195,bonus_id=1522/3563,enchant=binding_of_mastery
+trinket1=tarnished_sentinel_medallion,id=147017,bonus_id=1512/3563
+trinket2=convergence_of_fates,id=140806,bonus_id=3518
+main_hand=thasdorah_legacy_of_the_windrunners,id=128826,gem_id=147112/147082/147105,relic_id=1512:3563/1522:3563/1512:3563
