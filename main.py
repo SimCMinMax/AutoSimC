@@ -360,6 +360,10 @@ if int(t19) + int(t20) > 6:
         t20) + ". Please check settings.py for these parameters!")
     sys.exit(1)
 
+if settings.simc_safe_mode:
+    settings.simc_threads = 1
+    splitter.single_actor_batch = 0
+
 if s_stage != "stage2" and s_stage != "stage3":
     # Read input.txt to init vars
     config = configparser.ConfigParser()
@@ -569,99 +573,118 @@ if i_generatedProfiles == 0:
     sys.exit(1)
 
 if b_simcraft_enabled:
+    class_spec = ""
+    b_heal = False
+    b_tank = False
+    if c_class == "deathknight":
+        if c_spec == "frost":
+            class_spec = "Frost Death Knight"
+        elif c_spec == "unholy":
+            class_spec = "Unholy Death Knight"
+        elif c_spec == "blood":
+            class_spec = "Blood Death Knight"
+            b_tank = True
+    elif c_class == "demonhunter":
+        if c_spec == "havoc":
+            class_spec = "Havoc Demon Hunter"
+        elif c_spec == "vengeance":
+            class_spec = "Vengeance Demon Hunter"
+            b_tank = True
+    elif c_class == "druid":
+        if c_spec == "balance":
+            class_spec = "Balance Druid"
+        elif c_spec == "feral":
+            class_spec = "Feral Druid"
+        elif c_spec == "guardian":
+            class_spec = "Guardian Druid"
+            b_tank = True
+        elif c_spec == "restoration":
+            class_spec = "Restoration Druid"
+            b_heal = True
+    elif c_class == "hunter":
+        if c_spec == "beast_mastery":
+            class_spec = "Beast Mastery Hunter"
+        elif c_spec == "survival":
+            class_spec = "Survival Hunter"
+        elif c_spec == "marksmanship":
+            class_spec = "Marksmanship Hunter"
+    elif c_class == "mage":
+        if c_spec == "frost":
+            class_spec = "Frost Mage"
+        elif c_spec == "arcane":
+            class_spec = "Arcane Mage"
+        elif c_spec == "fire":
+            class_spec = "Fire Mage"
+    elif c_class == "priest":
+        if c_spec == "shadow":
+            class_spec = "Shadow Priest"
+        elif c_spec == "diszipline":
+            class_spec = "Diszipline Priest"
+            b_heal = True
+        elif c_spec == "holy":
+            class_spec = "Holy Priest"
+            b_heal = True
+    elif c_class == "paladin":
+        if c_spec == "retribution":
+            class_spec = "Retribution Paladin"
+        elif c_spec == "holy":
+            class_spec = "Holy Paladin"
+            b_heal = True
+        elif c_spec == "protection":
+            class_spec = "Protection Paladin"
+            b_tank = True
+    elif c_class == "monk":
+        if c_spec == "windwalker":
+            class_spec = "Windwalker Monk"
+        elif c_spec == "brewmaster":
+            class_spec = "Brewmaster Monk"
+            b_tank = True
+        elif c_spec == "mistweaver":
+            class_spec = "Mistweaver Monk"
+            b_heal = True
+    elif c_class == "shaman":
+        if c_spec == "enhancement":
+            class_spec = "Enhancement Shaman"
+        elif c_spec == "elemental":
+            class_spec = "Elemental Shaman"
+        elif c_spec == "restoration":
+            class_spec = "Restoration Shaman"
+            b_heal = True
+    elif c_class == "rogue":
+        if c_spec == "subtlety":
+            class_spec = "Subtlety Rogue"
+        elif c_spec == "outlaw":
+            class_spec = "Outlaw Rogue"
+        elif c_spec == "assassination":
+            class_spec = "Assassination Rogue"
+    elif c_class == "warrior":
+        if c_spec == "fury":
+            class_spec = "Fury Warrior"
+        elif c_spec == "arms":
+            class_spec = "Arms Warrior"
+        elif c_spec == "protection":
+            class_spec = "Protection Warrior"
+            b_tank = True
+    elif c_class == "warlock":
+        if c_spec == "affliction":
+            class_spec = "Affliction Warlock"
+        elif c_spec == "demonology":
+            class_spec = "Demonology Warlock"
+        elif c_spec == "destruction":
+            class_spec = "Destruction Warlock"
+    else:
+        printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec))
+        print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
+        sys.exit(1)
+    printLog("Using class_spec: "+class_spec)
+    if b_tank or b_heal:
+        if input("You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results! (Enter to continue") == "q":
+            printLog("Manually aborting because heal- or tankspec was chosen")
+            sys.exit(0)
+
     if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
         printLog("Analyzer-file found")
-        # uses target_error as default
-        target_error_mode = True
         printLog("Using " + str(settings.analyzer_filename) + " as database")
-        class_spec = ""
-        if c_class == "deathknight":
-            if c_spec == "frost":
-                class_spec = "Frost Death Knight"
-            elif c_spec == "unholy":
-                class_spec = "Unholy Death Knight"
-            elif c_spec == "blood":
-                class_spec = "Blood Death Knight"
-        elif c_class == "demonhunter":
-            if c_spec == "havoc":
-                class_spec = "Havoc Demon Hunter"
-            elif c_spec == "vengeance":
-                class_spec = "Vengeance Demon Hunter"
-        elif c_class == "druid":
-            if c_spec == "balance":
-                class_spec = "Balance Druid"
-            elif c_spec == "feral":
-                class_spec = "Feral Druid"
-            elif c_spec == "guardian":
-                class_spec = "Guardian Druid"
-            elif c_spec == "restoration":
-                class_spec = "Restoration Druid"
-        elif c_class == "hunter":
-            if c_spec == "beast_mastery":
-                class_spec = "Beast Mastery Hunter"
-            elif c_spec == "survival":
-                class_spec = "Survival Hunter"
-            elif c_spec == "marksmanship":
-                class_spec = "Marksmanship Hunter"
-        elif c_class == "mage":
-            if c_spec == "frost":
-                class_spec = "Frost Mage"
-            elif c_spec == "arcane":
-                class_spec = "Arcane Mage"
-            elif c_spec == "fire":
-                class_spec = "Fire Mage"
-        elif c_class == "priest":
-            if c_spec == "shadow":
-                class_spec = "Shadow Priest"
-            elif c_spec == "diszipline":
-                class_spec = "Diszipline Priest"
-            elif c_spec == "holy":
-                class_spec = "Holy Priest"
-        elif c_class == "paladin":
-            if c_spec == "retribution":
-                class_spec = "Retribution Paladin"
-            elif c_spec == "holy":
-                class_spec = "Holy Paladin"
-            elif c_spec == "protection":
-                class_spec = "Protection Paladin"
-        elif c_class == "monk":
-            if c_spec == "windwalker":
-                class_spec = "Windwalker Monk"
-            elif c_spec == "brewmaster":
-                class_spec = "Brewmaster Monk"
-            elif c_spec == "mistweaver":
-                class_spec = "Mistweaver Monk"
-        elif c_class == "shaman":
-            if c_spec == "enhancement":
-                class_spec = "Enhancement Shaman"
-            elif c_spec == "elemental":
-                class_spec = "Elemental Shaman"
-            elif c_spec == "restoration":
-                class_spec = "Restoration Shaman"
-        elif c_class == "rogue":
-            if c_spec == "subtlety":
-                class_spec = "Subtlety Rogue"
-            elif c_spec == "outlaw":
-                class_spec = "Outlaw Rogue"
-            elif c_spec == "assassination":
-                class_spec = "Assassination Rogue"
-        elif c_class == "warrior":
-            if c_spec == "fury":
-                class_spec = "Fury Warrior"
-            elif c_spec == "arms":
-                class_spec = "Arms Warrior"
-            elif c_spec == "protection":
-                class_spec = "Protection Warrior"
-        elif c_class == "warlock":
-            if c_spec == "affliction":
-                class_spec = "Affliction Warlock"
-            elif c_spec == "demonology":
-                class_spec = "Demonology Warlock"
-            elif c_spec == "destruction":
-                class_spec = "Destruction Warlock"
-        else:
-            printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec))
-            print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
 
         print("You have to choose one of the following modes for calculation:")
         print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
@@ -731,7 +754,7 @@ if b_simcraft_enabled:
                     print("No path was created in stage2")
 
         # dynamic mode
-        if sim_mode == "2":
+        if sim_mode == "2" and not class_spec == "":
             printLog("Mode" + str(sim_mode) + " chosen")
             if s_stage == "stage1":
                 printLog("Entering stage 1")
@@ -868,6 +891,8 @@ if b_simcraft_enabled:
                     print("No path was created in stage2")
         else:
             printLog("Wrong mode: " + str(sim_mode))
+    else:
+        printLog("No Analyzer-File found: "+settings.analyzer_filename)
 
 if settings.clean_up_after_step3:
     cleanup()

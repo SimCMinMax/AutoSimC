@@ -14,6 +14,8 @@ subdir1 = settings.subdir1
 subdir2 = settings.subdir2
 subdir3 = settings.subdir3
 
+single_actor_batch=settings.simc_single_actor_batch
+
 
 # deletes and creates needed folders
 # sometimes it generates a permission error; don´t know why (am i removing and recreating too fast?)
@@ -111,7 +113,7 @@ def sim(subdir, iterations=10000, command=1):
                            'iterations=' + str(iterations), 'threads=' + str(settings.simc_threads),
                            'fight_style=' + str(settings.default_fightstyle),
                            'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
                 if command == 2:
                     if settings.simc_scale_factors_stage3:
                         cmd = [simc_path,  'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
@@ -120,7 +122,7 @@ def sim(subdir, iterations=10000, command=1):
                                'threads=' + str(settings.simc_threads),
                                'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
                                'fight_style=' + str(settings.default_fightstyle),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
                     else:
                         cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
                                'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
@@ -128,7 +130,7 @@ def sim(subdir, iterations=10000, command=1):
                                'threads=' + str(settings.simc_threads),
                                'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
                                'fight_style=' + str(settings.default_fightstyle),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
 
                 print(cmd)
                 print("-----------------------------------------------------------------")
@@ -174,7 +176,7 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                            'fight_style=' + str(settings.default_fightstyle),
                            'target_error=' + str(targeterror), 'threads=' + str(settings.simc_threads),
                            'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
                 if command == 2:
                     if settings.simc_scale_factors_stage3:
                         cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
@@ -183,7 +185,7 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
                                'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
                     else:
                         cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
                                'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
@@ -191,7 +193,7 @@ def sim_targeterror(subdir, targeterror=1, command=1):
                                'threads=' + str(settings.simc_threads),
                                'fight_style=' + str(settings.default_fightstyle),
                                'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch=1']
+                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
                 print(cmd)
                 print("-----------------------------------------------------------------")
                 print("Automated Simulation within AutoSimC.")
