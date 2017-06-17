@@ -731,7 +731,6 @@ def static_stage1():
     static_stage2()
 
 
-# todo maybe use some sort of recalculation-logic if some files were 0bytes due to a crash
 def static_stage2():
     printLog("Entering static mode, stage2")
     if checkResultFiles(settings.subdir1):

@@ -63,7 +63,7 @@ class settings():
     default_top_n_stage3 = 3
     default_target_error_stage3 = "0.05"
 
-    # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave
+    # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
     default_fightstyle = "Patchwerk"
 
