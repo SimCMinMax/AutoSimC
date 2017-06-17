@@ -3,7 +3,7 @@ AutoSimC
 
 Python script to create multiple profiles for SimulationCraft to find Best-in-Slot and best enchants/gems/talents combinations.
 
-Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) Discord to ask about specific stuff.
+Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) Discord in the #simpermut-autosimc Channel to ask about specific stuff.
 
 
 ## How does it work ?
