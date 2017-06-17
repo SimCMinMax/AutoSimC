@@ -14,7 +14,7 @@ subdir1 = settings.subdir1
 subdir2 = settings.subdir2
 subdir3 = settings.subdir3
 
-single_actor_batch=settings.simc_single_actor_batch
+single_actor_batch = settings.simc_single_actor_batch
 
 
 # deletes and creates needed folders
@@ -87,9 +87,28 @@ def split(inputfile, size=50):
         sys.exit(1)
 
 
+def generateCommand(file, output, sim_type, stage3):
+    cmd = []
+    cmd.append(simc_path)
+    cmd.append('ptr=' + str(settings.simc_ptr))
+    cmd.append(file)
+    cmd.append(output)
+    cmd.append(sim_type)
+    cmd.append('threads=' + str(settings.simc_threads))
+    cmd.append('fight_style=' + str(settings.default_fightstyle))
+    cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
+    cmd.append('process_priority=' + str(settings.simc_priority))
+    cmd.append('single_actor_batch=' + str(single_actor_batch))
+    if stage3:
+        if settings.simc_scale_factors_stage3:
+            cmd.append('calculate_scale_factors=1')
+    return cmd
+
+
 # Calls simcraft to simulate all .sim-files in a subdir
-# iterations: can be specifically changed to finetune a stage; standard is 10000
-def sim(subdir, iterations=10000, command=1):
+# simtype: 'iterations=n' or 'target_error=n'
+# command: 1 for stage1 and 2, 2 for stage3 (uses html= instead of output=)
+def sim(subdir, simtype, command=1):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
         datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
@@ -108,30 +127,14 @@ def sim(subdir, iterations=10000, command=1):
             if file.endswith(".sim"):
                 name = file[0:file.find(".")]
                 if command == 1:
-                    cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
-                           'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                           'iterations=' + str(iterations), 'threads=' + str(settings.simc_threads),
-                           'fight_style=' + str(settings.default_fightstyle),
-                           'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
+                    cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
+                                          'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
+                                          simtype, False)
                 if command == 2:
-                    if settings.simc_scale_factors_stage3:
-                        cmd = [simc_path,  'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
-                               'iterations=' + str(iterations), 'calculate_scale_factors=1',
-                               'threads=' + str(settings.simc_threads),
-                               'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                               'fight_style=' + str(settings.default_fightstyle),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
-                    else:
-                        cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
-                               'iterations=' + str(iterations),
-                               'threads=' + str(settings.simc_threads),
-                               'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                               'fight_style=' + str(settings.default_fightstyle),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
-
+                    cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
+                                          'html=' + os.path.join(os.getcwd(), subdir,
+                                                                 str(output_time) + "-" + name) + '.html',
+                                          simtype, True)
                 print(cmd)
                 print("-----------------------------------------------------------------")
                 print("Automated Simulation within AutoSimC.")
@@ -150,66 +153,38 @@ def sim(subdir, iterations=10000, command=1):
                 files_processed += 1
 
 
-# Calls simcraft to simulate all .sim-files in a subdir
-# uses target_error as function
-def sim_targeterror(subdir, targeterror=1, command=1):
-    output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
-        datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
-        datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
-    starttime = time.time()
-
-    # some minor progress-bar-initialization
-    amount_of_generated_splits = 0
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-        for file in files:
-            if file.endswith(".sim"):
-                amount_of_generated_splits += 1
-
-    files_processed = 0
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-        for file in files:
-            if file.endswith(".sim"):
-                name = file[0:file.find(".")]
-                if command == 1:
-                    cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
-                           'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                           'fight_style=' + str(settings.default_fightstyle),
-                           'target_error=' + str(targeterror), 'threads=' + str(settings.simc_threads),
-                           'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                           'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
-                if command == 2:
-                    if settings.simc_scale_factors_stage3:
-                        cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
-                               'target_error=' + str(targeterror), 'calculate_scale_factors=1',
-                               'threads=' + str(settings.simc_threads),
-                               'fight_style=' + str(settings.default_fightstyle),
-                               'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
-                    else:
-                        cmd = [simc_path, 'ptr=' + str(settings.simc_ptr), os.path.join(os.getcwd(), subdir, file),
-                               'html=' + os.path.join(os.getcwd(), subdir, str(output_time) + "-" + name) + '.html',
-                               'target_error=' + str(targeterror),
-                               'threads=' + str(settings.simc_threads),
-                               'fight_style=' + str(settings.default_fightstyle),
-                               'input=' + os.path.join(os.getcwd(), settings.additional_input_file),
-                               'process_priority=' + str(settings.simc_priority), 'single_actor_batch='+str(single_actor_batch)]
-                print(cmd)
-                print("-----------------------------------------------------------------")
-                print("Automated Simulation within AutoSimC.")
-                print("Currently processing: " + str(name))
-                print("Processed: " + str(files_processed) + "/" + str(amount_of_generated_splits) + " (" + str(
-                    round(100 * float(int(files_processed) / int(amount_of_generated_splits)), 1)) + "%)")
-                if files_processed > 0:
-                    duration = time.time() - starttime
-                    avg_calctime_hist = duration / files_processed
-                    remaining_time = (amount_of_generated_splits - files_processed) * avg_calctime_hist
-                    print("Remaining calculation time (est.): " + str(remaining_time) + " seconds")
-                    print("Finish time for Step 1(est.): " + time.asctime(time.localtime(time.time() + remaining_time)))
-                    print("Step 1 is the most time consuming, Step 2 and 3 will take ~10-20 minutes combined")
-                print("-----------------------------------------------------------------")
-                subprocess.call(cmd)
-                files_processed += 1
+def resim(subdir):
+    print("Resimming empty files in " + str(subdir))
+    mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
+    if mode == "q":
+        sys.exit(0)
+    elif mode == "1":
+        iterations = input("How many iterations?: ")
+        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+            for file in files:
+                if file.endswith(".result"):
+                    if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
+                        name = file[0:file.find(".")]
+                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name+".sim"),
+                                              'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
+                                              "iterations=" + str(iterations), False)
+                        print("Cmd: "+str(cmd))
+                        subprocess.call(cmd)
+                        return True
+    elif mode == "2":
+        target_error = input("Which target_error?: ")
+        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+            for file in files:
+                if file.endswith(".result"):
+                    if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
+                        name = file[0:file.find(".")]
+                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name+".sim"),
+                                              'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
+                                              "target_error=" + str(target_error), False)
+                        print("Cmd: "+str(cmd))
+                        subprocess.call(cmd)
+                        return True
+    return False
 
 
 # determine best n dps-simulations and grabs their profiles for further simming
@@ -219,7 +194,7 @@ def sim_targeterror(subdir, targeterror=1, command=1):
 # origin: path to the originally in autosimc generated output-file containing all valid profiles
 def grabBest(count, source_subdir, target_subdir, origin):
     print("Grabbest:")
-    print("Variables: count: " + str(count))
+    print("Variables: Top n: " + str(count))
     print("Variables: source_subdir: " + str(source_subdir))
     print("Variables: target_subdir: " + str(target_subdir))
     print("Variables: origin: " + str(origin))
@@ -229,10 +204,10 @@ def grabBest(count, source_subdir, target_subdir, origin):
     best = {}
     for root, dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
         for file in files:
-            print("Grabbest -> file: " + str(file))
+            # print("Grabbest -> file: " + str(file))
             if file.endswith(".result"):
                 if os.stat(os.path.join(os.getcwd(), source_subdir, file)).st_size > 0:
-                    src = open(os.path.join(os.getcwd(), source_subdir, file))
+                    src = open(os.path.join(os.getcwd(), source_subdir, file), encoding='utf-8', mode="r")
                     for line in src.readlines():
                         line = line.lstrip().rstrip()
                         if not line:
@@ -253,6 +228,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
                             break
                         # dps, percentage, profilename
                         a, b, c = line.split()
+                        # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
                         # put dps as key and profilename as value into dictionary
                         # dps might be equal for 2 profiles, but should very rarely happen
                         # could lead to a problem with very minor dps due to variance,
@@ -274,12 +250,15 @@ def grabBest(count, source_subdir, target_subdir, origin):
     while len(sortedlist) > count:
         sortedlist.pop()
 
+    # print("Sortedlist: "+str(sortedlist))
     # and finally generate a second list with the corresponding profile-names
     sortednames = []
     while len(sortedlist) > 0:
         sortednames.append(best.get(sortedlist.pop()))
+    # print("Sortednames: "+str(sortednames))
 
     bestprofiles = []
+    # print(str(bestprofiles))
 
     # now parse our "database" and extract the profiles of our top n
     source = open(origin, "r")

@@ -31,8 +31,10 @@ class settings():
     # split after n profiles
     splitting_size = 50
 
-    # for the -sim option
-    # path to your simcraft .exe
+    # for the -sim option; if you set this to True, you won´t need to use -sim stage1
+    default_sim_enabled = True
+    default_sim_start_stage = "stage1"
+    # path to your simcraft .exe (don´t point to the gui!)
     # don´t forget to include double-backslash for subfolders
     simc_path = 'D:\\Downloads\\simc-725-01-win64-729a0f8\\simc-725-01-win64\\simc.exe'
     # these folders will be created during calculation
@@ -57,7 +59,7 @@ class settings():
     # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become obsolete
     # this case might not get fully supported because of the indivduality of these problems
     default_top_n_stage2 = 100
-    default_target_error_stage2 = "0.2"
+    default_target_error_stage2 = "0.1"
     default_top_n_stage3 = 3
     default_target_error_stage3 = "0.05"
 
@@ -72,15 +74,16 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = True
+    simc_scale_factors_stage3 = False
     # 0|1
     simc_ptr = 0
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
+    # this might also output slightly different results because of single_actor_batch_now simming the input as whole raid instead of single profiles
     simc_safe_mode = False
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
-    simc_single_actor_batch=1
+    simc_single_actor_batch = 1
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
     # the file must be present in the autosimc-folder

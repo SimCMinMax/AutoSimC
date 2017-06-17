@@ -7,6 +7,7 @@ import shutil
 from settings import settings
 
 import splitter
+import hashlib
 
 # Var init with default value
 c_profileid = 0
@@ -26,8 +27,15 @@ errorFileName = settings.errorFileName
 b_quiet = settings.b_quiet
 i_generatedProfiles = 0
 
-b_simcraft_enabled = False
-s_stage = "stage1"
+b_simcraft_enabled = settings.default_sim_enabled
+s_stage = settings.default_sim_start_stage
+
+iterations_firstpart = settings.default_iterations_stage1
+iterations_secondpart = settings.default_iterations_stage2
+iterations_thirdpart = settings.default_iterations_stage3
+
+target_error_secondpart = settings.default_target_error_stage2
+target_error_thirdpart = settings.default_target_error_stage3
 
 
 #   Error handle
@@ -216,6 +224,7 @@ def handleCommandLine():
     global b_quiet
     global b_simcraft_enabled
     global s_stage
+    global restart
 
     # parameter-list, so they are "protected" if user enters wrong commandline
     set_parameters = set()
@@ -276,17 +285,21 @@ def handleCommandLine():
             # to test alterations and different outputs, e.g. using same gear within different scenarios
             # (standard might be patchwerk, but what happens with this gear- and talentchoice in a helterskelter-szenario?)
             if sys.argv[a + 1]:
-                stage = sys.argv[a + 1]
-                if stage in set_parameters:
-                    printLog("Wrong parameter for -sim: " + str(stage))
-                    print("Wrong parameter for ""-sim"" option: " + str(stage))
+                if sys.argv[a + 1] != s_stage:
+                    restart = True
+                else:
+                    restart = False
+                s_stage = sys.argv[a + 1]
+                if s_stage in set_parameters:
+                    printLog("Wrong parameter for -sim: " + str(s_stage))
+                    print("Wrong parameter for ""-sim"" option: " + str(s_stage))
                     sys.exit(1)
-                if not stage:
-                    printLog("Missing parameter for -sim: " + stage)
-                    print("Missing parameter for ""-sim"" option: " + str(stage))
+                if not s_stage:
+                    printLog("Missing parameter for -sim: " + s_stage)
+                    print("Missing parameter for ""-sim"" option: " + str(s_stage))
                     sys.exit(1)
-                if stage != "stage1" and stage != "stage2" and stage != "stage3":
-                    printLog("Wrong Parameter for Stage: " + str(stage))
+                if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
+                    printLog("Wrong Parameter for Stage: " + str(s_stage))
                     sys.exit(1)
 
             # check path of simc.exe
@@ -341,30 +354,36 @@ def cleanup():
             printLog("Removing: " + settings.subdir3)
 
 
-#########################
-#### Program Start ###### 
-#########################   
-sys.stderr = open(errorFileName, 'w')
-logFile = open(logFileName, 'w')
+def validateSettings():
+    # validate amount of legendaries
+    if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
+        printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
+            legmax) + ". Please check settings.py for these parameters!")
+        sys.exit(1)
+    # validate tier-set
+    if (int(t19) + int(t20) > 6) or t19 < 0 or t19 > 6 or t20 < 0 or t20 > 6:
+        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
+            t20) + ". Please check settings.py for these parameters!")
+        sys.exit(1)
+    # use a "safe mode", overwriting the values
+    if settings.simc_safe_mode:
+        printLog("Using Safe Mode")
+        settings.simc_threads = 1
+        splitter.single_actor_batch = 0
+    if b_simcraft_enabled:
+        if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
+            printLog("Analyzer-file found")
 
-handleCommandLine()
 
-# validate amount of legendaries
-if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
-    printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
-        legmax) + ". Please check settings.py for these parameters!")
-    sys.exit(1)
-# validate tier-set
-if int(t19) + int(t20) > 6:
-    printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
-        t20) + ". Please check settings.py for these parameters!")
-    sys.exit(1)
+def generate_checksum_of_permutations():
+    hash_md5 = hashlib.sha3_256()
+    with open(settings.default_outputFileName, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    print(str(hash_md5.hexdigest()))
 
-if settings.simc_safe_mode:
-    settings.simc_threads = 1
-    splitter.single_actor_batch = 0
 
-if s_stage != "stage2" and s_stage != "stage3":
+def permutate():
     # Read input.txt to init vars
     config = configparser.ConfigParser()
     config.read(inputFileName, encoding='utf-8-sig')
@@ -373,16 +392,27 @@ if s_stage != "stage2" and s_stage != "stage3":
 
     # Read input.txt
     #   Profile
+    global c_profilename
     c_profilename = profile['profilename']
+    global c_profileid
     c_profileid = int(profile['profileid'])
+    global c_class
     c_class = profile['class']
+    global c_race
     c_race = profile['race']
+    global c_level
     c_level = profile['level']
+    global c_spec
     c_spec = profile['spec']
+    global c_role
     c_role = profile['role']
+    global c_position
     c_position = profile['position']
+    global c_talents
     c_talents = profile['talents']
+    global c_artifact
     c_artifact = profile['artifact']
+    global c_other
     c_other = profile['other']
 
     #   Gear
@@ -413,24 +443,41 @@ if s_stage != "stage2" and s_stage != "stage3":
         c_off_hand = ""
 
     # Split vars to lists
+    global l_head
     l_head = c_head.split('|')
+    global l_neck
     l_neck = c_neck.split('|')
+    global l_shoulders
     l_shoulders = c_shoulders.split('|')
+    global l_back
     l_back = c_back.split('|')
+    global l_chest
     l_chest = c_chest.split('|')
+    global l_wrists
     l_wrists = c_wrists.split('|')
+    global l_hands
     l_hands = c_hands.split('|')
+    global l_waist
     l_waist = c_waist.split('|')
+    global l_legs
     l_legs = c_legs.split('|')
+    global l_feet
     l_feet = c_feet.split('|')
+    global l_finger1
     l_finger1 = c_finger1.split('|')
+    global l_finger2
     l_finger2 = c_finger2.split('|')
+    global l_trinket1
     l_trinket1 = c_trinket1.split('|')
+    global l_trinket2
     l_trinket2 = c_trinket2.split('|')
+    global l_main_hand
     l_main_hand = c_main_hand.split('|')
+    global l_off_hand
     l_off_hand = c_off_hand.split('|')
 
     # better handle rings and trinket-combinations
+    # should now be deterministic, previous versions generated a random order and numbering
 
     for a in l_finger2:
         if l_finger1.count(a) == 0:
@@ -440,11 +487,9 @@ if s_stage != "stage2" and s_stage != "stage3":
         if l_trinket1.count(b) == 0:
             l_trinket1.append(b)
 
-    set_fingers = set()
-    set_trinkets = set()
+    l_fingers = []
+    l_trinkets = []
 
-    # compare items using simple string.compare-function, so "lowest" item (bitwise) will always be in front
-    # if combination is not in our result-set, concatenate and insert "|"-splitter
     for ring in l_finger1:
         for ring2 in l_finger1:
             if ring == ring2:
@@ -452,12 +497,12 @@ if s_stage != "stage2" and s_stage != "stage3":
             else:
                 if ring < ring2:
                     ring_combo = ring + "|" + ring2
-                    if ring_combo not in set_fingers:
-                        set_fingers.add(ring_combo)
+                    if ring_combo not in l_fingers:
+                        l_fingers.append(ring_combo)
                 else:
                     ring_combo = ring2 + "|" + ring
-                    if ring_combo not in set_fingers:
-                        set_fingers.add(ring_combo)
+                    if ring_combo not in l_fingers:
+                        l_fingers.append(ring_combo)
 
     for trinket in l_trinket1:
         for trinket2 in l_trinket1:
@@ -466,29 +511,22 @@ if s_stage != "stage2" and s_stage != "stage3":
             else:
                 if trinket < trinket2:
                     trinket_combo = trinket + "|" + trinket2
-                    set_trinkets.add(trinket_combo)
+                    if trinket_combo not in l_trinkets:
+                        l_trinkets.append(trinket_combo)
                 else:
                     trinket_combo = trinket2 + "|" + trinket
-                    set_trinkets.add(trinket_combo)
-
-    # convert set into list, i did not want to change the "theme" of the original data-structure
-    l_fingers = []
-    l_trinkets = []
-    while set_fingers:
-        l_fingers.append(set_fingers.pop())
-    while set_trinkets:
-        l_trinkets.append(set_trinkets.pop())
-
-    # free some memory
-    del set_fingers
-    del set_trinkets
+                    if trinket_combo not in l_trinkets:
+                        l_trinkets.append(trinket_combo)
 
     # Make permutations
+    global outputFile
     outputFile = open(outputFileName, 'w')
+    global l_gear
     l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
               "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
 
     # changed according to merged fields
+    global c_profilemaxid
     c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
         l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
         l_off_hand)
@@ -543,37 +581,8 @@ if s_stage != "stage2" and s_stage != "stage3":
     print("Generated permutations. Valid: " + str(i_generatedProfiles))
     outputFile.close()
 
-# here comes the fun part, which makes autosimc a true automatic simcraft-tool
-# it splits the generated output-file into smaller chunks (default is 50), so they can be simmed faster
-# and memory-efficient, with small iterations (i=100)to generate fast results
-# afterwards, it grabs the n top results and sims these again, this time with i=1000 iterations
-# afterwards, for a third time, the top 3 results get simmed with i=10000, html-output and scalefactors enabled
 
-iterations_firstpart = settings.default_iterations_stage1
-iterations_secondpart = settings.default_iterations_stage2
-iterations_thirdpart = settings.default_iterations_stage3
-
-target_error_secondpart = settings.default_target_error_stage2
-target_error_thirdpart = settings.default_target_error_stage3
-
-user_input = ""
-if i_generatedProfiles > 10000:
-    user_input = input(
-        "-----> Beware: Computation with Simcraft might take a long time with this amount of profiles! <----- (Press Enter to continue, q to quit)")
-if i_generatedProfiles > 100000:
-    user_input = input(
-        "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)")
-
-if user_input == "q":
-    printLog("Program exit by user")
-    sys.exit(0)
-
-if i_generatedProfiles == 0:
-    print("No valid combinations found. Please check settings.py and your simpermut-export.")
-    sys.exit(1)
-
-if b_simcraft_enabled:
-    class_spec = ""
+def getClassSpec():
     b_heal = False
     b_tank = False
     if c_class == "deathknight":
@@ -676,224 +685,295 @@ if b_simcraft_enabled:
         printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec))
         print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
         sys.exit(1)
-    printLog("Using class_spec: "+class_spec)
+    printLog("Using class_spec: " + class_spec)
     if b_tank or b_heal:
-        if input("You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results! (Enter to continue") == "q":
+        if input(
+                "You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a profile with your spec (Enter to continue") == "q":
             printLog("Manually aborting because heal- or tankspec was chosen")
             sys.exit(0)
+    return class_spec
 
-    if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
-        printLog("Analyzer-file found")
-        printLog("Using " + str(settings.analyzer_filename) + " as database")
 
-        print("You have to choose one of the following modes for calculation:")
-        print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
-            iterations_firstpart) + "," + str(iterations_secondpart) + "," + str(iterations_thirdpart) + ")")
-        print("   It is however faster if simulating huge amounts of profiles")
-        print(
-            "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
-        print(
-            "   It uses the chosen correctness for the first part; in finetuning part the error lowers to " + str(
-                target_error_secondpart) + " and " + str(
-                target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
-        sim_mode = input("Please choose your mode (Enter to exit): ")
-
-        # static mode
-        if sim_mode == "1":
-            printLog("Mode" + str(sim_mode) + " chosen")
-            if s_stage == "stage1":
-                printLog("Entering stage: " + str(s_stage))
-                # split into chunks of 50
-                splitter.split(outputFileName, settings.splitting_size)
-                # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-                splitter.sim(settings.subdir1, iterations_firstpart, 1)
-                s_stage = "stage2"
-
-            if s_stage == "stage2":
-                printLog("Entering stage 2")
-                # check if files exist
-                if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
-                    does_file_exist = False
-                    for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir1)):
-                        for file in files:
-                            if file.endswith(".sim"):
-                                does_file_exist = True
-                                print("Stage 2: .sim-files found, proceeding..")
-                                break
-
-                    if does_file_exist:
-                        # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-                        splitter.grabBest(100, settings.subdir1, settings.subdir2, outputFileName)
-                        # where they are simmed again, now with 1000 iterations
-                        splitter.sim(settings.subdir2, iterations_secondpart, 1)
-                        s_stage = "stage3"
-                    else:
-                        print("Error: No files exist in stage1-directory")
-                else:
-                    print("No path was created in stage1")
-
-            if s_stage == "stage3":
-                printLog("Entering stage 3")
-                if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
-                    does_file_exist = False
-                    for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir2)):
-                        for file in files:
-                            if file.endswith(".sim"):
-                                does_file_exist = True
-                                print("Stage 3: .sim-files found, proceeding..")
-                                break
-
-                    if does_file_exist:
-                        # again, for a third time, get top 3 profiles and put them into subdir3
-                        splitter.grabBest(3, settings.subdir2, settings.subdir3, outputFileName)
-                        # sim them finally with all options enabled; html-output remains in this folder
-                        splitter.sim(settings.subdir3, iterations_thirdpart, 2)
-                    else:
-                        print("Error: No files exist in stage2-directory")
-                else:
-                    print("No path was created in stage2")
-
-        # dynamic mode
-        if sim_mode == "2" and not class_spec == "":
-            printLog("Mode" + str(sim_mode) + " chosen")
-            if s_stage == "stage1":
-                printLog("Entering stage 1")
-                result_data = get_data(class_spec)
-                print("Listing options:")
-                print("Estimated calculation times based on your data:")
-                print("Class/Spec: " + str(class_spec))
-                print("Number of permutations to simulate: " + str(i_generatedProfiles))
-                for current in range(len(result_data)):
-                    te = result_data[current][0]
-                    tp = round(float(result_data[current][2]), 2)
-                    est = round(float(result_data[current][2]) * i_generatedProfiles, 0)
-                    h = round(est / 3600, 1)
-
-                    print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
-                        tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
-
-                calc_choice = input("Please enter the type of calculation to perform (q to quit):")
-                if calc_choice == "q":
-                    printLog("Quitting application")
-                    sys.exit(0)
-                if int(calc_choice) < len(result_data) and int(calc_choice) >= 0:
-                    printLog("Sim: Chosen Class/Spec: " + str(class_spec))
-                    printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
-                    printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
-
-                    te = result_data[int(calc_choice)][0]
-                    tp = round(float(result_data[int(calc_choice)][2]), 2)
-                    est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
-
-                    printLog(
-                        "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + " Time/Profile:" + str(
-                            tp) + " => Est. calc. time: " + str(est) + " sec")
-                    time_all = round(est, 0)
-                    printLog("Estimated calculation time: " + str(time_all) + "")
-                    if time_all > 86400:
-                        proceed = input(
-                            "Warning: This might take a *VERY* long time (>24h) (q to quit, Enter to continue: )")
-                        if proceed == "q":
-                            print("Quitting application")
-                            sys.exit(0)
-
-                    # split into chunks of n (max 100) to not destroy the hdd
-                    # todo: calculate dynamic amount of n
-                    splitter.split(outputFileName, settings.splitting_size)
-                    splitter.sim_targeterror(settings.subdir1, str(te), 1)
-                    # if the user chose a target_error which is lower than the default_one for the next step
-                    # he is given an option to either skip stage 2 or adjust the target_error
-                    s_stage = "stage2"
-                    if float(te) <= float(settings.default_target_error_stage2):
-                        printLog("Target_Error chosen in stage 1: " + str(te) + " <= Target_Error stage 2: " + str(
-                            target_error_secondpart) + "\n")
-                        print("Warning!\n")
-                        print("Target_Error chosen in stage 1: " + str(te) + " <= Target_Error stage 2: " + str(
-                            target_error_secondpart) + "\n")
-                        new_value = input(
-                            "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error for stage2 (n)?: ")
-                        printLog("User chose: " + str(new_value))
-                        if new_value == "q":
-                            sys.exit(0)
-                        if new_value == "n":
-                            target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
-                            printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                        if new_value == "s":
-                            s_stage = "stage3"
-                            # todo ugly, fix this somehow
-                            settings.subdir2 = settings.subdir1
-
-            if s_stage == "stage2":
-                printLog("Entering stage 2")
-                # check if files exist
-                if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
-                    does_file_exist = False
-                    for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir1)):
-                        for file in files:
-                            if file.endswith(".sim"):
-                                does_file_exist = True
-                                printLog("Stage 2: .sim-files found, proceeding..")
-                                print("Stage 2: .sim-files found, proceeding..")
-                                break
-
-                    if does_file_exist:
-                        # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-                        splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2,
-                                          outputFileName)
-                        # where they are simmed again, now with higher quality
-                        splitter.sim_targeterror(settings.subdir2, target_error_secondpart, 1)
-                        # if the user chose a target_error which is lower than the default_one for the next step
-                        # he is given an option to either skip stage 2 or adjust the target_error
-                        if float(target_error_secondpart) <= float(target_error_thirdpart):
-                            printLog("Target_Error chosen in stage 2: " + str(
-                                target_error_secondpart) + " <= Target_Error stage 3: " + str(
-                                target_error_thirdpart))
-                            print("Warning!\n")
-                            new_value = input(
-                                "Do you want to continue (y), quit (q) or enter a new target_error for stage2 (n)?: ")
-                            printLog("User chose: " + str(new_value))
-                            if new_value == "q":
-                                sys.exit(0)
-                            if new_value == "n":
-                                target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
-                                printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
-                                s_stage = "stage3"
-                            else:
-                                s_stage = "stage3"
-                        s_stage = "stage3"
-
-                    else:
-                        print("Error: No files exist in stage1-directory")
-                else:
-                    print("No path was created in stage1")
-
-            if s_stage == "stage3":
-                printLog("Entering stage 3")
-                if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
-                    does_file_exist = False
-                    for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir2)):
-                        for file in files:
-                            if file.endswith(".sim"):
-                                does_file_exist = True
-                                printLog("Stage 3: .sim-files found, proceeding..")
-                                print("Stage 3: .sim-files found, proceeding..")
-                                break
-
-                    if does_file_exist:
-                        # again, for a third time, get top 3 profiles and put them into subdir3
-                        splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3,
-                                          outputFileName)
-                        # sim them finally with all options enabled; html-output remains in this folder
-                        splitter.sim_targeterror(settings.subdir3, target_error_thirdpart, 2)
-                    else:
-                        print("Error: No files exist in stage2-directory")
-                else:
-                    print("No path was created in stage2")
-        else:
-            printLog("Wrong mode: " + str(sim_mode))
+def checkResultFiles(subdir):
+    printLog("Checking Files in subdirectory: " + str(subdir))
+    if os.path.exists(os.path.join(os.getcwd(), subdir)):
+        empty = 0
+        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+            for file in files:
+                if file.endswith(".result"):
+                    if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
+                        printLog("File is empty: " + str(file))
+                        empty += 1
     else:
-        printLog("No Analyzer-File found: "+settings.analyzer_filename)
+        printLog("Error: Subdir does not exist: " + str(subdir))
+        sys.exit(1)
+
+    if empty > 0:
+        printLog("Empty files in: " + str(subdir)+" -> "+str(empty))
+        print("Warning: Empty files in: " + str(subdir)+" -> "+str(empty))
+        if input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ") == "q":
+            printLog("User exit")
+            sys.exit(0)
+        else:
+            if splitter.resim(subdir):
+                checkResultFiles(subdir)
+        return False
+    else:
+        return True
+
+
+def static_stage1():
+    printLog("Entering static mode, stage1")
+    # split into chunks of 50
+    splitter.split(outputFileName, settings.splitting_size)
+    # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
+    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
+    static_stage2()
+
+
+# todo maybe use some sort of recalculation-logic if some files were 0bytes due to a crash
+def static_stage2():
+    printLog("Entering static mode, stage2")
+    if checkResultFiles(settings.subdir1):
+        # now grab the top 100 of these and put the profiles into the 2nd temp_dir
+        splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
+        # where they are simmed again, now with 1000 iterations
+        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), 1)
+    else:
+        printLog("Error, some result-files are empty in " + str(settings.subdir1))
+        print("Error, some result-files are empty in " + str(settings.subdir1))
+        sys.exit(1)
+    static_stage3()
+
+
+def static_stage3():
+    printLog("Entering static mode, stage3")
+    if checkResultFiles(settings.subdir2):
+        # again, for a third time, get top 3 profiles and put them into subdir3
+        splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
+        # sim them finally with all options enabled; html-output remains in this folder
+        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), 2)
+    else:
+        printLog("Error, some result-files are empty in " + str(settings.subdir1))
+        print("Error, some result-files are empty in " + str(settings.subdir1))
+        sys.exit(1)
+    print("Simulation succeed!")
+
+
+def dynamic_stage1():
+    printLog("Entering dynamic mode, stage1")
+    result_data = get_data(class_spec)
+    print("Listing options:")
+    print("Estimated calculation times based on your data:")
+    print("Class/Spec: " + str(class_spec))
+    print("Number of permutations to simulate: " + str(i_generatedProfiles))
+    for current in range(len(result_data)):
+        te = result_data[current][0]
+        tp = round(float(result_data[current][2]), 2)
+        est = round(float(result_data[current][2]) * i_generatedProfiles, 0)
+        h = round(est / 3600, 1)
+
+        print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
+            tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
+
+    calc_choice = input("Please enter the type of calculation to perform (q to quit):")
+    if calc_choice == "q":
+        printLog("Quitting application")
+        sys.exit(0)
+    if int(calc_choice) < len(result_data) and int(calc_choice) >= 0:
+        printLog("Sim: Chosen Class/Spec: " + str(class_spec))
+        printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
+        printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
+
+        te = result_data[int(calc_choice)][0]
+        tp = round(float(result_data[int(calc_choice)][2]), 2)
+        est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
+
+        printLog(
+            "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + " Time/Profile: " + str(
+                tp) + " => Est. calc. time: " + str(est) + " sec")
+        time_all = round(est, 0)
+        printLog("Estimated calculation time: " + str(time_all) + "")
+        if time_all > 43200:
+            if input("Warning: This might take a *VERY* long time (>12h) (q to quit, Enter to continue: )") == "q":
+                print("Quitting application")
+                sys.exit(0)
+
+        # split into chunks of n (max 100) to not destroy the hdd
+        # todo: calculate dynamic amount of n
+        splitter.split(outputFileName, settings.splitting_size)
+        splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
+
+        # if the user chose a target_error which is lower than the default_one for the next step
+        # he is given an option to either skip stage 2 or adjust the target_error
+        if float(te) <= float(settings.default_target_error_stage2):
+            printLog("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
+                settings.default_target_error_stage2) + "\n")
+            print("Warning!\n")
+            print("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
+                settings.default_target_error_stage2) + "\n")
+            new_value = input(
+                "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error for stage2 (n)?: ")
+            printLog("User chose: " + str(new_value))
+            if new_value == "q":
+                sys.exit(0)
+            if new_value == "n":
+                target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
+                printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
+                dynamic_stage2(target_error_secondpart)
+            if new_value == "s":
+                dynamic_stage3(True, settings.default_target_error_stage3)
+            if new_value == "y":
+                dynamic_stage2(settings.default_target_error_stage2)
+        else:
+            dynamic_stage2(settings.default_target_error_stage2)
+
+
+def dynamic_stage2(targeterror):
+    printLog("Entering dynamic mode, stage2")
+    checkResultFiles(settings.subdir1)
+    # grabbing top 100 files
+    splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2,
+                      outputFileName)
+    # where they are simmed again, now with higher quality
+    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), 1)
+    # if the user chose a target_error which is lower than the default_one for the next step
+    # he is given an option to either skip stage 2 or adjust the target_error
+    if float(target_error_secondpart) <= float(settings.default_target_error_stage3):
+        printLog("Target_Error chosen in stage 2: " + str(
+            targeterror) + " <= Default_Target_Error stage 3: " + str(
+            settings.default_target_error_stage3))
+        print("Warning!\n")
+        printLog("Target_Error chosen in stage 2: " + str(
+            targeterror) + " <= Default_Target_Error stage 3: " + str(
+            settings.default_target_error_stage3))
+        new_value = input(
+            "Do you want to continue (y), quit (q) or enter a new target_error for stage3 (n)?: ")
+        printLog("User chose: " + str(new_value))
+        if new_value == "q":
+            sys.exit(0)
+        if new_value == "n":
+            target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
+            printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
+            dynamic_stage3(False, target_error_thirdpart)
+        if new_value == "y":
+            dynamic_stage3(False, settings.default_target_error_stage3)
+    else:
+        dynamic_stage3(False, settings.default_target_error_stage3)
+
+
+def dynamic_stage3(skipped, targeterror):
+    printLog("Entering dynamic mode, stage3")
+    ok = False
+    if skipped:
+        ok = checkResultFiles(settings.subdir1)
+    else:
+        ok = checkResultFiles(settings.subdir2)
+    if ok:
+        printLog(".result-files ok, proceeding")
+        # again, for a third time, get top 3 profiles and put them into subdir3
+        if skipped:
+            splitter.grabBest(settings.default_top_n_stage3, settings.subdir1, settings.subdir3, outputFileName)
+        else:
+            splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
+        # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
+        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), 2)
+    else:
+        printLog("No valid .result-files found for stage3!")
+
+
+def stage1():
+    printLog("Entering Stage1")
+    print("You have to choose one of the following modes for calculation:")
+    print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
+        iterations_firstpart) + "," + str(iterations_secondpart) + "," + str(iterations_thirdpart) + ")")
+    print("   It is however faster if simulating huge amounts of profiles")
+    print(
+        "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
+    print(
+        "   It uses the chosen target_error for the first part; in stage2 error lowers to " + str(
+            target_error_secondpart) + " and " + str(
+            target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
+    sim_mode = input("Please choose your mode (Enter to exit): ")
+    if sim_mode == "1":
+        static_stage1()
+    elif sim_mode == "2":
+        dynamic_stage1()
+    else:
+        printLog("Error, wrong mode")
+
+
+def stage2_restart():
+    printLog("Restarting at Stage2")
+    if checkResultFiles(settings.subdir1):
+        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir1))
+    mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
+    if mode_choice == "1":
+        static_stage2()
+    elif mode_choice == "2":
+        new_te = input("Which target_error do you want to use for stage2: (Press enter for default: " + str(
+            target_error_secondpart) + "):")
+        if str(new_te) != str(target_error_secondpart):
+            dynamic_stage2(new_te)
+        else:
+            dynamic_stage2(target_error_secondpart)
+    else:
+        printLog("Error, wrong mode")
+
+
+def stage3_restart():
+    if checkResultFiles(settings.subdir2):
+        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
+    printLog("Restarting at Stage3")
+    mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
+    if mode_choice == "1":
+        static_stage3()
+    elif mode_choice == "2":
+        dynamic_stage3(False, settings.default_target_error_stage3)
+    else:
+        printLog("Error, wrong mode")
+
+
+#########################
+#### Program Start ######
+#########################
+sys.stderr = open(errorFileName, 'w')
+logFile = open(logFileName, 'w')
+
+handleCommandLine()
+validateSettings()
+# can always be rerun since it is now deterministic
+permutate()
+
+if i_generatedProfiles > 50000:
+    if input(
+            "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)") == "q":
+        printLog("Program exit by user")
+        sys.exit(0)
+
+if i_generatedProfiles == 0:
+    print("No valid combinations found. Please check settings.py and your simpermut-export.")
+    sys.exit(1)
+
+if b_simcraft_enabled:
+    class_spec = getClassSpec()
+
+    if s_stage == "stage1":
+        stage1()
+    if s_stage == "stage2":
+        if restart:
+            if input("Do you want to restart stage 2?: (Enter to proceed, q to quit): ") == "q":
+                printLog("Restart aborted by user")
+            else:
+                stage2_restart()
+    if s_stage == "stage3":
+        if input("Do you want to restart stage 3?: (Enter to proceed, q to quit): ") == "q":
+            printLog("Restart aborted by user")
+        else:
+            stage3_restart()
 
 if settings.clean_up_after_step3:
     cleanup()
 logFile.close()
+
+# generate_checksum_of_permutations()
