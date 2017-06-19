@@ -47,15 +47,17 @@ What can be changed (command prefix are case sensitive):
 - -i inputFile : This is the input file. You can have multiple settings.ini files in case you have multiple char/spec/want to test different things. just type the settings file. (ie : input.txt)
 - -o outputFile : this is the output file. As the input file, you can have different output file (ie : out.simc)
 - -quiet : Option for disabling Console-output. Generates the outputfile much faster for large permuation-size
-- -sim : Enabled automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations. Edit the simcraft-path in splitter.py to point to your simc-installation. The result.html will be saved in temp_step3.
+- sim : Enables automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations.
+  - Edit the simcraft-path in settings.py to point to your simc-installation. The result.html will be saved in results-subfolder.
          There are 2 modes available for calculating the possible huge amount of permutations:
-         Static and dynamic mode:
-         Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are 100, 1000 and 10000 for each stage.
-         Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.4, and 0.1 for the final stage 3.
+  - Static and dynamic mode:
+    - Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are 100, 1000 and 10000 for each stage.
+    - Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.1, and 0.05 for the final stage 3.
          (These numbers might be changed in future versions)
          It is now also possible to "resume" at stage1, 2 or 3, if a previous stage has been fully calculated and generated a .result in the equivalent folder. Please use this feature with care.
          (default: -sim stage1)
-		 You have to set the simc path in the setttings.py file.
+		 You have to set the simc path in the settings.py file.
+	- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during stage1, by launching with the parameter "-sim stage2" (or stage3). You will have to enter the amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
 - -l Leg_List : List of legendaries to add to the template. Format :
@@ -70,12 +72,12 @@ You can change a good number of settings in the settings.py file.
 
 ## Analyzer:
 Included is Analyzer.py, which uses the standard-simc-profiles for each class to generate a Analysis.json (in profiles-folder), which represents calculation data for each class/spec.
- It is used in the main-program to show the approximate calculation times, therefore it is only needed to be recalculated at major WoW- and Simcraft-updates, e.g. 7.2.5
+ It is used in the main-program to show the approximate calculation times, therefore it is only needed to be recalculated at major WoW- and Simcraft-updates, e.g. 7.2.5, and if you want to sim your tank- or healspec. Edit the Analysis.py accordingly.
 
  Modules needed: marshmallow (pip install marshmallow) for generating json-files easier
 
 ## SimPermut complementarity
-SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to extract a settings.ini file to directly calculate the profiles with the items you have in your bags.
+SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to extract a profile-set file to directly calculate the profiles with the items you have in your bags.
 Just copy the text you get in SimPermut and paste it in your input.txt file (erase what was already in it) and launch the script as described above.
 
 ## Known issues and developement plan
