@@ -272,6 +272,13 @@ def handleCommandLine():
             printLog("Quiet-Mode enabled")
             b_quiet = 1
         if sys.argv[a] == "-sim":
+            # check path of simc.exe
+            if not os.path.exists(settings.simc_path):
+                printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+                print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+                sys.exit(1)
+            else:
+                printLog("Path to simc.exe valid, proceeding...")
             print("SimCraft-Mode enabled")
             printLog("SimCraft-Mode enabled")
             b_simcraft_enabled = True
@@ -301,14 +308,6 @@ def handleCommandLine():
                 if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
                     printLog("Wrong Parameter for Stage: " + str(s_stage))
                     sys.exit(1)
-
-            # check path of simc.exe
-            if not os.path.exists(settings.simc_path):
-                printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-                print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-                sys.exit(1)
-            else:
-                printLog("Path to simc.exe valid, proceeding...")
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
