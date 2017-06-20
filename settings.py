@@ -36,7 +36,7 @@ class settings():
     default_sim_start_stage = "stage1"
     # path to your simcraft .exe (don´t point to the gui!)
     # don´t forget to include double-backslash for subfolders
-    simc_path = 'D:\\Downloads\\simc-725-01-win64-729a0f8\\simc-725-01-win64\\simc.exe'
+    simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
     # these folders will be created during calculation
     # stage 1,2,3 correspond accordingly
     subdir1 = "temp_step1"
@@ -74,7 +74,7 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = False
+    simc_scale_factors_stage3 = True
     # 0|1
     simc_ptr = 0
 
@@ -87,9 +87,7 @@ class settings():
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
     # the file must be present in the autosimc-folder
-    # if you don´t want to use this, set it no "nul"
-    additional_input_file = "nul"
-    # additional_input_file= "additional_input.txt"
+    additional_input_file = "additional_input.txt"
 
     # For Analysis.py
     # set to "nul" if you are simulating healer or tanks
