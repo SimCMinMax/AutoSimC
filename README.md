@@ -41,13 +41,13 @@ You can also use SimPermut to generate the string directly with the gear you hav
 ## Launch.bat
 Command :
 
-    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]] [-quiet] [-sim [stage1|stage2|stage3]]
+    python main.py -i inputFile -o outputFile -l [Leg_list [Min_leg]:[Max_Leg]] [-quiet] [-sim [stage1|stage2|stage3]] {-gems "[int],[str],[agi],[haste],[crit],[vers],[mast]"]
 
 What can be changed (command prefix are case sensitive):
 - -i inputFile : This is the input file. You can have multiple settings.ini files in case you have multiple char/spec/want to test different things. just type the settings file. (ie : input.txt)
 - -o outputFile : this is the output file. As the input file, you can have different output file (ie : out.simc)
 - -quiet : Option for disabling Console-output. Generates the outputfile much faster for large permuation-size
-- sim : Enables automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations.
+- -sim : Enables automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations.
   - Edit the simcraft-path in settings.py to point to your simc-installation. The result.html will be saved in results-subfolder.
          There are 2 modes available for calculating the possible huge amount of permutations:
   - Static and dynamic mode:
@@ -58,6 +58,10 @@ What can be changed (command prefix are case sensitive):
          (default: -sim stage1)
 		 You have to set the simc path in the settings.py file.
 	- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during stage1, by launching with the parameter "-sim stage2" (or stage3). You will have to enter the amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)
+- -gems : Enables permutation of gem-combinations in your gear. With e.g. <-gems "crit,haste,int"> you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon greens are not supported) in addition to the ones you have currently equipped.
+  - Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> (without <>) into the commandline, the permutation process uses the single int- and mastery-gem-combination you have currrently equipped and adds ALL combinations from the ones in the commandline, therefore mastery would be excluded. However, adding mastery to the commandline reenables that.
+  - Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] Simpermut usually creates this for you.
+  - WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as command, the number of combinations will go through the roof VERY quickly. Please be cautious when enabling this.
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
 - -l Leg_List : List of legendaries to add to the template. Format :

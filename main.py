@@ -36,6 +36,23 @@ iterations_thirdpart = settings.default_iterations_stage3
 
 target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
+gemspermutation = False
+
+gem_ids = {}
+gem_ids["150haste"] = "130220"
+gem_ids["haste"] = "130220"
+gem_ids["150crit"] = "130219"
+gem_ids["crit"] = "130219"
+gem_ids["150vers"] = "130221"  # checkname
+gem_ids["vers"] = "130221"  # checkname
+gem_ids["150mast"] = "130222"  # checkname
+gem_ids["mast"] = "130222"  # checkname
+gem_ids["200str"] = "1302466"
+gem_ids["str"] = "130246"
+gem_ids["200agi"] = "130247"
+gem_ids["agi"] = "130247"
+gem_ids["200int"] = "130248"
+gem_ids["int"] = "130248"
 
 
 #   Error handle
@@ -89,6 +106,18 @@ def handlePermutation(elements):
         addToTab(pieces)
 
 
+def handleGems(gems):
+    allowed_gems = ["crit", "vers", "haste", "mast", "int", "str", "agi"]
+    global splitted_gems
+    if gems:
+        splitted_gems = gems.split(",")
+        for i in range(len(splitted_gems)):
+            if splitted_gems[i] not in allowed_gems:
+                printLog("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
+                print("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
+                sys.exit(1)
+
+
 # Check if permutation is valid
 def checkUsability():
     temp_t19 = 0
@@ -118,6 +147,16 @@ def checkUsability():
     if nbLeg > legmax:
         return str(nbLeg) + " leg (too much)"
 
+
+    # check gems
+    # int, str, agi should be only equipped once:
+    nUniqueGems = 0
+    for a in range(len(l_gear)):
+        gems = getGemsFromItem(l_gear[a])
+        if "130246" in gems or "130247" in gems or "130248" in gems:
+            nUniqueGems += 1
+    if nUniqueGems > 1:
+        return str(nUniqueGems)+ " too many unique gems (str, agi, int)"
     return ""
 
 
@@ -225,6 +264,7 @@ def handleCommandLine():
     global b_simcraft_enabled
     global s_stage
     global restart
+    global gemspermutation
 
     # parameter-list, so they are "protected" if user enters wrong commandline
     set_parameters = set()
@@ -233,6 +273,7 @@ def handleCommandLine():
     set_parameters.add("-l")
     set_parameters.add("-quiet")
     set_parameters.add("-sim")
+    set_parameters.add("-gems")
 
     for a in range(1, len(sys.argv)):
         if sys.argv[a] == "-i":
@@ -308,6 +349,11 @@ def handleCommandLine():
                 if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
                     printLog("Wrong Parameter for Stage: " + str(s_stage))
                     sys.exit(1)
+        if sys.argv[a] == "-gems":
+            gems = sys.argv[a + 1]
+            if gems not in set_parameters:
+                gemspermutation = True
+                handleGems(gems)
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
@@ -380,6 +426,130 @@ def generate_checksum_of_permutations():
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     print(str(hash_md5.hexdigest()))
+
+
+def get_Possible_Gem_Combinations(numberOfGems):
+    printLog("Creating Gem Combinations")
+    printLog("Number of Gems: " + str(numberOfGems))
+    l_gems = []
+    # 1 gem
+    if numberOfGems == 1:
+        for r in splitted_gems:
+            l_gems.append(gem_ids.get(r))
+    # 2 gems
+    if numberOfGems == 2:
+        for r in splitted_gems:
+            for s in splitted_gems:
+                if r < s:
+                    l_gems.append(gem_ids.get(r) + "/" + gem_ids.get(s))
+                else:
+                    l_gems.append(gem_ids.get(s) + "/" + gem_ids.get(r))
+    if numberOfGems == 3:
+        for r in splitted_gems:
+            for s in splitted_gems:
+                for t in splitted_gems:
+                    p = [r,s,t]
+                    p.sort()
+                    l_gems.append(gem_ids.get(p[0]) + "/" + gem_ids.get(p[1]) + "/" + gem_ids.get(p[2]))
+    return l_gems
+
+
+def getGemsFromItem(item):
+    a=item.split(",")
+    gems=[]
+    for i in range(len(a)):
+        # look for gem_id-string in items
+        if a[i].startswith("gem_id"):
+            b, c = a[i].split("=")
+            gems = c.split("/")
+            # up to 3 possible gems
+    return gems
+
+# gearlist contains a list of items, as in l_head
+def permutateGemsInSlotGearList(slot_gearlist, slot):
+    printLog("Permutating slot_gearlist: " + str(slot_gearlist))
+    for item in slot_gearlist:
+        printLog(str(item))
+        a = item.split(",")
+        gems = []
+        for i in range(len(a)):
+            # look for gem_id-string in items
+            if a[i].startswith("gem_id"):
+                b, c = a[i].split("=")
+                gems = c.split("/")
+                # up to 3 possible gems
+        new_gems = get_Possible_Gem_Combinations(len(gems))
+        printLog("New Gems: " + str(new_gems))
+        new_item = ""
+        for n in range(len(a)):
+            if not str(a[n]).startswith("gem") and not a[n] == "":
+                new_item += "," + str(a[n])
+        while new_gems:
+            ins = new_item + ",gem_id=" + new_gems.pop()
+            if slot == 1:
+                if ins not in l_head:
+                    l_head.insert(0,ins)
+            if slot == 2:
+                if ins not in l_neck:
+                    l_neck.insert(0,ins)
+            if slot == 3:
+                if ins not in l_shoulders:
+                    l_shoulders.insert(0,ins)
+            if slot == 4:
+                if ins not in l_chest:
+                    l_chest.insert(0,ins)
+            if slot == 5:
+                if ins not in l_wrists:
+                    l_wrists.insert(0,ins)
+            if slot == 6:
+                if ins not in l_hands:
+                    l_hands.insert(0,ins)
+            if slot == 7:
+                if ins not in l_waist:
+                    l_waist.insert(0,ins)
+            if slot == 8:
+                if ins not in l_legs:
+                    l_legs.insert(0,ins)
+            if slot == 9:
+                if ins not in l_feet:
+                    l_feet.insert(0,ins)
+            if slot == 10:
+                if ins not in l_finger1:
+                    l_finger1.insert(0,ins)
+            if slot == 11:
+                if ins not in l_finger2:
+                    l_finger2.insert(0,ins)
+            if slot == 12:
+                if ins not in l_trinket1:
+                    l_trinket1.insert(0,ins)
+            if slot == 13:
+                if ins not in l_trinket2:
+                    l_trinket2.insert(0,ins)
+            # look for gems-string in items
+            # todo implement
+            if a[i].startswith("gems"):
+                print(str(a[i]))
+
+
+# add gems to the lists
+# current template
+## gems=150crit_150crit_150crit (not implemented yet)
+## shoulder=,id=146666,bonus_id=3459/3530,gem_id=130220/130220/130220
+def permutateGems():
+    printLog("Permutating Gems")
+    permutateGemsInSlotGearList(l_head, 1)
+    permutateGemsInSlotGearList(l_neck, 2)
+    permutateGemsInSlotGearList(l_shoulders, 3)
+    permutateGemsInSlotGearList(l_chest, 4)
+    permutateGemsInSlotGearList(l_wrists, 5)
+    permutateGemsInSlotGearList(l_hands, 6)
+    permutateGemsInSlotGearList(l_waist, 7)
+    permutateGemsInSlotGearList(l_legs, 8)
+    permutateGemsInSlotGearList(l_feet, 9)
+    permutateGemsInSlotGearList(l_finger1, 10)
+    permutateGemsInSlotGearList(l_finger2, 11)
+    permutateGemsInSlotGearList(l_trinket1, 12)
+    permutateGemsInSlotGearList(l_trinket2, 13)
 
 
 def permutate():
@@ -474,6 +644,10 @@ def permutate():
     l_main_hand = c_main_hand.split('|')
     global l_off_hand
     l_off_hand = c_off_hand.split('|')
+
+    # add gem-permutations
+    if gemspermutation:
+        permutateGems()
 
     # better handle rings and trinket-combinations
     # should now be deterministic, previous versions generated a random order and numbering
@@ -708,8 +882,8 @@ def checkResultFiles(subdir):
         sys.exit(1)
 
     if empty > 0:
-        printLog("Empty files in: " + str(subdir)+" -> "+str(empty))
-        print("Warning: Empty files in: " + str(subdir)+" -> "+str(empty))
+        printLog("Empty files in: " + str(subdir) + " -> " + str(empty))
+        print("Warning: Empty files in: " + str(subdir) + " -> " + str(empty))
         if input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ") == "q":
             printLog("User exit")
             sys.exit(0)
