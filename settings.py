@@ -1,4 +1,17 @@
 class settings():
+
+    # ----------------------------------------------------------------------
+    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
+    # ----------------------------------------------------------------------
+    # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
+    # Ddon´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
+    # Don´t forget to include double-backslash for subfolders, like in the example.
+    simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
+    # ----------------------------------------------------------------------
+    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
+    # ----------------------------------------------------------------------
+
+
     # standard-input
     default_inputFileName = "input.txt"
     # standard-output
@@ -34,9 +47,7 @@ class settings():
     # for the -sim option; if you set this to True, you won´t need to use -sim stage1
     default_sim_enabled = True
     default_sim_start_stage = "stage1"
-    # path to your simcraft .exe (don´t point to the gui!)
-    # don´t forget to include double-backslash for subfolders
-    simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
+
     # these folders will be created during calculation
     # stage 1,2,3 correspond accordingly
     subdir1 = "temp_step1"
