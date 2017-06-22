@@ -147,7 +147,6 @@ def checkUsability():
     if nbLeg > legmax:
         return str(nbLeg) + " leg (too much)"
 
-
     # check gems
     # int, str, agi should be only equipped once:
     nUniqueGems = 0
@@ -156,7 +155,7 @@ def checkUsability():
         if "130246" in gems or "130247" in gems or "130248" in gems:
             nUniqueGems += 1
     if nUniqueGems > 1:
-        return str(nUniqueGems)+ " too many unique gems (str, agi, int)"
+        return str(nUniqueGems) + " too many unique gems (str, agi, int)"
     return ""
 
 
@@ -312,7 +311,7 @@ def handleCommandLine():
         if sys.argv[a] == "-quiet":
             printLog("Quiet-Mode enabled")
             b_quiet = 1
-        if sys.argv[a] == "-sim":
+        if sys.argv[a] == "-sim" or settings.default_sim_enabled:
             # check path of simc.exe
             if not os.path.exists(settings.simc_path):
                 printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
@@ -332,7 +331,7 @@ def handleCommandLine():
             # it is essentially used to skip the most time consuming part, stage 1
             # to test alterations and different outputs, e.g. using same gear within different scenarios
             # (standard might be patchwerk, but what happens with this gear- and talentchoice in a helterskelter-szenario?)
-            if sys.argv[a + 1]:
+            if not settings.default_sim_enabled:
                 if sys.argv[a + 1] != s_stage:
                     restart = True
                 else:
@@ -448,15 +447,15 @@ def get_Possible_Gem_Combinations(numberOfGems):
         for r in splitted_gems:
             for s in splitted_gems:
                 for t in splitted_gems:
-                    p = [r,s,t]
+                    p = [r, s, t]
                     p.sort()
                     l_gems.append(gem_ids.get(p[0]) + "/" + gem_ids.get(p[1]) + "/" + gem_ids.get(p[2]))
     return l_gems
 
 
 def getGemsFromItem(item):
-    a=item.split(",")
-    gems=[]
+    a = item.split(",")
+    gems = []
     for i in range(len(a)):
         # look for gem_id-string in items
         if a[i].startswith("gem_id"):
@@ -464,6 +463,7 @@ def getGemsFromItem(item):
             gems = c.split("/")
             # up to 3 possible gems
     return gems
+
 
 # gearlist contains a list of items, as in l_head
 def permutateGemsInSlotGearList(slot_gearlist, slot):
@@ -488,43 +488,43 @@ def permutateGemsInSlotGearList(slot_gearlist, slot):
             ins = new_item + ",gem_id=" + new_gems.pop()
             if slot == 1:
                 if ins not in l_head:
-                    l_head.insert(0,ins)
+                    l_head.insert(0, ins)
             if slot == 2:
                 if ins not in l_neck:
-                    l_neck.insert(0,ins)
+                    l_neck.insert(0, ins)
             if slot == 3:
                 if ins not in l_shoulders:
-                    l_shoulders.insert(0,ins)
+                    l_shoulders.insert(0, ins)
             if slot == 4:
                 if ins not in l_chest:
-                    l_chest.insert(0,ins)
+                    l_chest.insert(0, ins)
             if slot == 5:
                 if ins not in l_wrists:
-                    l_wrists.insert(0,ins)
+                    l_wrists.insert(0, ins)
             if slot == 6:
                 if ins not in l_hands:
-                    l_hands.insert(0,ins)
+                    l_hands.insert(0, ins)
             if slot == 7:
                 if ins not in l_waist:
-                    l_waist.insert(0,ins)
+                    l_waist.insert(0, ins)
             if slot == 8:
                 if ins not in l_legs:
-                    l_legs.insert(0,ins)
+                    l_legs.insert(0, ins)
             if slot == 9:
                 if ins not in l_feet:
-                    l_feet.insert(0,ins)
+                    l_feet.insert(0, ins)
             if slot == 10:
                 if ins not in l_finger1:
-                    l_finger1.insert(0,ins)
+                    l_finger1.insert(0, ins)
             if slot == 11:
                 if ins not in l_finger2:
-                    l_finger2.insert(0,ins)
+                    l_finger2.insert(0, ins)
             if slot == 12:
                 if ins not in l_trinket1:
-                    l_trinket1.insert(0,ins)
+                    l_trinket1.insert(0, ins)
             if slot == 13:
                 if ins not in l_trinket2:
-                    l_trinket2.insert(0,ins)
+                    l_trinket2.insert(0, ins)
             # look for gems-string in items
             # todo implement
             if a[i].startswith("gems"):

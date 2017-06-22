@@ -89,7 +89,7 @@ def split(inputfile, size=50):
 
 def generateCommand(file, output, sim_type, stage3):
     cmd = []
-    cmd.append(simc_path)
+    cmd.append(os.path.normpath(simc_path))
     cmd.append('ptr=' + str(settings.simc_ptr))
     cmd.append(file)
     cmd.append(output)
