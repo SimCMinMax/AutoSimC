@@ -165,10 +165,10 @@ def resim(subdir):
                 if file.endswith(".result"):
                     if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
                         name = file[0:file.find(".")]
-                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name+".sim"),
+                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "iterations=" + str(iterations), False)
-                        print("Cmd: "+str(cmd))
+                        print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
                         return True
     elif mode == "2":
@@ -178,10 +178,10 @@ def resim(subdir):
                 if file.endswith(".result"):
                     if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
                         name = file[0:file.find(".")]
-                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name+".sim"),
+                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "target_error=" + str(target_error), False)
-                        print("Cmd: "+str(cmd))
+                        print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
                         return True
     return False
@@ -211,6 +211,10 @@ def grabBest(count, source_subdir, target_subdir, origin):
                     for line in src.readlines():
                         line = line.lstrip().rstrip()
                         if not line:
+                            continue
+                        if line.rstrip().startswith("Raid"):
+                            continue
+                        if line.rstrip().startswith("raid_event"):
                             continue
                         if line.rstrip().startswith("HPS"):
                             continue
