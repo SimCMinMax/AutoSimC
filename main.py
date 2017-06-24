@@ -28,7 +28,7 @@ b_quiet = settings.b_quiet
 i_generatedProfiles = 0
 
 b_simcraft_enabled = settings.default_sim_enabled
-s_stage = settings.default_sim_start_stage
+s_stage = ""
 
 iterations_firstpart = settings.default_iterations_stage1
 iterations_secondpart = settings.default_iterations_stage2
@@ -311,7 +311,8 @@ def handleCommandLine():
         if sys.argv[a] == "-quiet":
             printLog("Quiet-Mode enabled")
             b_quiet = 1
-        if sys.argv[a] == "-sim" or settings.default_sim_enabled:
+        # if option -sim exists in commandline incl. stage1,2,3, it overwrites all values of settings.py
+        if sys.argv[a] == "-sim":
             # check path of simc.exe
             if not os.path.exists(settings.simc_path):
                 printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
@@ -331,23 +332,22 @@ def handleCommandLine():
             # it is essentially used to skip the most time consuming part, stage 1
             # to test alterations and different outputs, e.g. using same gear within different scenarios
             # (standard might be patchwerk, but what happens with this gear- and talentchoice in a helterskelter-szenario?)
-            if not settings.default_sim_enabled:
-                if sys.argv[a + 1] != s_stage:
-                    restart = True
-                else:
-                    restart = False
-                s_stage = sys.argv[a + 1]
-                if s_stage in set_parameters:
-                    printLog("Wrong parameter for -sim: " + str(s_stage))
-                    print("Wrong parameter for ""-sim"" option: " + str(s_stage))
-                    sys.exit(1)
-                if not s_stage:
-                    printLog("Missing parameter for -sim: " + s_stage)
-                    print("Missing parameter for ""-sim"" option: " + str(s_stage))
-                    sys.exit(1)
-                if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
-                    printLog("Wrong Parameter for Stage: " + str(s_stage))
-                    sys.exit(1)
+            if sys.argv[a + 1] != s_stage:
+                restart = True
+            else:
+                restart = False
+            s_stage = sys.argv[a + 1]
+            if s_stage in set_parameters:
+                printLog("Wrong parameter for -sim: " + str(s_stage))
+                print("Wrong parameter for ""-sim"" option: " + str(s_stage))
+                sys.exit(1)
+            if not s_stage:
+                printLog("Missing parameter for -sim: " + s_stage)
+                print("Missing parameter for ""-sim"" option: " + str(s_stage))
+                sys.exit(1)
+            if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
+                printLog("Wrong Parameter for Stage: " + str(s_stage))
+                sys.exit(1)
         if sys.argv[a] == "-gems":
             gems = sys.argv[a + 1]
             if gems not in set_parameters:
@@ -871,14 +871,21 @@ def checkResultFiles(subdir):
     printLog("Checking Files in subdirectory: " + str(subdir))
     if os.path.exists(os.path.join(os.getcwd(), subdir)):
         empty = 0
+        checkedFiles = 0
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
+                checkedFiles += 1
                 if file.endswith(".result"):
                     if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
                         printLog("File is empty: " + str(file))
                         empty += 1
     else:
         printLog("Error: Subdir does not exist: " + str(subdir))
+        sys.exit(1)
+
+    if checkedFiles == 0:
+        printLog("No files in: " + str(subdir))
+        print("No files in: " + str(subdir) + ", exiting")
         sys.exit(1)
 
     if empty > 0:
@@ -1129,6 +1136,10 @@ if i_generatedProfiles == 0:
 
 if b_simcraft_enabled:
     class_spec = getClassSpec()
+
+    if s_stage == "":
+        s_stage = settings.default_sim_start_stage
+    print(str(s_stage))
 
     if s_stage == "stage1":
         stage1()
