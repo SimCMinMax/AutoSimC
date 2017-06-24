@@ -231,7 +231,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
                             user_class = r
                             break
                         # dps, percentage, profilename
-                        a, b, c = line.split()
+                        a, b, c = line.lstrip().rstrip().split()
                         # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
                         # put dps as key and profilename as value into dictionary
                         # dps might be equal for 2 profiles, but should very rarely happen
@@ -246,9 +246,10 @@ def grabBest(count, source_subdir, target_subdir, origin):
     # put best dps into a list, descending order
     sortedlist = []
     for entry in best.keys():
-        sortedlist.append(entry)
+        sortedlist.append(int(entry))
     sortedlist.sort()
     sortedlist.reverse()
+    # print(str(sortedlist))
 
     # trim list to desired number
     while len(sortedlist) > count:
@@ -258,7 +259,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
     # and finally generate a second list with the corresponding profile-names
     sortednames = []
     while len(sortedlist) > 0:
-        sortednames.append(best.get(sortedlist.pop()))
+        sortednames.append(best.get(str(sortedlist.pop())))
     # print("Sortednames: "+str(sortednames))
 
     bestprofiles = []
