@@ -999,21 +999,23 @@ def dynamic_stage1():
             if new_value == "n":
                 target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
                 printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                dynamic_stage2(target_error_secondpart)
+                dynamic_stage2(target_error_secondpart,str(te))
             if new_value == "s":
-                dynamic_stage3(True, settings.default_target_error_stage3)
+                dynamic_stage3(True, settings.default_target_error_stage3,str(te))
             if new_value == "y":
-                dynamic_stage2(settings.default_target_error_stage2)
+                dynamic_stage2(settings.default_target_error_stage2,str(te))
         else:
-            dynamic_stage2(settings.default_target_error_stage2)
+            dynamic_stage2(settings.default_target_error_stage2,str(te))
 
 
-def dynamic_stage2(targeterror):
+def dynamic_stage2(targeterror, targeterrorstage1):
     printLog("Entering dynamic mode, stage2")
     checkResultFiles(settings.subdir1)
-    # grabbing top 100 files
-    splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2,
-                      outputFileName)
+    if settings.default_use_alternate_grabbing_method:
+        splitter.grabBestAlternate(targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
+    else:
+        # grabbing top 100 files
+        splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
     # where they are simmed again, now with higher quality
     splitter.sim(settings.subdir2, "target_error=" + str(targeterror), 1)
     # if the user chose a target_error which is lower than the default_one for the next step
@@ -1034,14 +1036,14 @@ def dynamic_stage2(targeterror):
         if new_value == "n":
             target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
             printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
-            dynamic_stage3(False, target_error_thirdpart)
+            dynamic_stage3(False, target_error_thirdpart, targeterror)
         if new_value == "y":
-            dynamic_stage3(False, settings.default_target_error_stage3)
+            dynamic_stage3(False, settings.default_target_error_stage3, targeterror)
     else:
-        dynamic_stage3(False, settings.default_target_error_stage3)
+        dynamic_stage3(False, settings.default_target_error_stage3, targeterror)
 
 
-def dynamic_stage3(skipped, targeterror):
+def dynamic_stage3(skipped, targeterror, targeterrorstage2):
     printLog("Entering dynamic mode, stage3")
     ok = False
     if skipped:
@@ -1052,9 +1054,15 @@ def dynamic_stage3(skipped, targeterror):
         printLog(".result-files ok, proceeding")
         # again, for a third time, get top 3 profiles and put them into subdir3
         if skipped:
-            splitter.grabBest(settings.default_top_n_stage3, settings.subdir1, settings.subdir3, outputFileName)
+            if settings.default_use_alternate_grabbing_method:
+                splitter.grabBestAlternate(targeterrorstage2, settings.subdir1, settings.subdir3, outputFileName)
+            else:
+                splitter.grabBest(targeterror, settings.subdir1, settings.subdir3, outputFileName)
         else:
-            splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
+            if settings.default_use_alternate_grabbing_method:
+                splitter.grabBestAlternate(targeterrorstage2, settings.subdir2, settings.subdir3, outputFileName)
+            else:
+                splitter.grabBest(targeterror, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
         splitter.sim(settings.subdir3, "target_error=" + str(targeterror), 2)
     else:

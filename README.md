@@ -52,10 +52,8 @@ What can be changed (command prefix are case sensitive):
          There are 2 modes available for calculating the possible huge amount of permutations:
   - Static and dynamic mode:
     - Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are 100, 1000 and 10000 for each stage.
-    - Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.1, and 0.05 for the final stage 3.
+    - Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.2, and 0.05 for the final stage 3.
          (These numbers might be changed in future versions)
-         It is now also possible to "resume" at stage1, 2 or 3, if a previous stage has been fully calculated and generated a .result in the equivalent folder. Please use this feature with care.
-         (default: -sim stage1)
 		 You have to set the simc path in the settings.py file.
 	- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during stage1, by launching with the parameter "-sim stage2" (or stage3). You will have to enter the amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)
 - -gems : Enables permutation of gem-combinations in your gear. With e.g. <-gems "crit,haste,int"> you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon greens are not supported) in addition to the ones you have currently equipped.

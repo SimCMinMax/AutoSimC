@@ -1,10 +1,9 @@
 class settings():
-
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
     # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
-    # Ddon´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
+    # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Don´t forget to include double-backslash for subfolders, like in the example.
     simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
     # ----------------------------------------------------------------------
@@ -70,9 +69,19 @@ class settings():
     # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become obsolete
     # this case might not get fully supported because of the indivduality of these problems
     default_top_n_stage2 = 100
-    default_target_error_stage2 = "0.1"
-    default_top_n_stage3 = 3
+    default_target_error_stage2 = "0.2"
+    default_top_n_stage3 = 1
     default_target_error_stage3 = "0.05"
+
+    # alternate method to determine the "best" profiles when using target_error-method
+    # it does not choose fixed top n for each stage
+    # instead it uses the following algorithm:
+    # 1. create the list of profile-dps as usual, descending order
+    # 2. if iterates the list and removes all profiles which don´t fulfil (topdps-target_error) > profiledps
+    # e.g. target_error chosen in stage1 = 0.5, topdps = 1.000.000 -> it includes all profiles for stage2 with dps > 995.000
+    # 3. use the same procedure for stage3
+    # set this to True|False if you want to use this method
+    default_use_alternate_grabbing_method = True
 
     # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
