@@ -33,7 +33,7 @@ class settings():
     # set the amount of minimum tier-items you want to include in your output
     # this reduces the number of permutations generated if you know what you want to sim
     # if you have no clue which items do what (= sim every combination), set both to 0
-    default_equip_t19_min = 4
+    default_equip_t19_min = 0
     default_equip_t20_min = 0
 
     # quiet_mode for faster output; console is very slow
@@ -94,7 +94,7 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = True
+    simc_scale_factors_stage3 = False
     # 0|1
     simc_ptr = 0
 
