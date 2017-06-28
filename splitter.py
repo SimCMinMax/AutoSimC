@@ -170,7 +170,7 @@ def resim(subdir):
                                               "iterations=" + str(iterations), False)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
-                        return True
+        return True
     elif mode == "2":
         target_error = input("Which target_error?: ")
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
@@ -183,7 +183,7 @@ def resim(subdir):
                                               "target_error=" + str(target_error), False)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
-                        return True
+        return True
     return False
 
 
