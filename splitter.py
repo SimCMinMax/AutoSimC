@@ -16,6 +16,8 @@ subdir3 = settings.subdir3
 
 single_actor_batch = settings.simc_single_actor_batch
 
+user_targeterror = 0.0
+
 
 # deletes and creates needed folders
 # sometimes it generates a permission error; don´t know why (am i removing and recreating too fast?)
@@ -154,6 +156,8 @@ def sim(subdir, simtype, command=1):
 
 
 def resim(subdir):
+    global user_targeterror
+
     print("Resimming empty files in " + str(subdir))
     mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
     if mode == "q":
@@ -162,25 +166,28 @@ def resim(subdir):
         iterations = input("How many iterations?: ")
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
-                if file.endswith(".result"):
-                    if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
-                        name = file[0:file.find(".")]
+                if file.endswith(".sim"):
+                    name = file[0:file.find(".")]
+                    if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
+                            os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "iterations=" + str(iterations), False)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
+
         return True
     elif mode == "2":
-        target_error = input("Which target_error?: ")
+        user_targeterror = input("Which target_error?: ")
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
-                if file.endswith(".result"):
-                    if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
-                        name = file[0:file.find(".")]
+                if file.endswith(".sim"):
+                    name = file[0:file.find(".")]
+                    if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
+                            os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "target_error=" + str(target_error), False)
+                                              "target_error=" + str(user_targeterror), False)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
         return True

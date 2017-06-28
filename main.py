@@ -869,24 +869,29 @@ def getClassSpec():
 
 def checkResultFiles(subdir):
     printLog("Checking Files in subdirectory: " + str(subdir))
+    print("Checking Files in subdirectory: " + str(subdir))
     if os.path.exists(os.path.join(os.getcwd(), subdir)):
         empty = 0
         checkedFiles = 0
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 checkedFiles += 1
-                if file.endswith(".result"):
-                    if os.stat(os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
-                        printLog("File is empty: " + str(file))
+                if file.endswith(".sim"):
+                    name = file[0:file.find(".")]
+                    if not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result")):
+                        printLog("Result file not found for .sim: " + str(subdir) + "/" + str(file))
+                        empty += 1
+                    elif os.stat(os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
+                        printLog("File is empty: " + str(subdir) + "/" + str(file))
                         empty += 1
     else:
         printLog("Error: Subdir does not exist: " + str(subdir))
-        sys.exit(1)
+        return False
 
     if checkedFiles == 0:
         printLog("No files in: " + str(subdir))
         print("No files in: " + str(subdir) + ", exiting")
-        sys.exit(1)
+        return False
 
     if empty > 0:
         printLog("Empty files in: " + str(subdir) + " -> " + str(empty))
@@ -895,10 +900,12 @@ def checkResultFiles(subdir):
             printLog("User exit")
             sys.exit(0)
         else:
+            printLog("Resimming files")
             if splitter.resim(subdir):
-                checkResultFiles(subdir)
-        return False
+                return checkResultFiles(subdir)
     else:
+        printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
+        print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
         return True
 
 
@@ -999,13 +1006,13 @@ def dynamic_stage1():
             if new_value == "n":
                 target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
                 printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                dynamic_stage2(target_error_secondpart,str(te))
+                dynamic_stage2(target_error_secondpart, str(te))
             if new_value == "s":
-                dynamic_stage3(True, settings.default_target_error_stage3,str(te))
+                dynamic_stage3(True, settings.default_target_error_stage3, str(te))
             if new_value == "y":
-                dynamic_stage2(settings.default_target_error_stage2,str(te))
+                dynamic_stage2(settings.default_target_error_stage2, str(te))
         else:
-            dynamic_stage2(settings.default_target_error_stage2,str(te))
+            dynamic_stage2(settings.default_target_error_stage2, str(te))
 
 
 def dynamic_stage2(targeterror, targeterrorstage1):
@@ -1092,31 +1099,40 @@ def stage1():
 
 def stage2_restart():
     printLog("Restarting at Stage2")
-    if checkResultFiles(settings.subdir1):
-        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir1))
+    print("Restarting at Stage2")
+    if not checkResultFiles(settings.subdir1):
+        printLog("Error restarting at subdir: " + str(settings.subdir1))
+        print("Error restarting at subdir: " + str(settings.subdir1))
     mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
         static_stage2()
     elif mode_choice == "2":
         new_te = input("Which target_error do you want to use for stage2: (Press enter for default: " + str(
             target_error_secondpart) + "):")
-        if str(new_te) != str(target_error_secondpart):
-            dynamic_stage2(new_te)
+        if str(new_te) != str(target_error_secondpart) and splitter.user_targeterror != "0.0":
+            dynamic_stage2(new_te, splitter.user_targeterror)
         else:
-            dynamic_stage2(target_error_secondpart)
+            dynamic_stage2(target_error_secondpart, splitter.user_targeterror)
     else:
         printLog("Error, wrong mode")
 
 
 def stage3_restart():
-    if checkResultFiles(settings.subdir2):
-        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
     printLog("Restarting at Stage3")
+    print("Restarting at Stage3")
+    if not checkResultFiles(settings.subdir2):
+        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
+        print("Error restarting at subdir: " + str(settings.subdir1))
     mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
         static_stage3()
     elif mode_choice == "2":
-        dynamic_stage3(False, settings.default_target_error_stage3)
+        new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(
+            target_error_thirdpart) + "):")
+        if str(new_te) != str(target_error_thirdpart) and splitter.user_targeterror != "0.0":
+            dynamic_stage3(False, new_te, splitter.user_targeterror)
+        else:
+            dynamic_stage3(False, target_error_thirdpart, splitter.user_targeterror)
     else:
         printLog("Error, wrong mode")
 
@@ -1147,7 +1163,6 @@ if b_simcraft_enabled:
 
     if s_stage == "":
         s_stage = settings.default_sim_start_stage
-    print(str(s_stage))
 
     if s_stage == "stage1":
         stage1()
