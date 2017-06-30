@@ -34,7 +34,7 @@ class settings():
     # this reduces the number of permutations generated if you know what you want to sim
     # if you have no clue which items do what (= sim every combination), set both to 0
     default_equip_t19_min = 0
-    default_equip_t20_min = 0
+    default_equip_t20_min = 4
 
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
@@ -101,9 +101,6 @@ class settings():
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole raid instead of single profiles
     simc_safe_mode = False
-    # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
-    # single profiles,
-    simc_single_actor_batch = 1
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
     # the file must be present in the autosimc-folder
