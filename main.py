@@ -349,60 +349,62 @@ def scpoutprofileset(oh):
             if c_other != "":
                 outputFile.write(pset_prefix + c_other + "\n")
             if l_gear[0][0] == "L":
-                outputFile.write(pset_prefix+"head=" + l_gear[0][1:] + "\n")
+                outputFile.write(pset_prefix + "head=" + l_gear[0][1:] + "\n")
             elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
-                outputFile.write(pset_prefix+"head=" + l_gear[0][3:] + "\n")
+                outputFile.write(pset_prefix + "head=" + l_gear[0][3:] + "\n")
             else:
-                outputFile.write(pset_prefix+"head=" + l_gear[0] + "\n")
-            outputFile.write(pset_prefix+"neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
+                outputFile.write(pset_prefix + "head=" + l_gear[0] + "\n")
+            outputFile.write(pset_prefix + "neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
 
             if l_gear[2][0] == "L":
-                outputFile.write(pset_prefix+"shoulders=" + l_gear[2][1:] + "\n")
+                outputFile.write(pset_prefix + "shoulders=" + l_gear[2][1:] + "\n")
             elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20"):
-                outputFile.write(pset_prefix+"shoulders=" + l_gear[2][3:] + "\n")
+                outputFile.write(pset_prefix + "shoulders=" + l_gear[2][3:] + "\n")
             else:
-                outputFile.write(pset_prefix+"shoulders=" + l_gear[2] + "\n")
+                outputFile.write(pset_prefix + "shoulders=" + l_gear[2] + "\n")
 
             if l_gear[3][0] == "L":
-                outputFile.write(pset_prefix+"back=" + l_gear[3][1:] + "\n")
+                outputFile.write(pset_prefix + "back=" + l_gear[3][1:] + "\n")
             elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20"):
-                outputFile.write(pset_prefix+"back=" + l_gear[3][3:] + "\n")
+                outputFile.write(pset_prefix + "back=" + l_gear[3][3:] + "\n")
             else:
-                outputFile.write(pset_prefix+"back=" + l_gear[3] + "\n")
+                outputFile.write(pset_prefix + "back=" + l_gear[3] + "\n")
 
             if l_gear[4][0] == "L":
-                outputFile.write(pset_prefix+"chest=" + l_gear[4][1:] + "\n")
+                outputFile.write(pset_prefix + "chest=" + l_gear[4][1:] + "\n")
             elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20"):
-                outputFile.write(pset_prefix+"chest=" + l_gear[4][3:] + "\n")
+                outputFile.write(pset_prefix + "chest=" + l_gear[4][3:] + "\n")
             else:
-                outputFile.write(pset_prefix+"chest=" + l_gear[4] + "\n")
+                outputFile.write(pset_prefix + "chest=" + l_gear[4] + "\n")
 
-            outputFile.write(pset_prefix+"wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
+            outputFile.write(pset_prefix + "wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
 
             if l_gear[6][0] == "L":
-                outputFile.write(pset_prefix+"hands=" + l_gear[6][1:] + "\n")
+                outputFile.write(pset_prefix + "hands=" + l_gear[6][1:] + "\n")
             elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20"):
-                outputFile.write(pset_prefix+"hands=" + l_gear[6][3:] + "\n")
+                outputFile.write(pset_prefix + "hands=" + l_gear[6][3:] + "\n")
             else:
-                outputFile.write(pset_prefix+"hands=" + l_gear[6] + "\n")
+                outputFile.write(pset_prefix + "hands=" + l_gear[6] + "\n")
 
-            outputFile.write(pset_prefix+"waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
+            outputFile.write(pset_prefix + "waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
 
             if l_gear[8][0] == "L":
-                outputFile.write(pset_prefix+"legs=" + l_gear[8][1:] + "\n")
+                outputFile.write(pset_prefix + "legs=" + l_gear[8][1:] + "\n")
             elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20"):
-                outputFile.write(pset_prefix+"legs=" + l_gear[8][3:] + "\n")
+                outputFile.write(pset_prefix + "legs=" + l_gear[8][3:] + "\n")
             else:
-                outputFile.write(pset_prefix+"legs=" + l_gear[8] + "\n")
+                outputFile.write(pset_prefix + "legs=" + l_gear[8] + "\n")
 
-            outputFile.write(pset_prefix+"feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
-            outputFile.write(pset_prefix+"finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
-            outputFile.write(pset_prefix+"finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
-            outputFile.write(pset_prefix+"trinket1=" + (l_gear[12] if l_gear[12][0] != "L" else l_gear[12][1:]) + "\n")
-            outputFile.write(pset_prefix+"trinket2=" + (l_gear[13] if l_gear[13][0] != "L" else l_gear[13][1:]) + "\n")
-            outputFile.write(pset_prefix+"main_hand=" + l_gear[14] + "\n")
+            outputFile.write(pset_prefix + "feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
+            outputFile.write(pset_prefix + "finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
+            outputFile.write(pset_prefix + "finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
+            outputFile.write(
+                pset_prefix + "trinket1=" + (l_gear[12] if l_gear[12][0] != "L" else l_gear[12][1:]) + "\n")
+            outputFile.write(
+                pset_prefix + "trinket2=" + (l_gear[13] if l_gear[13][0] != "L" else l_gear[13][1:]) + "\n")
+            outputFile.write(pset_prefix + "main_hand=" + l_gear[14] + "\n")
             if oh == 1:
-                outputFile.write(pset_prefix+"off_hand=" + l_gear[15] + "\n\n")
+                outputFile.write(pset_prefix + "off_hand=" + l_gear[15] + "\n\n")
             else:
                 outputFile.write("\n")
             i_generatedProfiles += 1
@@ -902,11 +904,11 @@ def permutate():
                                                             l_gear[14] = l_main_hand[o]
                                                             for p in range(len(l_off_hand)):
                                                                 l_gear[15] = l_off_hand[p]
-                                                                scpoutprofileset(1)
+                                                                scpout(1)
                                                     else:
                                                         for o in range(len(l_main_hand)):
                                                             l_gear[14] = l_main_hand[o]
-                                                            scpoutprofileset(0)
+                                                            scpout(0)
 
     printLog("Ending permutations. Valid: " + str(i_generatedProfiles))
     print("Generated permutations. Valid: " + str(i_generatedProfiles))
@@ -1222,12 +1224,12 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2):
             if settings.default_use_alternate_grabbing_method:
                 splitter.grabBestAlternate(targeterrorstage2, settings.subdir1, settings.subdir3, outputFileName)
             else:
-                splitter.grabBest(targeterror, settings.subdir1, settings.subdir3, outputFileName)
+                splitter.grabBest(settings.default_top_n_stage3, settings.subdir1, settings.subdir3, outputFileName)
         else:
             if settings.default_use_alternate_grabbing_method:
                 splitter.grabBestAlternate(targeterrorstage2, settings.subdir2, settings.subdir3, outputFileName)
             else:
-                splitter.grabBest(targeterror, settings.subdir2, settings.subdir3, outputFileName)
+                splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
         splitter.sim(settings.subdir3, "target_error=" + str(targeterror), 2)
     else:
@@ -1285,12 +1287,16 @@ def stage3_restart():
     if mode_choice == "1":
         static_stage3()
     elif mode_choice == "2":
+        if input("Did you skip stage 2? (y,n)") == "y":
+            skip = True
+        else:
+            skip = False
         new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(
             target_error_thirdpart) + "):")
         if str(new_te) != str(target_error_thirdpart) and splitter.user_targeterror != "0.0":
-            dynamic_stage3(False, new_te, splitter.user_targeterror)
+            dynamic_stage3(skip, new_te, splitter.user_targeterror)
         else:
-            dynamic_stage3(False, target_error_thirdpart, splitter.user_targeterror)
+            dynamic_stage3(skip, target_error_thirdpart, splitter.user_targeterror)
     else:
         printLog("Error, wrong mode")
 
