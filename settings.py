@@ -94,13 +94,16 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = False
+    simc_scale_factors_stage3 = True
     # 0|1
     simc_ptr = 0
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole raid instead of single profiles
     simc_safe_mode = False
+    # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
+    # single profiles,
+    simc_single_actor_batch = 1
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
     # the file must be present in the autosimc-folder
