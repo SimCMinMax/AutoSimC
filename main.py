@@ -167,7 +167,7 @@ def scpout(oh):
     digits = len(str(c_profilemaxid))
     mask = '00000000000000000000000000000000000'
     maskedProfileID = (mask + str(c_profileid))[-digits:]
-    # output status every 5000 permutations, user should get at least a minor progress shown; also doesn´t slow down
+    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
     if int(maskedProfileID) % 5000 == 0:
         print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
@@ -260,7 +260,7 @@ def scpoutprofileset(oh):
     digits = len(str(c_profilemaxid))
     mask = '00000000000000000000000000000000000'
     maskedProfileID = (mask + str(c_profileid))[-digits:]
-    # output status every 5000 permutations, user should get at least a minor progress shown; also doesn´t slow down
+    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
     if int(maskedProfileID) % 5000 == 0:
         print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
