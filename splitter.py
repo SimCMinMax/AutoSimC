@@ -169,7 +169,7 @@ def resim(subdir):
                 if file.endswith(".sim"):
                     name = file[0:file.find(".")]
                     if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
-                            os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
+                            os.path.join(os.getcwd(), subdir, name+".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "iterations=" + str(iterations), False)
@@ -184,7 +184,7 @@ def resim(subdir):
                 if file.endswith(".sim"):
                     name = file[0:file.find(".")]
                     if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
-                            os.path.join(os.getcwd(), subdir, file)).st_size <= 0:
+                            os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "target_error=" + str(user_targeterror), False)
