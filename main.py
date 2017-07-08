@@ -1042,7 +1042,7 @@ def checkResultFiles(subdir):
                         printLog("Result file not found for .sim: " + str(subdir) + "/" + str(file))
                         empty += 1
                     elif os.stat(os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
-                        printLog("File is empty: " + str(subdir) + "/" + str(file))
+                        printLog("File is empty: " + str(subdir) + "/" + str(name))
                         empty += 1
     else:
         printLog("Error: Subdir does not exist: " + str(subdir))
