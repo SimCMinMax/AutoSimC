@@ -577,6 +577,8 @@ def validateSettings():
     if b_simcraft_enabled:
         if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
             printLog("Analyzer-file found")
+    if settings.default_error_rate_multiplier <= 0:
+        printLog("Wrong default_error_rate_multiplier: " + str(settings.default_error_rate_multiplier))
 
 
 def generate_checksum_of_permutations():

@@ -381,7 +381,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
 
     # remove all profiles not within the errorrange
     if len(sortedlist) > 2:
-        dps_min = int(sortedlist[0]) - (int(sortedlist[0]) * float(targeterror) / 100)
+        dps_min = int(sortedlist[0]) - (int(sortedlist[0]) * (settings.default_error_rate_multiplier * float(targeterror)) / 100)
         print("target_error: " + str(targeterror) + " -> dps_minimum: " + str(dps_min))
         while len(sortedlist) > 1:
             if sortedlist[-1] < dps_min:
