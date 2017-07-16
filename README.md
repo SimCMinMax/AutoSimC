@@ -16,6 +16,7 @@ You must have python (ideally >3.6) installed on you computer for this to work.
 - The .simc file is generated and ready to be used with Simc.
 - If you are using Simc GUI, open the .simc file with notepad and copy/paste the text in simc
 - You can use the -sim-option to simulate it without using the Simcraft-Gui
+- You can also follow this how-to set it up [https://goo.gl/5d7BAM]
 
 ## Input.txt
 [This might not work fully with the current [-sim]-option]
@@ -96,4 +97,5 @@ Kutikuti (SimPermut integration)
 
 Bickus (All the fancy things)
 
+@Aadder (How-To)
 
