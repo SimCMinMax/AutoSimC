@@ -136,7 +136,7 @@ def checkUsability():
         return str(temp_t19) + ": too few T19-items"
     if temp_t20 < int(t20):
         return str(temp_t20) + ": too few T20-items"
-    if temp_t21 < int(t20):
+    if temp_t21 < int(t21):
         return str(temp_t21) + ": too few T21-items"
 
     if l_gear[10] == l_gear[11]:
