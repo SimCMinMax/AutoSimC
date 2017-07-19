@@ -16,6 +16,7 @@ legmin = settings.default_leg_min
 legmax = settings.default_leg_max
 t19 = settings.default_equip_t19_min
 t20 = settings.default_equip_t20_min
+t21 = settings.default_equip_t21_min
 
 outputFileName = settings.default_outputFileName
 # txt, because standard-user cannot be trusted
@@ -122,16 +123,21 @@ def handleGems(gems):
 def checkUsability():
     temp_t19 = 0
     temp_t20 = 0
+    temp_t21 = 0
 
     for i in range(len(l_gear)):
         if l_gear[i][0:3] == "T19":
             temp_t19 = temp_t19 + 1
         if l_gear[i][0:3] == "T20":
             temp_t20 = temp_t20 + 1
+        if l_gear[i][0:3] == "T21":
+            temp_t21 = temp_t21 + 1
     if temp_t19 < int(t19):
         return str(temp_t19) + ": too few T19-items"
     if temp_t20 < int(t20):
         return str(temp_t20) + ": too few T20-items"
+    if temp_t21 < int(t20):
+        return str(temp_t21) + ": too few T21-items"
 
     if l_gear[10] == l_gear[11]:
         return "Same ring"
@@ -287,7 +293,7 @@ def scpoutprofileset(oh):
                 outputFile.write(c_other + "\n")
             if l_gear[0][0] == "L":
                 outputFile.write("head=" + l_gear[0][1:] + "\n")
-            elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
+            elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20" or l_gear[0][0:3] == "T21"):
                 outputFile.write("head=" + l_gear[0][3:] + "\n")
             else:
                 outputFile.write("head=" + l_gear[0] + "\n")
@@ -295,21 +301,21 @@ def scpoutprofileset(oh):
 
             if l_gear[2][0] == "L":
                 outputFile.write("shoulders=" + l_gear[2][1:] + "\n")
-            elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20"):
+            elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20" or l_gear[2][0:3] == "T21"):
                 outputFile.write("shoulders=" + l_gear[2][3:] + "\n")
             else:
                 outputFile.write("shoulders=" + l_gear[2] + "\n")
 
             if l_gear[3][0] == "L":
                 outputFile.write("back=" + l_gear[3][1:] + "\n")
-            elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20"):
+            elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20" or l_gear[3][0:3] == "T21"):
                 outputFile.write("back=" + l_gear[3][3:] + "\n")
             else:
                 outputFile.write("back=" + l_gear[3] + "\n")
 
             if l_gear[4][0] == "L":
                 outputFile.write("chest=" + l_gear[4][1:] + "\n")
-            elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20"):
+            elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20" or l_gear[4][0:3] == "T21"):
                 outputFile.write("chest=" + l_gear[4][3:] + "\n")
             else:
                 outputFile.write("chest=" + l_gear[4] + "\n")
@@ -318,7 +324,7 @@ def scpoutprofileset(oh):
 
             if l_gear[6][0] == "L":
                 outputFile.write("hands=" + l_gear[6][1:] + "\n")
-            elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20"):
+            elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20" or l_gear[6][0:3] == "T21"):
                 outputFile.write("hands=" + l_gear[6][3:] + "\n")
             else:
                 outputFile.write("hands=" + l_gear[6] + "\n")
@@ -327,7 +333,7 @@ def scpoutprofileset(oh):
 
             if l_gear[8][0] == "L":
                 outputFile.write("legs=" + l_gear[8][1:] + "\n")
-            elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20"):
+            elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20" or l_gear[8][0:3] == "T21"):
                 outputFile.write("legs=" + l_gear[8][3:] + "\n")
             else:
                 outputFile.write("legs=" + l_gear[8] + "\n")
@@ -350,7 +356,7 @@ def scpoutprofileset(oh):
                 outputFile.write(pset_prefix + c_other + "\n")
             if l_gear[0][0] == "L":
                 outputFile.write(pset_prefix + "head=" + l_gear[0][1:] + "\n")
-            elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
+            elif (l_gear[0][0:3] == "T19" or l_gear[8][0:3] == "T20" or l_gear[8][0:3] == "T21"):
                 outputFile.write(pset_prefix + "head=" + l_gear[0][3:] + "\n")
             else:
                 outputFile.write(pset_prefix + "head=" + l_gear[0] + "\n")
@@ -358,21 +364,21 @@ def scpoutprofileset(oh):
 
             if l_gear[2][0] == "L":
                 outputFile.write(pset_prefix + "shoulders=" + l_gear[2][1:] + "\n")
-            elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20"):
+            elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20" or l_gear[2][0:3] == "T21"):
                 outputFile.write(pset_prefix + "shoulders=" + l_gear[2][3:] + "\n")
             else:
                 outputFile.write(pset_prefix + "shoulders=" + l_gear[2] + "\n")
 
             if l_gear[3][0] == "L":
                 outputFile.write(pset_prefix + "back=" + l_gear[3][1:] + "\n")
-            elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20"):
+            elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20" or l_gear[3][0:3] == "T21"):
                 outputFile.write(pset_prefix + "back=" + l_gear[3][3:] + "\n")
             else:
                 outputFile.write(pset_prefix + "back=" + l_gear[3] + "\n")
 
             if l_gear[4][0] == "L":
                 outputFile.write(pset_prefix + "chest=" + l_gear[4][1:] + "\n")
-            elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20"):
+            elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20" or l_gear[4][0:3] == "T21"):
                 outputFile.write(pset_prefix + "chest=" + l_gear[4][3:] + "\n")
             else:
                 outputFile.write(pset_prefix + "chest=" + l_gear[4] + "\n")
@@ -381,7 +387,7 @@ def scpoutprofileset(oh):
 
             if l_gear[6][0] == "L":
                 outputFile.write(pset_prefix + "hands=" + l_gear[6][1:] + "\n")
-            elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20"):
+            elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20" or l_gear[6][0:3] == "T21"):
                 outputFile.write(pset_prefix + "hands=" + l_gear[6][3:] + "\n")
             else:
                 outputFile.write(pset_prefix + "hands=" + l_gear[6] + "\n")
@@ -390,7 +396,7 @@ def scpoutprofileset(oh):
 
             if l_gear[8][0] == "L":
                 outputFile.write(pset_prefix + "legs=" + l_gear[8][1:] + "\n")
-            elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20"):
+            elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20" or l_gear[8][0:3] == "T21"):
                 outputFile.write(pset_prefix + "legs=" + l_gear[8][3:] + "\n")
             else:
                 outputFile.write(pset_prefix + "legs=" + l_gear[8] + "\n")
@@ -566,9 +572,9 @@ def validateSettings():
             legmax) + ". Please check settings.py for these parameters!")
         sys.exit(1)
     # validate tier-set
-    if (int(t19) + int(t20) > 6) or t19 < 0 or t19 > 6 or t20 < 0 or t20 > 6:
+    if (int(t19) + int(t20) + int(t21) > 6) or t19 < 0 or t19 > 6 or t20 < 0 or t20 > 6 or t21 < 0 or t21 > 6:
         printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
-            t20) + ". Please check settings.py for these parameters!")
+            t20) + ", T21: " + str(t21) +". Please check settings.py for these parameters!")
         sys.exit(1)
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:

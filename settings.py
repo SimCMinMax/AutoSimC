@@ -4,7 +4,7 @@ class settings():
     # ----------------------------------------------------------------------
     # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
-    # Don´t forget to include double-backslash for subfolders, like in the example.
+    # Don´t forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
     simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
@@ -32,9 +32,10 @@ class settings():
     # ----------------------------------------------------------------------
     # set the amount of minimum tier-items you want to include in your output
     # this reduces the number of permutations generated if you know what you want to sim
-    # if you have no clue which items do what (= sim every combination), set both to 0
+    # if you have no clue which items do what (= sim every combination), set all to 0
     default_equip_t19_min = 0
     default_equip_t20_min = 4
+    default_equip_t21_min = 0
 
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
