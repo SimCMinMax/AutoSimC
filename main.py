@@ -583,6 +583,9 @@ def validateSettings():
     if b_simcraft_enabled:
         if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
             printLog("Analyzer-file found")
+        else:
+            printLog("Analyzer-file not found, make sure you have a complete AutoSimc-Package")
+            sys.exit(1)
     if settings.default_error_rate_multiplier <= 0:
         printLog("Wrong default_error_rate_multiplier: " + str(settings.default_error_rate_multiplier))
 
