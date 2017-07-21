@@ -352,6 +352,7 @@ def scpoutprofileset(oh):
         # all other profiles
         else:
             pset_prefix = "profileset.\"" + c_profilename + "_" + maskedProfileID + "\"+="
+            outputFile.write("talents=" + c_talents + "\n")
             if c_other != "":
                 outputFile.write(pset_prefix + c_other + "\n")
             if l_gear[0][0] == "L":
