@@ -352,6 +352,7 @@ def scpoutprofileset(oh):
         # all other profiles
         else:
             pset_prefix = "profileset.\"" + c_profilename + "_" + maskedProfileID + "\"+="
+            outputFile.write("talents=" + c_talents + "\n")
             if c_other != "":
                 outputFile.write(pset_prefix + c_other + "\n")
             if l_gear[0][0] == "L":
@@ -815,6 +816,8 @@ def permutate():
     l_main_hand = c_main_hand.split('|')
     global l_off_hand
     l_off_hand = c_off_hand.split('|')
+    global l_talents
+    l_talents = c_talents.split('|')
 
     # add gem-permutations
     if gemspermutation:
@@ -873,7 +876,7 @@ def permutate():
     global c_profilemaxid
     c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
         l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
-        l_off_hand)
+        l_off_hand) * len(l_talents)
 
     if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
             round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue, Enter to exit: ") == "y":
@@ -910,16 +913,18 @@ def permutate():
                                                     trinkets = l_trinkets[l].split('|')
                                                     l_gear[12] = trinkets[0]
                                                     l_gear[13] = trinkets[1]
-                                                    if c_off_hand != "":
-                                                        for o in range(len(l_main_hand)):
-                                                            l_gear[14] = l_main_hand[o]
-                                                            for p in range(len(l_off_hand)):
-                                                                l_gear[15] = l_off_hand[p]
-                                                                scpout(1)
-                                                    else:
-                                                        for o in range(len(l_main_hand)):
-                                                            l_gear[14] = l_main_hand[o]
-                                                            scpout(0)
+                                                    for m in range(len(l_talents)):
+                                                        c_talents = l_talents[m]
+                                                        if c_off_hand != "":
+                                                            for o in range(len(l_main_hand)):
+                                                                l_gear[14] = l_main_hand[o]
+                                                                for p in range(len(l_off_hand)):
+                                                                    l_gear[15] = l_off_hand[p]
+                                                                    scpout(1)
+                                                        else:
+                                                            for o in range(len(l_main_hand)):
+                                                                l_gear[14] = l_main_hand[o]
+                                                                scpout(0)
 
     printLog("Ending permutations. Valid: " + str(i_generatedProfiles))
     print("Generated permutations. Valid: " + str(i_generatedProfiles))
