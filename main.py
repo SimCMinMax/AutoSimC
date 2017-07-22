@@ -2,12 +2,15 @@ import configparser
 import sys
 import datetime
 import os
+import glob
 import json
 import shutil
 from settings import settings
-
 import splitter
 import hashlib
+from urllib.request import urlopen,urlretrieve
+from re import search,match
+import platform
 
 # Var init with default value
 c_profileid = 0
@@ -565,6 +568,38 @@ def cleanup():
             shutil.rmtree(settings.subdir3)
             printLog("Removing: " + settings.subdir3)
 
+
+def autoDownloadSimc():
+    try:
+        if settings.auto_download_simc:
+            if not platform.architecture() == ('64bit', 'WindowsPE'):
+                print("Sorry autodownloading only supported on 64bit windows")
+                return
+    except AttributeError:
+        return
+
+    #check if there is a new build of simc
+    html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
+    filename = search(r'<a href="(simc.+win64.+7z)">',html).group(1)
+    print("Latest simc:", filename)
+    rootpath = os.path.dirname(os.path.realpath(__file__))
+    filepath = os.path.join(rootpath, filename)
+    settings.simc_path = os.path.join(rootpath, filename[:filename.find("win64")+len("win64")], "simc.exe")
+    splitter.simc_path = settings.simc_path
+
+    if not os.path.exists(filepath):
+        #download and unzip it (you can change the next line if you want simc installed in a different location)
+        os.chdir(rootpath)
+        urlretrieve('http://downloads.simulationcraft.org/' + filename, filepath)
+        cmd =  '7z.exe x "'+filepath+'" -aoa -o"' + rootpath + '"'
+        os.system(cmd)
+        
+        #keep the latest 7z to remember current version, but clean up any other ones
+        files = glob.glob(rootpath + '/simc*win64*7z')
+        for f in files:
+            if not os.path.basename(f)==filename:
+                print("Removing old simc:", os.path.basename(f))
+                os.remove(f)
 
 def validateSettings():
     # validate amount of legendaries
@@ -1322,7 +1357,7 @@ def stage3_restart():
 #########################
 sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
-
+autoDownloadSimc()
 handleCommandLine()
 validateSettings()
 # can always be rerun since it is now deterministic

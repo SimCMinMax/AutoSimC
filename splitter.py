@@ -8,7 +8,11 @@ from settings import settings
 
 # change path accordingly to your location
 # don´t forget to add double-backslash for subdirs, as shown below
-simc_path = settings.simc_path
+try:
+    simc_path = settings.simc_path
+except AttributeError:
+    #set path after downloading nightly
+    pass
 
 subdir1 = settings.subdir1
 subdir2 = settings.subdir2

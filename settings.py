@@ -5,7 +5,9 @@ class settings():
     # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Don´t forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
-    simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
+    # simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
+    # or enable auto_download_simc of latest nightly, need 7z command line utility in path to unzip
+    auto_download_simc = True
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
