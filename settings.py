@@ -5,7 +5,8 @@ class settings():
     # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Don´t forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
-    simc_path = 'D:\\Programme\\Simcraft\\simc-725-01-win64\\simc.exe'
+    # Lnk to the      >>>> simc.EXE, NOT Simulationcraft.exe <<<<
+    simc_path = 'D:\\Programme\\Simcraft\\simc-725-02-win64\\simc.exe'
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
