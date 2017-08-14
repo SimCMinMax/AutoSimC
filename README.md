@@ -63,7 +63,7 @@ What can be changed (command prefix are case sensitive):
   - WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as command, the number of combinations will go through the roof VERY quickly. Please be cautious when enabling this.
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
-- -l Leg_List : List of legendaries to add to the template. Format :
+- -l Leg_List : List of legendaries to add to the template. Format:
 
     "leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."
 
@@ -71,7 +71,12 @@ After are parameters that I added to help Aethys build SimulationCraft's best le
 - Min_leg : Minimum number of legendaries in the permutations. Default : 0
 - Max_Leg : Maximum number of legendaries in the permutations. Default : 2
 
-You can change a good number of settings in the settings.py file.
+You can/have to finetune your settings in the settings.py file:
+- enable permutation of talents
+- set amount of tier-items and legendaries
+- default number of iterations for each step
+- change type of fight (patchwerk, LightMovement etc.)
+- and several more
 
 ## Analyzer:
 Included is Analyzer.py, which uses the standard-simc-profiles for each class to generate a Analysis.json (in profiles-folder), which represents calculation data for each class/spec.
