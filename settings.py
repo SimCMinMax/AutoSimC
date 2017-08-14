@@ -6,6 +6,7 @@ class settings():
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Don´t forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
     # Lnk to the      >>>> simc.EXE, NOT Simulationcraft.exe <<<<
+    # todo: just path, not the actual exe
     simc_path = 'D:\\Programme\\Simcraft\\simc-725-02-win64\\simc.exe'
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
@@ -101,6 +102,18 @@ class settings():
     simc_scale_factors_stage3 = True
     # 0|1
     simc_ptr = 0
+
+    # set these to true if you want to permutate talents in the corresponding rows
+    # beware: each additional row increases amount of permutations by 3, so all rows enabled => multiplikator of 2187
+    enable_talent_permutation = False
+    # here you can finetune the rows
+    permutate_row1 = False
+    permutate_row2 = False
+    permutate_row3 = False
+    permutate_row4 = False
+    permutate_row5 = False
+    permutate_row6 = False
+    permutate_row7 = False
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole raid instead of single profiles

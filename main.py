@@ -723,7 +723,7 @@ def permutateGems():
     permutateGemsInSlotGearList(l_trinket1, 12)
     permutateGemsInSlotGearList(l_trinket2, 13)
 
-
+#todo: add checks for missing headers, prio low
 def permutate():
     # Read input.txt to init vars
     config = configparser.ConfigParser()
@@ -818,6 +818,53 @@ def permutate():
     l_off_hand = c_off_hand.split('|')
     global l_talents
     l_talents = c_talents.split('|')
+
+    # permutate talents
+    temp_talents = []
+    if settings.enable_talent_permutation:
+        for t in l_talents:
+            for a in range(1, 4):
+                for b in range(1, 4):
+                    for c in range(1, 4):
+                        for d in range(1, 4):
+                            for e in range(1, 4):
+                                for f in range(1, 4):
+                                    for g in range(1, 4):
+                                        temp_talent = ""
+                                        if settings.permutate_row1:
+                                            temp_talent = str(a)
+                                        else:
+                                            temp_talent = str(t[0])
+                                        if settings.permutate_row2:
+                                            temp_talent += str(b)
+                                        else:
+                                            temp_talent += str(t[1])
+                                        if settings.permutate_row3:
+                                            temp_talent += str(c)
+                                        else:
+                                            temp_talent += str(t[2])
+                                        if settings.permutate_row4:
+                                            temp_talent += str(d)
+                                        else:
+                                            temp_talent += str(t[3])
+                                        if settings.permutate_row5:
+                                            temp_talent += str(e)
+                                        else:
+                                            temp_talent += str(t[4])
+                                        if settings.permutate_row6:
+                                            temp_talent += str(f)
+                                        else:
+                                            temp_talent += str(t[5])
+                                        if settings.permutate_row7:
+                                            temp_talent += str(g)
+                                        else:
+                                            temp_talent += str(t[6])
+                                        if temp_talent not in temp_talents:
+                                            temp_talents.append(temp_talent)
+        for t in temp_talents:
+            if t not in l_talents:
+                l_talents.append(t)
+
 
     # add gem-permutations
     if gemspermutation:
