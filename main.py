@@ -224,7 +224,7 @@ def scpout(oh):
         outputFile.write("position=" + c_position + "\n")
         outputFile.write("talents=" + c_talents + "\n")
         outputFile.write("artifact=" + c_artifact + "\n")
-        # outputFile.write("crucible=" + c_crucible + "\n")
+        outputFile.write("crucible=" + c_crucible + "\n")
         if c_other != "":
             outputFile.write(c_other + "\n")
         if l_gear[0][0] == "L":
@@ -787,7 +787,7 @@ def permutate():
     global c_artifact
     c_artifact = profile['artifact']
     global c_crucible
-    # c_crucible = profile['crucible']
+    c_crucible = profile['crucible']
     global c_other
     c_other = profile['other']
 
