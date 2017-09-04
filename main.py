@@ -39,9 +39,6 @@ target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
 gemspermutation = False
 
-# temporary fix until crucible is enabled:
-b_crucible = False
-
 gem_ids = {}
 gem_ids["150haste"] = "130220"
 gem_ids["haste"] = "130220"
@@ -227,7 +224,7 @@ def scpout(oh):
         outputFile.write("position=" + c_position + "\n")
         outputFile.write("talents=" + c_talents + "\n")
         outputFile.write("artifact=" + c_artifact + "\n")
-        if b_crucible:
+        if c_crucible != "":
             outputFile.write("crucible=" + c_crucible + "\n")
         if c_other != "":
             outputFile.write(c_other + "\n")
@@ -324,8 +321,7 @@ def scpoutprofileset(oh):
             outputFile.write("position=" + c_position + "\n")
             outputFile.write("talents=" + c_talents + "\n")
             outputFile.write("artifact=" + c_artifact + "\n")
-
-            if b_crucible:
+            if c_crucible != "":
                 outputFile.write("crucible=" + c_crucible + "\n")
             if c_other != "":
                 outputFile.write(c_other + "\n")
@@ -793,8 +789,10 @@ def permutate():
     global c_artifact
     c_artifact = profile['artifact']
     global c_crucible
-    if b_crucible:
+    if config.has_option('profile', 'crucible'):
         c_crucible = profile['crucible']
+    else:
+        c_crucible = ""
     global c_other
     c_other = profile['other']
 
