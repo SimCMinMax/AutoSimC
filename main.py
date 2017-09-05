@@ -14,9 +14,12 @@ c_profileid = 0
 c_profilemaxid = 0
 legmin = settings.default_leg_min
 legmax = settings.default_leg_max
-t19 = settings.default_equip_t19_min
-t20 = settings.default_equip_t20_min
-t21 = settings.default_equip_t21_min
+t19min = settings.default_equip_t19_min
+t19max = settings.default_equip_t19_max
+t20min = settings.default_equip_t20_min
+t20max = settings.default_equip_t20_max
+t21min = settings.default_equip_t21_min
+t21max = settings.default_equip_t21_max
 
 outputFileName = settings.default_outputFileName
 # txt, because standard-user cannot be trusted
@@ -140,12 +143,18 @@ def checkUsability():
             temp_t20 = temp_t20 + 1
         if l_gear[i][0:3] == "T21":
             temp_t21 = temp_t21 + 1
-    if temp_t19 < int(t19):
+    if temp_t19 < int(t19min):
         return str(temp_t19) + ": too few T19-items"
-    if temp_t20 < int(t20):
+    if temp_t20 < int(t20min):
         return str(temp_t20) + ": too few T20-items"
-    if temp_t21 < int(t21):
+    if temp_t21 < int(t21min):
         return str(temp_t21) + ": too few T21-items"
+    if temp_t19 < int(t19max):
+        return str(temp_t19) + ": too much T19-items"
+    if temp_t20 < int(t20max):
+        return str(temp_t20) + ": too much T20-items"
+    if temp_t21 < int(t21max):
+        return str(temp_t21) + ": too much T21-items"
 
     if l_gear[10] == l_gear[11]:
         return "Same ring"
@@ -627,9 +636,9 @@ def validateSettings():
             legmax) + ". Please check settings.py for these parameters!")
         sys.exit(1)
     # validate tier-set
-    if (int(t19) + int(t20) + int(t21) > 6) or t19 < 0 or t19 > 6 or t20 < 0 or t20 > 6 or t21 < 0 or t21 > 6:
-        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
-            t20) + ", T21: " + str(t21) + ". Please check settings.py for these parameters!")
+    if (int(t19min) + int(t20min) + int(t21min) > 6) or t19min < 0 or t19min > 6  or t20min < 0 or t20min > 6 or t21min < 0 or t21min > 6 or t19max < 0 or t19max > 6  or t20max < 0 or t20max > 6 or t21max < 0 or t21max > 6 :
+        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19min) + "/" + str(t19max) + ", T20: " + str(
+            t20min) + "/" + str(t20max) + ", T21: " + str(t21min) + "/" + str(t21max) + ". Please check settings.py for these parameters!")
         sys.exit(1)
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
@@ -1163,7 +1172,7 @@ def getClassSpec():
     if b_tank or b_heal:
         if input(
                 "You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a profile with your spec (Enter to continue") == "q":
-            printLog("Manually aborting because heal- or tankspec was chosen")
+            printLog("Manually aborting because heal or tank spec was chosen")
             sys.exit(0)
     return class_spec
 
