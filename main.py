@@ -228,10 +228,6 @@ def scpout(oh):
         outputFile.write("position=" + c_position + "\n")
         outputFile.write("talents=" + c_talents + "\n")
         outputFile.write("artifact=" + c_artifact + "\n")
-        print(c_potion)
-        print(c_flask)
-        print(c_food)
-        print(c_augmentation)
         if c_crucible != "":
             outputFile.write("crucible=" + c_crucible + "\n")
         if c_potion != "":
@@ -339,10 +335,6 @@ def scpoutprofileset(oh):
             outputFile.write("artifact=" + c_artifact + "\n")
             if c_crucible != "":
                 outputFile.write("crucible=" + c_crucible + "\n")
-            print(c_potion)
-            print(c_flask)
-            print(c_food)
-            print(c_augmentation)
             if c_potion != "":
                 outputFile.write("potion=" + c_potion + "\n")
             if c_flask != "":
@@ -823,25 +815,21 @@ def permutate():
         c_crucible = ""
     global c_potion
     if config.has_option('Profile', 'potion'):
-        print('has potion')
         c_potion = profile['potion']
     else:
         c_potion = ""
     global c_flask
     if config.has_option('Profile', 'flask'):
-        print('has flask')
         c_flask = profile['flask']
     else:
         c_flask = ""
     global c_food
     if config.has_option('Profile', 'food'):
-        print('has food')
         c_food = profile['food']
     else:
         c_food = ""
     global c_augmentation
     if config.has_option('Profile', 'augmentation'):
-        print('has augment')
         c_augmentation = profile['augmentation']
     else:
         c_augmentation = ""
