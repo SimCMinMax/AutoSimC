@@ -144,22 +144,22 @@ def checkUsability():
         if l_gear[i][0:3] == "T21":
             temp_t21 = temp_t21 + 1
     if temp_t19 < int(t19min):
-        return str(temp_t19) + ": too few T19-items"
+        return " " + str(temp_t19) + ": too few T19-items (" + str(t19min) +" asked)"
     if temp_t20 < int(t20min):
-        return str(temp_t20) + ": too few T20-items"
+        return " " + str(temp_t20) + ": too few T20-items (" + str(t20min) +" asked)"
     if temp_t21 < int(t21min):
-        return str(temp_t21) + ": too few T21-items"
-    if temp_t19 < int(t19max):
-        return str(temp_t19) + ": too much T19-items"
-    if temp_t20 < int(t20max):
-        return str(temp_t20) + ": too much T20-items"
-    if temp_t21 < int(t21max):
-        return str(temp_t21) + ": too much T21-items"
+        return " " + str(temp_t21) + ": too few T21-items (" + str(t21min) +" asked)"
+    if temp_t19 > int(t19max):
+        return " " + str(temp_t19) + ": too much T19-items (" + str(t19max) +" asked)"
+    if temp_t20 > int(t20max):
+        return " " + str(temp_t20) + ": too much T20-items (" + str(t20max) +" asked)"
+    if temp_t21 > int(t21max):
+        return " " + str(temp_t21) + ": too much T21-items (" + str(t21max) +" asked)"
 
     if l_gear[10] == l_gear[11]:
-        return "Same ring"
+        return " Same ring"
     if l_gear[12] == l_gear[13]:
-        return "Same trinket"
+        return " Same trinket"
 
     nbLeg = 0
     for a in range(len(l_gear)):
