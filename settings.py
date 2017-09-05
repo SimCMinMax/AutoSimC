@@ -58,6 +58,8 @@ class settings():
     subdir1 = "temp_step1"
     subdir2 = "temp_step2"
     subdir3 = "temp_step3"
+    # Automatic delete of the temp folders 
+    delete_temp_default = False
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
     # the resulting html will be renamed to: <Timestamp - best.html>
