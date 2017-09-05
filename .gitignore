@@ -5,5 +5,7 @@ __pycache__/
 
 # PyBuilder
 target/
+results/
 logs.txt
 error.txt
+out.simc
