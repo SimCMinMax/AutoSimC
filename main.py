@@ -166,9 +166,9 @@ def checkUsability():
         if l_gear[a][0] == "L":
             nbLeg = nbLeg + 1
     if nbLeg < legmin:
-        return str(nbLeg) + " leg (too low)"
+        return str(nbLeg) + " leg (" + str(legmin) +" asked)"
     if nbLeg > legmax:
-        return str(nbLeg) + " leg (too much)"
+        return str(nbLeg) + " leg (" + str(legmax) +" asked)"
 
     # check gems
     # int, str, agi should be only equipped once:
