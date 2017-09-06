@@ -14,9 +14,12 @@ c_profileid = 0
 c_profilemaxid = 0
 legmin = settings.default_leg_min
 legmax = settings.default_leg_max
-t19 = settings.default_equip_t19_min
-t20 = settings.default_equip_t20_min
-t21 = settings.default_equip_t21_min
+t19min = settings.default_equip_t19_min
+t19max = settings.default_equip_t19_max
+t20min = settings.default_equip_t20_min
+t20max = settings.default_equip_t20_max
+t21min = settings.default_equip_t21_min
+t21max = settings.default_equip_t21_max
 
 outputFileName = settings.default_outputFileName
 # txt, because standard-user cannot be trusted
@@ -39,22 +42,19 @@ target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
 gemspermutation = False
 
-# temporary fix until crucible is enabled:
-b_crucible = False
-
 gem_ids = {}
 gem_ids["150haste"] = "130220"
 gem_ids["200haste"] = "151583"
-gem_ids["haste"] = "151583" # always contains maximum quality
+gem_ids["haste"] = "151583"  # always contains maximum quality
 gem_ids["150crit"] = "130219"
 gem_ids["200crit"] = "151580"
-gem_ids["crit"] = "151580" # always contains maximum quality
+gem_ids["crit"] = "151580"  # always contains maximum quality
 gem_ids["150vers"] = "130221"
 gem_ids["200vers"] = "151585"
-gem_ids["vers"] = "151585" # always contains maximum quality
+gem_ids["vers"] = "151585"  # always contains maximum quality
 gem_ids["150mast"] = "130222"
 gem_ids["200mast"] = "151584"
-gem_ids["mast"] = "151584" # always contains maximum quality
+gem_ids["mast"] = "151584"  # always contains maximum quality
 gem_ids["200str"] = "130246"
 gem_ids["str"] = "130246"
 gem_ids["200agi"] = "130247"
@@ -143,26 +143,32 @@ def checkUsability():
             temp_t20 = temp_t20 + 1
         if l_gear[i][0:3] == "T21":
             temp_t21 = temp_t21 + 1
-    if temp_t19 < int(t19):
-        return str(temp_t19) + ": too few T19-items"
-    if temp_t20 < int(t20):
-        return str(temp_t20) + ": too few T20-items"
-    if temp_t21 < int(t21):
-        return str(temp_t21) + ": too few T21-items"
+    if temp_t19 < int(t19min):
+        return " " + str(temp_t19) + ": too few T19-items (" + str(t19min) + " asked)"
+    if temp_t20 < int(t20min):
+        return " " + str(temp_t20) + ": too few T20-items (" + str(t20min) + " asked)"
+    if temp_t21 < int(t21min):
+        return " " + str(temp_t21) + ": too few T21-items (" + str(t21min) + " asked)"
+    if temp_t19 > int(t19max):
+        return " " + str(temp_t19) + ": too much T19-items (" + str(t19max) + " asked)"
+    if temp_t20 > int(t20max):
+        return " " + str(temp_t20) + ": too much T20-items (" + str(t20max) + " asked)"
+    if temp_t21 > int(t21max):
+        return " " + str(temp_t21) + ": too much T21-items (" + str(t21max) + " asked)"
 
     if l_gear[10] == l_gear[11]:
-        return "Same ring"
+        return " Same ring"
     if l_gear[12] == l_gear[13]:
-        return "Same trinket"
+        return " Same trinket"
 
     nbLeg = 0
     for a in range(len(l_gear)):
         if l_gear[a][0] == "L":
             nbLeg = nbLeg + 1
     if nbLeg < legmin:
-        return str(nbLeg) + " leg (too low)"
+        return str(nbLeg) + " leg (" + str(legmin) + " asked)"
     if nbLeg > legmax:
-        return str(nbLeg) + " leg (too much)"
+        return str(nbLeg) + " leg (" + str(legmax) + " asked)"
 
     # check gems
     # int, str, agi should be only equipped once:
@@ -231,8 +237,16 @@ def scpout(oh):
         outputFile.write("position=" + c_position + "\n")
         outputFile.write("talents=" + c_talents + "\n")
         outputFile.write("artifact=" + c_artifact + "\n")
-        if b_crucible:
+        if c_crucible != "":
             outputFile.write("crucible=" + c_crucible + "\n")
+        if c_potion != "":
+            outputFile.write("potion=" + c_potion + "\n")
+        if c_flask != "":
+            outputFile.write("flask=" + c_flask + "\n")
+        if c_food != "":
+            outputFile.write("food=" + c_food + "\n")
+        if c_augmentation != "":
+            outputFile.write("augmentation=" + c_augmentation + "\n")
         if c_other != "":
             outputFile.write(c_other + "\n")
         if l_gear[0][0] == "L":
@@ -328,9 +342,16 @@ def scpoutprofileset(oh):
             outputFile.write("position=" + c_position + "\n")
             outputFile.write("talents=" + c_talents + "\n")
             outputFile.write("artifact=" + c_artifact + "\n")
-
-            if b_crucible:
+            if c_crucible != "":
                 outputFile.write("crucible=" + c_crucible + "\n")
+            if c_potion != "":
+                outputFile.write("potion=" + c_potion + "\n")
+            if c_flask != "":
+                outputFile.write("flask=" + c_flask + "\n")
+            if c_food != "":
+                outputFile.write("food=" + c_food + "\n")
+            if c_augmentation != "":
+                outputFile.write("augmentation=" + c_augmentation + "\n")
             if c_other != "":
                 outputFile.write(c_other + "\n")
             if l_gear[0][0] == "L":
@@ -595,15 +616,18 @@ def cleanup():
                     shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
                                 os.path.join(os.getcwd(), settings.result_subfolder, file))
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
-        if input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
+        if settings.delete_temp_default or input(
+                                "Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
             printLog("Removing: " + settings.subdir1)
             shutil.rmtree(settings.subdir1)
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
-        if input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
+        if settings.delete_temp_default or input(
+                                "Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
             shutil.rmtree(settings.subdir2)
             printLog("Removing: " + settings.subdir2)
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        if input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
+        if settings.delete_temp_default or input(
+                                "Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
             shutil.rmtree(settings.subdir3)
             printLog("Removing: " + settings.subdir3)
 
@@ -615,9 +639,11 @@ def validateSettings():
             legmax) + ". Please check settings.py for these parameters!")
         sys.exit(1)
     # validate tier-set
-    if (int(t19) + int(t20) + int(t21) > 6) or t19 < 0 or t19 > 6 or t20 < 0 or t20 > 6 or t21 < 0 or t21 > 6:
-        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
-            t20) + ", T21: " + str(t21) + ". Please check settings.py for these parameters!")
+    if (int(t19min) + int(t20min) + int(
+            t21min) > 6) or t19min < 0 or t19min > 6 or t20min < 0 or t20min > 6 or t21min < 0 or t21min > 6 or t19max < 0 or t19max > 6 or t20max < 0 or t20max > 6 or t21max < 0 or t21max > 6 or t19min > t19max or t20min > t20max or t21min > t21max:
+        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19min) + "/" + str(t19max) + ", T20: " + str(
+            t20min) + "/" + str(t20max) + ", T21: " + str(t21min) + "/" + str(
+            t21max) + ". Please check settings.py for these parameters!")
         sys.exit(1)
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
@@ -797,11 +823,32 @@ def permutate():
     global c_artifact
     c_artifact = profile['artifact']
     global c_crucible
-    if b_crucible:
+    if config.has_option('Profile', 'crucible'):
         c_crucible = profile['crucible']
+    else:
+        c_crucible = ""
+    global c_potion
+    if config.has_option('Profile', 'potion'):
+        c_potion = profile['potion']
+    else:
+        c_potion = ""
+    global c_flask
+    if config.has_option('Profile', 'flask'):
+        c_flask = profile['flask']
+    else:
+        c_flask = ""
+    global c_food
+    if config.has_option('Profile', 'food'):
+        c_food = profile['food']
+    else:
+        c_food = ""
+    global c_augmentation
+    if config.has_option('Profile', 'augmentation'):
+        c_augmentation = profile['augmentation']
+    else:
+        c_augmentation = ""
     global c_other
     c_other = profile['other']
-
     #   Gear
     c_head = gear['head']
     c_neck = gear['neck']
@@ -1130,7 +1177,7 @@ def getClassSpec():
     if b_tank or b_heal:
         if input(
                 "You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a profile with your spec (Enter to continue") == "q":
-            printLog("Manually aborting because heal- or tankspec was chosen")
+            printLog("Manually aborting because heal or tank spec was chosen")
             sys.exit(0)
     return class_spec
 
