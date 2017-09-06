@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "main.py", line 1988, in <module>
+    stage1()
+  File "main.py", line 1405, in stage1
+    dynamic_stage1()
+  File "main.py", line 1325, in dynamic_stage1
+    dynamic_stage2(settings.default_target_error_stage2, str(te))
+  File "main.py", line 1337, in dynamic_stage2
+    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), 1)
+  File "F:\C Files\Mes documents\GitHub\AutoSimC\splitter.py", line 154, in sim
+    subprocess.call(cmd)
+  File "C:\Python\lib\subprocess.py", line 269, in call
+    return p.wait(timeout=timeout)
+  File "C:\Python\lib\subprocess.py", line 1045, in wait
+    timeout_millis)
+KeyboardInterrupt

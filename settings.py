@@ -36,8 +36,11 @@ class settings():
     # this reduces the number of permutations generated if you know what you want to sim
     # if you have no clue which items do what (= sim every combination), set all to 0
     default_equip_t19_min = 0
+    default_equip_t19_max = 6
     default_equip_t20_min = 4
+    default_equip_t20_max = 6
     default_equip_t21_min = 0
+    default_equip_t21_max = 6
 
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
@@ -55,6 +58,8 @@ class settings():
     subdir1 = "temp_step1"
     subdir2 = "temp_step2"
     subdir3 = "temp_step3"
+    # Automatic delete of the temp folders 
+    delete_temp_default = False
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
     # the resulting html will be renamed to: <Timestamp - best.html>
