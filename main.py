@@ -652,7 +652,7 @@ def validateSettings():
     if b_simcraft_enabled:
         if os.name == "nt":
             if not settings.simc_path.endswith("simc.exe"):
-                printLog("cimc.exe wrong or missing in settings.py path-variable, please edit it")
+                printLog("simc.exe wrong or missing in settings.py path-variable, please edit it")
                 sys.exit(0)
         if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
             printLog("Analyzer-file found")
