@@ -7,7 +7,7 @@ import datetime
 from settings import settings
 
 # change path accordingly to your location
-# don´t forget to add double-backslash for subdirs, as shown below
+# do not forget to add double-backslash for subdirs, as shown below
 simc_path = settings.simc_path
 
 subdir1 = settings.subdir1
@@ -20,7 +20,7 @@ user_targeterror = 0.0
 
 
 # deletes and creates needed folders
-# sometimes it generates a permission error; don´t know why (am i removing and recreating too fast?)
+# sometimes it generates a permission error; do not know why (am i removing and recreating too fast?)
 def purge_subfolder(subfolder):
     if not os.path.exists(subfolder):
         os.makedirs(subfolder)
@@ -243,7 +243,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
                         # put dps as key and profilename as value into dictionary
                         # dps might be equal for 2 profiles, but should very rarely happen
                         # could lead to a problem with very minor dps due to variance,
-                        # but seeing dps going into millions nowadays equal dps shouldn´t pose to be a problem at all
+                        # but seeing dps going into millions nowadays equal dps should not pose to be a problem at all
                         best[a] = c
                     src.close()
                 else:
@@ -364,7 +364,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
                         # put dps as key and profilename as value into dictionary
                         # dps might be equal for 2 profiles, but should very rarely happen
                         # could lead to a problem with very minor dps due to variance,
-                        # but seeing dps going into millions nowadays equal dps shouldn´t pose to be a problem at all
+                        # but seeing dps going into millions nowadays equal dps should not pose to be a problem at all
                         best[a] = c
                     src.close()
                 else:

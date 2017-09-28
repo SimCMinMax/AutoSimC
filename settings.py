@@ -3,11 +3,11 @@ class settings():
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
     # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
-    # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
-    # Don´t forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
+    # Do not point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
+    # Do not forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
     # Lnk to the      >>>> simc.EXE, NOT Simulationcraft.exe <<<<
     # todo: just path, not the actual exe
-    simc_path = 'D:\\Programme\\Simcraft\\simc-725-02-win64\\simc.exe'
+    simc_path = 'D:\\Programme\\Simcraft\\simc-730-02-win64\\simc.exe'
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
@@ -24,9 +24,9 @@ class settings():
     # set minimal amount of legendaries to be simulated
     # if min=max=2, it never simulates combinations with fewer legendaries, therefore rapidly decreasing the total
     # amount of possible combinations
-    # beware: if you don´t include at least leg_min legendaries into your simpermut-output, it might produce errors
+    # beware: if you do not include at least leg_min legendaries into your simpermut-output, it might produce errors
     # you can still override these settings via command-line (-l "" 2:2), as described in the readme
-    default_leg_min = 2
+    default_leg_min = 0
     default_leg_max = 2
 
     # ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ class settings():
     # if you have no clue which items do what (= sim every combination), set all to 0
     default_equip_t19_min = 0
     default_equip_t19_max = 6
-    default_equip_t20_min = 4
+    default_equip_t20_min = 0
     default_equip_t20_max = 6
     default_equip_t21_min = 0
     default_equip_t21_max = 6
@@ -49,7 +49,7 @@ class settings():
     # split after n profiles
     splitting_size = 50
 
-    # for the -sim option; if you set this to True, you won´t need to use -sim stage1
+    # for the -sim option; if you set this to True, you will not need to use -sim stage1
     default_sim_enabled = True
     default_sim_start_stage = "stage1"
 
@@ -85,7 +85,7 @@ class settings():
     # it does not choose fixed top n for each stage
     # instead it uses the following algorithm:
     # 1. create the list of profile-dps as usual, descending order
-    # 2. if iterates the list and removes all profiles which don´t fulfil (topdps-target_error) > profiledps
+    # 2. if iterates the list and removes all profiles which do not fulfil (topdps-target_error) > profiledps
     # e.g. target_error chosen in stage1 = 0.5, topdps = 1.000.000 -> it includes all profiles for stage2 with dps > 995.000
     # 3. use the same procedure for stage3
     # set this to True|False if you want to use this method
@@ -104,7 +104,7 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = True
+    simc_scale_factors_stage3 = False
     # 0|1
     simc_ptr = 0
 
