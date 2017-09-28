@@ -1972,6 +1972,14 @@ def getStringForProfile():
 sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
 
+# check version of python-interpreter running the script
+if sys.version_info < (3, 6, 1):
+    printLog("Python-Version too old: You are running Python " + str(sys.version))
+    print("Python-Version too old: You are running Python " + str(sys.version))
+    printLog("Please install at least Python-Version 3.6.x")
+    print("Please install at least Python-Version 3.6.x")
+    sys.exit(0)
+
 handleCommandLine()
 validateSettings()
 # can always be rerun since it is now deterministic
