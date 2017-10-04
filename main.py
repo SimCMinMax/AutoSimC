@@ -1520,6 +1520,8 @@ def getAcronymForID(id):
         return "Fragment"
     elif id == "151639":
         return "Soul"
+    elif id == "151798":
+        return "Chaos"
 
     # druid
     elif id == "137023":
@@ -2018,5 +2020,3 @@ if b_simcraft_enabled:
 if settings.clean_up_after_step3:
     cleanup()
 logFile.close()
-
-# generate_checksum_of_permutations()
