@@ -4,6 +4,9 @@ import datetime
 import os
 import json
 import shutil
+
+from numpy.distutils.lib2def import output_def
+
 from settings import settings
 
 import splitter
@@ -1984,8 +1987,13 @@ if sys.version_info < (3, 6, 1):
 
 handleCommandLine()
 validateSettings()
+
 # can always be rerun since it is now deterministic
-permutate()
+if s_stage == "stage1":
+    permutate()
+else:
+    if input(F"Do you want to generate {outputFileName} again? Press y to regenerate") == "y":
+        permutate()
 
 if i_generatedProfiles > 50000:
     if input(
