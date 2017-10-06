@@ -5,8 +5,6 @@ import os
 import json
 import shutil
 
-from numpy.distutils.lib2def import output_def
-
 from settings import settings
 
 import splitter
