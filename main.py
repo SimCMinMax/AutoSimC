@@ -1766,7 +1766,7 @@ def getAcronymForID(id):
         return "Nesing"
     elif id == "137064":
         return "Voodoo"
-    elif id == "137064":
+    elif id == "137080":
         return "Roar"
     elif id == "137081":
         return "Sentinel"
