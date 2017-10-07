@@ -4,7 +4,7 @@ import datetime
 import os
 import json
 import shutil
-
+import time
 from settings import settings
 
 import splitter
@@ -1187,7 +1187,7 @@ def getClassSpec():
     return class_spec
 
 
-def checkResultFiles(subdir):
+def checkResultFiles(subdir, count=2):
     printLog("Checking Files in subdirectory: " + str(subdir))
     print("Checking Files in subdirectory: " + str(subdir))
     if os.path.exists(os.path.join(os.getcwd(), subdir)):
@@ -1216,13 +1216,19 @@ def checkResultFiles(subdir):
     if empty > 0:
         printLog("Empty files in: " + str(subdir) + " -> " + str(empty))
         print("Warning: Empty files in: " + str(subdir) + " -> " + str(empty))
-        if input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ") == "q":
+        if input(
+                "Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ") == "q" or settings.skip_questions:
             printLog("User exit")
             sys.exit(0)
         else:
             printLog("Resimming files")
-            if splitter.resim(subdir):
-                return checkResultFiles(subdir)
+            if count > 0:
+                count -= 1
+                if splitter.resim(subdir):
+                    return checkResultFiles(subdir)
+            else:
+                printLog("Maximum number of retries reached, sth. is wrong; exiting")
+                sys.exit(0)
     else:
         printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
         print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
@@ -1234,7 +1240,10 @@ def static_stage1():
     # split into chunks of 50
     splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
+    if settings.multi_sim_enabled:
+        splitter.multisim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
+    else:
+        splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
     static_stage2()
 
 
@@ -1308,7 +1317,10 @@ def dynamic_stage1():
         # split into chunks of n (max 100) to not destroy the hdd
         # todo: calculate dynamic amount of n
         splitter.split(outputFileName, settings.splitting_size)
-        splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
+        if settings.multi_sim_enabled:
+            splitter.multisim(settings.subdir1, "target_error=" + str(te), 1)
+        else:
+            splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
 
         # if the user chose a target_error which is lower than the default_one for the next step
         # he is given an option to either skip stage 2 or adjust the target_error
@@ -1332,6 +1344,7 @@ def dynamic_stage1():
             if new_value == "y":
                 dynamic_stage2(settings.default_target_error_stage2, str(te))
         else:
+            pass
             dynamic_stage2(settings.default_target_error_stage2, str(te))
 
 
@@ -1987,10 +2000,10 @@ handleCommandLine()
 validateSettings()
 
 # can always be rerun since it is now deterministic
-if s_stage == "stage1":
+if s_stage == "stage1" or s_stage == "":
     permutate()
 else:
-    if input(F"Do you want to generate {outputFileName} again? Press y to regenerate") == "y":
+    if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
         permutate()
 
 if i_generatedProfiles > 50000:

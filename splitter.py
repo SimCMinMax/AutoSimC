@@ -4,6 +4,8 @@ import sys
 import subprocess
 import time
 import datetime
+import queue
+import threading
 from settings import settings
 
 # change path accordingly to your location
@@ -96,7 +98,10 @@ def generateCommand(file, output, sim_type, stage3):
     cmd.append(file)
     cmd.append(output)
     cmd.append(sim_type)
-    cmd.append('threads=' + str(settings.simc_threads))
+    if settings.multi_sim_enabled:
+        cmd.append('threads=' + str(settings.number_of_threads))
+    else:
+        cmd.append('threads=' + str(settings.simc_threads))
     cmd.append('fight_style=' + str(settings.default_fightstyle))
     cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
     cmd.append('process_priority=' + str(settings.simc_priority))
@@ -105,6 +110,73 @@ def generateCommand(file, output, sim_type, stage3):
         if settings.simc_scale_factors_stage3:
             cmd.append('calculate_scale_factors=1')
     return cmd
+
+
+def worker():
+    while not exitflag:
+        queueLock.acquire()
+        if not workQueue.empty():
+            d = workQueue.get()
+            queueLock.release()
+            print(d)
+            subprocess.call(d)
+            workQueue.task_done()
+        else:
+            queueLock.release()
+
+
+def multisim(subdir, simtype, command=1):
+    global workQueue
+    workQueue = queue.Queue()
+    global exitflag
+    exitflag = 0
+
+    output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
+        datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
+        datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
+
+    # some minor progress-bar-initialization
+    amount_of_generated_splits = 0
+    for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+        for file in files:
+            if file.endswith(".sim"):
+                amount_of_generated_splits += 1
+
+    commands = []
+    for file in os.listdir(os.path.join(os.getcwd(), subdir)):
+        if file.endswith(".sim"):
+            name = file[0:file.find(".")]
+            if command == 1:
+                cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
+                                      'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
+                                      simtype, False)
+            if command == 2:
+                cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
+                                      'html=' + os.path.join(os.getcwd(), subdir,
+                                                             str(output_time) + "-" + name) + '.html',
+                                      simtype, True)
+            commands.append(cmd)
+
+    global queueLock
+    queueLock = threading.Lock()
+    threads = []
+
+    queueLock.acquire()
+    for item in commands:
+        workQueue.put(item)
+    queueLock.release()
+
+    for i in range(settings.number_of_instances):
+        t = threading.Thread(target=worker)
+        t.start()
+        threads.append(t)
+
+    workQueue.join()
+    exitflag = 1
+    for i in range(settings.number_of_instances):
+        workQueue.put(None)
+    for t in threads:
+        t.join()
 
 
 # Calls simcraft to simulate all .sim-files in a subdir
@@ -169,7 +241,7 @@ def resim(subdir):
                 if file.endswith(".sim"):
                     name = file[0:file.find(".")]
                     if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
-                            os.path.join(os.getcwd(), subdir, name+".result")).st_size <= 0:
+                            os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "iterations=" + str(iterations), False)
@@ -381,7 +453,8 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
 
     # remove all profiles not within the errorrange
     if len(sortedlist) > 2:
-        dps_min = int(sortedlist[0]) - (int(sortedlist[0]) * (settings.default_error_rate_multiplier * float(targeterror)) / 100)
+        dps_min = int(sortedlist[0]) - (
+            int(sortedlist[0]) * (settings.default_error_rate_multiplier * float(targeterror)) / 100)
         print("target_error: " + str(targeterror) + " -> dps_minimum: " + str(dps_min))
         while len(sortedlist) > 1:
             if sortedlist[-1] < dps_min:

@@ -7,7 +7,7 @@ class settings():
     # Do not forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
     # Lnk to the      >>>> simc.EXE, NOT Simulationcraft.exe <<<<
     # todo: just path, not the actual exe
-    simc_path = 'D:\\Programme\\Simcraft\\simc-730-02-win64\\simc.exe'
+    simc_path = 'D:\\Programme\\Simcraft\\simc-730-03-win64\\simc.exe'
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
@@ -26,7 +26,7 @@ class settings():
     # amount of possible combinations
     # beware: if you do not include at least leg_min legendaries into your simpermut-output, it might produce errors
     # you can still override these settings via command-line (-l "" 2:2), as described in the readme
-    default_leg_min = 0
+    default_leg_min = 2
     default_leg_max = 2
 
     # ----------------------------------------------------------------------
@@ -135,3 +135,18 @@ class settings():
     # set to "nul" if you are simulating healer or tanks
     analyzer_path = "profiles"
     analyzer_filename = "Analysis.json"
+
+    # enables multiple instances of simc, drastically speeding up stage1 (up to factor 5 on ryzen++)
+    # not (yet) used during resimming
+    multi_sim_enabled = False
+    # how many instances should run simultaneously
+    # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
+    # otherwise system gets very laggy as no cores are spare for os-routines
+    number_of_instances = 3
+    # some tests showed that multisimming is faster with many instances, each with 1 thread
+    # you can change this behaviour by modifying this variable
+    number_of_threads = 1
+
+    # skip some inputs, may be expanded in the future
+    # e.g. "Do you want to resim (yes-no)" will be skipped and automatically started
+    skip_questions = False
