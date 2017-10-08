@@ -91,14 +91,14 @@ def split(inputfile, size=50):
         sys.exit(1)
 
 
-def generateCommand(file, output, sim_type, stage3):
+def generateCommand(file, output, sim_type, stage3, multisim):
     cmd = []
     cmd.append(os.path.normpath(simc_path))
     cmd.append('ptr=' + str(settings.simc_ptr))
     cmd.append(file)
     cmd.append(output)
     cmd.append(sim_type)
-    if settings.multi_sim_enabled:
+    if multisim:
         cmd.append('threads=' + str(settings.number_of_threads))
     else:
         cmd.append('threads=' + str(settings.simc_threads))
@@ -149,12 +149,12 @@ def multisim(subdir, simtype, command=1):
             if command == 1:
                 cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
                                       'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                      simtype, False)
+                                      simtype, False, True)
             if command == 2:
                 cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
                                       'html=' + os.path.join(os.getcwd(), subdir,
                                                              str(output_time) + "-" + name) + '.html',
-                                      simtype, True)
+                                      simtype, True, True)
             commands.append(cmd)
 
     global queueLock
@@ -178,11 +178,28 @@ def multisim(subdir, simtype, command=1):
     for t in threads:
         t.join()
 
+# chooses settings and multi- or singlemode smartly
+def sim(subdir, simtype, command=1):
+    # determine number of .sim-files
+    files = os.listdir(os.path.join(os.getcwd(), subdir))
+    for file in files:
+        if file.endswith(".result"):
+            files.remove(file)
+
+    if settings.multi_sim_enabled:
+        if len(files) > 1:
+            multisim(subdir, simtype, command)
+        else:
+            singlesim(subdir, simtype, command)
+    else:
+        singlesim(subdir, simtype, command)
+
+
 
 # Calls simcraft to simulate all .sim-files in a subdir
 # simtype: 'iterations=n' or 'target_error=n'
 # command: 1 for stage1 and 2, 2 for stage3 (uses html= instead of output=)
-def sim(subdir, simtype, command=1):
+def singlesim(subdir, simtype, command=1):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
         datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
@@ -203,12 +220,12 @@ def sim(subdir, simtype, command=1):
                 if command == 1:
                     cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
                                           'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                          simtype, False)
+                                          simtype, False, False)
                 if command == 2:
                     cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
                                           'html=' + os.path.join(os.getcwd(), subdir,
                                                                  str(output_time) + "-" + name) + '.html',
-                                          simtype, True)
+                                          simtype, True, False)
                 print(cmd)
                 print("-----------------------------------------------------------------")
                 print("Automated Simulation within AutoSimC.")
