@@ -199,6 +199,10 @@ def checkUsability():
     namingData["T19"] = temp_t19
     namingData["T20"] = temp_t20
     namingData["T21"] = temp_t21
+    if getIdFromItem(l_gear[10]) == getIdFromItem(l_gear[11]):
+        return F"Ring1: {l_gear[10]} same as Ring2: {l_gear[11]}"
+    if getIdFromItem(l_gear[12]) == getIdFromItem(l_gear[13]):
+        return F"Trinket1: {l_gear[12]} same as Trinket2: {l_gear[13]}"
     return ""
 
 
