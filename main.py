@@ -1247,7 +1247,6 @@ def static_stage1():
     splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
     splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
-    input("press enter: ") == "q"
     static_stage2()
 
 
@@ -1326,8 +1325,6 @@ def dynamic_stage1():
         # todo: calculate dynamic amount of n
         splitter.split(outputFileName, settings.splitting_size)
         splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
-        input("press enter: ") == "q"
-
 
         # if the user chose a target_error which is lower than the default_one for the next step
         # he is given an option to either skip stage 2 or adjust the target_error
