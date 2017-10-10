@@ -248,11 +248,19 @@ def resim(subdir):
     global user_targeterror
 
     print("Resimming empty files in " + str(subdir))
-    mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
+    if settings.skip_questions:
+        mode = str(settings.auto_choose_static_or_dynamic)
+    else:
+        mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
     if mode == "q":
         sys.exit(0)
     elif mode == "1":
-        iterations = input("How many iterations?: ")
+        if subdir == settings.subdir1:
+            iterations = settings.default_iterations_stage1
+        elif subdir == settings.subdir2:
+            iterations = settings.default_iterations_stage2
+        elif subdir == settings.subdir3:
+            iterations = settings.default_iterations_stage3
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 if file.endswith(".sim"):
@@ -261,13 +269,26 @@ def resim(subdir):
                             os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "iterations=" + str(iterations), False)
+                                              "iterations=" + str(iterations), False, settings.multi_sim_enabled)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
-
         return True
     elif mode == "2":
-        user_targeterror = input("Which target_error?: ")
+        if subdir == settings.subdir1:
+            if settings.skip_questions:
+                user_targeterror = settings.auto_dynamic_stage1_target_error_value
+            else:
+                user_targeterror = input("Which target_error?: ")
+        elif subdir == settings.subdir2:
+            if settings.skip_questions:
+                user_targeterror = settings.default_target_error_stage2
+            else:
+                user_targeterror = input("Which target_error?: ")
+        elif subdir == settings.subdir3:
+            if settings.skip_questions:
+                user_targeterror = settings.default_target_error_stage3
+            else:
+                user_targeterror = input("Which target_error?: ")
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 if file.endswith(".sim"):
@@ -276,7 +297,7 @@ def resim(subdir):
                             os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "target_error=" + str(user_targeterror), False)
+                                              "target_error=" + str(user_targeterror), False, settings.multi_sim_enabled)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
         return True

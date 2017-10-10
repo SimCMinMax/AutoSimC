@@ -1220,19 +1220,21 @@ def checkResultFiles(subdir, count=2):
     if empty > 0:
         printLog("Empty files in: " + str(subdir) + " -> " + str(empty))
         print("Warning: Empty files in: " + str(subdir) + " -> " + str(empty))
-        if input(
-                "Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ") == "q" or settings.skip_questions:
-            printLog("User exit")
-            sys.exit(0)
-        else:
-            printLog("Resimming files")
-            if count > 0:
-                count -= 1
-                if splitter.resim(subdir):
-                    return checkResultFiles(subdir)
-            else:
-                printLog("Maximum number of retries reached, sth. is wrong; exiting")
+
+        if not settings.skip_questions:
+            q = input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ")
+            if q == "q":
+                printLog("User exit")
                 sys.exit(0)
+
+        printLog(F"Resimming files: Count: {count}")
+        if count > 0:
+            count -= 1
+            if splitter.resim(subdir):
+                return checkResultFiles(subdir)
+        else:
+            printLog("Maximum number of retries reached, sth. is wrong; exiting")
+            sys.exit(0)
     else:
         printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
         print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
@@ -1245,6 +1247,7 @@ def static_stage1():
     splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
     splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
+    input("press enter: ") == "q"
     static_stage2()
 
 
@@ -1292,7 +1295,10 @@ def dynamic_stage1():
         print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
             tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
 
-    calc_choice = input("Please enter the type of calculation to perform (q to quit):")
+    if settings.skip_questions:
+        calc_choice = settings.auto_dynamic_stage1_target_error_table
+    else:
+        calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
     if calc_choice == "q":
         printLog("Quitting application")
         sys.exit(0)
@@ -1310,15 +1316,18 @@ def dynamic_stage1():
                 tp) + " => Est. calc. time: " + str(est) + " sec")
         time_all = round(est, 0)
         printLog("Estimated calculation time: " + str(time_all) + "")
-        if time_all > 43200:
-            if input("Warning: This might take a *VERY* long time (>12h) (q to quit, Enter to continue: )") == "q":
-                print("Quitting application")
-                sys.exit(0)
+        if not settings.skip_questions:
+            if time_all > 43200:
+                if input("Warning: This might take a *VERY* long time (>12h) (q to quit, Enter to continue: )") == "q":
+                    print("Quitting application")
+                    sys.exit(0)
 
         # split into chunks of n (max 100) to not destroy the hdd
         # todo: calculate dynamic amount of n
         splitter.split(outputFileName, settings.splitting_size)
         splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
+        input("press enter: ") == "q"
+
 
         # if the user chose a target_error which is lower than the default_one for the next step
         # he is given an option to either skip stage 2 or adjust the target_error
@@ -1419,13 +1428,18 @@ def stage1():
         "   It uses the chosen target_error for the first part; in stage2 error lowers to " + str(
             target_error_secondpart) + " and " + str(
             target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
-    sim_mode = input("Please choose your mode (Enter to exit): ")
+    if settings.skip_questions:
+        sim_mode = str(settings.auto_choose_static_or_dynamic)
+    else:
+        sim_mode = input("Please choose your mode (Enter to exit): ")
     if sim_mode == "1":
         static_stage1()
     elif sim_mode == "2":
         dynamic_stage1()
     else:
-        printLog("Error, wrong mode")
+        print("Error, wrong mode: Stage1")
+        printLog("Error, wrong mode: Stage1")
+        sys.exit(0)
 
 
 def stage2_restart():
@@ -1434,18 +1448,26 @@ def stage2_restart():
     if not checkResultFiles(settings.subdir1):
         printLog("Error restarting at subdir: " + str(settings.subdir1))
         print("Error restarting at subdir: " + str(settings.subdir1))
-    mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
+    if settings.skip_questions:
+        mode_choice = str(settings.auto_choose_static_or_dynamic)
+    else:
+        mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
         static_stage2()
     elif mode_choice == "2":
-        new_te = input("Which target_error do you want to use for stage2: (Press enter for default: " + str(
-            target_error_secondpart) + "):")
+        if settings.skip_questions:
+            new_te = settings.default_target_error_stage2
+        else:
+            new_te = input("Which target_error do you want to use for stage2: (Press enter for default: " + str(
+                target_error_secondpart) + "):")
         if str(new_te) != str(target_error_secondpart) and splitter.user_targeterror != "0.0":
             dynamic_stage2(new_te, splitter.user_targeterror)
         else:
             dynamic_stage2(target_error_secondpart, splitter.user_targeterror)
     else:
-        printLog("Error, wrong mode")
+        printLog("Error, wrong mode: Stage2_restart")
+        print("Error, wrong mode: Stage2_restart")
+        sys.exit(0)
 
 
 def stage3_restart():
@@ -1454,7 +1476,10 @@ def stage3_restart():
     if not checkResultFiles(settings.subdir2):
         printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
         print("Error restarting at subdir: " + str(settings.subdir1))
-    mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
+    if settings.skip_questions:
+            mode_choice = str(settings.auto_choose_static_or_dynamic)
+    else:
+        mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
         static_stage3()
     elif mode_choice == "2":
@@ -1462,14 +1487,18 @@ def stage3_restart():
             skip = True
         else:
             skip = False
-        new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(
-            target_error_thirdpart) + "):")
+        if settings.skip_questions:
+            new_te = settings.default_target_error_stage3
+        else:
+            new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(target_error_thirdpart) + "):")
         if str(new_te) != str(target_error_thirdpart) and splitter.user_targeterror != "0.0":
             dynamic_stage3(skip, new_te, splitter.user_targeterror)
         else:
             dynamic_stage3(skip, target_error_thirdpart, splitter.user_targeterror)
     else:
-        printLog("Error, wrong mode")
+        printLog("Error, wrong mode: Stage3_restart")
+        print("Error, wrong mode: Stage3_restart")
+        sys.exit(0)
 
 
 def getAcronymForID(id):
@@ -2004,11 +2033,12 @@ else:
     if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
         permutate()
 
-if i_generatedProfiles > 50000:
-    if input(
-            "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)") == "q":
-        printLog("Program exit by user")
-        sys.exit(0)
+if not settings.skip_questions:
+    if i_generatedProfiles > 50000:
+        if input(
+                "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)") == "q":
+            printLog("Program exit by user")
+            sys.exit(0)
 
 if i_generatedProfiles == 0:
     print("No valid combinations found. Please check settings.py and your simpermut-export.")

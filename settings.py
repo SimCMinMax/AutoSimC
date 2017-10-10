@@ -26,7 +26,7 @@ class settings():
     # amount of possible combinations
     # beware: if you do not include at least leg_min legendaries into your simpermut-output, it might produce errors
     # you can still override these settings via command-line (-l "" 2:2), as described in the readme
-    default_leg_min = 2
+    default_leg_min = 0
     default_leg_max = 2
 
     # ----------------------------------------------------------------------
@@ -138,7 +138,7 @@ class settings():
 
     # enables multiple instances of simc, drastically speeding up stage1 (up to factor 5 on ryzen++)
     # not (yet) used during resimming
-    multi_sim_enabled = False
+    multi_sim_enabled = True
     # how many instances should run simultaneously
     # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
     # otherwise system gets very laggy as no cores are spare for os-routines
@@ -147,6 +147,27 @@ class settings():
     # you can change this behaviour by modifying this variable
     number_of_threads = 1
 
+
+
     # skip some inputs, may be expanded in the future
     # e.g. "Do you want to resim (yes-no)" will be skipped and automatically started
+    # ----------------------------------------------------------------------
+    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
+    # ----------------------------------------------------------------------
+    # ALL OPTIONS BELOW THIS VARIABLE ARE AFFECTED BY THIS SWITCH!!!
+    #               YOU HAVE TO KNOW WHAT YOU DO!
+    # ----------------------------------------------------------------------
     skip_questions = False
+
+    # automation of dialogs
+    # 1 or 2
+    auto_choose_static_or_dynamic = 1
+    # enter the number of the number you would enter when being presented the target_error_table
+    # (run once with skip_questions=False to look it up if you dont know)
+    auto_dynamic_stage1_target_error_table = 5
+    # beware: in the current state it is not detectable in which stage it crashed respectively autosimc was restarted
+    # if you are unsure, try a higher/better amount to not skew the results too much
+    # resim for static mode gets its values from variables above (default_iterations_stage1,..)
+    # because target_error for dynamic mode has to be entered manually normally, you can set it here
+    # most probably you will enter here the value represented by auto_dynamic_stage1_target_error_table
+    auto_dynamic_stage1_target_error_value = 0.9
