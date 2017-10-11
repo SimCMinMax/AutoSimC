@@ -113,13 +113,17 @@ def generateCommand(file, output, sim_type, stage3, multisim):
 
 
 def worker():
+    if settings.multi_sim_disable_console_output:
+        FNULL = open(os.devnull, 'w') #thx @cwok for working this out
     while not exitflag:
         queueLock.acquire()
         if not workQueue.empty():
             d = workQueue.get()
             queueLock.release()
-            print(d)
-            subprocess.call(d)
+            if settings.multi_sim_disable_console_output:
+                subprocess.call(d, stdout=FNULL)
+            else:
+                subprocess.call(d)
             workQueue.task_done()
         else:
             queueLock.release()
@@ -178,6 +182,7 @@ def multisim(subdir, simtype, command=1):
     for t in threads:
         t.join()
 
+
 # chooses settings and multi- or singlemode smartly
 def sim(subdir, simtype, command=1):
     # determine number of .sim-files
@@ -193,7 +198,6 @@ def sim(subdir, simtype, command=1):
             singlesim(subdir, simtype, command)
     else:
         singlesim(subdir, simtype, command)
-
 
 
 # Calls simcraft to simulate all .sim-files in a subdir
@@ -297,7 +301,8 @@ def resim(subdir):
                             os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "target_error=" + str(user_targeterror), False, settings.multi_sim_enabled)
+                                              "target_error=" + str(user_targeterror), False,
+                                              settings.multi_sim_enabled)
                         print("Cmd: " + str(cmd))
                         subprocess.call(cmd)
         return True

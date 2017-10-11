@@ -26,7 +26,7 @@ class settings():
     # amount of possible combinations
     # beware: if you do not include at least leg_min legendaries into your simpermut-output, it might produce errors
     # you can still override these settings via command-line (-l "" 2:2), as described in the readme
-    default_leg_min = 0
+    default_leg_min = 2
     default_leg_max = 2
 
     # ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ class settings():
     # if you have no clue which items do what (= sim every combination), set all to 0
     default_equip_t19_min = 0
     default_equip_t19_max = 6
-    default_equip_t20_min = 0
+    default_equip_t20_min = 4
     default_equip_t20_max = 6
     default_equip_t21_min = 0
     default_equip_t21_max = 6
@@ -95,7 +95,7 @@ class settings():
 
     # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
-    default_fightstyle = "Patchwerk"
+    default_fightstyle = "Beastlord"
 
     # enter desires priority
     # low, below_normal, normal, above_normal, highest
@@ -139,6 +139,9 @@ class settings():
     # enables multiple instances of simc, drastically speeding up stage1 (up to factor 5 on ryzen++)
     # not (yet) used during resimming
     multi_sim_enabled = True
+    # console output tends to get spammy with mutliple instances running at once; this enables/disables this behaviour
+    # keep in mind that, if enabled, there will be NO output at all, which may be confusing
+    multi_sim_disable_console_output = False
     # how many instances should run simultaneously
     # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
     # otherwise system gets very laggy as no cores are spare for os-routines
@@ -164,7 +167,7 @@ class settings():
     auto_choose_static_or_dynamic = 1
     # enter the number of the number you would enter when being presented the target_error_table
     # (run once with skip_questions=False to look it up if you dont know)
-    auto_dynamic_stage1_target_error_table = 5
+    auto_dynamic_stage1_target_error_table = 8
     # beware: in the current state it is not detectable in which stage it crashed respectively autosimc was restarted
     # if you are unsure, try a higher/better amount to not skew the results too much
     # resim for static mode gets its values from variables above (default_iterations_stage1,..)
