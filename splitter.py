@@ -120,6 +120,7 @@ def worker():
         if not workQueue.empty():
             d = workQueue.get()
             queueLock.release()
+            print(d)
             if settings.multi_sim_disable_console_output:
                 subprocess.call(d, stdout=FNULL)
             else:
