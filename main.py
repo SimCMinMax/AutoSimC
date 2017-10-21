@@ -1474,7 +1474,7 @@ def stage3_restart():
         printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
         print("Error restarting at subdir: " + str(settings.subdir1))
     if settings.skip_questions:
-            mode_choice = str(settings.auto_choose_static_or_dynamic)
+        mode_choice = str(settings.auto_choose_static_or_dynamic)
     else:
         mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
@@ -1487,7 +1487,8 @@ def stage3_restart():
         if settings.skip_questions:
             new_te = settings.default_target_error_stage3
         else:
-            new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(target_error_thirdpart) + "):")
+            new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(
+                target_error_thirdpart) + "):")
         if str(new_te) != str(target_error_thirdpart) and splitter.user_targeterror != "0.0":
             dynamic_stage3(skip, new_te, splitter.user_targeterror)
         else:
@@ -2006,6 +2007,15 @@ def getStringForProfile():
     return template
 
 
+def checkinterpreter():
+    maj, min, mic, rel, ser = sys.version_info
+    if maj != 3:
+        return False
+    if min < 6:
+        return False
+    return True
+
+
 ########################
 #### Program Start ######
 #########################
@@ -2013,7 +2023,7 @@ sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
 
 # check version of python-interpreter running the script
-if sys.version_info < (3, 6, 1):
+if not checkinterpreter():
     printLog("Python-Version too old: You are running Python " + str(sys.version))
     print("Python-Version too old: You are running Python " + str(sys.version))
     printLog("Please install at least Python-Version 3.6.x")
