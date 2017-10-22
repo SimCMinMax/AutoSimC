@@ -171,6 +171,12 @@ def checkUsability():
     if nbLeg > legmax:
         return str(nbLeg) + " leg (" + str(legmax) + " asked)"
 
+    # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
+    # because 3 other legs have been equipped
+    if nbLeg == 3:
+        if not getIdFromItem(l_gear[12]) == "154172" and not getIdFromItem(l_gear[13]) == "154172":
+            return " 3 legs equipped, but no Amanthul-Trinket found"
+
     # check gems
     # int, str, agi should be only equipped once:
     nUniqueGems = 0
@@ -196,9 +202,21 @@ def checkUsability():
                     namingData['Leg1'] = getIdFromItem(l_gear[a])
                 else:
                     namingData['Leg0'] = getIdFromItem(l_gear[a])
+    elif nbLeg == 3:
+        for a in range(len(l_gear)):
+            if l_gear[a][0] == "L":
+                if namingData.get('Leg0') == None:
+                    namingData['Leg0'] = getIdFromItem(l_gear[a])
+                else:
+                    if namingData.get('Leg1') != None:
+                        namingData['Leg1'] = getIdFromItem(l_gear[a])
+                    else:
+                        namingData['Leg2'] = getIdFromItem(l_gear[a])
+
     namingData["T19"] = temp_t19
     namingData["T20"] = temp_t20
     namingData["T21"] = temp_t21
+
     if getIdFromItem(l_gear[10]) == getIdFromItem(l_gear[11]):
         return F"Ring1: {l_gear[10]} same as Ring2: {l_gear[11]}"
     if getIdFromItem(l_gear[12]) == getIdFromItem(l_gear[13]):
@@ -639,17 +657,17 @@ def cleanup():
 
 def validateSettings():
     # validate amount of legendaries
-    if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
+    if legmin > legmax or legmax > 3 or legmin > 3 or legmin < 0 or legmax < 0:
         printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
             legmax) + ". Please check settings.py for these parameters!")
-        sys.exit(1)
+        sys.exit(0)
     # validate tier-set
     if (int(t19min) + int(t20min) + int(
             t21min) > 6) or t19min < 0 or t19min > 6 or t20min < 0 or t20min > 6 or t21min < 0 or t21min > 6 or t19max < 0 or t19max > 6 or t20max < 0 or t20max > 6 or t21max < 0 or t21max > 6 or t19min > t19max or t20min > t20max or t21min > t21max:
         printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19min) + "/" + str(t19max) + ", T20: " + str(
             t20min) + "/" + str(t20max) + ", T21: " + str(t21min) + "/" + str(
             t21max) + ". Please check settings.py for these parameters!")
-        sys.exit(1)
+        sys.exit(0)
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
         printLog("Using Safe Mode")
@@ -1501,7 +1519,9 @@ def stage3_restart():
 
 def getAcronymForID(id):
     # shared
-    if id == "133976":
+    if id == "154172":
+        return "Aman"
+    elif id == "133976":
         return "Cind"
     elif id == "137015":
         return "Eko"
@@ -1578,7 +1598,7 @@ def getAcronymForID(id):
     elif id == "137067":
         return "Elize"
     elif id == "137072":
-        return "Aman"
+        return "Aman(Ring)"
     elif id == "137078":
         return "Titan"
     elif id == "137092":
@@ -1980,30 +2000,40 @@ def getAcronymForID(id):
 def getStringForProfile():
     # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
     # scpout later adds a increment for multiple versions of this
-    template = "%A%B%C%D%E"
+    template = "%A%B%C%D%E%F"
     if namingData.get('Leg0') != "None":
         template = template.replace("%A", str(getAcronymForID(namingData.get('Leg0'))) + "_")
     else:
         template = template.replace("%A", "")
+
     if namingData.get('Leg1') != "None":
         template = template.replace("%B", str(getAcronymForID(namingData.get('Leg1'))) + "_")
     else:
         template = template.replace("%B", "")
-    if namingData.get("T19") != "None" and namingData.get("T19") != 0 and namingData.get(
-            "T19") != 1 and namingData.get("T19") != 3 and namingData.get("T19") != 5:
-        template = template.replace("%C", "T19-" + str(namingData.get('T19')) + "p_")
+
+    if namingData.get('Leg2') != "None":
+        template = template.replace("%C", str(getAcronymForID(namingData.get('Leg2'))) + "_")
     else:
         template = template.replace("%C", "")
-    if namingData.get("T20") != "None" and namingData.get("T20") != 0 and namingData.get(
-            "T20") != 1 and namingData.get("T20") != 3 and namingData.get("T20") != 5:
-        template = template.replace("%D", "T20-" + str(namingData.get('T20')) + "p_")
+
+    if namingData.get("T19") != "None" and namingData.get("T19") != 0 and namingData.get(
+            "T19") != 1 and namingData.get("T19") != 3 and namingData.get("T19") != 5:
+        template = template.replace("%D", "T19-" + str(namingData.get('T19')) + "p_")
     else:
         template = template.replace("%D", "")
-    if namingData.get("T21") != "None" and namingData.get("T21") != 0 and namingData.get(
-            "T21") != 1 and namingData.get("T21") != 3 and namingData.get("T21") != 5:
-        template = template.replace("%E", "T21-" + str(namingData.get('T21')) + "p_")
+
+    if namingData.get("T20") != "None" and namingData.get("T20") != 0 and namingData.get(
+            "T20") != 1 and namingData.get("T20") != 3 and namingData.get("T20") != 5:
+        template = template.replace("%E", "T20-" + str(namingData.get('T20')) + "p_")
     else:
         template = template.replace("%E", "")
+
+    if namingData.get("T21") != "None" and namingData.get("T21") != 0 and namingData.get(
+            "T21") != 1 and namingData.get("T21") != 3 and namingData.get("T21") != 5:
+        template = template.replace("%F", "T21-" + str(namingData.get('T21')) + "p_")
+    else:
+        template = template.replace("%F", "")
+
     return template
 
 
