@@ -12,7 +12,6 @@ class settings():
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
 
-
     # standard-input
     default_inputFileName = "input.txt"
     # standard-output
@@ -26,15 +25,17 @@ class settings():
     # amount of possible combinations
     # beware: if you do not include at least leg_min legendaries into your simpermut-output, it might produce errors
     # you can still override these settings via command-line (-l "" 2:2), as described in the readme
+    # enter max=3 only if you want to include the new Amanthul-Trinket
     default_leg_min = 2
-    default_leg_max = 2
+    default_leg_max = 3
 
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
     # ----------------------------------------------------------------------
-    # set the amount of minimum tier-items you want to include in your output
+    # set the amount of tier-items you want to include in your output
     # this reduces the number of permutations generated if you know what you want to sim
-    # if you have no clue which items do what (= sim every combination), set all to 0
+    # if you have no clue which items do what (= sim every combination), set all txx_min to 0 and txx_max to 6
+    # common errors are setting min=max=0 for a particular tier, which result in no tier-sets being equipped at all
     default_equip_t19_min = 0
     default_equip_t19_max = 6
     default_equip_t20_min = 4
@@ -95,7 +96,7 @@ class settings():
 
     # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
-    default_fightstyle = "Beastlord"
+    default_fightstyle = "Patchwerk"
 
     # enter desires priority
     # low, below_normal, normal, above_normal, highest
