@@ -221,6 +221,10 @@ def checkUsability():
         return F"Ring1: {l_gear[10]} same as Ring2: {l_gear[11]}"
     if getIdFromItem(l_gear[12]) == getIdFromItem(l_gear[13]):
         return F"Trinket1: {l_gear[12]} same as Trinket2: {l_gear[13]}"
+
+    if getIdFromItem(l_gear[12]) in {"154172", "154173", "154174", "154175", "154176", "154177"}:
+        if getIdFromItem(l_gear[13]) in {"154172", "154173", "154174", "154175", "154176", "154177"}:
+            return " two Pantheon-Trinkets found"
     return ""
 
 
