@@ -4,8 +4,7 @@ import sys
 import subprocess
 import time
 import datetime
-import queue
-import threading
+import concurrent.futures
 from settings import settings
 
 # change path accordingly to your location
@@ -112,40 +111,40 @@ def generateCommand(file, output, sim_type, stage3, multisim):
     return cmd
 
 
-def worker():
+def worker(item, counter, max):
     if settings.multi_sim_disable_console_output:
-        FNULL = open(os.devnull, 'w') #thx @cwok for working this out
-    while not exitflag:
-        queueLock.acquire()
-        if not workQueue.empty():
-            d = workQueue.get()
-            queueLock.release()
-            print(d)
-            if settings.multi_sim_disable_console_output:
-                subprocess.call(d, stdout=FNULL)
-            else:
-                subprocess.call(d)
-            workQueue.task_done()
-        else:
-            queueLock.release()
+        FNULL = open(os.devnull, 'w')  # thx @cwok for working this out
+
+    print("-----------------------------------------------------------------")
+    print(F"Currently processing: {item[2]}")
+    print(F"Processing: {counter+1}/{max} ({round(100 * float(int(counter) / int(max)), 1)}%)")
+    try:
+        duration = time.time() - starttime
+        avg_calctime_hist = duration / counter
+        remaining_time = (max - counter) * avg_calctime_hist
+        if counter % (3 * settings.number_of_instances) == 0:
+            print(F"Remaining calculation time (est.): {round(remaining_time, 0)} seconds")
+            print(F"Finish time (est.): {time.asctime(time.localtime(time.time() + remaining_time))}")
+    except Exception as e:
+        pass
+
+    if settings.multi_sim_disable_console_output:
+        p = subprocess.Popen(item, stdout=FNULL)
+    else:
+        p = subprocess.Popen(item)
+    p.wait()
 
 
 def multisim(subdir, simtype, command=1):
-    global workQueue
-    workQueue = queue.Queue()
-    global exitflag
-    exitflag = 0
-
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
         datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
 
     # some minor progress-bar-initialization
     amount_of_generated_splits = 0
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-        for file in files:
-            if file.endswith(".sim"):
-                amount_of_generated_splits += 1
+    for file in os.listdir(os.path.join(os.getcwd(), subdir)):
+        if file.endswith(".sim"):
+            amount_of_generated_splits += 1
 
     commands = []
     for file in os.listdir(os.path.join(os.getcwd(), subdir)):
@@ -161,27 +160,19 @@ def multisim(subdir, simtype, command=1):
                                                              str(output_time) + "-" + name) + '.html',
                                       simtype, True, True)
             commands.append(cmd)
+    global starttime
+    starttime = time.time()
 
-    global queueLock
-    queueLock = threading.Lock()
-    threads = []
-
-    queueLock.acquire()
-    for item in commands:
-        workQueue.put(item)
-    queueLock.release()
-
-    for i in range(settings.number_of_instances):
-        t = threading.Thread(target=worker)
-        t.start()
-        threads.append(t)
-
-    workQueue.join()
-    exitflag = 1
-    for i in range(settings.number_of_instances):
-        workQueue.put(None)
-    for t in threads:
-        t.join()
+    print("-----------------------------------------------------------------")
+    print("Automated Simulation within AutoSimC.")
+    print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
+                                               thread_name_prefix="SimC-Worker") as executor:
+        counter = 0
+        for c in commands:
+            executor.submit(worker, c, counter, len(commands))
+            counter += 1
+    executor.shutdown()
 
 
 # chooses settings and multi- or singlemode smartly
