@@ -129,7 +129,7 @@ def worker(item, counter, max):
         pass
 
     if settings.multi_sim_disable_console_output:
-        p = subprocess.Popen(item, stdout=FNULL)
+        p = subprocess.Popen(item, stdout=FNULL, stderr=FNULL)
     else:
         p = subprocess.Popen(item)
     p.wait()
