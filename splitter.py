@@ -134,6 +134,20 @@ def worker(item, counter, max):
         p = subprocess.Popen(item)
     p.wait()
 
+def processMultiSimcCommands(commands):
+    global starttime
+    starttime = time.time()
+
+    print("-----------------------------------------------------------------")
+    print("Automated Simulation within AutoSimC.")
+    print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
+                                               thread_name_prefix="SimC-Worker") as executor:
+        counter = 0
+        for c in commands:
+            executor.submit(worker, c, counter, len(commands))
+            counter += 1
+    executor.shutdown()
 
 def multisim(subdir, simtype, command=1):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
@@ -160,19 +174,7 @@ def multisim(subdir, simtype, command=1):
                                                              str(output_time) + "-" + name) + '.html',
                                       simtype, True, True)
             commands.append(cmd)
-    global starttime
-    starttime = time.time()
-
-    print("-----------------------------------------------------------------")
-    print("Automated Simulation within AutoSimC.")
-    print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
-                                               thread_name_prefix="SimC-Worker") as executor:
-        counter = 0
-        for c in commands:
-            executor.submit(worker, c, counter, len(commands))
-            counter += 1
-    executor.shutdown()
+    processMultiSimcCommands(commands)
 
 
 # chooses settings and multi- or singlemode smartly
@@ -257,6 +259,7 @@ def resim(subdir):
             iterations = settings.default_iterations_stage2
         elif subdir == settings.subdir3:
             iterations = settings.default_iterations_stage3
+        commands = []
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 if file.endswith(".sim"):
@@ -266,8 +269,14 @@ def resim(subdir):
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "iterations=" + str(iterations), False, settings.multi_sim_enabled)
-                        print("Cmd: " + str(cmd))
-                        subprocess.call(cmd)
+                        if not settings.multi_sim_disable_console_output:
+                            print("Cmd: " + str(cmd))
+                        if settings.multi_sim_enabled:
+                            commands.append(cmd)
+                        else:
+                            subprocess.call(cmd)
+        if settings.multi_sim_enabled:
+            processMultiSimcCommands(commands)
         return True
     elif mode == "2":
         if subdir == settings.subdir1:
@@ -285,6 +294,7 @@ def resim(subdir):
                 user_targeterror = settings.default_target_error_stage3
             else:
                 user_targeterror = input("Which target_error?: ")
+        commands = []
         for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 if file.endswith(".sim"):
@@ -295,8 +305,14 @@ def resim(subdir):
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "target_error=" + str(user_targeterror), False,
                                               settings.multi_sim_enabled)
-                        print("Cmd: " + str(cmd))
-                        subprocess.call(cmd)
+                        if not settings.multi_sim_disable_console_output:
+                            print("Cmd: " + str(cmd))
+                        if settings.multi_sim_enabled:
+                            commands.append(cmd)
+                        else:
+                            subprocess.call(cmd)
+        if settings.multi_sim_enabled:
+            processMultiSimcCommands(commands)
         return True
     return False
 
