@@ -134,6 +134,7 @@ def worker(item, counter, max):
         p = subprocess.Popen(item)
     p.wait()
 
+
 def processMultiSimcCommands(commands):
     global starttime
     starttime = time.time()
@@ -148,6 +149,7 @@ def processMultiSimcCommands(commands):
             executor.submit(worker, c, counter, len(commands))
             counter += 1
     executor.shutdown()
+
 
 def multisim(subdir, simtype, command=1):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
@@ -395,6 +397,10 @@ def grabBest(count, source_subdir, target_subdir, origin):
     bestprofiles = []
     # print(str(bestprofiles))
 
+    subfolder = os.path.join(os.getcwd(), target_subdir)
+    purge_subfolder(subfolder)
+    filenumber = 1
+
     # now parse our "database" and extract the profiles of our top n
     source = open(origin, "r")
     lines = source.readlines()
@@ -425,17 +431,23 @@ def grabBest(count, source_subdir, target_subdir, origin):
                 else:
                     currentbestprofile += "\n"
                 bestprofiles.append(currentbestprofile)
+        if target_subdir == settings.subdir2:
+            amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
+        else:
+            amount = settings.splitting_size
+        if len(bestprofiles) > amount:
+            with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
+                for line in bestprofiles:
+                    out.write(line)
+                filenumber += 1
+            bestprofiles.clear()
+
+    if len(bestprofiles) > 0:
+        with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
+            for line in bestprofiles:
+                out.write(line)
 
     source.close()
-
-    subfolder = os.path.join(os.getcwd(), target_subdir)
-    purge_subfolder(subfolder)
-
-    output = open(os.path.join(os.getcwd(), target_subdir, "best.sim"), "w")
-    for line in bestprofiles:
-        output.write(line)
-
-    output.close()
 
 
 # determine best n dps-simulations and grabs their profiles for further simming
@@ -528,6 +540,10 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     lines = source.readlines()
     lines_iter = iter(lines)
 
+    subfolder = os.path.join(os.getcwd(), target_subdir)
+    purge_subfolder(subfolder)
+    filenumber = 1
+
     for line in lines_iter:
         line = line.lstrip().rstrip()
         if not line:
@@ -553,14 +569,19 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
                 else:
                     currentbestprofile += "\n"
                 bestprofiles.append(currentbestprofile)
+        if target_subdir == settings.subdir2:
+            amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
+        else:
+            amount = settings.splitting_size
+        if len(bestprofiles) > amount:
+            with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
+                for line in bestprofiles:
+                    out.write(line)
+                filenumber += 1
+            bestprofiles.clear()
+    if len(bestprofiles) > 0:
+        with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
+            for line in bestprofiles:
+                out.write(line)
 
     source.close()
-
-    subfolder = os.path.join(os.getcwd(), target_subdir)
-    purge_subfolder(subfolder)
-
-    output = open(os.path.join(os.getcwd(), target_subdir, "best.sim"), "w")
-    for line in bestprofiles:
-        output.write(line)
-
-    output.close()
