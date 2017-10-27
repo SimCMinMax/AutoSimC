@@ -4,7 +4,6 @@ import datetime
 import os
 import json
 import shutil
-import time
 from settings import settings
 
 import splitter
@@ -2049,6 +2048,13 @@ def checkinterpreter():
         return False
     return True
 
+# just a workaround for skipping generation of out.simc
+def getClassFromInput():
+    config = configparser.ConfigParser()
+    config.read(inputFileName, encoding='utf-8-sig')
+    profile = config['Profile']
+    return profile['class']
+
 
 ########################
 #### Program Start ######
@@ -2070,9 +2076,13 @@ validateSettings()
 # can always be rerun since it is now deterministic
 if s_stage == "stage1" or s_stage == "":
     permutate()
+    outputGenerated = True
 else:
     if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
         permutate()
+        outputGenerated = True
+    else:
+        outputGenerated = False
 
 if not settings.skip_questions:
     if i_generatedProfiles > 50000:
@@ -2081,12 +2091,16 @@ if not settings.skip_questions:
             printLog("Program exit by user")
             sys.exit(0)
 
-if i_generatedProfiles == 0:
-    print("No valid combinations found. Please check settings.py and your simpermut-export.")
-    sys.exit(1)
+if outputGenerated:
+    if i_generatedProfiles == 0:
+        print("No valid combinations found. Please check settings.py and your simpermut-export.")
+        sys.exit(1)
 
 if b_simcraft_enabled:
-    class_spec = getClassSpec()
+    if outputGenerated:
+        class_spec = getClassSpec()
+    else:
+        class_spec = getClassFromInput()
 
     if s_stage == "":
         s_stage = settings.default_sim_start_stage
