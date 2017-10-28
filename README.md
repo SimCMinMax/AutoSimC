@@ -7,7 +7,7 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 
 ## How does it work ?
-You must have python (ideally >3.6) installed on you computer for this to work.
+You must have python (>3.6.1) installed on you computer for this to work.
 - Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
 - Download the project and extract it.
 - Open input.txt and enter parameters depending on your character (see below for more informations). Save and close.
@@ -57,6 +57,7 @@ What can be changed (command prefix are case sensitive):
          (These numbers might be changed in future versions)
 		 You have to set the simc path in the settings.py file.
 	- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during stage1, by launching with the parameter "-sim stage2" (or stage3). You will have to enter the amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)
+	- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems or instabilities, edit settings.py and change the corresponding parameters or even disable it. 
 - -gems : Enables permutation of gem-combinations in your gear. With e.g. <-gems "crit,haste,int"> you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon greens are not supported) in addition to the ones you have currently equipped.
   - Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> (without <>) into the commandline, the permutation process uses the single int- and mastery-gem-combination you have currrently equipped and adds ALL combinations from the ones in the commandline, therefore mastery would be excluded. However, adding mastery to the commandline reenables that.
   - Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] Simpermut usually creates this for you.
