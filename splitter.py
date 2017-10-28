@@ -5,6 +5,8 @@ import subprocess
 import time
 import datetime
 import concurrent.futures
+
+from specdata import specdata
 from settings import settings
 
 # change path accordingly to your location
@@ -108,6 +110,12 @@ def generateCommand(file, output, sim_type, stage3, multisim):
     if stage3:
         if settings.simc_scale_factors_stage3:
             cmd.append('calculate_scale_factors=1')
+            if spec.getRole() == "strattack":
+                cmd.append('scale_only=str,crit,haste,mastery,vers')
+            elif spec.getRole() == "agiattack":
+                cmd.append('scale_only=int,crit,haste,mastery,vers')
+            elif spec.getRole() == "spell":
+                cmd.append('scale_only=int,crit,haste,mastery,vers')
     return cmd
 
 
@@ -180,7 +188,9 @@ def multisim(subdir, simtype, command=1):
 
 
 # chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, command=1):
+def sim(subdir, simtype, specd, command=1):
+    global spec
+    spec = specd
     # determine number of .sim-files
     files = os.listdir(os.path.join(os.getcwd(), subdir))
     for file in files:

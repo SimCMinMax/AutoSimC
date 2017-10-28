@@ -6,6 +6,7 @@ import json
 import shutil
 from settings import settings
 
+from specdata import specdata
 import splitter
 import hashlib
 
@@ -41,6 +42,7 @@ iterations_thirdpart = settings.default_iterations_stage3
 target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
 gemspermutation = False
+s = specdata()
 
 gem_ids = {}
 gem_ids["150haste"] = "130220"
@@ -1100,118 +1102,6 @@ def permutate():
     outputFile.close()
 
 
-def getClassSpec():
-    b_heal = False
-    b_tank = False
-    if c_class == "deathknight":
-        if c_spec == "frost":
-            class_spec = "Frost Death Knight"
-        elif c_spec == "unholy":
-            class_spec = "Unholy Death Knight"
-        elif c_spec == "blood":
-            class_spec = "Blood Death Knight"
-            b_tank = True
-    elif c_class == "demonhunter":
-        if c_spec == "havoc":
-            class_spec = "Havoc Demon Hunter"
-        elif c_spec == "vengeance":
-            class_spec = "Vengeance Demon Hunter"
-            b_tank = True
-    elif c_class == "druid":
-        if c_spec == "balance":
-            class_spec = "Balance Druid"
-        elif c_spec == "feral":
-            class_spec = "Feral Druid"
-        elif c_spec == "guardian":
-            class_spec = "Guardian Druid"
-            b_tank = True
-        elif c_spec == "restoration":
-            class_spec = "Restoration Druid"
-            b_heal = True
-    elif c_class == "hunter":
-        if c_spec == "beast_mastery":
-            class_spec = "Beast Mastery Hunter"
-        elif c_spec == "survival":
-            class_spec = "Survival Hunter"
-        elif c_spec == "marksmanship":
-            class_spec = "Marksmanship Hunter"
-    elif c_class == "mage":
-        if c_spec == "frost":
-            class_spec = "Frost Mage"
-        elif c_spec == "arcane":
-            class_spec = "Arcane Mage"
-        elif c_spec == "fire":
-            class_spec = "Fire Mage"
-    elif c_class == "priest":
-        if c_spec == "shadow":
-            class_spec = "Shadow Priest"
-        elif c_spec == "diszipline":
-            class_spec = "Diszipline Priest"
-            b_heal = True
-        elif c_spec == "holy":
-            class_spec = "Holy Priest"
-            b_heal = True
-    elif c_class == "paladin":
-        if c_spec == "retribution":
-            class_spec = "Retribution Paladin"
-        elif c_spec == "holy":
-            class_spec = "Holy Paladin"
-            b_heal = True
-        elif c_spec == "protection":
-            class_spec = "Protection Paladin"
-            b_tank = True
-    elif c_class == "monk":
-        if c_spec == "windwalker":
-            class_spec = "Windwalker Monk"
-        elif c_spec == "brewmaster":
-            class_spec = "Brewmaster Monk"
-            b_tank = True
-        elif c_spec == "mistweaver":
-            class_spec = "Mistweaver Monk"
-            b_heal = True
-    elif c_class == "shaman":
-        if c_spec == "enhancement":
-            class_spec = "Enhancement Shaman"
-        elif c_spec == "elemental":
-            class_spec = "Elemental Shaman"
-        elif c_spec == "restoration":
-            class_spec = "Restoration Shaman"
-            b_heal = True
-    elif c_class == "rogue":
-        if c_spec == "subtlety":
-            class_spec = "Subtlety Rogue"
-        elif c_spec == "outlaw":
-            class_spec = "Outlaw Rogue"
-        elif c_spec == "assassination":
-            class_spec = "Assassination Rogue"
-    elif c_class == "warrior":
-        if c_spec == "fury":
-            class_spec = "Fury Warrior"
-        elif c_spec == "arms":
-            class_spec = "Arms Warrior"
-        elif c_spec == "protection":
-            class_spec = "Protection Warrior"
-            b_tank = True
-    elif c_class == "warlock":
-        if c_spec == "affliction":
-            class_spec = "Affliction Warlock"
-        elif c_spec == "demonology":
-            class_spec = "Demonology Warlock"
-        elif c_spec == "destruction":
-            class_spec = "Destruction Warlock"
-    else:
-        printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec))
-        print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
-        sys.exit(1)
-    printLog("Using class_spec: " + class_spec)
-    if b_tank or b_heal:
-        if input(
-                "You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a profile with your spec (Enter to continue") == "q":
-            printLog("Manually aborting because heal or tank spec was chosen")
-            sys.exit(0)
-    return class_spec
-
-
 def checkResultFiles(subdir, count=2):
     printLog("Checking Files in subdirectory: " + str(subdir))
     print("Checking Files in subdirectory: " + str(subdir))
@@ -1267,7 +1157,7 @@ def static_stage1():
     # split into chunks of 50
     splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
+    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), s, 1)
     static_stage2()
 
 
@@ -1277,7 +1167,7 @@ def static_stage2():
         # now grab the top 100 of these and put the profiles into the 2nd temp_dir
         splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
         # where they are simmed again, now with 1000 iterations
-        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), 1)
+        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), s, 1)
     else:
         printLog("Error, some result-files are empty in " + str(settings.subdir1))
         print("Error, some result-files are empty in " + str(settings.subdir1))
@@ -1291,7 +1181,7 @@ def static_stage3():
         # again, for a third time, get top 3 profiles and put them into subdir3
         splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in this folder
-        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), 2)
+        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), s, 2)
     else:
         printLog("Error, some result-files are empty in " + str(settings.subdir1))
         print("Error, some result-files are empty in " + str(settings.subdir1))
@@ -1345,7 +1235,7 @@ def dynamic_stage1():
         # split into chunks of n (max 100) to not destroy the hdd
         # todo: calculate dynamic amount of n
         splitter.split(outputFileName, settings.splitting_size)
-        splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
+        splitter.sim(settings.subdir1, "target_error=" + str(te), s, 1)
 
         # if the user chose a target_error which is lower than the default_one for the next step
         # he is given an option to either skip stage 2 or adjust the target_error
@@ -1382,7 +1272,7 @@ def dynamic_stage2(targeterror, targeterrorstage1):
         # grabbing top 100 files
         splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
     # where they are simmed again, now with higher quality
-    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), 1)
+    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), s, 1)
     # if the user chose a target_error which is lower than the default_one for the next step
     # he is given an option to either skip stage 2 or adjust the target_error
     if float(target_error_secondpart) <= float(settings.default_target_error_stage3):
@@ -1429,7 +1319,7 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2):
             else:
                 splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
-        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), 2)
+        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), s, 2)
     else:
         printLog("No valid .result-files found for stage3!")
 
@@ -1520,502 +1410,22 @@ def stage3_restart():
         sys.exit(0)
 
 
-def getAcronymForID(id):
-    # shared
-    if id == "154172":
-        return "Aman"
-    elif id == "133976":
-        return "Cind"
-    elif id == "137015":
-        return "Eko"
-    elif id == "146669":
-        return "Sentinel"
-    elif id == "132455":
-        return "Norgannon"
-    elif id == "146666":
-        return "Celumbra"
-    elif id == "132466":
-        return "Roots"
-    elif id == "146668":
-        return "Perch"
-    elif id == "132443":
-        return "Aggramar"
-    elif id == "146667":
-        return "Rethus"
-    elif id == "132444":
-        return "Prydaz"
-    elif id == "152626":
-        return "Insignia"
-    elif id == "132452":
-        return "Sephuz"
-    elif id == "144249":
-        return "AHR"
-    elif id == "144258":
-        return "Velen"
-    elif id == "144259":
-        return "KJ"
-
-    # demonhunter
-    elif id == "137014":
-        return "Achor"
-    elif id == "137022":
-        return "Lor"
-    elif id == "137061":
-        return "Raddon"
-    elif id == "137071":
-        return "Rune"
-    elif id == "137090":
-        return "Bio"
-    elif id == "137091":
-        return "Defile"
-    elif id == "138949":
-        return "Kirel"
-    elif id == "144279":
-        return "Grandeur"
-    elif id == "144292":
-        return "Spirit"
-    elif id == "151799":
-        return "Oblivion"
-    elif id == "137038":
-        return "Anger"
-    elif id == "138854":
-        return "Fragment"
-    elif id == "151639":
-        return "Soul"
-    elif id == "151798":
-        return "Chaos"
-
-    # druid
-    elif id == "137023":
-        return "POE"
-    elif id == "137024":
-        return "Fel"
-    elif id == "137026":
-        return "EOI"
-    elif id == "137025":
-        return "Sky"
-    elif id == "137056":
-        return "Luffa"
-    elif id == "137062":
-        return "ED"
-    elif id == "137067":
-        return "Elize"
-    elif id == "137072":
-        return "Aman(Ring)"
-    elif id == "137078":
-        return "Titan"
-    elif id == "137092":
-        return "Oneth"
-    elif id == "137095":
-        return "Edraith"
-    elif id == "137096":
-        return "Petri"
-    elif id == "137094":
-        return "Wild"
-    elif id == "144242":
-        return "Xonis"
-    elif id == "144295":
-        return "LATC"
-    elif id == "144354":
-        return "Fiery"
-    elif id == "144432":
-        return "Oak"
-    elif id == "151783":
-        return "Karma"
-    elif id == "151801":
-        return "Behemoth"
-    elif id == "137039":
-        return "IFE"
-    elif id == "137040":
-        return "Chatoyant"
-    elif id == "137041":
-        return "Dual"
-    elif id == "137042":
-        return "Tearstone"
-    elif id == "151636":
-        return "Soul"
-
-    # monk
-    elif id == "137016":
-        return "Sal"
-    elif id == "137027":
-        return "Fire"
-    elif id == "137028":
-        return "Eithas"
-    elif id == "137029":
-        return "Kat"
-    elif id == "137057":
-        return "Touch"
-    elif id == "137063":
-        return "FO"
-    elif id == "137068":
-        return "Flame"
-    elif id == "137073":
-        return "Unison"
-    elif id == "137079":
-        return "Gai"
-    elif id == "137097":
-        return "Horn"
-    elif id == "138879":
-        return "Ovyds"
-    elif id == "144239":
-        return "Capa"
-    elif id == "144277":
-        return "Anvil"
-    elif id == "144340":
-        return "Rins"
-    elif id == "151788":
-        return "Stout"
-    elif id == "151811":
-        return "Wind"
-    elif id == "137044":
-        return "Jewel"
-    elif id == "137045":
-        return "Eye"
-    elif id == "137220":
-        return "March"
-    elif id == "151643":
-        return "Soul"
-
-    # rogue
-    elif id == "137030":
-        return "Dusk"
-    elif id == "137031":
-        return "Thrax"
-    elif id == "137032":
-        return "Satyr"
-    elif id == "137069":
-        return "Val"
-    elif id == "137098":
-        return "Zoldyck"
-    elif id == "137099":
-        return "Greenskin"
-    elif id == "137100":
-        return "Giants"
-    elif id == "141321":
-        return "Shiv"
-    elif id == "144236":
-        return "Cloak"
-    elif id == "151815":
-        return "Crown"
-    elif id == "151818":
-        return "Dead"
-    elif id == "137049":
-        return "Insignia"
-    elif id == "150936":
-        return "Soul"
-
-    # mage
-    elif id == "132406":
-        return "Sun"
-    elif id == "132411":
-        return "Vashj"
-    elif id == "132413":
-        return "Rhonin"
-    elif id == "132442":
-        return "Cord"
-    elif id == "132451":
-        return "Kilt"
-    elif id == "132454":
-        return "Koralon"
-    elif id == "132863":
-        return "Darcklis"
-    elif id == "133970":
-        return "Zannesu"
-    elif id == "133977":
-        return "Belovir"
-    elif id == "138140":
-        return "Mag"
-    elif id == "144260":
-        return "Ice"
-    elif id == "144274":
-        return "Gravity"
-    elif id == "144355":
-        return "Pyrotex"
-    elif id == "151808":
-        return "Kirin"
-    elif id == "151809":
-        return "Core"
-    elif id == "151810":
-        return "Sindra"
-    elif id == "132410":
-        return "Shard"
-    elif id == "151642":
-        return "Soul"
-
-    # priest
-    elif id == "132409":
-        return "Anunds"
-    elif id == "132436":
-        return "Skjoldr"
-    elif id == "132437":
-        return "Sharaz"
-    elif id == "132445":
-        return "Almaiesh"
-    elif id == "132447":
-        return "Anjuna"
-    elif id == "132450":
-        return "Muzes"
-    elif id == "132461":
-        return "Xalan"
-    elif id == "132861":
-        return "Estel"
-    elif id == "132864":
-        return "Mangazas"
-    elif id == "133800":
-        return "Maiev"
-    elif id == "133971":
-        return "Zenkaram"
-    elif id == "144244":
-        return "Xiraff"
-    elif id == "144247":
-        return "Rammal"
-    elif id == "151786":
-        return "Hallation"
-    elif id == "151814":
-        return "Heart"
-    elif id == "151787":
-        return "Lady"
-    elif id == "132449":
-        return "Phyrix"
-    elif id == "133973":
-        return "Twins"
-    elif id == "151646":
-        return "Soul"
-    elif id == "137276":
-        return "Nero"
-
-    # warlock
-    elif id == "132357":
-        return "Pillar"
-    elif id == "132374":
-        return "Kazzak"
-    elif id == "132379":
-        return "Sindorei"
-    elif id == "132381":
-        return "Stretens"
-    elif id == "132393":
-        return "Ritual"
-    elif id == "132394":
-        return "Hood"
-    elif id == "132407":
-        return "Magi"
-    elif id == "132456":
-        return "FoS"
-    elif id == "132457":
-        return "Cord"
-    elif id == "144369":
-        return "Lost"
-    elif id == "144385":
-        return "Wakener"
-    elif id == "151821":
-        return "Harvest"
-    elif id == "132369":
-        return "Wilfred"
-    elif id == "132378":
-        return "Sacro"
-    elif id == "132460":
-        return "Alythess"
-    elif id == "151649":
-        return "Soul"
-
-
-    # hunter
-    elif id == "137033":
-        return "Ullr"
-    elif id == "137034":
-        return "Nesing"
-    elif id == "137064":
-        return "Voodoo"
-    elif id == "137080":
-        return "Roar"
-    elif id == "137081":
-        return "Sentinel"
-    elif id == "137082":
-        return "Helbrine"
-    elif id == "137101":
-        return "Call"
-    elif id == "137227":
-        return "Qapla"
-    elif id == "141353":
-        return "Cap"
-    elif id == "144303":
-        return "Gyro"
-    elif id == "144326":
-        return "Mantle"
-    elif id == "144361":
-        return "Butcher"
-    elif id == "151805":
-        return "Parsel"
-    elif id == "137043":
-        return "Frizzo"
-    elif id == "137055":
-        return "Zevrim"
-    elif id == "137382":
-        return "Apex"
-    elif id == "151641":
-        return "Soul"
-
-    # shaman
-    elif id == "137058":
-        return "Tide"
-    elif id == "137074":
-        return "Echoes"
-    elif id == "137083":
-        return "Girdle"
-    elif id == "137084":
-        return "Akainus"
-    elif id == "137085":
-        return "Nazjatar"
-    elif id == "137102":
-        return "AlAkir"
-    elif id == "137103":
-        return "Tempest"
-    elif id == "137104":
-        return "Nobundo"
-    elif id == "137616":
-        return "Emalon"
-    elif id == "138117":
-        return "Journey"
-    elif id == "143732":
-        return "Reminder"
-    elif id == "151785":
-        return "Deep"
-    elif id == "151819":
-        return "Heart"
-    elif id == "137035":
-        return "Deceiver"
-    elif id == "137036":
-        return "Rebalancer"
-    elif id == "137050":
-        return "Eye"
-    elif id == "137051":
-        return "Jonat"
-    elif id == "151647":
-        return "Soul"
-
-
-    # dk
-    elif id == "132365":
-        return "Bryndaor"
-    elif id == "132366":
-        return "Koltiras"
-    elif id == "132367":
-        return "Gorefiend"
-    elif id == "132441":
-        return "Draugr"
-    elif id == "132448":
-        return "Fourth"
-    elif id == "132453":
-        return "Rattlegore"
-    elif id == "132458":
-        return "Toravon"
-    elif id == "132459":
-        return "Martyr"
-    elif id == "137075":
-        return "Taktheritrix"
-    elif id == "144280":
-        return "March"
-    elif id == "144281":
-        return "Skull"
-    elif id == "144293":
-        return "CCC"
-    elif id == "151795":
-        return "Soulflayer"
-    elif id == "151796":
-        return "Heart"
-    elif id == "133974":
-        return "Lament"
-    elif id == "137037":
-        return "Uvanimor"
-    elif id == "137223":
-        return "Necro"
-    elif id == "151640":
-        return "Deathlord"
-
-    # warrior
-    elif id == "137060":
-        return "Archavon"
-    elif id == "137077":
-        return "Weight"
-    elif id == "137087":
-        return "Najentus"
-    elif id == "137088":
-        return "Ceann"
-    elif id == "137089":
-        return "Vigor"
-    elif id == "137107":
-        return "Mannoroth"
-    elif id == "137108":
-        return "Kakushan"
-    elif id == "143728":
-        return "Strata"
-    elif id == "151822":
-        return "Ararat"
-    elif id == "151823":
-        return "Eye"
-    elif id == "151824":
-        return "Berserker"
-    elif id == "137052":
-        return "Ayala"
-    elif id == "137054":
-        return "Walls"
-    elif id == "151650":
-        return "Soul"
-
-    # paladin
-    elif id == "137017":
-        return "Valkyr"
-    elif id == "137059":
-        return "Tyrs"
-    elif id == "137065":
-        return "Gaze"
-    elif id == "137070":
-        return "Tyelca"
-    elif id == "137076":
-        return "Obsidian"
-    elif id == "137086":
-        return "Thrayns"
-    elif id == "137105":
-        return "Uther"
-    elif id == "140846":
-        return "Aegisjalmur"
-    elif id == "144275":
-        return "Saruan"
-    elif id == "144358":
-        return "Ashes"
-    elif id == "151782":
-        return "Tower"
-    elif id == "151812":
-        return "Pillars"
-    elif id == "151813":
-        return "Inquisitor"
-    elif id == "137046":
-        return "Ilterendi"
-    elif id == "137047":
-        return "Heathcliff"
-    elif id == "137048":
-        return "Liadrin"
-    elif id == "151644":
-        return "Soul"
-
-
 def getStringForProfile():
     # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
     # scpout later adds a increment for multiple versions of this
     template = "%A%B%C%D%E%F"
     if namingData.get('Leg0') != "None":
-        template = template.replace("%A", str(getAcronymForID(namingData.get('Leg0'))) + "_")
+        template = template.replace("%A", str(s.getAcronymForID(namingData.get('Leg0'))) + "_")
     else:
         template = template.replace("%A", "")
 
     if namingData.get('Leg1') != "None":
-        template = template.replace("%B", str(getAcronymForID(namingData.get('Leg1'))) + "_")
+        template = template.replace("%B", str(s.getAcronymForID(namingData.get('Leg1'))) + "_")
     else:
         template = template.replace("%B", "")
 
     if namingData.get('Leg2') != "None":
-        template = template.replace("%C", str(getAcronymForID(namingData.get('Leg2'))) + "_")
+        template = template.replace("%C", str(s.getAcronymForID(namingData.get('Leg2'))) + "_")
     else:
         template = template.replace("%C", "")
 
@@ -2048,12 +1458,19 @@ def checkinterpreter():
         return False
     return True
 
+
 # just a workaround for skipping generation of out.simc
 def getClassFromInput():
     config = configparser.ConfigParser()
     config.read(inputFileName, encoding='utf-8-sig')
     profile = config['Profile']
     return profile['class']
+
+
+# just set things in the data-file, has to be accessed later in splitter.py
+def setClassSpecData():
+    s.c_class = c_class
+    s.c_spec = c_spec
 
 
 ########################
@@ -2084,6 +1501,8 @@ else:
     else:
         outputGenerated = False
 
+setClassSpecData()
+
 if not settings.skip_questions:
     if i_generatedProfiles > 50000:
         if input(
@@ -2098,7 +1517,7 @@ if outputGenerated:
 
 if b_simcraft_enabled:
     if outputGenerated:
-        class_spec = getClassSpec()
+        class_spec = s.getClassSpec()
     else:
         class_spec = getClassFromInput()
 
