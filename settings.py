@@ -105,7 +105,7 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = 4
     # True|False
-    simc_scale_factors_stage3 = False
+    simc_scale_factors_stage3 = True
     # 0|1
     simc_ptr = 0
 
@@ -142,7 +142,7 @@ class settings():
     multi_sim_enabled = True
     # console output tends to get spammy with mutliple instances running at once; this enables/disables this behaviour
     # keep in mind that, if enabled, there will be NO output at all, which may be confusing
-    multi_sim_disable_console_output = False
+    multi_sim_disable_console_output = True
     # how many instances should run simultaneously
     # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
     # otherwise system gets very laggy as no cores are spare for os-routines
@@ -150,6 +150,8 @@ class settings():
     # some tests showed that multisimming is faster with many instances, each with 1 thread
     # you can change this behaviour by modifying this variable
     number_of_threads = 1
+
+    DEBUG = False
 
 
 

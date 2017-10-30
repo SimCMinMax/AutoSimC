@@ -253,7 +253,8 @@ def scpout(oh):
         print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
             round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
     if result != "":
-        printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
+        if settings.DEBUG:
+            printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
     else:
         if not b_quiet:
             print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
