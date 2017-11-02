@@ -663,12 +663,53 @@ def permutate():
 
     # Read input.txt
     #   Profile
-    global c_profilename
-    c_profilename = profile['profilename']
-    global c_profileid
-    c_profileid = int(profile['profileid'])
     global c_class
-    c_class = profile['class']
+    c_class = ""
+    global c_profilename
+    c_profilename = ""
+    if config.has_option('Profile', 'priest'):
+        c_class = 'priest'
+        c_profilename = profile['priest']
+    elif config.has_option('Profile', 'druid'):
+        c_class = 'druid'
+        c_profilename = profile['druid']
+    elif config.has_option('Profile', 'warrior'):
+        c_class = 'warrior'
+        c_profilename = profile['warrior']
+    elif config.has_option('Profile', 'paladin'):
+        c_class = 'paladin'
+        c_profilename = profile['paladin']
+    elif config.has_option('Profile', 'paladin'):
+        c_class = 'paladin'
+        c_profilename = profile['hunter']
+    elif config.has_option('Profile', 'hunter'):
+        c_class = 'hunter'
+        c_profilename = profile['hunter']
+    elif config.has_option('Profile', 'deathknight'):
+        c_class = 'deathknight'
+        c_profilename = profile['deathknight']
+    elif config.has_option('Profile', 'demonhunter'):
+        c_class = 'demonhunter'
+        c_profilename = profile['demonhunter']
+    elif config.has_option('Profile', 'mage'):
+        c_class = 'mage'
+        c_profilename = profile['mage']
+    elif config.has_option('Profile', 'monk'):
+        c_class = 'monk'
+        c_profilename = profile['monk']
+    elif config.has_option('Profile', 'rogue'):
+        c_class = 'rogue'
+        c_profilename = profile['rogue']
+    elif config.has_option('Profile', 'shaman'):
+        c_class = 'shaman'
+        c_profilename = profile['shaman']
+    elif config.has_option('Profile', 'warlock'):
+        c_class = 'warlock'
+        c_profilename = profile['warlock']
+    else:
+        printLog("Error parsing profile")
+    global c_profileid
+    c_profileid = 1
     global c_race
     c_race = profile['race']
     global c_level
