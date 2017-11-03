@@ -749,8 +749,6 @@ def permutate():
         c_augmentation = profile['augmentation']
     else:
         c_augmentation = ""
-    global c_other
-    c_other = profile['other']
     #   Gear
     c_head = gear['head']
     c_neck = gear['neck']
