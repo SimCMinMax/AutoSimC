@@ -177,3 +177,7 @@ class settings():
     # because target_error for dynamic mode has to be entered manually normally, you can set it here
     # most probably you will enter here the value represented by auto_dynamic_stage1_target_error_table
     auto_dynamic_stage1_target_error_value = 0.9
+    
+    
+    #Profil generator settings
+    tier = "21"
