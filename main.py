@@ -276,8 +276,6 @@ def scpout(oh):
             outputFile.write("food=" + c_food + "\n")
         if c_augmentation != "":
             outputFile.write("augmentation=" + c_augmentation + "\n")
-        if c_other != "":
-            outputFile.write(c_other + "\n")
         if l_gear[0][0] == "L":
             outputFile.write("head=" + l_gear[0][1:] + "\n")
         elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
