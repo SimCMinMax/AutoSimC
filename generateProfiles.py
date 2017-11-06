@@ -28,6 +28,9 @@ outputFileName = settings.default_inputFileName
 classToGenerate = ""
 specToGenerate = ""
 talentToGenerate = ""
+profileFilter = ["\n","#", "actions", "potion", "flask", "food", "augmentation"]
+gearList = ["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
+profileFilter.extend(gearList)
 
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
@@ -146,7 +149,7 @@ with open(outputFileName, 'w', encoding='utf-8') as file:
         profile.close()
 
         for ligne in lignes:
-            if not ligne.startswith(("\n","#", "act", "potion", "flask", "food", "augmentation","head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand")):
+            if not ligne.startswith(tuple(profileFilter)):
                 file.write(ligne)
             
     file.write('\n')
