@@ -27,6 +27,7 @@ b_quiet = settings.b_quiet
 outputFileName = settings.default_inputFileName
 classToGenerate = ""
 specToGenerate = ""
+talentToGenerate = ""
 
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
@@ -44,6 +45,7 @@ def handleCommandLine():
     global outputFileName
     global classToGenerate
     global specToGenerate
+    global talentToGenerate
     global b_quiet
 
     # parameter-list, so they are "protected" if user enters wrong commandline
@@ -51,6 +53,7 @@ def handleCommandLine():
     set_parameters.add("-o")
     set_parameters.add("-c")
     set_parameters.add("-s")
+    set_parameters.add("-t")
     set_parameters.add("-quiet")
     # set_parameters.add("-all")
     for a in range(1, len(sys.argv)):
@@ -77,6 +80,13 @@ def handleCommandLine():
                 printLog("Spec to generate profile changed to " + specToGenerate)
             else:
                 print("Error: No or invalid spec declared: " + specToGenerate)
+                sys.exit(1)
+        if sys.argv[a] == "-t":
+            talentToGenerate = sys.argv[a + 1]
+            if talentToGenerate not in set_parameters:
+                printLog("Talent to generate profile changed to " + talentToGenerate)
+            else:
+                print("Error: No or invalid spec declared: " + talentToGenerate)
                 sys.exit(1)
         # if sys.argv[a] == "-all":
             # classToGenerate="all"
@@ -108,7 +118,7 @@ def validateSettings():
         sys.exit(0)
         
 def getProfileFilePath():
-    return "..\\simc\\profiles\\Tier" + tierToGenerate + "\\T" + tierToGenerate + "_" + classToGenerate + "_" + specToGenerate + ".simc"
+    return "..\\simc\\profiles\\Tier" + tierToGenerate + "\\T" + tierToGenerate + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
     
              
 ########################
