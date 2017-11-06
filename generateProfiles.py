@@ -95,11 +95,18 @@ def handleCommandLine():
             # else:
                 # print("Error: No or invalid output file declared: " + classToGenerate)
                 # sys.exit(1)
+
+def getProfileFilePath():
+    return "..\\simc\\profiles\\Tier" + tierToGenerate + "\\T" + tierToGenerate + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
+
    
 def validateSettings():
     #validate class
     if classToGenerate == "":
         printLog("Error: No class asked")
+        sys.exit(0)
+    if specToGenerate == "":
+        printLog("Error: No spec asked")
         sys.exit(0)
     # validate amount of legendaries
     if legmin > legmax or legmax > 3 or legmin > 3 or legmin < 0 or legmax < 0:
@@ -116,10 +123,10 @@ def validateSettings():
     if tierToGenerate == "":
         printLog("Error: No tier in settings")
         sys.exit(0)
+    if not os.path.isfile(getProfileFilePath()):
+        printLog("Error: Can't find the profile file : " + getProfileFilePath())
         
-def getProfileFilePath():
-    return "..\\simc\\profiles\\Tier" + tierToGenerate + "\\T" + tierToGenerate + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
-    
+
              
 ########################
 #### Program Start ######
@@ -129,4 +136,18 @@ logFile = open(logFileName, 'w')
 handleCommandLine()
 validateSettings()
 
-print(getProfileFilePath())
+#Begin generation, setting is good
+with open(outputFileName, 'w', encoding='utf-8') as file:
+    file.write('[Profile]\n')
+
+    #print profile
+    with open(getProfileFilePath(), 'r') as profile:
+        lignes  = profile.readlines()
+        profile.close()
+
+        for ligne in lignes:
+            if not ligne.startswith(("\n","#", "act", "potion", "flask", "food", "augmentation","head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand")):
+                file.write(ligne)
+            
+    file.write('\n')
+    file.write('[Gear]\n')
