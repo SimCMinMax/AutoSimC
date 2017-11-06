@@ -32,6 +32,17 @@ profileFilter = ["\n","#", "actions", "potion", "flask", "food", "augmentation"]
 gearList = ["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
 profileFilter.extend(gearList)
 
+#Local settings
+material = ""
+potion = ""
+flask = ""
+food = ""
+augmentation = ""
+enchantNeck = ""
+enchantBack = ""
+enchantFinger = ""
+gem = ""
+
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
 
@@ -128,9 +139,34 @@ def validateSettings():
         sys.exit(0)
     if not os.path.isfile(getProfileFilePath()):
         printLog("Error: Can't find the profile file : " + getProfileFilePath())
+        sys.exit(0)
+        
+def getDataSettings():
+    global material
+    global potion
+    global flask
+    global food
+    global augmentation
+    global enchantNeck
+    global enchantBack
+    global enchantFinger
+    global gem
+
+    with open('generatorData.json') as data_file: 
+        data = json.load(data_file)
+
+        material = data["classes"][classToGenerate]["material"]
+        potion = data["classes"][classToGenerate]["specs"][specToGenerate]["potion"]
+        flask = data["classes"][classToGenerate]["specs"][specToGenerate]["flask"]
+        food = data["classes"][classToGenerate]["specs"][specToGenerate]["food"]
+        augmentation = data["classes"][classToGenerate]["specs"][specToGenerate]["augmentation"]
+        enchantNeck = data["classes"][classToGenerate]["specs"][specToGenerate]["enchant"]["neck"]
+        enchantBack = data["classes"][classToGenerate]["specs"][specToGenerate]["enchant"]["back"]
+        enchantFinger = data["classes"][classToGenerate]["specs"][specToGenerate]["enchant"]["finger"]
+        gem = data["classes"][classToGenerate]["specs"][specToGenerate]["gem"]
         
 
-             
+
 ########################
 #### Program Start ######
 #########################
@@ -138,12 +174,12 @@ sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
 handleCommandLine()
 validateSettings()
+getDataSettings()
 
 #Begin generation, setting is good
 with open(outputFileName, 'w', encoding='utf-8') as file:
-    file.write('[Profile]\n')
-
     #print profile
+    file.write('[Profile]\n')
     with open(getProfileFilePath(), 'r') as profile:
         lignes  = profile.readlines()
         profile.close()
@@ -151,6 +187,8 @@ with open(outputFileName, 'w', encoding='utf-8') as file:
         for ligne in lignes:
             if not ligne.startswith(tuple(profileFilter)):
                 file.write(ligne)
-            
     file.write('\n')
+
+    #print gear
     file.write('[Gear]\n')
+
