@@ -46,8 +46,11 @@ trinket2 = ""
 main_handSave = ""
 off_handSave = ""
 
+itemNB = 0
+
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
+apply_stat_filter_to_tier = settings.apply_stat_filter_to_tier
 
 #   Error handle
 def printLog(stringToPrint):
@@ -64,6 +67,7 @@ def handleCommandLine():
     global specToGenerate
     global talentToGenerate
     global b_quiet
+    global statsFilter
 
     # parameter-list, so they are "protected" if user enters wrong commandline
     set_parameters = set()
@@ -138,11 +142,11 @@ def validateSettings():
         if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
             t = mask.split('/')
             for i in range(len(t)):
-                if not t[i] in statsList
+                if t[i] not in statsList:
                     printLog("Error: unknown stat filter :" + t[i])
                     sys.exit(0)
         else:
-            if not statsFilter in statsList
+            if statsFilter not in statsList:
                 printLog("Error: unknown stat filter :" + statsFilter)
                 sys.exit(0)
         
@@ -196,9 +200,21 @@ def itemElligible(item):
         return False
     if "enable" in item and item["enable"] == False:
         return False
+    if not statsFilter == "": #stat filter
+        if ("set" in item and not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == "":
+            if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
+                t = mask.split('/')
+                for i in range(len(t)):
+                    if t[i] not in item["stats"]:
+                        return False
+            else:
+                if statsFilter not in item["stats"]:
+                        return False
+    
     return True
 
 def printItem(item):
+    global itemNB
     stringToPrint = ""
     # finger2=L,id=137039,enchant_id=5428,bonus_id=3459/3570,gem_id=130220|,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
     #,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
@@ -222,6 +238,7 @@ def printItem(item):
             setString = item["set"]
         else:
             legString = "L"
+        itemNB = itemNB+1
         stringToPrint = legString + setString + ("--" if not setString == "" or not legString == "" else "") + sanitizeString(item["name"]) + ',id=' + str(item["id"])+ ',bonus_id=' + item["bonus_id"] + gemString + enchantString + "|"
     return stringToPrint
 
@@ -293,3 +310,4 @@ with open(outputFileName, 'w', encoding='utf-8') as file:
                 stringToPrint = stringToPrint[:-1]
                 file.write(stringToPrint)
                 file.write("\n")
+        print("items : "+str(itemNB))
