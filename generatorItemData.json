@@ -397,812 +397,812 @@
 		"warlock": {
 			"legs": {
 				"cloth": [
-					{"id":132357, "name":"Pillars of the Dark Portal", "enable":"false", "level":910, "type":"legs", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132357, "name":"Pillars of the Dark Portal", "enable":false, "level":910, "type":"legs", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"finger": [
-				{"id":132369, "name":"Wilfred's Sigil of Superior Summoning", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":132378, "name":"Sacrolash's Dark Strike", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":132460, "name":"Alythess's Pyrogenics", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151649, "name":"Soul of the Netherlord", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132369, "name":"Wilfred's Sigil of Superior Summoning", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":132378, "name":"Sacrolash's Dark Strike", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":132460, "name":"Alythess's Pyrogenics", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151649, "name":"Soul of the Netherlord", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"waist": {
 				"cloth": [
-					{"id":132374, "name":"Kazzak's Final Curse", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132456, "name":"Feretory of Souls", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132457, "name":"Power Cord of Lethtendris", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132374, "name":"Kazzak's Final Curse", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132456, "name":"Feretory of Souls", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132457, "name":"Power Cord of Lethtendris", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":132375, "name":"Odr, Shawl of the Ymirjar", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":144364, "name":"Reap and Sow", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":132375, "name":"Odr, Shawl of the Ymirjar", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":144364, "name":"Reap and Sow", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"wrists": {
 				"cloth": [
-					{"id":132379, "name":"Sin'dorei Spite", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132381, "name":"Streten's Sleepless Shackles", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132407, "name":"Magistrike Restraints", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132379, "name":"Sin'dorei Spite", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132381, "name":"Streten's Sleepless Shackles", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132407, "name":"Magistrike Restraints", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"cloth": [
-					{"id":132393, "name":"Recurrent Ritual", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":144369, "name":"Lessons of Space-Time", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":146666, "name":"Celumbra, the Night's Dichotomy", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":3, "bonus_id":"3630"}
+					{"id":132393, "name":"Recurrent Ritual", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":144369, "name":"Lessons of Space-Time", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":146666, "name":"Celumbra, the Night's Dichotomy", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"cloth": [
-					{"id":132394, "name":"Hood of Eternal Disdain", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":144385, "name":"Wakener's Loyalty", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132394, "name":"Hood of Eternal Disdain", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":144385, "name":"Wakener's Loyalty", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"feet": {
 				"cloth": [
-					{"id":132455, "name":"Norgannon's Foresight", "enable":"false", "level":910, "type":"feet", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132455, "name":"Norgannon's Foresight", "enable":false, "level":910, "type":"feet", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"chest": {
 				"cloth": [
-					{"id":151821, "name":"The Master Harvester", "enable":"false", "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":151821, "name":"The Master Harvester", "enable":false, "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			}
 		},
 		"death_knight": {
 			"wrists": {
 				"plate": [
-					{"id":132365, "name":"Shackles of Bryndaor", "enable":"false", "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":132448, "name":"The Instructor's Fourth Lesson", "enable":"false", "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":132458, "name":"Toravon's Whiteout Bindings", "enable":"false", "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":132365, "name":"Shackles of Bryndaor", "enable":false, "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":132448, "name":"The Instructor's Fourth Lesson", "enable":false, "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":132458, "name":"Toravon's Whiteout Bindings", "enable":false, "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"waist": {
 				"plate": [
-					{"id":132366, "name":"Koltira's Newfound Will", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":132367, "name":"Service of Gorefiend", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":132441, "name":"Draugr, Girdle of the Everlasting King", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":146667, "name":"Rethu's Incessant Courage", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":3, "bonus_id":"3630"}
+					{"id":132366, "name":"Koltira's Newfound Will", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":132367, "name":"Service of Gorefiend", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":132441, "name":"Draugr, Girdle of the Everlasting King", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":146667, "name":"Rethu's Incessant Courage", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":132376, "name":"Acherus Drapes", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":132376, "name":"Acherus Drapes", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"feet": {
 				"plate": [
-					{"id":132443, "name":"Aggramar's Stride", "enable":"false", "level":910, "type":"feet", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":132443, "name":"Aggramar's Stride", "enable":false, "level":910, "type":"feet", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":133974, "name":"Lana'thel's Lament", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137037, "name":"Uvanimor, the Unbeautiful", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137223, "name":"Seal of Necrofantasia", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151640, "name":"Soul of the Deathlord", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":133974, "name":"Lana'thel's Lament", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137037, "name":"Uvanimor, the Unbeautiful", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137223, "name":"Seal of Necrofantasia", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151640, "name":"Soul of the Deathlord", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"legs": {
 				"plate": [
-					{"id":132453, "name":"Rattlegore Bone Legplates", "enable":"false", "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":144293, "name":"Consort's Cold Core", "enable":"false", "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":132453, "name":"Rattlegore Bone Legplates", "enable":false, "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":144293, "name":"Consort's Cold Core", "enable":false, "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"plate": [
-					{"id":132459, "name":"Perseverance of the Ebon Martyr", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":144280, "name":"Death March", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":132459, "name":"Perseverance of the Ebon Martyr", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":144280, "name":"Death March", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"plate": [
-					{"id":137075, "name":"Tak'theritrix's Shoulderpads", "enable":"false", "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":144281, "name":"Skullflower's Haemostasis", "enable":"false", "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137075, "name":"Tak'theritrix's Shoulderpads", "enable":false, "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":144281, "name":"Skullflower's Haemostasis", "enable":false, "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"chest": {
 				"plate": [
-					{"id":151795, "name":"Soulflayer's Corruption", "enable":"false", "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151796, "name":"Cold Heart", "enable":"false", "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":151795, "name":"Soulflayer's Corruption", "enable":false, "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151796, "name":"Cold Heart", "enable":false, "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			}
 		},
 		"mage": {
 			"wrists": {
 				"cloth": [
-					{"id":132406, "name":"Marquee Bindings of the Sun King", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132413, "name":"Rhonin's Assaulting Armwraps", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":138140, "name":"Magtheridon's Banished Bracers", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132406, "name":"Marquee Bindings of the Sun King", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132413, "name":"Rhonin's Assaulting Armwraps", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":138140, "name":"Magtheridon's Banished Bracers", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"finger": [
-				{"id":132410, "name":"Shard of the Exodar", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151642, "name":"Soul of the Archmage", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132410, "name":"Shard of the Exodar", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151642, "name":"Soul of the Archmage", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"hands": {
 				"cloth": [
-					{"id":132411, "name":"Lady Vashj's Grasp", "enable":"false", "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":144355, "name":"Pyrotex Ignition Cloth", "enable":"false", "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132411, "name":"Lady Vashj's Grasp", "enable":false, "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":144355, "name":"Pyrotex Ignition Cloth", "enable":false, "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"waist": {
 				"cloth": [
-					{"id":132442, "name":"Cord of Infinity", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132454, "name":"Koralon's Burning Touch", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":133970, "name":"Zann'esu Journey", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132442, "name":"Cord of Infinity", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132454, "name":"Koralon's Burning Touch", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":133970, "name":"Zann'esu Journey", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"legs": {
 				"cloth": [
-					{"id":132451, "name":"Mystic Kilt of the Rune Master", "enable":"false", "level":910, "type":"legs", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132451, "name":"Mystic Kilt of the Rune Master", "enable":false, "level":910, "type":"legs", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"feet": {
 				"cloth": [
-					{"id":132455, "name":"Norgannon's Foresight", "enable":"false", "level":910, "type":"feet", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132455, "name":"Norgannon's Foresight", "enable":false, "level":910, "type":"feet", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"cloth": [
-					{"id":132863, "name":"Darckli's Dragonfire Diadem", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":144274, "name":"Gravity Spiral", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":151810, "name":"Shattered Fragments of Sindragosa", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132863, "name":"Darckli's Dragonfire Diadem", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":144274, "name":"Gravity Spiral", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":151810, "name":"Shattered Fragments of Sindragosa", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"cloth": [
-					{"id":133977, "name":"Belo'vir's Final Stand", "enable":"false", "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":133977, "name":"Belo'vir's Final Stand", "enable":false, "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"shoulders": {
 				"cloth": [
-					{"id":144260, "name":"Ice Time", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":146666, "name":"Celumbra, the Night's Dichotomy", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":3, "bonus_id":"3630"},
-					{"id":151808, "name":"Mantle of the First Kirin Tor", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":151809, "name":"Contained Infernal Core", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":144260, "name":"Ice Time", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":146666, "name":"Celumbra, the Night's Dichotomy", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":3, "bonus_id":"3630"},
+					{"id":151808, "name":"Mantle of the First Kirin Tor", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":151809, "name":"Contained Infernal Core", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			}
 		},
 		"priest": {
 			"wrists": {
 				"cloth": [
-					{"id":132409, "name":"Anund's Seared Shackles", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132436, "name":"Skjoldr, Sanctuary of Ivagont", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132450, "name":"Muze's Unwavering Will", "enable":"false", "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132409, "name":"Anund's Seared Shackles", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132436, "name":"Skjoldr, Sanctuary of Ivagont", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132450, "name":"Muze's Unwavering Will", "enable":false, "level":910, "type":"wrists", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"cloth": [
-					{"id":132437, "name":"Mother Shahraz's Seduction", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":146666, "name":"Celumbra, the Night's Dichotomy", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":3, "bonus_id":"3630"},
-					{"id":151786, "name":"Inner Hallation", "enable":"false", "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132437, "name":"Mother Shahraz's Seduction", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":146666, "name":"Celumbra, the Night's Dichotomy", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":3, "bonus_id":"3630"},
+					{"id":151786, "name":"Inner Hallation", "enable":false, "level":910, "type":"shoulders", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"waist": {
 				"cloth": [
-					{"id":132445, "name":"Al'maiesh, the Cord of Hope", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":132864, "name":"Mangaza's Madness", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":133800, "name":"Cord of Maiev, Priestess of the Moon", "enable":"false", "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132445, "name":"Al'maiesh, the Cord of Hope", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":132864, "name":"Mangaza's Madness", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":133800, "name":"Cord of Maiev, Priestess of the Moon", "enable":false, "level":910, "type":"waist", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"cloth": [
-					{"id":132447, "name":"Entrancing Trousers of An'juna", "enable":"false", "level":910, "type":"legs", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132447, "name":"Entrancing Trousers of An'juna", "enable":false, "level":910, "type":"legs", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"finger": [
-				{"id":132449, "name":"Phyrix's Embrace", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":133973, "name":"The Twins' Painful Touch", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137276, "name":"N'ero, Band of Promises", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151646, "name":"Soul of the High Priest", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132449, "name":"Phyrix's Embrace", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":133973, "name":"The Twins' Painful Touch", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137276, "name":"N'ero, Band of Promises", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151646, "name":"Soul of the High Priest", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"feet": {
 				"cloth": [
-					{"id":132455, "name":"Norgannon's Foresight", "enable":"false", "level":910, "type":"feet", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132455, "name":"Norgannon's Foresight", "enable":false, "level":910, "type":"feet", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"hands": {
 				"cloth": [
-					{"id":132461, "name":"Xalan the Feared's Clench", "enable":"false", "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":144247, "name":"Rammal's Ulterior Motive", "enable":"false", "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132461, "name":"Xalan the Feared's Clench", "enable":false, "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":144247, "name":"Rammal's Ulterior Motive", "enable":false, "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"cloth": [
-					{"id":132861, "name":"Estel, Dejahna's Inspiration", "enable":"false", "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":151814, "name":"Heart of the Void", "enable":"false", "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":132861, "name":"Estel, Dejahna's Inspiration", "enable":false, "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":151814, "name":"Heart of the Void", "enable":false, "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"cloth": [
-					{"id":133971, "name":"Zenk'aram, Iridi's Anadem", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":144244, "name":"Kam Xi'raff", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":151787, "name":"The Alabaster Lady", "enable":"false", "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":133971, "name":"Zenk'aram, Iridi's Anadem", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":144244, "name":"Kam Xi'raff", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":151787, "name":"The Alabaster Lady", "enable":false, "level":910, "type":"head", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":137109, "name":"X'anshi, Shroud of Archbishop Benedictus", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":144438, "name":"Zeks Exterminatus", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":137109, "name":"X'anshi, Shroud of Archbishop Benedictus", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":144438, "name":"Zeks Exterminatus", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"warrior": {
 			"feet": {
 				"plate": [
-					{"id":132443, "name":"Aggramar's Stride", "enable":"false", "level":910, "type":"feet", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":132443, "name":"Aggramar's Stride", "enable":false, "level":910, "type":"feet", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137052, "name":"Ayala's Stone Heart", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137054, "name":"The Walls Fell", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151650, "name":"Soul of the Battlelord", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137052, "name":"Ayala's Stone Heart", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137054, "name":"The Walls Fell", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151650, "name":"Soul of the Battlelord", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"chest": {
 				"plate": [
-					{"id":137018, "name":"Destiny Driver", "enable":"false", "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137018, "name":"Destiny Driver", "enable":false, "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":137053, "name":"Kazzalax, Fujieda's Fury", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":137053, "name":"Kazzalax, Fujieda's Fury", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"hands": {
 				"plate": [
-					{"id":137060, "name":"Archavon's Heavy Hand", "enable":"false", "level":910, "type":"hands", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":137108, "name":"Kakushan's Stormscale Gauntlets", "enable":"false", "level":910, "type":"hands", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137060, "name":"Archavon's Heavy Hand", "enable":false, "level":910, "type":"hands", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":137108, "name":"Kakushan's Stormscale Gauntlets", "enable":false, "level":910, "type":"hands", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"plate": [
-					{"id":137077, "name":"Weight of the Earth", "enable":"false", "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151822, "name":"Ararat's Bloodmirror", "enable":"false", "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151824, "name":"Valarjar Berserkers", "enable":"false", "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137077, "name":"Weight of the Earth", "enable":false, "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151822, "name":"Ararat's Bloodmirror", "enable":false, "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151824, "name":"Valarjar Berserkers", "enable":false, "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"waist": {
 				"plate": [
-					{"id":137087, "name":"Naj'entus's Vertebrae", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":137089, "name":"Thundergod's Vigor", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":146667, "name":"Rethu's Incessant Courage", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":3, "bonus_id":"3630"}
+					{"id":137087, "name":"Naj'entus's Vertebrae", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":137089, "name":"Thundergod's Vigor", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":146667, "name":"Rethu's Incessant Courage", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"plate": [
-					{"id":137088, "name":"Ceann-Ar Charger", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151823, "name":"The Great Storm's Eye", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137088, "name":"Ceann-Ar Charger", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151823, "name":"The Great Storm's Eye", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"plate": [
-					{"id":137107, "name":"Mannoroth's Bloodletting Manacles", "enable":"false", "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137107, "name":"Mannoroth's Bloodletting Manacles", "enable":false, "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"plate": [
-					{"id":143728, "name":"Timeless Stratagem", "enable":"false", "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":143728, "name":"Timeless Stratagem", "enable":false, "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"paladin": {
 			"feet": {
 				"plate": [
-					{"id":132443, "name":"Aggramar's Stride", "enable":"false", "level":910, "type":"feet", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":132443, "name":"Aggramar's Stride", "enable":false, "level":910, "type":"feet", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137046, "name":"Ilterendi, Crown Jewel of Silvermoon", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137047, "name":"Heathcliff's Immortality", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137048, "name":"Liadrin's Fury Unleashed", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151644, "name":"Soul of the Highlord", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137046, "name":"Ilterendi, Crown Jewel of Silvermoon", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137047, "name":"Heathcliff's Immortality", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137048, "name":"Liadrin's Fury Unleashed", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151644, "name":"Soul of the Highlord", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"chest": {
 				"plate": [
-					{"id":137017, "name":"Breastplate of the Golden Val'kyr", "enable":"false", "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151813, "name":"Scarlet Inquisitor's Expurgation", "enable":"false", "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137017, "name":"Breastplate of the Golden Val'kyr", "enable":false, "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151813, "name":"Scarlet Inquisitor's Expurgation", "enable":false, "level":910, "type":"chest", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":137020, "name":"Whisper of the Nathrezim", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":144273, "name":"Maraad's Dying Breath", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":137020, "name":"Whisper of the Nathrezim", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":144273, "name":"Maraad's Dying Breath", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"hands": {
 				"plate": [
-					{"id":137059, "name":"Tyr's Hand of Faith", "enable":"false", "level":910, "type":"hands", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137059, "name":"Tyr's Hand of Faith", "enable":false, "level":910, "type":"hands", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"plate": [
-					{"id":137065, "name":"Justice Gaze", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":144275, "name":"Saruan's Resolve", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151782, "name":"The Topless Tower", "enable":"false", "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137065, "name":"Justice Gaze", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":144275, "name":"Saruan's Resolve", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151782, "name":"The Topless Tower", "enable":false, "level":910, "type":"head", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"plate": [
-					{"id":137070, "name":"Tyelca, Ferren Marcus's Stature", "enable":"false", "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137070, "name":"Tyelca, Ferren Marcus's Stature", "enable":false, "level":910, "type":"legs", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"plate": [
-					{"id":137076, "name":"Obsidian Stone Spaulders", "enable":"false", "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":144358, "name":"Ashes to Dust", "enable":"false", "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":151812, "name":"Pillars of Inmost Light", "enable":"false", "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137076, "name":"Obsidian Stone Spaulders", "enable":false, "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":144358, "name":"Ashes to Dust", "enable":false, "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":151812, "name":"Pillars of Inmost Light", "enable":false, "level":910, "type":"shoulders", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"waist": {
 				"plate": [
-					{"id":137086, "name":"Chain of Thrayn", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":146667, "name":"Rethu's Incessant Courage", "enable":"false", "level":910, "type":"waist", "material":"plate", "gems":3, "bonus_id":"3630"}
+					{"id":137086, "name":"Chain of Thrayn", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":146667, "name":"Rethu's Incessant Courage", "enable":false, "level":910, "type":"waist", "material":"plate", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"plate": [
-					{"id":137105, "name":"Uther's Guard", "enable":"false", "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"},
-					{"id":140846, "name":"Aegisjalmur, the Armguards of Awe", "enable":"false", "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"}
+					{"id":137105, "name":"Uther's Guard", "enable":false, "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"},
+					{"id":140846, "name":"Aegisjalmur, the Armguards of Awe", "enable":false, "level":910, "type":"wrists", "material":"plate", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"hunter": {
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137043, "name":"Frizzo's Fingertrap", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137055, "name":"Zevrim's Hunger", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137382, "name":"The Apex Predator's Claw", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151641, "name":"Soul of the Huntmaster", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137043, "name":"Frizzo's Fingertrap", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137055, "name":"Zevrim's Hunger", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137382, "name":"The Apex Predator's Claw", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151641, "name":"Soul of the Huntmaster", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"legs": {
 				"mail": [
-					{"id":132466, "name":"Roots of Shaladrassil", "enable":"false", "level":910, "type":"legs", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":132466, "name":"Roots of Shaladrassil", "enable":false, "level":910, "type":"legs", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"feet": {
 				"mail": [
-					{"id":137033, "name":"Ullr's Feather Snowshoes", "enable":"false", "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137034, "name":"Nesingwary's Trapping Treads", "enable":"false", "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137227, "name":"Qa'pla, Eredun War Order", "enable":"false", "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137033, "name":"Ullr's Feather Snowshoes", "enable":false, "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137034, "name":"Nesingwary's Trapping Treads", "enable":false, "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137227, "name":"Qa'pla, Eredun War Order", "enable":false, "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"mail": [
-					{"id":137064, "name":"The Shadow Hunter's Voodoo Mask", "enable":"false", "level":910, "type":"head", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137064, "name":"The Shadow Hunter's Voodoo Mask", "enable":false, "level":910, "type":"head", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"waist": {
 				"mail": [
-					{"id":137080, "name":"Roar of the Seven Lions", "enable":"false", "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137081, "name":"War Belt of the Sentinel Army", "enable":"false", "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137082, "name":"Helbrine, Rope of the Mist Marauder", "enable":"false", "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137080, "name":"Roar of the Seven Lions", "enable":false, "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137081, "name":"War Belt of the Sentinel Army", "enable":false, "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137082, "name":"Helbrine, Rope of the Mist Marauder", "enable":false, "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"mail": [
-					{"id":137101, "name":"Call of the Wild", "enable":"false", "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":141353, "name":"Magnetized Blasting Cap Launcher", "enable":"false", "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137101, "name":"Call of the Wild", "enable":false, "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":141353, "name":"Magnetized Blasting Cap Launcher", "enable":false, "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"hands": {
 				"mail": [
-					{"id":144303, "name":"MKII Gyroscopic Stabilizer", "enable":"false", "level":910, "type":"hands", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":146668, "name":"Vigilance Perch", "enable":"false", "level":910, "type":"hands", "material":"mail", "gems":3, "bonus_id":"3630"}
+					{"id":144303, "name":"MKII Gyroscopic Stabilizer", "enable":false, "level":910, "type":"hands", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":146668, "name":"Vigilance Perch", "enable":false, "level":910, "type":"hands", "material":"mail", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"mail": [
-					{"id":144326, "name":"The Mantle of Command", "enable":"false", "level":910, "type":"shoulders", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":144326, "name":"The Mantle of Command", "enable":false, "level":910, "type":"shoulders", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"cloth": [
-					{"id":144361, "name":"Butcher's Bone Apron", "enable":"false", "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":151805, "name":"Parsel's Tongue", "enable":"false", "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":144361, "name":"Butcher's Bone Apron", "enable":false, "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":151805, "name":"Parsel's Tongue", "enable":false, "level":910, "type":"chest", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":151803, "name":"Celerity of the Windrunners", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":151807, "name":"Unseen Predator's Cloak", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":151803, "name":"Celerity of the Windrunners", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":151807, "name":"Unseen Predator's Cloak", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"rogue": {
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137049, "name":"Insignia of Ravenholdt", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":150936, "name":"Soul of the Shadowblade", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137049, "name":"Insignia of Ravenholdt", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":150936, "name":"Soul of the Shadowblade", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"waist": {
 				"leather": [
-					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":137021, "name":"The Dreadlord's Deceit", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":151817, "name":"The Curse of Restlessness", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":137021, "name":"The Dreadlord's Deceit", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":151817, "name":"The Curse of Restlessness", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"feet": {
 				"leather": [
-					{"id":137030, "name":"Duskwalker's Footpads", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137031, "name":"Thraxi's Tricksy Treads", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137032, "name":"Shadow Satyr's Walk", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
+					{"id":137030, "name":"Duskwalker's Footpads", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137031, "name":"Thraxi's Tricksy Treads", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137032, "name":"Shadow Satyr's Walk", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"leather": [
-					{"id":137069, "name":"Will of Valeera", "enable":"false", "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137069, "name":"Will of Valeera", "enable":false, "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"leather": [
-					{"id":137098, "name":"Zoldyck Family Training Shackles", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137099, "name":"Greenskin's Waterlogged Wristcuffs", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137100, "name":"Denial of the Half-Giants", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137098, "name":"Zoldyck Family Training Shackles", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137099, "name":"Greenskin's Waterlogged Wristcuffs", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137100, "name":"Denial of the Half-Giants", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"hands": {
 				"cloth": [
-					{"id":141321, "name":"Shivarran Symmetry", "enable":"false", "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"},
-					{"id":151818, "name":"The First of the Dead", "enable":"false", "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"}
+					{"id":141321, "name":"Shivarran Symmetry", "enable":false, "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"},
+					{"id":151818, "name":"The First of the Dead", "enable":false, "level":910, "type":"hands", "material":"cloth", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"leather": [
-					{"id":144236, "name":"Mantle of the Master Assassin", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":144236, "name":"Mantle of the Master Assassin", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"head": {
 				"leather": [
-					{"id":151815, "name":"The Empty Crown", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":151815, "name":"The Empty Crown", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			}
 		},
 		"shaman": {
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137050, "name":"Eye of the Twisting Nether", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137051, "name":"Focuser of Jonat, the Elder", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151647, "name":"Soul of the Farseer", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137050, "name":"Eye of the Twisting Nether", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137051, "name":"Focuser of Jonat, the Elder", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151647, "name":"Soul of the Farseer", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"legs": {
 				"mail": [
-					{"id":132466, "name":"Roots of Shaladrassil", "enable":"false", "level":910, "type":"legs", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":132466, "name":"Roots of Shaladrassil", "enable":false, "level":910, "type":"legs", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"feet": {
 				"mail": [
-					{"id":137035, "name":"The Deceiver's Blood Pact", "enable":"false", "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137036, "name":"Elemental Rebalancers", "enable":"false", "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":138117, "name":"Spiritual Journey", "enable":"false", "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137035, "name":"The Deceiver's Blood Pact", "enable":false, "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137036, "name":"Elemental Rebalancers", "enable":false, "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":138117, "name":"Spiritual Journey", "enable":false, "level":910, "type":"feet", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"hands": {
 				"mail": [
-					{"id":137058, "name":"Praetorian's Tidecallers", "enable":"false", "level":910, "type":"hands", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":146668, "name":"Vigilance Perch", "enable":"false", "level":910, "type":"hands", "material":"mail", "gems":3, "bonus_id":"3630"},
-					{"id":151819, "name":"Smoldering Heart", "enable":"false", "level":910, "type":"hands", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137058, "name":"Praetorian's Tidecallers", "enable":false, "level":910, "type":"hands", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":146668, "name":"Vigilance Perch", "enable":false, "level":910, "type":"hands", "material":"mail", "gems":3, "bonus_id":"3630"},
+					{"id":151819, "name":"Smoldering Heart", "enable":false, "level":910, "type":"hands", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"mail": [
-					{"id":137074, "name":"Echoes of the Great Sundering", "enable":"false", "level":910, "type":"shoulders", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137074, "name":"Echoes of the Great Sundering", "enable":false, "level":910, "type":"shoulders", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"waist": {
 				"mail": [
-					{"id":137083, "name":"Pristine Proto-Scale Girdle", "enable":"false", "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137085, "name":"Intact Nazjatar Molting", "enable":"false", "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137103, "name":"Storm Tempests", "enable":"false", "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137083, "name":"Pristine Proto-Scale Girdle", "enable":false, "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137085, "name":"Intact Nazjatar Molting", "enable":false, "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137103, "name":"Storm Tempests", "enable":false, "level":910, "type":"waist", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"mail": [
-					{"id":137084, "name":"Akainu's Absolute Justice", "enable":"false", "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137102, "name":"Al'Akir's Acrimony", "enable":"false", "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":137104, "name":"Nobundo's Redemption", "enable":"false", "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137084, "name":"Akainu's Absolute Justice", "enable":false, "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137102, "name":"Al'Akir's Acrimony", "enable":false, "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":137104, "name":"Nobundo's Redemption", "enable":false, "level":910, "type":"wrists", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"mail": [
-					{"id":137616, "name":"Emalon's Charged Core", "enable":"false", "level":910, "type":"chest", "material":"mail", "gems":0, "bonus_id":"3630"},
-					{"id":151785, "name":"Fire in the Deep", "enable":"false", "level":910, "type":"chest", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":137616, "name":"Emalon's Charged Core", "enable":false, "level":910, "type":"chest", "material":"mail", "gems":0, "bonus_id":"3630"},
+					{"id":151785, "name":"Fire in the Deep", "enable":false, "level":910, "type":"chest", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"mail": [
-					{"id":143732, "name":"Uncertain Reminder", "enable":"false", "level":910, "type":"head", "material":"mail", "gems":0, "bonus_id":"3630"}
+					{"id":143732, "name":"Uncertain Reminder", "enable":false, "level":910, "type":"head", "material":"mail", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"monk": {
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137044, "name":"Jewel of the Lost Abbey", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137045, "name":"Eye of Collidus the Warp-Watcher", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137220, "name":"March of the Legion", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151643, "name":"Soul of the Grandmaster", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137044, "name":"Jewel of the Lost Abbey", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137045, "name":"Eye of Collidus the Warp-Watcher", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137220, "name":"March of the Legion", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151643, "name":"Soul of the Grandmaster", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"waist": {
 				"leather": [
-					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137079, "name":"Gai Plin's Soothing Sash", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":138879, "name":"Ovyd's Winter Wrap", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137079, "name":"Gai Plin's Soothing Sash", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":138879, "name":"Ovyd's Winter Wrap", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"leather": [
-					{"id":137016, "name":"Sal'salabim's Lost Tunic", "enable":"false", "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144239, "name":"The Emperor's Capacitor", "enable":"false", "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144340, "name":"Shelter of Rin", "enable":"false", "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137016, "name":"Sal'salabim's Lost Tunic", "enable":false, "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144239, "name":"The Emperor's Capacitor", "enable":false, "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144340, "name":"Shelter of Rin", "enable":false, "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":137019, "name":"Cenedril, Reflector of Hatred", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":151784, "name":"Doorway to Nowhere", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":137019, "name":"Cenedril, Reflector of Hatred", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":151784, "name":"Doorway to Nowhere", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			],
 			"feet": {
 				"leather": [
-					{"id":137027, "name":"Firestone Walkers", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137028, "name":"Ei'thas, Lunar Glides of Eramas", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137029, "name":"Katsuo's Eclipse", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
+					{"id":137027, "name":"Firestone Walkers", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137028, "name":"Ei'thas, Lunar Glides of Eramas", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137029, "name":"Katsuo's Eclipse", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"hands": {
 				"leather": [
-					{"id":137057, "name":"Hidden Master's Forbidden Touch", "enable":"false", "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137057, "name":"Hidden Master's Forbidden Touch", "enable":false, "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"leather": [
-					{"id":137063, "name":"Fundamental Observation", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":151811, "name":"The Wind Blows", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137063, "name":"Fundamental Observation", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":151811, "name":"The Wind Blows", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"leather": [
-					{"id":137068, "name":"Leggings of The Black Flame", "enable":"false", "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137068, "name":"Leggings of The Black Flame", "enable":false, "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"leather": [
-					{"id":137073, "name":"Unison Spaulders", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":151788, "name":"Stormstout's Last Gasp", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137073, "name":"Unison Spaulders", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":151788, "name":"Stormstout's Last Gasp", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"leather": [
-					{"id":137096, "name":"Petrichor Lagniappe", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137097, "name":"Drinking Horn Cover", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144277, "name":"Anvil-Hardened Wristwraps", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137096, "name":"Petrichor Lagniappe", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137097, "name":"Drinking Horn Cover", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144277, "name":"Anvil-Hardened Wristwraps", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"druid": {
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137039, "name":"Impeccable Fel Essence", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137040, "name":"Chatoyant Signet", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137041, "name":"Dual Determination", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137042, "name":"Tearstone of Elune", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151636, "name":"Soul of the Archdruid", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137039, "name":"Impeccable Fel Essence", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137040, "name":"Chatoyant Signet", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137041, "name":"Dual Determination", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137042, "name":"Tearstone of Elune", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151636, "name":"Soul of the Archdruid", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"waist": {
 				"leather": [
-					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137078, "name":"The Dark Titan's Advice", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137078, "name":"The Dark Titan's Advice", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"leather": [
-					{"id":137015, "name":"Ekowraith, Creator of Worlds", "enable":"false", "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137015, "name":"Ekowraith, Creator of Worlds", "enable":false, "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"feet": {
 				"leather": [
-					{"id":137023, "name":"Promise of Elune, the Moon Goddess", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137024, "name":"Ailuro Pouncers", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137025, "name":"Skysec's Hold", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137026, "name":"Essence of Infusion", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
+					{"id":137023, "name":"Promise of Elune, the Moon Goddess", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137024, "name":"Ailuro Pouncers", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137025, "name":"Skysec's Hold", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137026, "name":"Essence of Infusion", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"leather": [
-					{"id":137056, "name":"Luffa Wrappings", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137092, "name":"Oneth's Intuition", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137095, "name":"Edraith, Bonds of Aglaya", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137056, "name":"Luffa Wrappings", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137092, "name":"Oneth's Intuition", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137095, "name":"Edraith, Bonds of Aglaya", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"leather": [
-					{"id":137062, "name":"The Emerald Dreamcatcher", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144432, "name":"Oakheart's Puny Quods", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":151783, "name":"Chameleon Song", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":151801, "name":"Behemoth Headdress", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137062, "name":"The Emerald Dreamcatcher", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144432, "name":"Oakheart's Puny Quods", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":151783, "name":"Chameleon Song", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":151801, "name":"Behemoth Headdress", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"leather": [
-					{"id":137067, "name":"Elize's Everlasting Encasement", "enable":"false", "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144354, "name":"Fiery Red Maimers", "enable":"false", "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137067, "name":"Elize's Everlasting Encasement", "enable":false, "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144354, "name":"Fiery Red Maimers", "enable":false, "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"shoulders": {
 				"leather": [
-					{"id":137072, "name":"Aman'Thul's Wisdom", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144295, "name":"Lady and the Child", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137072, "name":"Aman'Thul's Wisdom", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144295, "name":"Lady and the Child", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"hands": {
 				"leather": [
-					{"id":137094, "name":"The Wildshaper's Clutch", "enable":"false", "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144242, "name":"X'oni's Caress", "enable":"false", "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137094, "name":"The Wildshaper's Clutch", "enable":false, "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144242, "name":"X'oni's Caress", "enable":false, "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"back": [
-				{"id":151800, "name":"Radiant Moonlight", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
-				{"id":151802, "name":"Fury of Nature", "enable":"false", "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
+				{"id":151800, "name":"Radiant Moonlight", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"},
+				{"id":151802, "name":"Fury of Nature", "enable":false, "level":910, "type":"back", "material":"cloth", "gems":0, "bonus_id":"3630"}
 			]
 		},
 		"demon_hunter": {
 			"neck": [
-				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":"false", "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132444, "name":"Prydaz, Xavaric's Magnum Opus", "enable":false, "level":910, "type":"neck", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"finger": [
-				{"id":132452, "name":"Sephuz's Secret", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":137038, "name":"Anger of the Half-Giants", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":138854, "name":"Fragment of the Betrayer's Prison", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":151639, "name":"Soul of the Slayer", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
-				{"id":152626, "name":"Insignia of the Grand Army", "enable":"false", "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
+				{"id":132452, "name":"Sephuz's Secret", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":137038, "name":"Anger of the Half-Giants", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":138854, "name":"Fragment of the Betrayer's Prison", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":151639, "name":"Soul of the Slayer", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"},
+				{"id":152626, "name":"Insignia of the Grand Army", "enable":false, "level":910, "type":"finger", "material":"", "gems":1, "bonus_id":"3630"}
 			],
 			"waist": {
 				"leather": [
-					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":"false", "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":133976, "name":"Cinidaria, the Symbiote", "enable":false, "level":910, "type":"waist", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"chest": {
 				"leather": [
-					{"id":137014, "name":"Achor, the Eternal Hunger", "enable":"false", "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137014, "name":"Achor, the Eternal Hunger", "enable":false, "level":910, "type":"chest", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"feet": {
 				"leather": [
-					{"id":137022, "name":"Loramus Thalipedes' Sacrifice", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":138949, "name":"Kirel Narak", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":"false", "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
+					{"id":137022, "name":"Loramus Thalipedes' Sacrifice", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":138949, "name":"Kirel Narak", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":146669, "name":"The Sentinel's Eternal Refuge", "enable":false, "level":910, "type":"feet", "material":"leather", "gems":3, "bonus_id":"3630"}
 				]
 			},
 			"head": {
 				"leather": [
-					{"id":137061, "name":"Raddon's Cascading Eyes", "enable":"false", "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137061, "name":"Raddon's Cascading Eyes", "enable":false, "level":910, "type":"head", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"back": [
-				{"id":137066, "name":"Cloak of Fel Flames", "enable":"false", "level":910, "type":"back", "material":"leather", "gems":0, "bonus_id":"3630"},
-				{"id":151798, "name":"Chaos Theory", "enable":"false", "level":910, "type":"back", "material":"leather", "gems":0, "bonus_id":"3630"}
+				{"id":137066, "name":"Cloak of Fel Flames", "enable":false, "level":910, "type":"back", "material":"leather", "gems":0, "bonus_id":"3630"},
+				{"id":151798, "name":"Chaos Theory", "enable":false, "level":910, "type":"back", "material":"leather", "gems":0, "bonus_id":"3630"}
 			],
 			"shoulders": {
 				"leather": [
-					{"id":137071, "name":"Runemaster's Pauldrons", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":144279, "name":"Delusions of Grandeur", "enable":"false", "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137071, "name":"Runemaster's Pauldrons", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":144279, "name":"Delusions of Grandeur", "enable":false, "level":910, "type":"shoulders", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"wrists": {
 				"leather": [
-					{"id":137090, "name":"Mo'arg Bionic Stabilizers", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
-					{"id":137091, "name":"The Defiler's Lost Vambraces", "enable":"false", "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":137090, "name":"Mo'arg Bionic Stabilizers", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"},
+					{"id":137091, "name":"The Defiler's Lost Vambraces", "enable":false, "level":910, "type":"wrists", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"trinket": [
-				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144258, "name":"Velen's Future Sight", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
-				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":"false", "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
+				{"id":144249, "name":"Archimonde's Hatred Reborn", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144258, "name":"Velen's Future Sight", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"},
+				{"id":144259, "name":"Kil'jaeden's Burning Wish", "enable":false, "level":910, "type":"trinket", "material":"", "gems":0, "bonus_id":"3630"}
 			],
 			"hands": {
 				"leather": [
-					{"id":144292, "name":"Spirit of the Darkness Flame", "enable":"false", "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":144292, "name":"Spirit of the Darkness Flame", "enable":false, "level":910, "type":"hands", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			},
 			"legs": {
 				"leather": [
-					{"id":151799, "name":"Oblivion's Embrace", "enable":"false", "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
+					{"id":151799, "name":"Oblivion's Embrace", "enable":false, "level":910, "type":"legs", "material":"leather", "gems":0, "bonus_id":"3630"}
 				]
 			}
 		}
