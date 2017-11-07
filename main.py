@@ -127,7 +127,12 @@ def handleGems(gems):
                 print("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
                 sys.exit(1)
 
-
+def cleanItem(str):
+    if "--" in str:
+        str = str.split("--")[1]
+    
+    return str
+                
 # Check if permutation is valid
 def checkUsability():
     # namingdata contains info for the profile-name
@@ -276,58 +281,21 @@ def scpout(oh):
             outputFile.write("food=" + c_food + "\n")
         if c_augmentation != "":
             outputFile.write("augmentation=" + c_augmentation + "\n")
-        if l_gear[0][0] == "L":
-            outputFile.write("head=" + l_gear[0][1:] + "\n")
-        elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
-            outputFile.write("head=" + l_gear[0][3:] + "\n")
-        else:
-            outputFile.write("head=" + l_gear[0] + "\n")
-        outputFile.write("neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
-
-        if l_gear[2][0] == "L":
-            outputFile.write("shoulders=" + l_gear[2][1:] + "\n")
-        elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20"):
-            outputFile.write("shoulders=" + l_gear[2][3:] + "\n")
-        else:
-            outputFile.write("shoulders=" + l_gear[2] + "\n")
-
-        if l_gear[3][0] == "L":
-            outputFile.write("back=" + l_gear[3][1:] + "\n")
-        elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20"):
-            outputFile.write("back=" + l_gear[3][3:] + "\n")
-        else:
-            outputFile.write("back=" + l_gear[3] + "\n")
-
-        if l_gear[4][0] == "L":
-            outputFile.write("chest=" + l_gear[4][1:] + "\n")
-        elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20"):
-            outputFile.write("chest=" + l_gear[4][3:] + "\n")
-        else:
-            outputFile.write("chest=" + l_gear[4] + "\n")
-
-        outputFile.write("wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
-
-        if l_gear[6][0] == "L":
-            outputFile.write("hands=" + l_gear[6][1:] + "\n")
-        elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20"):
-            outputFile.write("hands=" + l_gear[6][3:] + "\n")
-        else:
-            outputFile.write("hands=" + l_gear[6] + "\n")
-
-        outputFile.write("waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
-
-        if l_gear[8][0] == "L":
-            outputFile.write("legs=" + l_gear[8][1:] + "\n")
-        elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20"):
-            outputFile.write("legs=" + l_gear[8][3:] + "\n")
-        else:
-            outputFile.write("legs=" + l_gear[8] + "\n")
-
-        outputFile.write("feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
-        outputFile.write("finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
-        outputFile.write("finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
-        outputFile.write("trinket1=" + (l_gear[12] if l_gear[12][0] != "L" else l_gear[12][1:]) + "\n")
-        outputFile.write("trinket2=" + (l_gear[13] if l_gear[13][0] != "L" else l_gear[13][1:]) + "\n")
+            
+        outputFile.write("head=" + cleanItem(l_gear[0]) + "\n")    
+        outputFile.write("neck=" + cleanItem(l_gear[1]) + "\n")    
+        outputFile.write("shoulders=" + cleanItem(l_gear[2]) + "\n")    
+        outputFile.write("back=" + cleanItem(l_gear[3]) + "\n")    
+        outputFile.write("chest=" + cleanItem(l_gear[4]) + "\n")    
+        outputFile.write("wrists=" + cleanItem(l_gear[5]) + "\n")    
+        outputFile.write("hands=" + cleanItem(l_gear[6]) + "\n")    
+        outputFile.write("waist=" + cleanItem(l_gear[7]) + "\n")    
+        outputFile.write("legs=" + cleanItem(l_gear[8]) + "\n")    
+        outputFile.write("feet=" + cleanItem(l_gear[9]) + "\n")    
+        outputFile.write("finger1=" + cleanItem(l_gear[10]) + "\n")    
+        outputFile.write("finger2=" + cleanItem(l_gear[11]) + "\n")    
+        outputFile.write("trinket1=" + cleanItem(l_gear[12]) + "\n")    
+        outputFile.write("trinket2=" + cleanItem(l_gear[13]) + "\n")    
         outputFile.write("main_hand=" + l_gear[14] + "\n")
         if oh == 1:
             outputFile.write("off_hand=" + l_gear[15] + "\n\n")
