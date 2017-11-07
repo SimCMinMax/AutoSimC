@@ -14,7 +14,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"destruction":{
 					"potion":"prolonged_power",
@@ -27,7 +30,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"demonology":{
 					"potion":"prolonged_power",
@@ -40,7 +46,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -58,7 +67,10 @@
 						"back":"binding_of_strength",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"frost":{
 					"potion":"prolonged_power",
@@ -71,7 +83,10 @@
 						"back":"binding_of_strength",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"blood":{
 					"potion":"old_war",
@@ -84,7 +99,10 @@
 						"back":"binding_of_strength",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -102,7 +120,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_versatility"
 					},
-					"gem":151585
+					"gem":151585,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"fire":{
 					"potion":"prolonged_power",
@@ -115,7 +136,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_critical_strike"
 					},
-					"gem":151580
+					"gem":151580,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"arcane":{
 					"potion":"prolonged_power",
@@ -128,7 +152,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_versatility"
 					},
-					"gem":151585
+					"gem":151585,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -146,7 +173,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -164,7 +194,10 @@
 						"back":"binding_of_strength",
 						"finger":"binding_of_haste"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"arms":{
 					"potion":"",
@@ -177,7 +210,10 @@
 						"back":"binding_of_strength",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -195,7 +231,10 @@
 						"back":"binding_of_strength",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -213,7 +252,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"marksmanship":{
 					"potion":"prolonged_power",
@@ -226,7 +268,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"beast_mastery":{
 					"potion":"prolonged_power",
@@ -239,7 +284,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -257,7 +305,10 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_critical_strike"
 					},
-					"gem":151580
+					"gem":151580,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"enhancement":{
 					"potion":"prolonged_power",
@@ -270,7 +321,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_haste"
 					},
-					"gem":151583
+					"gem":151583,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -288,7 +342,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_versatility"
 					},
-					"gem":151585
+					"gem":151585,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"outlaw":{
 					"potion":"prolonged_power",
@@ -301,7 +358,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_critical_strike"
 					},
-					"gem":151580
+					"gem":151580,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				},
 				"assassination":{
 					"potion":"prolonged_power",
@@ -314,7 +374,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -332,7 +395,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -350,7 +416,26 @@
 						"back":"binding_of_intellect",
 						"finger":"binding_of_mastery"
 					},
-					"gem":151584
+					"gem":151584,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
+				},
+				"feral":{
+					"potion":"old_war",
+					"flask":"seventh_demon",
+					"food":"lavish_suramar_feast",
+					"augmentation":"defiled",
+					"enchant":
+					{
+						"neck":"mark_of_the_hidden_satyr",
+						"back":"binding_of_agility",
+						"finger":"binding_of_mastery"
+					},
+					"gem":195879,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		},
@@ -368,7 +453,10 @@
 						"back":"binding_of_agility",
 						"finger":"binding_of_critical_strike"
 					},
-					"gem":151580
+					"gem":151580,
+					"allowT19":0,
+					"allowT20":4,
+					"allowT21":4
 				}
 			}
 		}
