@@ -4,6 +4,15 @@ import datetime
 import os
 import json
 import shutil
+
+try:
+    filename = "settings.py"
+    source = open(filename, 'r').read()
+    compile(source, filename, 'exec')
+except SyntaxError:
+    print("Error in settings.py, pls check for syntax-errors")
+    sys.exit(1)
+
 from settings import settings
 
 from specdata import specdata
@@ -1320,6 +1329,7 @@ if not checkinterpreter():
     printLog("Please install at least Python-Version 3.6.x")
     print("Please install at least Python-Version 3.6.x")
     sys.exit(0)
+
 
 handleCommandLine()
 validateSettings()
