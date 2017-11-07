@@ -181,3 +181,5 @@ class settings():
     
     #Profil generator settings
     tier = "21"
+    apply_stat_filter_to_tier = False
+    

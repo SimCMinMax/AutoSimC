@@ -22,8 +22,10 @@ outputFileName = settings.default_inputFileName
 classToGenerate = ""
 specToGenerate = ""
 talentToGenerate = ""
+statsFilter = ""
 profileFilter = ["\n","#", "actions", "potion", "flask", "food", "augmentation"]
 gearList = ["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
+statsList = ["agi","str","int","stam","crit","haste","vers","mastery","bonus_armor","leech","avoidance"]
 profileFilter.extend(gearList)
 
 #Local settings
@@ -70,6 +72,7 @@ def handleCommandLine():
     set_parameters.add("-s")
     set_parameters.add("-t")
     set_parameters.add("-quiet")
+    set_parameters.add("-stats")
     # set_parameters.add("-all")
     for a in range(1, len(sys.argv)):
         if sys.argv[a] == "-o":
@@ -101,7 +104,14 @@ def handleCommandLine():
             if talentToGenerate not in set_parameters:
                 printLog("Talent to generate profile changed to " + talentToGenerate)
             else:
-                print("Error: No or invalid spec declared: " + talentToGenerate)
+                print("Error: No or invalid talent declared: " + talentToGenerate)
+                sys.exit(1)
+        if sys.argv[a] == "-stats":
+            statsFilter = sys.argv[a + 1]
+            if statsFilter not in set_parameters:
+                printLog("Stat filter profile changed to " + statsFilter)
+            else:
+                print("Error: No or invalid stat filter declared: " + statsFilter)
                 sys.exit(1)
         # if sys.argv[a] == "-all":
             # classToGenerate="all"
@@ -119,9 +129,22 @@ def validateSettings():
     if classToGenerate == "":
         printLog("Error: No class asked")
         sys.exit(0)
+    #validate spec
     if specToGenerate == "":
         printLog("Error: No spec asked")
         sys.exit(0)
+    #validate stat filter
+    if not statsFilter == "":
+        if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
+            t = mask.split('/')
+            for i in range(len(t)):
+                if not t[i] in statsList
+                    printLog("Error: unknown stat filter :" + t[i])
+                    sys.exit(0)
+        else:
+            if not statsFilter in statsList
+                printLog("Error: unknown stat filter :" + statsFilter)
+                sys.exit(0)
         
 def getDataSettings():
     global material
