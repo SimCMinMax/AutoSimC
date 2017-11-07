@@ -180,7 +180,12 @@ def printItem(item):
     # finger2=L,id=137039,enchant_id=5428,bonus_id=3459/3570,gem_id=130220|,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
     #,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
     if itemElligible(item):
-        gemString = ',gem_id=' + str(gem) if item["gems"] > 0 else ''
+        gemString = ""
+        if item["gems"] > 0:
+            gemString = ',gem_id='
+            for i in range(item["gems"]):
+                gemString = gemString + str(gem) + "/"
+            gemString = gemString[:-1]
         enchantString = ""
         legString = ""
         setString = ""
