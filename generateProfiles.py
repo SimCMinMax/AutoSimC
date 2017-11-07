@@ -12,15 +12,9 @@ import os
 import json
 import datetime
 from settings import settings
+from string import digits
+import re
 
-legmin = settings.default_leg_min
-legmax = settings.default_leg_max
-t19min = settings.default_equip_t19_min
-t19max = settings.default_equip_t19_max
-t20min = settings.default_equip_t20_min
-t20max = settings.default_equip_t20_max
-t21min = settings.default_equip_t21_min
-t21max = settings.default_equip_t21_max
 tierToGenerate = settings.tier
 b_quiet = settings.b_quiet
 
@@ -42,6 +36,13 @@ enchantNeck = ""
 enchantBack = ""
 enchantFinger = ""
 gem = ""
+allowT19 = False
+allowT20 = False
+allowT21 = False
+trinket1 = ""
+trinket2 = ""
+main_handSave = ""
+off_handSave = ""
 
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
@@ -109,10 +110,9 @@ def handleCommandLine():
             # else:
                 # print("Error: No or invalid output file declared: " + classToGenerate)
                 # sys.exit(1)
-
+        
 def getProfileFilePath():
     return "..\\simc\\profiles\\Tier" + tierToGenerate + "\\T" + tierToGenerate + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
-
    
 def validateSettings():
     #validate class
@@ -121,24 +121,6 @@ def validateSettings():
         sys.exit(0)
     if specToGenerate == "":
         printLog("Error: No spec asked")
-        sys.exit(0)
-    # validate amount of legendaries
-    if legmin > legmax or legmax > 3 or legmin > 3 or legmin < 0 or legmax < 0:
-        printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
-            legmax) + ". Please check settings.py for these parameters!")
-        sys.exit(0)
-    # validate tier-set
-    if (int(t19min) + int(t20min) + int(
-            t21min) > 6) or t19min < 0 or t19min > 6 or t20min < 0 or t20min > 6 or t21min < 0 or t21min > 6 or t19max < 0 or t19max > 6 or t20max < 0 or t20max > 6 or t21max < 0 or t21max > 6 or t19min > t19max or t20min > t20max or t21min > t21max:
-        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19min) + "/" + str(t19max) + ", T20: " + str(
-            t20min) + "/" + str(t20max) + ", T21: " + str(t21min) + "/" + str(
-            t21max) + ". Please check settings.py for these parameters!")
-        sys.exit(0)
-    if tierToGenerate == "":
-        printLog("Error: No tier in settings")
-        sys.exit(0)
-    if not os.path.isfile(getProfileFilePath()):
-        printLog("Error: Can't find the profile file : " + getProfileFilePath())
         sys.exit(0)
         
 def getDataSettings():
@@ -151,6 +133,9 @@ def getDataSettings():
     global enchantBack
     global enchantFinger
     global gem
+    global allowT19
+    global allowT20
+    global allowT21
 
     with open('generatorData.json') as data_file: 
         data = json.load(data_file)
@@ -164,7 +149,53 @@ def getDataSettings():
         enchantBack = data["classes"][classToGenerate]["specs"][specToGenerate]["enchant"]["back"]
         enchantFinger = data["classes"][classToGenerate]["specs"][specToGenerate]["enchant"]["finger"]
         gem = data["classes"][classToGenerate]["specs"][specToGenerate]["gem"]
-        
+        allowT19 = data["classes"][classToGenerate]["specs"][specToGenerate]["allowT19"]
+        allowT20 = data["classes"][classToGenerate]["specs"][specToGenerate]["allowT20"]
+        allowT21 = data["classes"][classToGenerate]["specs"][specToGenerate]["allowT21"]
+
+
+def sanitizeString(str):
+    str.replace("'","")
+    str = re.sub(r"\s+", '_', str)
+    str.replace(",","_")
+    str.replace("-","_")
+    str.lower()
+    return str
+    
+def itemElligible(item):
+    if "set" in item and not item["set"] == "" and not item["class"] == classToGenerate:
+        return False
+    if "set" in item and not allowT19 and item["set"] == "T19":
+        return False
+    if "set" in item and not allowT20 and item["set"] == "T20":
+        return False
+    if "set" in item and not allowT21 and item["set"] == "T21":
+        return False
+    if "enable" in item and item["enable"] == False:
+        return False
+    return True
+
+def printItem(item):
+    stringToPrint = ""
+    # finger2=L,id=137039,enchant_id=5428,bonus_id=3459/3570,gem_id=130220|,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
+    #,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
+    if itemElligible(item):
+        gemString = ',gem_id=' + str(gem) if item["gems"] > 0 else ''
+        enchantString = ""
+        legString = ""
+        setString = ""
+        if item["type"]=='neck':
+            enchantString = ',enchant=' + enchantNeck
+        elif item["type"]=='back':
+            enchantString = ',enchant=' + enchantBack
+        elif item["type"]=='finger':
+            enchantString = ',enchant=' + enchantFinger
+        if "set" in item:
+            setString = item["set"]
+        else:
+            legString = "L"
+        stringToPrint = legString + setString + ("--" if not setString == "" or not legString == "" else "") + sanitizeString(item["name"]) + ',id=' + str(item["id"])+ ',bonus_id=' + item["bonus_id"] + gemString + enchantString + "|"
+    return stringToPrint
 
 
 ########################
@@ -181,14 +212,56 @@ with open(outputFileName, 'w', encoding='utf-8') as file:
     #print profile
     file.write('[Profile]\n')
     with open(getProfileFilePath(), 'r') as profile:
-        lignes  = profile.readlines()
+        lines  = profile.readlines()
         profile.close()
 
-        for ligne in lignes:
-            if not ligne.startswith(tuple(profileFilter)):
-                file.write(ligne)
+        for line in lines:
+            if line.startswith('trinket1'):  
+                trinket1Save = line
+            if line.startswith('trinket2'):  
+                trinket2Save = line
+            if line.startswith('main_hand'):
+                main_handSave = line
+            if line.startswith('off_hand'):  
+                off_handSave = line
+            if not line.startswith(tuple(profileFilter)):
+                file.write(line)
     file.write('\n')
 
     #print gear
     file.write('[Gear]\n')
 
+    with open('generatorItemData.json') as itemDataFile: 
+        gearDataList  = json.load(itemDataFile)
+        remove_digits = str.maketrans('', '', digits)#prepare for number removal (finger)
+        
+        for slot in gearList:
+            stringToPrint = ""
+            if slot == 'trinket1':
+                file.write(trinket1Save)
+            elif slot == 'trinket2':
+                file.write(trinket2Save)
+            elif slot == 'main_hand':
+                file.write(main_handSave)
+            elif slot == 'off_hand':
+                file.write(off_handSave)
+            else:
+                file.write(slot + "=")
+                
+                if slot == "neck" or slot == "back" or slot == "finger1" or slot == "finger2":
+                    slotReady = slot.translate(remove_digits)
+                    for slotitems in gearDataList["items"][slotReady]:
+                        stringToPrint = stringToPrint + printItem(slotitems)
+                    #Add legendaries
+                    for slotitemsleg in gearDataList["legendaries"][classToGenerate][slotReady]:
+                        stringToPrint = stringToPrint + printItem(slotitemsleg)
+                else:
+                    for slotitems in gearDataList["items"][slot][material]:
+                        stringToPrint = stringToPrint + printItem(slotitems)
+                    #Add legendaries
+                    for slotitemsleg in gearDataList["legendaries"][classToGenerate][slot][material]:
+                        stringToPrint = stringToPrint + printItem(slotitemsleg)
+                
+                stringToPrint = stringToPrint[:-1]
+                file.write(stringToPrint)
+                file.write("\n")
