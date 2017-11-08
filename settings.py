@@ -178,8 +178,20 @@ class settings():
     # most probably you will enter here the value represented by auto_dynamic_stage1_target_error_table
     auto_dynamic_stage1_target_error_value = 0.9
     
-    
+    # ----------------------------------------------------------------------
+    #       ALL OPTIONS BELOW THIS ARE USED FOR THE PROFILE GENERATOR
+    #                   THEY DON'T IMPACT AUTOSIMC
+    # ----------------------------------------------------------------------
     #Profil generator settings
-    tier = "21"
+    # Tier to generate
+    tier = 21
+    # Apply the stat filter to the tier items. If False, all tier items will be added
     apply_stat_filter_to_tier = False
+    # Profile used for the profile bas (talents, artifact, ...). 
+    # If Empty, it will use the one from autosimc (Use double backslash, like simc path)
+    default_profile_path = "F:\\C Files\\Mes documents\\GitHub\\AutoSimC\\profiles"
+    # Allow the check of previous tier if selected tier is missing for the spec
+    check_previous_tier = True
+    minimum_tier_to_check = 20
+
     

@@ -15,18 +15,12 @@ from settings import settings
 from string import digits
 import re
 
-tierToGenerate = settings.tier
-b_quiet = settings.b_quiet
-
-outputFileName = settings.default_inputFileName
+# command line settings
 classToGenerate = ""
 specToGenerate = ""
 talentToGenerate = ""
 statsFilter = ""
-profileFilter = ["\n","#", "actions", "potion", "flask", "food", "augmentation"]
-gearList = ["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
-statsList = ["agi","str","int","stam","crit","haste","vers","mastery","bonus_armor","leech","avoidance"]
-profileFilter.extend(gearList)
+
 
 #Local settings
 material = ""
@@ -45,12 +39,23 @@ trinket1 = ""
 trinket2 = ""
 main_handSave = ""
 off_handSave = ""
-
+fileToUse = ""
 itemNB = 0
+profileFilter = ["\n","#", "actions", "potion", "flask", "food", "augmentation"]
+gearList = ["head","neck","shoulders","back","chest","wrists","hands","waist","legs","feet","finger1","finger2","trinket1","trinket2","main_hand","off_hand"]
+statsList = ["agi","str","int","stam","crit","haste","vers","mastery","bonus_armor","leech","avoidance"]
+profileFilter.extend(gearList)
 
+#Settings.py
+tierToGenerate = settings.tier
+b_quiet = settings.b_quiet
+outputFileName = settings.default_inputFileName
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
 apply_stat_filter_to_tier = settings.apply_stat_filter_to_tier
+default_profile_path = settings.default_profile_path
+check_previous_tier = settings.check_previous_tier
+minimum_tier_to_check = settings.minimum_tier_to_check
 
 #   Error handle
 def printLog(stringToPrint):
@@ -116,6 +121,8 @@ def handleCommandLine():
                 printLog("Stat filter profile changed to " + statsFilter)
             else:
                 print("Error: No or invalid stat filter declared: " + statsFilter)
+                print("Use: stats separated by / ")
+                print("Available filter : agi/str/int/stam/crit/haste/vers/mastery/bonus_armor/leech/avoidance")
                 sys.exit(1)
         # if sys.argv[a] == "-all":
             # classToGenerate="all"
@@ -126,7 +133,26 @@ def handleCommandLine():
                 # sys.exit(1)
         
 def getProfileFilePath():
-    return "..\\simc\\profiles\\Tier" + tierToGenerate + "\\T" + tierToGenerate + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
+    global default_profile_path
+    global fileToUse
+    
+    fileToUse = default_profile_path + "\\Tier" + str(tierToGenerate) + "\\T" + str(tierToGenerate) + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
+    
+    if os.path.isfile(fileToUse):   
+        return True
+    elif not check_previous_tier:
+        return False
+    else:
+        currentTier = tierToGenerate - 1
+        while currentTier >= minimum_tier_to_check:
+            fileToUse = default_profile_path + "\\Tier" + str(currentTier) + "\\T" + str(currentTier) + "_" + classToGenerate + "_" + specToGenerate + ("_" + talentToGenerate if not talentToGenerate == "" else "") + ".simc"
+            if os.path.isfile(fileToUse):   
+                return True
+            else:
+                currentTier = currentTier - 1
+        return False
+    
+    return True
    
 def validateSettings():
     #validate class
@@ -140,7 +166,7 @@ def validateSettings():
     #validate stat filter
     if not statsFilter == "":
         if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
-            t = mask.split('/')
+            t = statsFilter.split('/')
             for i in range(len(t)):
                 if t[i] not in statsList:
                     printLog("Error: unknown stat filter :" + t[i])
@@ -149,6 +175,9 @@ def validateSettings():
             if statsFilter not in statsList:
                 printLog("Error: unknown stat filter :" + statsFilter)
                 sys.exit(0)
+    if not getProfileFilePath():
+        printLog("Error: Couldn't get the initial profile :" + fileToUse)
+        sys.exit(0)
         
 def getDataSettings():
     global material
@@ -203,7 +232,7 @@ def itemElligible(item):
     if not statsFilter == "": #stat filter
         if ("set" in item and not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == "":
             if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
-                t = mask.split('/')
+                t = statsFilter.split('/')
                 for i in range(len(t)):
                     if t[i] not in item["stats"]:
                         return False
@@ -256,7 +285,7 @@ getDataSettings()
 with open(outputFileName, 'w', encoding='utf-8') as file:
     #print profile
     file.write('[Profile]\n')
-    with open(getProfileFilePath(), 'r') as profile:
+    with open(fileToUse, 'r') as profile:
         lines  = profile.readlines()
         profile.close()
 
