@@ -327,14 +327,16 @@ with open(outputFileName, 'w', encoding='utf-8') as file:
                     for slotitems in gearDataList["items"][slotReady]:
                         stringToPrint = stringToPrint + printItem(slotitems)
                     #Add legendaries
-                    for slotitemsleg in gearDataList["legendaries"][classToGenerate][slotReady]:
-                        stringToPrint = stringToPrint + printItem(slotitemsleg)
+                    if slotReady in gearDataList["legendaries"][classToGenerate]:
+                        for slotitemsleg in gearDataList["legendaries"][classToGenerate][slotReady]:
+                            stringToPrint = stringToPrint + printItem(slotitemsleg)
                 else:
                     for slotitems in gearDataList["items"][slot][material]:
                         stringToPrint = stringToPrint + printItem(slotitems)
                     #Add legendaries
-                    for slotitemsleg in gearDataList["legendaries"][classToGenerate][slot][material]:
-                        stringToPrint = stringToPrint + printItem(slotitemsleg)
+                    if slot in gearDataList["legendaries"][classToGenerate] and material in gearDataList["legendaries"][classToGenerate][slot]:
+                        for slotitemsleg in gearDataList["legendaries"][classToGenerate][slot][material]:
+                            stringToPrint = stringToPrint + printItem(slotitemsleg)
                 
                 stringToPrint = stringToPrint[:-1]
                 file.write(stringToPrint)
