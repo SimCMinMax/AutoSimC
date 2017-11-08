@@ -230,7 +230,7 @@ def itemElligible(item):
     if "enable" in item and item["enable"] == False:
         return False
     if not statsFilter == "": #stat filter
-        if ("set" in item and not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == "":
+        if "set" in item and (( not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == ""):
             if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
                 t = statsFilter.split('/')
                 for i in range(len(t)):

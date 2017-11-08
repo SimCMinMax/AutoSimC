@@ -189,7 +189,7 @@ class settings():
     apply_stat_filter_to_tier = False
     # Profile used for the profile bas (talents, artifact, ...). 
     # If Empty, it will use the one from autosimc (Use double backslash, like simc path)
-    default_profile_path = "F:\\C Files\\Mes documents\\GitHub\\AutoSimC\\profiles"
+    default_profile_path = ".\\profiles"
     # Allow the check of previous tier if selected tier is missing for the spec
     check_previous_tier = True
     minimum_tier_to_check = 20
