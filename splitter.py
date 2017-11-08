@@ -121,7 +121,7 @@ def generateCommand(file, output, sim_type, stage3, multisim):
             if spec.getRole() == "strattack":
                 cmd.append('scale_only=str,crit,haste,mastery,vers')
             elif spec.getRole() == "agiattack":
-                cmd.append('scale_only=int,crit,haste,mastery,vers')
+                cmd.append('scale_only=agi,crit,haste,mastery,vers')
             elif spec.getRole() == "spell":
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
     return cmd
