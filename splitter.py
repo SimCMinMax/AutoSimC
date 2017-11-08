@@ -29,6 +29,9 @@ def purge_subfolder(subfolder, retries=3):
         try:
             os.makedirs(subfolder)
         except PermissionError:
+            if retries < 0:
+                print("Error creating folders, pls check your permissions.")
+                sys.exit(1)
             print("Error creating folder, retrying in 3 secs")
             time.sleep(3000)
             purge_subfolder(subfolder, retries-1)
