@@ -24,12 +24,17 @@ user_targeterror = 0.0
 
 # deletes and creates needed folders
 # sometimes it generates a permission error; do not know why (am i removing and recreating too fast?)
-def purge_subfolder(subfolder):
+def purge_subfolder(subfolder, retries=3):
     if not os.path.exists(subfolder):
-        os.makedirs(subfolder)
+        try:
+            os.makedirs(subfolder)
+        except PermissionError:
+            print("Error creating folder, retrying in 3 secs")
+            time.sleep(3000)
+            purge_subfolder(subfolder, retries-1)
     else:
         shutil.rmtree(subfolder)
-        os.makedirs(subfolder)
+        purge_subfolder(subfolder, retries)
 
 
 # splits generated permutation-file into n pieces
