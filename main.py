@@ -636,6 +636,10 @@ def permutate():
     profile = config['Profile']
     gear = config['Gear']
 
+    if profile['class']:
+        print("You input class format is wrong, please update SimPermut or your input file.\n")
+        sys.exit(1)
+
     # Read input.txt
     #   Profile
     global c_class
