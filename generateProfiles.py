@@ -16,6 +16,7 @@ from string import digits
 import re
 
 # command line settings
+outputFileName = ""
 classToGenerate = ""
 specToGenerate = ""
 talentToGenerate = ""
@@ -49,7 +50,6 @@ profileFilter.extend(gearList)
 #Settings.py
 tierToGenerate = settings.tier
 b_quiet = settings.b_quiet
-outputFileName = settings.default_inputFileName
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
 apply_stat_filter_to_tier = settings.apply_stat_filter_to_tier
@@ -155,6 +155,8 @@ def getProfileFilePath():
     return True
    
 def validateSettings():
+    global outputFileName
+    
     #validate class
     if classToGenerate == "":
         printLog("Error: No class asked")
@@ -163,6 +165,9 @@ def validateSettings():
     if specToGenerate == "":
         printLog("Error: No spec asked")
         sys.exit(0)
+    #Prepare output filename
+    if outputFileName == "":
+        outputFileName = "input_"+classToGenerate+"_"+specToGenerate+("_"+talentToGenerate if not talentToGenerate =="" else "")+".simc"
     #validate stat filter
     if not statsFilter == "":
         if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly

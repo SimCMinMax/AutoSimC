@@ -8,6 +8,6 @@ IF ERRORLEVEL 1 (
     ECHO --If you get the message: "cant open file "generateProfiles.py" [Errno2].."
     ECHO --Please add Python-Path to your Systemvariables-Path-Variable
     Echo --https://i.imgur.com/KM132c7.png
-   python.exe generateProfiles.py -o input.txt -c priest -s shadow
+   python.exe generateProfiles.py -c priest -s shadow
    pause
 )
