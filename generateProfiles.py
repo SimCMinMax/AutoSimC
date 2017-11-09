@@ -241,15 +241,12 @@ def itemElligible(item):
         elif filter_type == 2:# at least one filter has to be in the item
             if "set" in item and (( not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == ""):
                 if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
-                    print(item["id"],item["type"])
                     t = statsFilter.split('/')
                     statcount = 0
                     for i in range(len(t)):
                         if t[i] in item["stats"]:
                             statcount = statcount + 1
-                    print(item["id"],item["type"],statcount)
                     if statcount == 0:
-                        print("skipped")    
                         return False
                 else:
                     if statsFilter not in item["stats"]:
@@ -320,39 +317,41 @@ with open(outputFileName, 'w', encoding='utf-8') as file:
     file.write('[Gear]\n')
 
     with open('generatorItemData.json') as itemDataFile: 
-        gearDataList  = json.load(itemDataFile)
-        remove_digits = str.maketrans('', '', digits)#prepare for number removal (finger)
-        
-        for slot in gearList:
-            stringToPrint = ""
-            if slot == 'trinket1':
-                file.write(trinket1Save)
-            elif slot == 'trinket2':
-                file.write(trinket2Save)
-            elif slot == 'main_hand':
-                file.write(main_handSave)
-            elif slot == 'off_hand':
-                file.write(off_handSave)
-            else:
-                file.write(slot + "=")
-                
-                if slot == "neck" or slot == "back" or slot == "finger1" or slot == "finger2":
-                    slotReady = slot.translate(remove_digits)
-                    for slotitems in gearDataList["items"][slotReady]:
-                        stringToPrint = stringToPrint + printItem(slotitems)
-                    #Add legendaries
-                    if slotReady in gearDataList["legendaries"][classToGenerate]:
-                        for slotitemsleg in gearDataList["legendaries"][classToGenerate][slotReady]:
-                            stringToPrint = stringToPrint + printItem(slotitemsleg)
+        with open('generatorLegendaryData.json') as legendaryDataFile: 
+            gearDataList  = json.load(itemDataFile)
+            legendaryGearDataList  = json.load(legendaryDataFile)
+            remove_digits = str.maketrans('', '', digits)#prepare for number removal (finger)
+            
+            for slot in gearList:
+                stringToPrint = ""
+                if slot == 'trinket1':
+                    file.write(trinket1Save)
+                elif slot == 'trinket2':
+                    file.write(trinket2Save)
+                elif slot == 'main_hand':
+                    file.write(main_handSave)
+                elif slot == 'off_hand':
+                    file.write(off_handSave)
                 else:
-                    for slotitems in gearDataList["items"][slot][material]:
-                        stringToPrint = stringToPrint + printItem(slotitems)
-                    #Add legendaries
-                    if slot in gearDataList["legendaries"][classToGenerate] and material in gearDataList["legendaries"][classToGenerate][slot]:
-                        for slotitemsleg in gearDataList["legendaries"][classToGenerate][slot][material]:
-                            stringToPrint = stringToPrint + printItem(slotitemsleg)
-                
-                stringToPrint = stringToPrint[:-1]
-                file.write(stringToPrint)
-                file.write("\n")
-        print("items : "+str(itemNB))
+                    file.write(slot + "=")
+                    
+                    if slot == "neck" or slot == "back" or slot == "finger1" or slot == "finger2":
+                        slotReady = slot.translate(remove_digits)
+                        for slotitems in gearDataList[slotReady]:
+                            stringToPrint = stringToPrint + printItem(slotitems)
+                        #Add legendaries
+                        if slotReady in legendaryGearDataList[classToGenerate][specToGenerate]:
+                            for slotitemsleg in legendaryGearDataList[classToGenerate][specToGenerate][slotReady]:
+                                stringToPrint = stringToPrint + printItem(slotitemsleg)
+                    else:
+                        for slotitems in gearDataList[slot][material]:
+                            stringToPrint = stringToPrint + printItem(slotitems)
+                        #Add legendaries
+                        if slot in legendaryGearDataList[classToGenerate][specToGenerate]:
+                            for slotitemsleg in legendaryGearDataList[classToGenerate][specToGenerate][slot]:
+                                stringToPrint = stringToPrint + printItem(slotitemsleg)
+                    
+                    stringToPrint = stringToPrint[:-1]
+                    file.write(stringToPrint)
+                    file.write("\n")
+            print("items : "+str(itemNB))
