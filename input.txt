@@ -1,10 +1,9 @@
 [Profile]
-profilename=TestProfile
 profileid=1
-class=druid
-race=tauren
-level=110
+druid=TestProfile
 spec=balance
+level=110
+race=tauren
 role=spell
 position=back
 talents=3233232
