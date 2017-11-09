@@ -150,7 +150,7 @@ class settings():
     # some tests showed that multisimming is faster with many instances, each with 1 thread
     # you can change this behaviour by modifying this variable
     number_of_threads = 1
-
+    
     DEBUG = False
 
 
@@ -164,7 +164,7 @@ class settings():
     #               YOU HAVE TO KNOW WHAT YOU DO!
     # ----------------------------------------------------------------------
     skip_questions = False
-
+    
     # automation of dialogs
     # 1 or 2
     auto_choose_static_or_dynamic = 1
@@ -187,11 +187,11 @@ class settings():
     tier = 21
     # Apply the stat filter to the tier items. If False, all tier items will be added
     apply_stat_filter_to_tier = False
+    # filter type (1 : all filter stats have to be present in the item, 2 : one of the stat has to be present)
+    filter_type = 2
     # Profile used for the profile bas (talents, artifact, ...). 
     # If Empty, it will use the one from autosimc (Use double backslash, like simc path)
     default_profile_path = ".\\profiles"
     # Allow the check of previous tier if selected tier is missing for the spec
     check_previous_tier = True
     minimum_tier_to_check = 20
-
-    

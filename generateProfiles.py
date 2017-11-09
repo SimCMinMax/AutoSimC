@@ -53,6 +53,7 @@ b_quiet = settings.b_quiet
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
 apply_stat_filter_to_tier = settings.apply_stat_filter_to_tier
+filter_type = settings.filter_type
 default_profile_path = settings.default_profile_path
 check_previous_tier = settings.check_previous_tier
 minimum_tier_to_check = settings.minimum_tier_to_check
@@ -82,7 +83,6 @@ def handleCommandLine():
     set_parameters.add("-t")
     set_parameters.add("-quiet")
     set_parameters.add("-stats")
-    # set_parameters.add("-all")
     for a in range(1, len(sys.argv)):
         if sys.argv[a] == "-o":
             outputFileName = sys.argv[a + 1]
@@ -124,13 +124,6 @@ def handleCommandLine():
                 print("Use: stats separated by / ")
                 print("Available filter : agi/str/int/stam/crit/haste/vers/mastery/bonus_armor/leech/avoidance")
                 sys.exit(1)
-        # if sys.argv[a] == "-all":
-            # classToGenerate="all"
-            # if classToGenerate not in set_parameters:
-                # printLog("Generate all profiles")
-            # else:
-                # print("Error: No or invalid output file declared: " + classToGenerate)
-                # sys.exit(1)
         
 def getProfileFilePath():
     global default_profile_path
@@ -235,23 +228,37 @@ def itemElligible(item):
     if "enable" in item and item["enable"] == False:
         return False
     if not statsFilter == "": #stat filter
-        if "set" in item and (( not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == ""):
-            if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
-                t = statsFilter.split('/')
-                for i in range(len(t)):
-                    if t[i] not in item["stats"]:
+        if filter_type == 1:# all filter has to be in the item
+            if "set" in item and (( not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == ""):
+                if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
+                    t = statsFilter.split('/')
+                    for i in range(len(t)):
+                        if t[i] not in item["stats"]:
+                            return False
+                else:
+                    if statsFilter not in item["stats"]:
+                            return False
+        elif filter_type == 2:# at least one filter has to be in the item
+            if "set" in item and (( not item["set"] == "" and apply_stat_filter_to_tier) or item["set"] == ""):
+                if "/" in statsFilter: # cut the multiple spec legendaries and handle them separatly
+                    print(item["id"],item["type"])
+                    t = statsFilter.split('/')
+                    statcount = 0
+                    for i in range(len(t)):
+                        if t[i] in item["stats"]:
+                            statcount = statcount + 1
+                    print(item["id"],item["type"],statcount)
+                    if statcount == 0:
+                        print("skipped")    
                         return False
-            else:
-                if statsFilter not in item["stats"]:
+                else:
+                    if statsFilter not in item["stats"]:
                         return False
-    
     return True
 
 def printItem(item):
     global itemNB
     stringToPrint = ""
-    # finger2=L,id=137039,enchant_id=5428,bonus_id=3459/3570,gem_id=130220|,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
-    #,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
     if itemElligible(item):
         gemString = ""
         if item["gems"] > 0:
@@ -273,7 +280,9 @@ def printItem(item):
         else:
             legString = "L"
         itemNB = itemNB+1
-        stringToPrint = legString + setString + ("--" if not setString == "" or not legString == "" else "") + sanitizeString(item["name"]) + ',id=' + str(item["id"])+ ',bonus_id=' + item["bonus_id"] + gemString + enchantString + "|"
+        printstats = ""
+        printstats = "(" + item["stats"]+ ")"
+        stringToPrint = legString + setString + ("--" if not setString == "" or not legString == "" else "") + sanitizeString(item["name"]) + ',id=' + str(item["id"])+ ',bonus_id=' + item["bonus_id"] + gemString + enchantString + printstats +"|"
     return stringToPrint
 
 
