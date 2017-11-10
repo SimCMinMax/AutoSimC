@@ -1,9 +1,19 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=C0103
+# pylint: disable=C0301
+
 import configparser
 import sys
 import datetime
 import os
 import json
 import shutil
+
+from settings import settings
+
+from specdata import specdata
+import splitter
+import hashlib
 
 try:
     filename = "settings.py"
@@ -12,12 +22,6 @@ try:
 except SyntaxError:
     print("Error in settings.py, pls check for syntax-errors")
     sys.exit(1)
-
-from settings import settings
-
-from specdata import specdata
-import splitter
-import hashlib
 
 # Var init with default value
 c_profileid = 0
@@ -139,26 +143,40 @@ def handleGems(gems):
 def cleanItem(str):
     if "--" in str:
         str = str.split("--")[1]
-    
     return str
-                
-# Check if permutation is valid
-def checkUsability():
-    # namingdata contains info for the profile-name
-    global namingData
-    namingData = {}
 
+# Check if permutation is valid
+antorusTrinkets = {"154172", "154173", "154174", "154175", "154176", "154177"}
+def checkUsability():
+    nbLeg = 0
     temp_t19 = 0
     temp_t20 = 0
     temp_t21 = 0
-
     for i in range(len(l_gear)):
-        if l_gear[i][0:3] == "T19":
+        if l_gear[i][0] == "L":
+            nbLeg = nbLeg + 1
+            continue
+        gearLabel = l_gear[i][0:3]
+        if gearLabel == "T19":
             temp_t19 = temp_t19 + 1
-        if l_gear[i][0:3] == "T20":
+            continue
+        if gearLabel == "T20":
             temp_t20 = temp_t20 + 1
-        if l_gear[i][0:3] == "T21":
+            continue
+        if gearLabel == "T21":
             temp_t21 = temp_t21 + 1
+
+
+    if nbLeg < legmin:
+        return str(nbLeg) + " leg (" + str(legmin) + " asked)"
+    if nbLeg > legmax:
+        return str(nbLeg) + " leg (" + str(legmax) + " asked)"
+    # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
+    # because 3 other legs have been equipped
+    if nbLeg == 3:
+        if not getIdFromItem(l_gear[12]) == "154172" and not getIdFromItem(l_gear[13]) == "154172":
+            return " 3 legs equipped, but no Amanthul-Trinket found"
+
     if temp_t19 < int(t19min):
         return " " + str(temp_t19) + ": too few T19-items (" + str(t19min) + " asked)"
     if temp_t20 < int(t20min):
@@ -172,36 +190,32 @@ def checkUsability():
     if temp_t21 > int(t21max):
         return " " + str(temp_t21) + ": too much T21-items (" + str(t21max) + " asked)"
 
-    if l_gear[10] == l_gear[11]:
-        return " Same ring"
-    if l_gear[12] == l_gear[13]:
-        return " Same trinket"
+    if getIdFromItem(l_gear[10]) == getIdFromItem(l_gear[11]):
+        return F"Ring1: {l_gear[10]} same as Ring2: {l_gear[11]}"
 
-    nbLeg = 0
-    for a in range(len(l_gear)):
-        if l_gear[a][0] == "L":
-            nbLeg = nbLeg + 1
-    if nbLeg < legmin:
-        return str(nbLeg) + " leg (" + str(legmin) + " asked)"
-    if nbLeg > legmax:
-        return str(nbLeg) + " leg (" + str(legmax) + " asked)"
+    trinket1itemID = getIdFromItem(l_gear[12])
+    trinket2itemID = getIdFromItem(l_gear[13])
 
-    # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
-    # because 3 other legs have been equipped
-    if nbLeg == 3:
-        if not getIdFromItem(l_gear[12]) == "154172" and not getIdFromItem(l_gear[13]) == "154172":
-            return " 3 legs equipped, but no Amanthul-Trinket found"
+    if trinket1itemID == trinket2itemID:
+        return F"Trinket1: {l_gear[12]} same as Trinket2: {l_gear[13]}"
+
+    if trinket1itemID in antorusTrinkets:
+        if trinket2itemID in antorusTrinkets:
+            return " two Pantheon-Trinkets found"
 
     # check gems
     # int, str, agi should be only equipped once:
     nUniqueGems = 0
-    for a in range(len(l_gear)):
-        gems = getGemsFromItem(l_gear[a])
+    for i in range(len(l_gear)):
+        gems = getGemsFromItem(l_gear[i])
         if "130246" in gems or "130247" in gems or "130248" in gems:
             nUniqueGems += 1
     if nUniqueGems > 1:
         return str(nUniqueGems) + " too many unique gems (str, agi, int)"
 
+    # namingdata contains info for the profile-name
+    global namingData
+    namingData = {}
     # if a valid profile was detected, fill namingData; otherwise its pointless
     if nbLeg == 0:
         namingData['Leg0'] = ""
@@ -232,22 +246,19 @@ def checkUsability():
     namingData["T20"] = temp_t20
     namingData["T21"] = temp_t21
 
-    if getIdFromItem(l_gear[10]) == getIdFromItem(l_gear[11]):
-        return F"Ring1: {l_gear[10]} same as Ring2: {l_gear[11]}"
-    if getIdFromItem(l_gear[12]) == getIdFromItem(l_gear[13]):
-        return F"Trinket1: {l_gear[12]} same as Trinket2: {l_gear[13]}"
-
-    if getIdFromItem(l_gear[12]) in {"154172", "154173", "154174", "154175", "154176", "154177"}:
-        if getIdFromItem(l_gear[13]) in {"154172", "154173", "154174", "154175", "154176", "154177"}:
-            return " two Pantheon-Trinkets found"
     return ""
 
-
+itemIDsMemoization = {}
 def getIdFromItem(item):
-    splits = item.split(",")
-    for s in splits:
-        if s.startswith("id="):
-            return s[3:]
+    # Since items aren't object with an itemID property, we do some memoization here
+    if item in itemIDsMemoization:
+        return itemIDsMemoization[item]
+    else:
+        splits = item.split(",")
+        for s in splits:
+            if s.startswith("id="):
+                itemIDsMemoization[item] = s[3:]
+                return itemIDsMemoization[item]
 
 
 # Print a simc profile
@@ -272,14 +283,15 @@ def scpout(oh):
     else:
         if not b_quiet:
             print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
-        outputFile.write(c_class + "=" + getStringForProfile() + maskedProfileID + "\n")
-        outputFile.write("specialization=" + c_spec + "\n")
-        outputFile.write("race=" + c_race + "\n")
-        outputFile.write("level=" + c_level + "\n")
-        outputFile.write("role=" + c_role + "\n")
-        outputFile.write("position=" + c_position + "\n")
-        outputFile.write("talents=" + c_talents + "\n")
-        outputFile.write("artifact=" + c_artifact + "\n")
+        outputFile.write(F"""
+            {c_class}={getStringForProfile()}{maskedProfileID}\n
+            specialization={c_spec}\n
+            race={c_race}\n"
+            level={c_level}\n"
+            role={c_role}\n"
+            position={c_position}\n"
+            talents={c_talents}\n"
+            artifact={c_artifact}\n""")
         if c_crucible != "":
             outputFile.write("crucible=" + c_crucible + "\n")
         if c_potion != "":
@@ -290,22 +302,24 @@ def scpout(oh):
             outputFile.write("food=" + c_food + "\n")
         if c_augmentation != "":
             outputFile.write("augmentation=" + c_augmentation + "\n")
-            
-        outputFile.write("head=" + cleanItem(l_gear[0]) + "\n")    
-        outputFile.write("neck=" + cleanItem(l_gear[1]) + "\n")    
-        outputFile.write("shoulders=" + cleanItem(l_gear[2]) + "\n")    
-        outputFile.write("back=" + cleanItem(l_gear[3]) + "\n")    
-        outputFile.write("chest=" + cleanItem(l_gear[4]) + "\n")    
-        outputFile.write("wrists=" + cleanItem(l_gear[5]) + "\n")    
-        outputFile.write("hands=" + cleanItem(l_gear[6]) + "\n")    
-        outputFile.write("waist=" + cleanItem(l_gear[7]) + "\n")    
-        outputFile.write("legs=" + cleanItem(l_gear[8]) + "\n")    
-        outputFile.write("feet=" + cleanItem(l_gear[9]) + "\n")    
-        outputFile.write("finger1=" + cleanItem(l_gear[10]) + "\n")    
-        outputFile.write("finger2=" + cleanItem(l_gear[11]) + "\n")    
-        outputFile.write("trinket1=" + cleanItem(l_gear[12]) + "\n")    
-        outputFile.write("trinket2=" + cleanItem(l_gear[13]) + "\n")    
-        outputFile.write("main_hand=" + l_gear[14] + "\n")
+
+        outputFile.write(F"""
+            head={cleanItem(l_gear[0])}\n
+            neck={cleanItem(l_gear[1])}\n
+            shoulders={cleanItem(l_gear[2])}\n
+            back={cleanItem(l_gear[3])}\n
+            chest={cleanItem(l_gear[4])}\n
+            wrists={cleanItem(l_gear[5])}\n
+            hands={cleanItem(l_gear[6])}\n
+            waist={cleanItem(l_gear[7])}\n
+            legs={cleanItem(l_gear[8])}\n
+            feet={cleanItem(l_gear[9])}\n
+            finger1={cleanItem(l_gear[10])}\n
+            finger2={cleanItem(l_gear[11])}\n
+            trinket1={cleanItem(l_gear[12])}\n
+            trinket2={cleanItem(l_gear[13])}\n
+            main_hand={l_gear[14]}\n
+        """)
         if oh == 1:
             outputFile.write("off_hand=" + l_gear[15] + "\n\n")
         else:
@@ -448,18 +462,15 @@ def cleanup():
                     shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
                                 os.path.join(os.getcwd(), settings.result_subfolder, file))
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
-        if settings.delete_temp_default or input(
-                                "Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
             printLog("Removing: " + settings.subdir1)
             shutil.rmtree(settings.subdir1)
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
-        if settings.delete_temp_default or input(
-                                "Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
             shutil.rmtree(settings.subdir2)
             printLog("Removing: " + settings.subdir2)
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        if settings.delete_temp_default or input(
-                                "Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
             shutil.rmtree(settings.subdir3)
             printLog("Removing: " + settings.subdir3)
 
@@ -528,17 +539,22 @@ def get_Possible_Gem_Combinations(numberOfGems):
                     l_gems.append(gem_ids.get(p[0]) + "/" + gem_ids.get(p[1]) + "/" + gem_ids.get(p[2]))
     return l_gems
 
-
+gemIDsMemoization = {}
 def getGemsFromItem(item):
-    a = item.split(",")
-    gems = []
-    for i in range(len(a)):
-        # look for gem_id-string in items
-        if a[i].startswith("gem_id"):
-            b, c = a[i].split("=")
-            gems = c.split("/")
-            # up to 3 possible gems
-    return gems
+    # Since items aren't object with an itemID property, we do some memoization here
+    if item in gemIDsMemoization:
+        return gemIDsMemoization[item]
+    else:
+        a = item.split(",")
+        gems = []
+        for i in range(len(a)):
+            # look for gem_id-string in items
+            if a[i].startswith("gem_id"):
+                b, c = a[i].split("=")
+                gems = c.split("/")
+                # up to 3 possible gems
+        gemIDsMemoization[item] = gems
+        return gems
 
 
 # gearlist contains a list of items, as in l_head
