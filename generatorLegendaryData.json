@@ -112,7 +112,7 @@
                     "type": "waist",
                     "material": "cloth",
                     "stats": "stam/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -219,7 +219,7 @@
                     "type": "head",
                     "material": "cloth",
                     "stats": "stam/int/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -494,7 +494,7 @@
                     "type": "shoulders",
                     "material": "cloth",
                     "stats": "stam/int/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -540,7 +540,7 @@
                     "type": "head",
                     "material": "cloth",
                     "stats": "stam/int/haste/crit",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -721,7 +721,7 @@
                     "type": "waist",
                     "material": "cloth",
                     "stats": "stam/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -815,7 +815,7 @@
                     "type": "shoulders",
                     "material": "cloth",
                     "stats": "stam/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -1188,7 +1188,7 @@
                     "type": "shoulders",
                     "material": "plate",
                     "stats": "stam/str/int/haste/vers",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -1236,7 +1236,7 @@
                     "type": "chest",
                     "material": "plate",
                     "stats": "stam/str/mastery/crit",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -1284,7 +1284,7 @@
                     "type": "wrists",
                     "material": "plate",
                     "stats": "stam/str/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -1568,7 +1568,7 @@
                     "type": "chest",
                     "material": "plate",
                     "stats": "stam/str/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -1819,7 +1819,7 @@
                     "type": "shoulders",
                     "material": "plate",
                     "stats": "stam/str/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -1889,7 +1889,7 @@
                     "type": "chest",
                     "material": "plate",
                     "stats": "stam/str/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -1941,7 +1941,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -1963,7 +1963,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -2216,7 +2216,7 @@
                     "type": "wrists",
                     "material": "cloth",
                     "stats": "stam/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -2308,7 +2308,7 @@
                     "type": "hands",
                     "material": "cloth",
                     "stats": "stam/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -2548,7 +2548,7 @@
                     "type": "wrists",
                     "material": "cloth",
                     "stats": "stam/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -2561,7 +2561,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -3644,7 +3644,7 @@
                     "type": "waist",
                     "material": "cloth",
                     "stats": "stam/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -3692,7 +3692,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/haste/crit",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -3945,7 +3945,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -4063,7 +4063,7 @@
                     "type": "legs",
                     "material": "plate",
                     "stats": "stam/str/haste/crit",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -4111,7 +4111,7 @@
                     "type": "head",
                     "material": "plate",
                     "stats": "stam/str/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -4122,7 +4122,7 @@
                     "type": "head",
                     "material": "plate",
                     "stats": "stam/str/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -5496,7 +5496,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -5544,7 +5544,7 @@
                     "type": "back",
                     "material": "cloth",
                     "stats": "stam/str/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -5928,7 +5928,7 @@
                     "type": "wrists",
                     "material": "mail",
                     "stats": "stam/agi/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -6035,7 +6035,7 @@
                     "type": "chest",
                     "material": "cloth",
                     "stats": "stam/agi/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -6131,7 +6131,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -6168,7 +6168,7 @@
                     "type": "feet",
                     "material": "mail",
                     "stats": "stam/agi/int/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -6410,7 +6410,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/haste/crit",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -6574,7 +6574,7 @@
                     "type": "wrists",
                     "material": "mail",
                     "stats": "stam/agi/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -6877,7 +6877,7 @@
                     "type": "wrists",
                     "material": "leather",
                     "stats": "stam/agi/int/mastery/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -6936,7 +6936,7 @@
                     "type": "shoulders",
                     "material": "leather",
                     "stats": "stam/agi/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -7023,7 +7023,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -7165,7 +7165,7 @@
                     "type": "wrists",
                     "material": "leather",
                     "stats": "stam/agi/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -7477,7 +7477,7 @@
                     "type": "hands",
                     "material": "cloth",
                     "stats": "stam/agi/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -7490,7 +7490,7 @@
                     "type": "shoulders",
                     "material": "leather",
                     "stats": "stam/agi/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -7638,7 +7638,7 @@
                     "type": "feet",
                     "material": "mail",
                     "stats": "stam/agi/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -7695,7 +7695,7 @@
                     "type": "hands",
                     "material": "mail",
                     "stats": "stam/agi/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -8981,7 +8981,7 @@
                     "type": "chest",
                     "material": "leather",
                     "stats": "stam/agi/int/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -9099,7 +9099,7 @@
                     "type": "head",
                     "material": "leather",
                     "stats": "stam/agi/int/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -9614,7 +9614,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -9787,7 +9787,7 @@
                     "type": "wrists",
                     "material": "leather",
                     "stats": "stam/agi/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
@@ -10058,7 +10058,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -10244,7 +10244,7 @@
                     "type": "head",
                     "material": "leather",
                     "stats": "stam/agi/int/crit/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -11216,7 +11216,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -11323,7 +11323,7 @@
                     "type": "head",
                     "material": "leather",
                     "stats": "stam/agi/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
