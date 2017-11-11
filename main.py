@@ -286,9 +286,9 @@ def scpout(oh, outputFile):
 
     not_usable = check_not_usable()
     if not_usable:
-#         logging.debug("Profile: {}/{}  Warning, not printed: {}".format(maskedProfileID,
-#                                                                         c_profilemaxid,
-#                                                                         not_usable))
+        logging.debug("Profile: {}/{}  Warning, not printed: {}".format(maskedProfileID,
+                                                                        c_profilemaxid,
+                                                                        not_usable))
         return
 
     logging.debug("Profile: {}/{}".format(maskedProfileID, c_profilemaxid))
