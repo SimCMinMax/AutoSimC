@@ -113,13 +113,13 @@ class settings():
     # beware: each additional row increases amount of permutations by 3, so all rows enabled => multiplikator of 2187
     enable_talent_permutation = False
     # here you can finetune the rows
-    permutate_row1 = False
-    permutate_row2 = False
-    permutate_row3 = False
-    permutate_row4 = False
-    permutate_row5 = False
-    permutate_row6 = False
-    permutate_row7 = False
+    permutate_row = [False,
+                     False,
+                     False,
+                     False,
+                     False,
+                     False,
+                     False]
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole raid instead of single profiles

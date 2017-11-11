@@ -10,6 +10,7 @@ import json
 import shutil
 import argparse
 import logging
+import itertools
 
 from settings import settings
 
@@ -729,6 +730,27 @@ def permutateGems():
     permutateGemsInSlotGearList(l_trinket2, 13)
 
 
+def permutate_talents(talents):
+    # First create a list where each entry represents all the talent permutations in that row.
+    talent_combinations = []
+    for i, talent in enumerate(talents[0]):
+        if settings.permutate_row[i]:
+            # We permutate the talent row, adding ['1', '2', '3'] to that row
+            talent_combinations.append([str(x) for x in range(1, 4)])
+        else:
+            # Do not permutate the talent row, just add the talent from the profile
+            talent_combinations.append([talent])
+    logging.debug("Talent combination input: {}".format(talent_combinations))
+
+    # Use some itertools magic to unpack the product of all talent combinations
+    product = itertools.product(*talent_combinations)
+
+    # Format each permutation back to a nice talent string.
+    permuted_talent_strings = ["".join(s) for s in product]
+    logging.debug("Talent combinations: {}".format(permuted_talent_strings))
+    return permuted_talent_strings
+
+
 # todo: add checks for missing headers, prio low
 def permutate():
     # Read input.txt to init vars
@@ -876,50 +898,9 @@ def permutate():
     l_talents = c_talents.split('|')
 
     # permutate talents
-    temp_talents = []
     if settings.enable_talent_permutation:
-        for t in l_talents:
-            for a in range(1, 4):
-                for b in range(1, 4):
-                    for c in range(1, 4):
-                        for d in range(1, 4):
-                            for e in range(1, 4):
-                                for f in range(1, 4):
-                                    for g in range(1, 4):
-                                        temp_talent = ""
-                                        if settings.permutate_row1:
-                                            temp_talent = str(a)
-                                        else:
-                                            temp_talent = str(t[0])
-                                        if settings.permutate_row2:
-                                            temp_talent += str(b)
-                                        else:
-                                            temp_talent += str(t[1])
-                                        if settings.permutate_row3:
-                                            temp_talent += str(c)
-                                        else:
-                                            temp_talent += str(t[2])
-                                        if settings.permutate_row4:
-                                            temp_talent += str(d)
-                                        else:
-                                            temp_talent += str(t[3])
-                                        if settings.permutate_row5:
-                                            temp_talent += str(e)
-                                        else:
-                                            temp_talent += str(t[4])
-                                        if settings.permutate_row6:
-                                            temp_talent += str(f)
-                                        else:
-                                            temp_talent += str(t[5])
-                                        if settings.permutate_row7:
-                                            temp_talent += str(g)
-                                        else:
-                                            temp_talent += str(t[6])
-                                        if temp_talent not in temp_talents:
-                                            temp_talents.append(temp_talent)
-        for t in temp_talents:
-            if t not in l_talents:
-                l_talents.append(t)
+        permutated_talents = permutate_talents(l_talents)
+        l_talents = permutated_talents
 
     # add gem-permutations
     if gemspermutation:
