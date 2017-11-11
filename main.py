@@ -82,12 +82,7 @@ gem_ids["int"] = "130248"
 
 #   Error handle
 def printLog(stringToPrint):
-    if not b_quiet:
-        # should this console-output be here at all? outputting to file AND console could be handled separately
-        # e.g. via simple debug-toggle (if b_debug: print(...))
-        print(stringToPrint)
-    today = datetime.date.today()
-    logFile.write(str(today) + ":" + stringToPrint + "\n")
+    logging.info(stringToPrint)
 
 
 # Add legendary to the right tab
@@ -1356,8 +1351,19 @@ def setClassSpecData():
 #     Program Start    #
 ########################
 sys.stderr = open(errorFileName, 'w')
-logFile = open(logFileName, 'w')
-logging.basicConfig()#level=logging.DEBUG)
+
+# Handler to log messages to file
+log_handler = logging.FileHandler(logFileName)
+log_handler.setLevel(logging.INFO)
+log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
+
+# Handler for loging to stdout
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.INFO)
+stdout_handler.setFormatter(logging.Formatter("%(message)s"))
+
+logging.basicConfig(level=logging.DEBUG, handlers=[log_handler,
+                                                   stdout_handler])
 
 # check version of python-interpreter running the script
 if not checkinterpreter():
@@ -1369,6 +1375,8 @@ if not checkinterpreter():
 
 
 handleCommandLine()
+if b_quiet:
+    stdout_handler.setLevel(logging.WARNING)
 validateSettings()
 
 # can always be rerun since it is now deterministic
@@ -1422,4 +1430,5 @@ if b_simcraft_enabled:
 
 if settings.clean_up_after_step3:
     cleanup()
-logFile.close()
+
+logging.shutdown()
