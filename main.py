@@ -140,13 +140,18 @@ def handleGems(gems):
                 print("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
                 sys.exit(1)
 
-def cleanItem(str):
-    if "--" in str:
-        str = str.split("--")[1]
-    return str
+
+def cleanItem(item_string):
+    if "--" in item_string:
+        item_string = item_string.split("--")[1]
+
+    return item_string
+
 
 # Check if permutation is valid
 antorusTrinkets = {"154172", "154173", "154174", "154175", "154176", "154177"}
+
+
 def checkUsability():
     nbLeg = 0
     temp_t19 = 0
@@ -165,7 +170,6 @@ def checkUsability():
             continue
         if gearLabel == "T21":
             temp_t21 = temp_t21 + 1
-
 
     if nbLeg < legmin:
         return str(nbLeg) + " leg (" + str(legmin) + " asked)"
@@ -227,17 +231,17 @@ def checkUsability():
     elif nbLeg == 2:
         for a in range(len(l_gear)):
             if l_gear[a][0] == "L":
-                if namingData.get('Leg0') != None:
+                if namingData.get('Leg0') is not None:
                     namingData['Leg1'] = getIdFromItem(l_gear[a])
                 else:
                     namingData['Leg0'] = getIdFromItem(l_gear[a])
     elif nbLeg == 3:
         for a in range(len(l_gear)):
             if l_gear[a][0] == "L":
-                if namingData.get('Leg0') == None:
+                if namingData.get('Leg0') is None:
                     namingData['Leg0'] = getIdFromItem(l_gear[a])
                 else:
-                    if namingData.get('Leg1') != None:
+                    if namingData.get('Leg1') is not None:
                         namingData['Leg1'] = getIdFromItem(l_gear[a])
                     else:
                         namingData['Leg2'] = getIdFromItem(l_gear[a])
@@ -248,7 +252,10 @@ def checkUsability():
 
     return ""
 
+
 itemIDsMemoization = {}
+
+
 def getIdFromItem(item):
     # Since items aren't object with an itemID property, we do some memoization here
     if item in itemIDsMemoization:
@@ -408,7 +415,8 @@ def handleCommandLine():
             #   - 3: picking top n out of these
             # it is essentially used to skip the most time consuming part, stage 1
             # to test alterations and different outputs, e.g. using same gear within different scenarios
-            # (standard might be patchwerk, but what happens with this gear- and talentchoice in a helterskelter-szenario?)
+            # (standard might be patchwerk, but what happens with this gear- and talentchoice in a
+            # helterskelter-szenario?)
             if sys.argv[a + 1] != s_stage:
                 restart = True
             else:
@@ -455,7 +463,7 @@ def cleanup():
         os.makedirs(settings.result_subfolder)
 
     if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir3)):
+        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir3)):
             for file in files:
                 if file.endswith(".html"):
                     printLog("Moving file: " + str(file))
@@ -539,7 +547,10 @@ def get_Possible_Gem_Combinations(numberOfGems):
                     l_gems.append(gem_ids.get(p[0]) + "/" + gem_ids.get(p[1]) + "/" + gem_ids.get(p[2]))
     return l_gems
 
+
 gemIDsMemoization = {}
+
+
 def getGemsFromItem(item):
     # Since items aren't object with an itemID property, we do some memoization here
     if item in gemIDsMemoization:
@@ -550,7 +561,7 @@ def getGemsFromItem(item):
         for i in range(len(a)):
             # look for gem_id-string in items
             if a[i].startswith("gem_id"):
-                b, c = a[i].split("=")
+                _b, c = a[i].split("=")
                 gems = c.split("/")
                 # up to 3 possible gems
         gemIDsMemoization[item] = gems
@@ -567,7 +578,7 @@ def permutateGemsInSlotGearList(slot_gearlist, slot):
         for i in range(len(a)):
             # look for gem_id-string in items
             if a[i].startswith("gem_id"):
-                b, c = a[i].split("=")
+                _b, c = a[i].split("=")
                 gems = c.split("/")
                 # up to 3 possible gems
         new_gems = get_Possible_Gem_Combinations(len(gems))
@@ -625,8 +636,8 @@ def permutateGemsInSlotGearList(slot_gearlist, slot):
 
 # add gems to the lists
 # current template
-## gems=150crit_150crit_150crit (not implemented yet)
-## shoulder=,id=146666,bonus_id=3459/3530,gem_id=130220/130220/130220
+# gems=150crit_150crit_150crit (not implemented yet)
+# shoulder=,id=146666,bonus_id=3459/3530,gem_id=130220/130220/130220
 def permutateGems():
     printLog("Permutating Gems")
     permutateGemsInSlotGearList(l_head, 1)
@@ -971,7 +982,7 @@ def checkResultFiles(subdir, count=2):
     if os.path.exists(os.path.join(os.getcwd(), subdir)):
         empty = 0
         checkedFiles = 0
-        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 checkedFiles += 1
                 if file.endswith(".sim"):
@@ -1109,7 +1120,8 @@ def dynamic_stage1():
             print("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
                 settings.default_target_error_stage2) + "\n")
             new_value = input(
-                "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error for stage2 (n)?: ")
+                "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error"
+                " for stage2 (n)?: ")
             printLog("User chose: " + str(new_value))
             if new_value == "q":
                 sys.exit(0)
@@ -1314,10 +1326,10 @@ def getStringForProfile():
 
 
 def checkinterpreter():
-    maj, min, mic, rel, ser = sys.version_info
-    if maj != 3:
+    major, minor, _micro, _releaselevel, _serial = sys.version_info
+    if major != 3:
         return False
-    if min < 6:
+    if minor < 6:
         return False
     return True
 
@@ -1337,8 +1349,8 @@ def setClassSpecData():
 
 
 ########################
-#### Program Start ######
-#########################
+#     Program Start    #
+########################
 sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
 
@@ -1370,7 +1382,8 @@ setClassSpecData()
 if not settings.skip_questions:
     if i_generatedProfiles > 50000:
         if input(
-                "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)") == "q":
+                "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                " <----- (Press Enter to continue, q to quit)") == "q":
             printLog("Program exit by user")
             sys.exit(0)
 
