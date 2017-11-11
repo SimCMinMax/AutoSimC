@@ -326,13 +326,12 @@ finger2={cleanItem(l_gear[11])}
 trinket1={cleanItem(l_gear[12])}
 trinket2={cleanItem(l_gear[13])}
 main_hand={l_gear[14]}
-
 """
         )
         if oh == 1:
-            outputFile.write("off_hand=" + l_gear[15] + "\n\n")
+            outputFile.write("off_hand=" + l_gear[15] + "\n\n\n")
         else:
-            outputFile.write("\n")
+            outputFile.write("\n\n")
         i_generatedProfiles += 1
     c_profileid += 1
     return ()
