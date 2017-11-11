@@ -19,6 +19,5 @@ class TestGems(unittest.TestCase):
 
     def test_gem_combinations3(self):
         gems = main.get_Possible_Gem_Combinations(self.gem_list, 3)
-        print(gems)
         target = ['a/a/a', 'a/a/b', 'a/b/b', 'b/b/b']
         self.assertListEqual(target, gems)

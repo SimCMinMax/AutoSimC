@@ -601,6 +601,8 @@ def generate_checksum_of_permutations():
 
 
 def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
+    if numberOfGems <= 0:
+        return []
     printLog("Creating Gem Combinations")
     printLog("Number of Gems: " + str(numberOfGems))
     combinations = itertools.combinations_with_replacement(gems_to_use, r=numberOfGems)
@@ -629,90 +631,52 @@ def getGemsFromItem(item):
 
 
 # gearlist contains a list of items, as in l_head
-def permutateGemsInSlotGearList(slot_gearlist, slot):
+def permutateGemsInSlotGearList(slot_gearlist):
     printLog("Permutating slot_gearlist: " + str(slot_gearlist))
     for item in slot_gearlist:
         printLog(str(item))
-        a = item.split(",")
+        item_attributes = item.split(",")
         gems = []
-        for i in range(len(a)):
+        for attr in item_attributes:
             # look for gem_id-string in items
-            if a[i].startswith("gem_id"):
-                _b, c = a[i].split("=")
-                gems = c.split("/")
-                # up to 3 possible gems
+            if attr.startswith("gem_id"):
+                _name, ids = attr.split("=")
+                logging.debug("Existing gems: {}".format(ids))
+                gems = ids.split("/")
         new_gems = get_Possible_Gem_Combinations(splitted_gems, len(gems))
-        printLog("New Gems: " + str(new_gems))
+        logging.info("New Gems: {}".format(new_gems))
         new_item = ""
-        for n in range(len(a)):
-            if not str(a[n]).startswith("gem") and not a[n] == "":
-                new_item += "," + str(a[n])
-        while new_gems:
-            ins = new_item + ",gem_id=" + new_gems.pop()
-            if slot == 1:
-                if ins not in l_head:
-                    l_head.insert(0, ins)
-            if slot == 2:
-                if ins not in l_neck:
-                    l_neck.insert(0, ins)
-            if slot == 3:
-                if ins not in l_shoulders:
-                    l_shoulders.insert(0, ins)
-            if slot == 4:
-                if ins not in l_chest:
-                    l_chest.insert(0, ins)
-            if slot == 5:
-                if ins not in l_wrists:
-                    l_wrists.insert(0, ins)
-            if slot == 6:
-                if ins not in l_hands:
-                    l_hands.insert(0, ins)
-            if slot == 7:
-                if ins not in l_waist:
-                    l_waist.insert(0, ins)
-            if slot == 8:
-                if ins not in l_legs:
-                    l_legs.insert(0, ins)
-            if slot == 9:
-                if ins not in l_feet:
-                    l_feet.insert(0, ins)
-            if slot == 10:
-                if ins not in l_finger1:
-                    l_finger1.insert(0, ins)
-            if slot == 11:
-                if ins not in l_finger2:
-                    l_finger2.insert(0, ins)
-            if slot == 12:
-                if ins not in l_trinket1:
-                    l_trinket1.insert(0, ins)
-            if slot == 13:
-                if ins not in l_trinket2:
-                    l_trinket2.insert(0, ins)
+        for attr in item_attributes:
+            if not str(attr).startswith("gem") and not attr == "":
+                new_item += "," + str(attr)
+        for gem in new_gems:
+            ins = new_item + ",gem_id=" + gem
+            if ins not in slot_gearlist:
+                slot_gearlist.insert(0, ins)
+
             # look for gems-string in items
             # todo implement
-            if a[i].startswith("gems"):
-                print(str(a[i]))
+            if attr.startswith("gems"):
+                print(str(attr))
 
 
-# add gems to the lists
-# current template
-# gems=150crit_150crit_150crit (not implemented yet)
-# shoulder=,id=146666,bonus_id=3459/3530,gem_id=130220/130220/130220
 def permutateGems():
     printLog("Permutating Gems")
-    permutateGemsInSlotGearList(l_head, 1)
-    permutateGemsInSlotGearList(l_neck, 2)
-    permutateGemsInSlotGearList(l_shoulders, 3)
-    permutateGemsInSlotGearList(l_chest, 4)
-    permutateGemsInSlotGearList(l_wrists, 5)
-    permutateGemsInSlotGearList(l_hands, 6)
-    permutateGemsInSlotGearList(l_waist, 7)
-    permutateGemsInSlotGearList(l_legs, 8)
-    permutateGemsInSlotGearList(l_feet, 9)
-    permutateGemsInSlotGearList(l_finger1, 10)
-    permutateGemsInSlotGearList(l_finger2, 11)
-    permutateGemsInSlotGearList(l_trinket1, 12)
-    permutateGemsInSlotGearList(l_trinket2, 13)
+    slots = [l_head,
+             l_neck,
+             l_shoulders,
+             l_chest,
+             l_wrists,
+             l_hands,
+             l_waist,
+             l_legs,
+             l_feet,
+             l_finger1,
+             l_finger2,
+             l_trinket1,
+             l_trinket2]
+    for slot in slots:
+        permutateGemsInSlotGearList(slot)
 
 
 def permutate_talents(talents):
