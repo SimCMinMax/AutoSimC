@@ -287,8 +287,8 @@ def scpout(oh):
     else:
         if not b_quiet:
             print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
-        outputFile.write(F"""
-{c_class}={getStringForProfile()}{maskedProfileID}
+        outputFile.write(
+F"""{c_class}={getStringForProfile()}{maskedProfileID}
 specialization={c_spec}
 race={c_race}
 level={c_level}
@@ -296,7 +296,8 @@ role={c_role}
 position={c_position}
 talents={c_talents}
 artifact={c_artifact}
-        """)
+"""
+        )
         if c_crucible != "":
             outputFile.write("crucible=" + c_crucible + "\n")
         if c_potion != "":
@@ -308,7 +309,8 @@ artifact={c_artifact}
         if c_augmentation != "":
             outputFile.write("augmentation=" + c_augmentation + "\n")
 
-        outputFile.write(F"""
+        outputFile.write(
+F"""
 head={cleanItem(l_gear[0])}
 neck={cleanItem(l_gear[1])}
 shoulders={cleanItem(l_gear[2])}
@@ -324,7 +326,9 @@ finger2={cleanItem(l_gear[11])}
 trinket1={cleanItem(l_gear[12])}
 trinket2={cleanItem(l_gear[13])}
 main_hand={l_gear[14]}
-        """)
+
+"""
+        )
         if oh == 1:
             outputFile.write("off_hand=" + l_gear[15] + "\n\n")
         else:
