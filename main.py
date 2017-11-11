@@ -288,14 +288,15 @@ def scpout(oh):
         if not b_quiet:
             print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
         outputFile.write(F"""
-            {c_class}={getStringForProfile()}{maskedProfileID}\n
-            specialization={c_spec}\n
-            race={c_race}\n"
-            level={c_level}\n"
-            role={c_role}\n"
-            position={c_position}\n"
-            talents={c_talents}\n"
-            artifact={c_artifact}\n""")
+{c_class}={getStringForProfile()}{maskedProfileID}
+specialization={c_spec}
+race={c_race}
+level={c_level}
+role={c_role}
+position={c_position}
+talents={c_talents}
+artifact={c_artifact}
+        """)
         if c_crucible != "":
             outputFile.write("crucible=" + c_crucible + "\n")
         if c_potion != "":
@@ -308,21 +309,21 @@ def scpout(oh):
             outputFile.write("augmentation=" + c_augmentation + "\n")
 
         outputFile.write(F"""
-            head={cleanItem(l_gear[0])}\n
-            neck={cleanItem(l_gear[1])}\n
-            shoulders={cleanItem(l_gear[2])}\n
-            back={cleanItem(l_gear[3])}\n
-            chest={cleanItem(l_gear[4])}\n
-            wrists={cleanItem(l_gear[5])}\n
-            hands={cleanItem(l_gear[6])}\n
-            waist={cleanItem(l_gear[7])}\n
-            legs={cleanItem(l_gear[8])}\n
-            feet={cleanItem(l_gear[9])}\n
-            finger1={cleanItem(l_gear[10])}\n
-            finger2={cleanItem(l_gear[11])}\n
-            trinket1={cleanItem(l_gear[12])}\n
-            trinket2={cleanItem(l_gear[13])}\n
-            main_hand={l_gear[14]}\n
+head={cleanItem(l_gear[0])}
+neck={cleanItem(l_gear[1])}
+shoulders={cleanItem(l_gear[2])}
+back={cleanItem(l_gear[3])}
+chest={cleanItem(l_gear[4])}
+wrists={cleanItem(l_gear[5])}
+hands={cleanItem(l_gear[6])}
+waist={cleanItem(l_gear[7])}
+legs={cleanItem(l_gear[8])}
+feet={cleanItem(l_gear[9])}
+finger1={cleanItem(l_gear[10])}
+finger2={cleanItem(l_gear[11])}
+trinket1={cleanItem(l_gear[12])}
+trinket2={cleanItem(l_gear[13])}
+main_hand={l_gear[14]}
         """)
         if oh == 1:
             outputFile.write("off_hand=" + l_gear[15] + "\n\n")
