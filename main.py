@@ -337,21 +337,52 @@ main_hand={l_gear[14]}
     return ()
 
 
-# Manage command line parameters
-# todo: include logic to split into smaller/larger files (default 50)
-def handleCommandLine():
+def parse_command_line_args():
+    """Parse command line arguments using argparse. Also provides --help functionality, and default values for args"""
+
     parser = argparse.ArgumentParser(description="Python script to create multiple profiles for SimulationCraft to "
                                      "find Best-in-Slot and best enchants/gems/talents combinations.",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                     epilog="Don't hesitate to go on the SimcMinMax Discord "
+                                     "(https://discordapp.com/invite/tFR2uvK) "
+                                     "in the #simpermut-autosimc Channel to ask about specific stuff.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter  # Show default arguments
+                                     )
+
     parser.add_argument('-i', '--inputfile',
                         default="input.txt",
                         required=False,
-                        help='This is the input file.')
+                        help="Inputfile describing the permutation of SimC profiles to generate. See README for more "
+                        "details.")
 
     parser.add_argument('-o', '--outputfile',
                         default="out.simc",
                         required=False,
-                        help='this is the output file. As the input file, you can have different output file')
+                        help='Output file containing the generated profiles used for the simulation.')
+
+    parser.add_argument('-sim',
+                        required=False,
+                        nargs="*",
+                        choices=['stage1', 'stage2', 'stage3'],
+                        help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
+                        "Might take a long time, depending on number of permutations. "
+                        "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
+                        "will be saved in results-subfolder."
+                        "There are 2 modes available for calculating the possible huge amount of permutations: "
+                        "Static and dynamic mode:"
+                        "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
+                        "100, 1000 and 10000 for each stage."
+                        "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
+                        "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
+                        "target_error=0.2, and 0.05 for the final stage 3."
+                        "(These numbers might be changed in future versions)"
+                        "You have to set the simc path in the settings.py file."
+                        "- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during "
+                        "stage1, by launching with the parameter -sim stage2 (or stage3). You will have to enter the "
+                        "amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)"
+                        "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
+                        "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
+                        "or instabilities, edit settings.py and change the corresponding parameters or even disable it. "
+                        )
 
     parser.add_argument('-quiet', '--quiet',
                         action='store_true',
@@ -360,7 +391,7 @@ def handleCommandLine():
 
     parser.add_argument('-gems', '--gems',
                         required=False,
-                        help='Enables permutation of gem-combinations in your gear. With e.g. <-gems "crit,haste,int"> '
+                        help='Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
                         'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
                         'greens are not supported) in addition to the ones you have currently equipped.\n'
                         '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
@@ -373,13 +404,6 @@ def handleCommandLine():
                         '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
                         'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
                         'when enabling this.')
-
-    parser.add_argument('-sim',
-                        required=False,
-                        nargs="*",
-                        choices=['stage1', 'stage2', 'stage3'],
-                        help='Option for disabling Console-output. Generates the outputfile much faster for '
-                        'large permuation-size')
 
     parser.add_argument('-l', '--legendaries',
                         required=False,
@@ -398,7 +422,13 @@ def handleCommandLine():
                         required=False,
                         help='Maximum number of legendaries in the permutations.')
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+# Manage command line parameters
+# todo: include logic to split into smaller/larger files (default 50)
+def handleCommandLine():
+    args = parse_command_line_args()
     logging.debug("Parsed command line arguments: {}".format(args))
 
     # For now, just write command line arguments into globals
