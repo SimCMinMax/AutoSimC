@@ -8,6 +8,8 @@ import datetime
 import os
 import json
 import shutil
+import argparse
+import logging
 
 from settings import settings
 
@@ -339,6 +341,68 @@ def scpout(oh):
 # Manage command line parameters
 # todo: include logic to split into smaller/larger files (default 50)
 def handleCommandLine():
+    parser = argparse.ArgumentParser(description="Python script to create multiple profiles for SimulationCraft to "
+                                     "find Best-in-Slot and best enchants/gems/talents combinations.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-i', '--inputfile',
+                        default="input.txt",
+                        required=False,
+                        help='This is the input file.')
+
+    parser.add_argument('-o', '--outputfile',
+                        default="out.simc",
+                        required=False,
+                        help='this is the output file. As the input file, you can have different output file')
+
+    parser.add_argument('-quiet', '--quiet',
+                        action='store_true',
+                        help='Option for disabling Console-output. Generates the outputfile much faster for '
+                        'large permuation-size')
+
+    parser.add_argument('-gems', '--gems',
+                        required=False,
+                        help='Enables permutation of gem-combinations in your gear. With e.g. <-gems "crit,haste,int"> '
+                        'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
+                        'greens are not supported) in addition to the ones you have currently equipped.\n'
+                        '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
+                        '(without <>) into the commandline, the permutation process uses the single int- '
+                        'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
+                        'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
+                        'commandline reenables that.\n'
+                        '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
+                        'Simpermut usually creates this for you.\n'
+                        '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
+                        'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
+                        'when enabling this.')
+
+    parser.add_argument('-sim',
+                        required=False,
+                        nargs="*",
+                        choices=['stage1', 'stage2', 'stage3'],
+                        help='Option for disabling Console-output. Generates the outputfile much faster for '
+                        'large permuation-size')
+
+    parser.add_argument('-l', '--legendaries',
+                        required=False,
+                        help='List of legendaries to add to the template. Format:\n'
+                        '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
+
+    parser.add_argument('-Min_leg', '--legendary_min',
+                        default=0,
+                        type=int,
+                        required=False,
+                        help='Minimum number of legendaries in the permutations.')
+
+    parser.add_argument('-max_leg', '--legendary_max',
+                        default=2,
+                        type=int,
+                        required=False,
+                        help='Maximum number of legendaries in the permutations.')
+
+    args = parser.parse_args()
+    logging.debug("Parsed command line arguments: {}".format(args))
+
+    # For now, just write command line arguments into globals
     global inputFileName
     global outputFileName
     global legmin
@@ -348,96 +412,32 @@ def handleCommandLine():
     global s_stage
     global restart
     global gemspermutation
+    inputFileName = args.inputfile
+    outputFileName = args.outputfile
+    legmin = args.legendary_min
+    legmax = args.legendary_max
+    b_quiet = args.quiet
 
-    # parameter-list, so they are "protected" if user enters wrong commandline
-    set_parameters = set()
-    set_parameters.add("-i")
-    set_parameters.add("-o")
-    set_parameters.add("-l")
-    set_parameters.add("-quiet")
-    set_parameters.add("-sim")
-    set_parameters.add("-gems")
+    # Sim Argument is either None when not specified, a empty list [] when specified without an argument, or a list with one 
+    # argument, eg. ["stage1"]
+    b_simcraft_enabled = (args.sim is not None)
+    if args.sim is not None and len(args.sim) > 0:
+        s_stage = args.sim[0]
 
-    for a in range(1, len(sys.argv)):
-        if sys.argv[a] == "-i":
-            inputFileName = sys.argv[a + 1]
-            if inputFileName not in set_parameters:
-                if os.path.isfile(inputFileName):
-                    printLog("Input file changed to " + inputFileName)
-                else:
-                    print("Error: Input file does not exist")
-                    sys.exit(1)
-            else:
-                print("Error: No or invalid input file declared: " + inputFileName)
-                sys.exit(1)
-        if sys.argv[a] == "-o":
-            outputFileName = sys.argv[a + 1]
-            if outputFileName not in set_parameters:
-                printLog("Output file changed to " + outputFileName)
-                # if os.path.isfile(outputFileName):
-                #    print("Error: Output file already exists")
-                #    sys.exit(1)
-            else:
-                print("Error: No or invalid output file declared: " + outputFileName)
-                sys.exit(1)
-        if sys.argv[a] == "-l":
-            elements = sys.argv[a + 1].split(',')
-            # produces an error if <-l "" 2:2> was entered, what is the correct syntax?
-            # i handle this in settings.py
-            if elements:
-                handlePermutation(elements)
-            # number of leg
-            if sys.argv[a + 2][0] != "-":
-                legNb = sys.argv[a + 2].split(':')
-                legmin = int(legNb[0])
-                legmax = int(legNb[1])
-                printLog("Set legendary to  " + str(legmin) + "/" + str(legmax))
-        if sys.argv[a] == "-quiet":
-            printLog("Quiet-Mode enabled")
-            b_quiet = 1
-        # if option -sim exists in commandline incl. stage1,2,3, it overwrites all values of settings.py
-        if sys.argv[a] == "-sim":
-            # check path of simc.exe
-            if not os.path.exists(settings.simc_path):
-                printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-                print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-                sys.exit(1)
-            else:
-                printLog("Path to simc.exe valid, proceeding...")
-            print("SimCraft-Mode enabled")
-            printLog("SimCraft-Mode enabled")
-            b_simcraft_enabled = True
-            # optional parameter to skip steps and continue at a certain point without deleting intermediate files:
-            # usage main.py -i ... -o ... -sim [stage1|stage2|stage3]
-            # staging is equivalent to the 3 iteration processes:
-            #   - 1: mass processing with few iterations (default)
-            #   - 2: picking best n and process these
-            #   - 3: picking top n out of these
-            # it is essentially used to skip the most time consuming part, stage 1
-            # to test alterations and different outputs, e.g. using same gear within different scenarios
-            # (standard might be patchwerk, but what happens with this gear- and talentchoice in a
-            # helterskelter-szenario?)
-            if sys.argv[a + 1] != s_stage:
-                restart = True
-            else:
-                restart = False
-            s_stage = sys.argv[a + 1]
-            if s_stage in set_parameters:
-                printLog("Wrong parameter for -sim: " + str(s_stage))
-                print("Wrong parameter for ""-sim"" option: " + str(s_stage))
-                sys.exit(1)
-            if not s_stage:
-                printLog("Missing parameter for -sim: " + s_stage)
-                print("Missing parameter for ""-sim"" option: " + str(s_stage))
-                sys.exit(1)
-            if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
-                printLog("Wrong Parameter for Stage: " + str(s_stage))
-                sys.exit(1)
-        if sys.argv[a] == "-gems":
-            gems = sys.argv[a + 1]
-            if gems not in set_parameters:
-                gemspermutation = True
-                handleGems(gems)
+    # Check simc executable availability. Maybe move to somewhere else.
+    if b_simcraft_enabled:
+        if not os.path.exists(settings.simc_path):
+            printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+            print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+            sys.exit(1)
+        else:
+            printLog("Path to simc.exe valid, proceeding...")
+
+    gemspermutation = args.gems
+    if args.legendaries is not None:
+        handlePermutation(args.legendaries.split(','))
+    if args.gems is not None:
+        handleGems(args.gems)
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
@@ -659,7 +659,11 @@ def permutateGems():
 def permutate():
     # Read input.txt to init vars
     config = configparser.ConfigParser()
-    config.read(inputFileName, encoding='utf-8-sig')
+
+    # use read_file to get a error when input file is not available
+    with open(inputFileName, encoding='utf-8-sig') as f:
+        config.read_file(f)
+
     profile = config['Profile']
     gear = config['Gear']
 
@@ -1353,6 +1357,7 @@ def setClassSpecData():
 ########################
 sys.stderr = open(errorFileName, 'w')
 logFile = open(logFileName, 'w')
+logging.basicConfig()#level=logging.DEBUG)
 
 # check version of python-interpreter running the script
 if not checkinterpreter():
