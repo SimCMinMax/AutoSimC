@@ -18,13 +18,14 @@ from specdata import specdata
 import splitter
 import hashlib
 
-try:
-    filename = "settings.py"
-    source = open(filename, 'r').read()
-    compile(source, filename, 'exec')
-except SyntaxError:
-    print("Error in settings.py, pls check for syntax-errors")
-    sys.exit(1)
+if __name__ == "__main__":
+    try:
+        filename = "settings.py"
+        source = open(filename, 'r').read()
+        compile(source, filename, 'exec')
+    except SyntaxError:
+        print("Error in settings.py, pls check for syntax-errors")
+        sys.exit(1)
 
 # Var init with default value
 c_profileid = 0
@@ -128,12 +129,13 @@ def handlePermutation(elements):
 
 
 def build_gem_list(gems):
-    allowed_gems = ["crit", "vers", "haste", "mast", "int", "str", "agi"]
     splitted_gems = gems.split(",")
     for gem in splitted_gems:
-        if gem not in allowed_gems:
-            raise ValueError("Unknown gem '{}' to sim, please check your input.".format(gem))
-    return splitted_gems
+        if gem not in gem_ids.keys():
+            raise ValueError("Unknown gem '{}' to sim, please check your input. Valid gems: {}".
+                             format(gem, gem_ids.keys()))
+    # Convert parsed gems to list of gem ids
+    return [gem_ids[gem] for gem in splitted_gems]
 
 
 def cleanItem(item_string):
@@ -398,6 +400,7 @@ def parse_command_line_args():
                         help='Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
                         'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
                         'greens are not supported) in addition to the ones you have currently equipped.\n'
+                        'Valid gems: {}'
                         '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
                         '(without <>) into the commandline, the permutation process uses the single int- '
                         'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
@@ -407,7 +410,7 @@ def parse_command_line_args():
                         'Simpermut usually creates this for you.\n'
                         '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
                         'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
-                        'when enabling this.')
+                        'when enabling this.'.format(list(gem_ids.keys())))
 
     parser.add_argument('-l', '--legendaries',
                         required=False,
@@ -597,30 +600,12 @@ def generate_checksum_of_permutations():
     print(str(hash_md5.hexdigest()))
 
 
-def get_Possible_Gem_Combinations(numberOfGems):
+def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
     printLog("Creating Gem Combinations")
     printLog("Number of Gems: " + str(numberOfGems))
-    l_gems = []
-    # 1 gem
-    if numberOfGems == 1:
-        for r in splitted_gems:
-            l_gems.append(gem_ids.get(r))
-    # 2 gems
-    if numberOfGems == 2:
-        for r in splitted_gems:
-            for s in splitted_gems:
-                if r < s:
-                    l_gems.append(gem_ids.get(r) + "/" + gem_ids.get(s))
-                else:
-                    l_gems.append(gem_ids.get(s) + "/" + gem_ids.get(r))
-    if numberOfGems == 3:
-        for r in splitted_gems:
-            for s in splitted_gems:
-                for t in splitted_gems:
-                    p = [r, s, t]
-                    p.sort()
-                    l_gems.append(gem_ids.get(p[0]) + "/" + gem_ids.get(p[1]) + "/" + gem_ids.get(p[2]))
-    return l_gems
+    combinations = itertools.combinations_with_replacement(gems_to_use, r=numberOfGems)
+    combinations = ["/".join(c) for c in combinations]
+    return combinations
 
 
 gemIDsMemoization = {}
@@ -656,7 +641,7 @@ def permutateGemsInSlotGearList(slot_gearlist, slot):
                 _b, c = a[i].split("=")
                 gems = c.split("/")
                 # up to 3 possible gems
-        new_gems = get_Possible_Gem_Combinations(len(gems))
+        new_gems = get_Possible_Gem_Combinations(splitted_gems, len(gems))
         printLog("New Gems: " + str(new_gems))
         new_item = ""
         for n in range(len(a)):
@@ -1475,11 +1460,11 @@ def main():
     if settings.clean_up_after_step3:
         cleanup()
 
-
-try:
-    main()
-    logging.shutdown()
-except Exception as e:
-    logging.error("Error: {}".format(e))
-    logging.debug("Main Exception", exc_info=True)
-    sys.exit(1)
+if __name__ == "__main__":
+    try:
+        main()
+        logging.shutdown()
+    except Exception as e:
+        logging.error("Error: {}".format(e))
+        logging.debug("Main Exception", exc_info=True)
+        sys.exit(1)
