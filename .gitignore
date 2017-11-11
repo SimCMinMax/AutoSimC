@@ -16,3 +16,7 @@ out.simc
 .vs/*
 .project
 .pydevproject
+out.simc
+logs.txt
+error.txt
+.settings/
