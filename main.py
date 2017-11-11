@@ -28,14 +28,14 @@ except SyntaxError:
 # Var init with default value
 c_profileid = 0
 c_profilemaxid = 0
-legmin = settings.default_leg_min
-legmax = settings.default_leg_max
-t19min = settings.default_equip_t19_min
-t19max = settings.default_equip_t19_max
-t20min = settings.default_equip_t20_min
-t20max = settings.default_equip_t20_max
-t21min = settings.default_equip_t21_min
-t21max = settings.default_equip_t21_max
+legmin = int(settings.default_leg_min)
+legmax = int(settings.default_leg_max)
+t19min = int(settings.default_equip_t19_min)
+t19max = int(settings.default_equip_t19_max)
+t20min = int(settings.default_equip_t20_min)
+t20max = int(settings.default_equip_t20_max)
+t21min = int(settings.default_equip_t21_min)
+t21max = int(settings.default_equip_t21_max)
 
 outputFileName = settings.default_outputFileName
 # txt, because standard-user cannot be trusted
@@ -126,16 +126,13 @@ def handlePermutation(elements):
         addToTab(pieces)
 
 
-def handleGems(gems):
+def build_gem_list(gems):
     allowed_gems = ["crit", "vers", "haste", "mast", "int", "str", "agi"]
-    global splitted_gems
-    if gems:
-        splitted_gems = gems.split(",")
-        for i in range(len(splitted_gems)):
-            if splitted_gems[i] not in allowed_gems:
-                printLog("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
-                print("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
-                sys.exit(1)
+    splitted_gems = gems.split(",")
+    for gem in splitted_gems:
+        if gem not in allowed_gems:
+            raise ValueError("Unknown gem '{}' to sim, please check your input.".format(gem))
+    return splitted_gems
 
 
 def cleanItem(item_string):
@@ -155,11 +152,11 @@ def check_not_usable():
     temp_t19 = 0
     temp_t20 = 0
     temp_t21 = 0
-    for i in range(len(l_gear)):
-        if l_gear[i][0] == "L":
+    for gear in l_gear:
+        if gear[0] == "L":
             nbLeg = nbLeg + 1
             continue
-        gearLabel = l_gear[i][0:3]
+        gearLabel = gear[0:3]
         if gearLabel == "T19":
             temp_t19 = temp_t19 + 1
             continue
@@ -179,17 +176,17 @@ def check_not_usable():
         if not getIdFromItem(l_gear[12]) == "154172" and not getIdFromItem(l_gear[13]) == "154172":
             return " 3 legs equipped, but no Amanthul-Trinket found"
 
-    if temp_t19 < int(t19min):
+    if temp_t19 < t19min:
         return " " + str(temp_t19) + ": too few T19-items (" + str(t19min) + " asked)"
-    if temp_t20 < int(t20min):
+    if temp_t20 < t20min:
         return " " + str(temp_t20) + ": too few T20-items (" + str(t20min) + " asked)"
-    if temp_t21 < int(t21min):
+    if temp_t21 < t21min:
         return " " + str(temp_t21) + ": too few T21-items (" + str(t21min) + " asked)"
-    if temp_t19 > int(t19max):
+    if temp_t19 > t19max:
         return " " + str(temp_t19) + ": too much T19-items (" + str(t19max) + " asked)"
-    if temp_t20 > int(t20max):
+    if temp_t20 > t20max:
         return " " + str(temp_t20) + ": too much T20-items (" + str(t20max) + " asked)"
-    if temp_t21 > int(t21max):
+    if temp_t21 > t21max:
         return " " + str(temp_t21) + ": too much T21-items (" + str(t21max) + " asked)"
 
     if getIdFromItem(l_gear[10]) == getIdFromItem(l_gear[11]):
@@ -208,8 +205,8 @@ def check_not_usable():
     # check gems
     # int, str, agi should be only equipped once:
     nUniqueGems = 0
-    for i in range(len(l_gear)):
-        gems = getGemsFromItem(l_gear[i])
+    for gear in l_gear:
+        gems = getGemsFromItem(gear)
         if "130246" in gems or "130247" in gems or "130248" in gems:
             nUniqueGems += 1
     if nUniqueGems > 1:
@@ -223,26 +220,26 @@ def check_not_usable():
         namingData['Leg0'] = ""
         namingData["Leg1"] = ""
     elif nbLeg == 1:
-        for a in range(len(l_gear)):
-            if l_gear[a][0] == "L":
-                namingData['Leg0'] = getIdFromItem(l_gear[a][0])
+        for gear in l_gear:
+            if gear[0] == "L":
+                namingData['Leg0'] = getIdFromItem(gear[0])
     elif nbLeg == 2:
-        for a in range(len(l_gear)):
-            if l_gear[a][0] == "L":
+        for gear in l_gear:
+            if gear[0] == "L":
                 if namingData.get('Leg0') is not None:
-                    namingData['Leg1'] = getIdFromItem(l_gear[a])
+                    namingData['Leg1'] = getIdFromItem(gear)
                 else:
-                    namingData['Leg0'] = getIdFromItem(l_gear[a])
+                    namingData['Leg0'] = getIdFromItem(gear)
     elif nbLeg == 3:
-        for a in range(len(l_gear)):
-            if l_gear[a][0] == "L":
+        for gear in l_gear:
+            if gear[0] == "L":
                 if namingData.get('Leg0') is None:
-                    namingData['Leg0'] = getIdFromItem(l_gear[a])
+                    namingData['Leg0'] = getIdFromItem(gear)
                 else:
                     if namingData.get('Leg1') is not None:
-                        namingData['Leg1'] = getIdFromItem(l_gear[a])
+                        namingData['Leg1'] = getIdFromItem(gear)
                     else:
-                        namingData['Leg2'] = getIdFromItem(l_gear[a])
+                        namingData['Leg2'] = getIdFromItem(gear)
 
     namingData["T19"] = temp_t19
     namingData["T20"] = temp_t20
@@ -288,9 +285,9 @@ def scpout(oh, outputFile):
 
     not_usable = check_not_usable()
     if not_usable:
-        logging.debug("Profile: {}/{}  Warning, not printed: {}".format(maskedProfileID,
-                                                                        c_profilemaxid,
-                                                                        not_usable))
+#         logging.debug("Profile: {}/{}  Warning, not printed: {}".format(maskedProfileID,
+#                                                                         c_profilemaxid,
+#                                                                         not_usable))
         return
 
     logging.debug("Profile: {}/{}".format(maskedProfileID, c_profilemaxid))
@@ -305,6 +302,7 @@ talents={c_talents}
 artifact={c_artifact}
 """
     )
+
     if c_crucible != "":
         outputFile.write("crucible=" + c_crucible + "\n")
     if c_potion != "":
@@ -475,7 +473,9 @@ def handleCommandLine():
     if args.legendaries is not None:
         handlePermutation(args.legendaries.split(','))
     if args.gems is not None:
-        handleGems(args.gems)
+        global splitted_gems
+        splitted_gems = build_gem_list(args.gems)
+
     return args
 
 
@@ -746,51 +746,31 @@ def permutate():
 
     # Read input.txt
     #   Profile
+    valid_classes = ["priest",
+                     "druid",
+                     "warrior",
+                     "paladin",
+                     "hunter",
+                     "deathknight",
+                     "demonhunter",
+                     "mage",
+                     "monk",
+                     "rogue",
+                     "shaman",
+                     "warlock",
+                     ]
     global c_class
     c_class = ""
     global c_profilename
     c_profilename = ""
-    if config.has_option('Profile', 'priest'):
-        c_class = 'priest'
-        c_profilename = profile['priest']
-    elif config.has_option('Profile', 'druid'):
-        c_class = 'druid'
-        c_profilename = profile['druid']
-    elif config.has_option('Profile', 'warrior'):
-        c_class = 'warrior'
-        c_profilename = profile['warrior']
-    elif config.has_option('Profile', 'paladin'):
-        c_class = 'paladin'
-        c_profilename = profile['paladin']
-    elif config.has_option('Profile', 'paladin'):
-        c_class = 'paladin'
-        c_profilename = profile['hunter']
-    elif config.has_option('Profile', 'hunter'):
-        c_class = 'hunter'
-        c_profilename = profile['hunter']
-    elif config.has_option('Profile', 'deathknight'):
-        c_class = 'deathknight'
-        c_profilename = profile['deathknight']
-    elif config.has_option('Profile', 'demonhunter'):
-        c_class = 'demonhunter'
-        c_profilename = profile['demonhunter']
-    elif config.has_option('Profile', 'mage'):
-        c_class = 'mage'
-        c_profilename = profile['mage']
-    elif config.has_option('Profile', 'monk'):
-        c_class = 'monk'
-        c_profilename = profile['monk']
-    elif config.has_option('Profile', 'rogue'):
-        c_class = 'rogue'
-        c_profilename = profile['rogue']
-    elif config.has_option('Profile', 'shaman'):
-        c_class = 'shaman'
-        c_profilename = profile['shaman']
-    elif config.has_option('Profile', 'warlock'):
-        c_class = 'warlock'
-        c_profilename = profile['warlock']
+    for wow_class in valid_classes:
+        if config.has_option('Profile', wow_class):
+            c_class = wow_class
+            c_profilename = profile[wow_class]
+            break
     else:
-        printLog("Error parsing profile")
+        raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
+                           format(valid_classes))
     global c_profileid
     c_profileid = 1
     global c_race
@@ -1051,24 +1031,25 @@ def permutate():
 
 
 def checkResultFiles(subdir, count=2):
-    printLog("Checking Files in subdirectory: " + str(subdir))
-    print("Checking Files in subdirectory: " + str(subdir))
-    if os.path.exists(os.path.join(os.getcwd(), subdir)):
+    subdir = os.path.join(os.getcwd(), subdir)
+    printLog("Checking Files in subdirectory: {}".format(subdir))
+    if os.path.exists(subdir):
         empty = 0
         checkedFiles = 0
-        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+        for _root, _dirs, files in os.walk(subdir):
             for file in files:
                 checkedFiles += 1
                 if file.endswith(".sim"):
                     name = file[0:file.find(".")]
-                    if not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result")):
-                        printLog("Result file not found for .sim: " + str(subdir) + "/" + str(file))
+                    result_file = os.path.join(subdir, name + ".result")
+                    if not os.path.exists(result_file):
+                        printLog("Result file not found for .sim: {}".format(result_file))
                         empty += 1
-                    elif os.stat(os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
-                        printLog("File is empty: " + str(subdir) + "/" + str(name))
+                    elif os.stat(result_file).st_size <= 0:
+                        printLog("File is empty: {}".format(result_file))
                         empty += 1
     else:
-        printLog("Error: Subdir does not exist: " + str(subdir))
+        printLog("Error: Subdir does not exist: {}".format(subdir))
         return False
 
     if checkedFiles == 0:
