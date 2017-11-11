@@ -1384,85 +1384,97 @@ def setClassSpecData():
 ########################
 #     Program Start    #
 ########################
-sys.stderr = open(errorFileName, 'w')
 
-# Handler to log messages to file
-log_handler = logging.FileHandler(logFileName)
-log_handler.setLevel(logging.INFO)
-log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
+def main():
+    global b_quiet
+    global s_stage
+    global b_simcraft_enabled
+    global class_spec
 
-# Handler for loging to stdout
-stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setLevel(logging.INFO)
-stdout_handler.setFormatter(logging.Formatter("%(message)s"))
+    error_handler = logging.FileHandler(errorFileName)
+    error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
-logging.basicConfig(level=logging.DEBUG, handlers=[log_handler,
-                                                   stdout_handler])
+    # Handler to log messages to file
+    log_handler = logging.FileHandler(logFileName)
+    log_handler.setLevel(logging.INFO)
+    log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
-# check version of python-interpreter running the script
-if not checkinterpreter():
-    printLog("Python-Version too old: You are running Python " + str(sys.version))
-    print("Python-Version too old: You are running Python " + str(sys.version))
-    printLog("Please install at least Python-Version 3.6.x")
-    print("Please install at least Python-Version 3.6.x")
-    sys.exit(0)
+    # Handler for loging to stdout
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.INFO)
+    stdout_handler.setFormatter(logging.Formatter("%(message)s"))
 
+    logging.basicConfig(level=logging.DEBUG, handlers=[error_handler,
+                                                       log_handler,
+                                                       stdout_handler])
 
-handleCommandLine()
-if b_quiet:
-    stdout_handler.setLevel(logging.WARNING)
-validateSettings()
+    # check version of python-interpreter running the script
+    if not checkinterpreter():
+        raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
+                           "Python-Version 3.6.x".format(sys.version))
 
-# can always be rerun since it is now deterministic
-if s_stage == "stage1" or s_stage == "":
-    permutate()
-    outputGenerated = True
-else:
-    if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
+    handleCommandLine()
+    if b_quiet:
+        stdout_handler.setLevel(logging.WARNING)
+    validateSettings()
+
+    # can always be rerun since it is now deterministic
+    if s_stage == "stage1" or s_stage == "":
         permutate()
         outputGenerated = True
     else:
-        outputGenerated = False
+        if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
+            permutate()
+            outputGenerated = True
+        else:
+            outputGenerated = False
 
-setClassSpecData()
+    setClassSpecData()
 
-if not settings.skip_questions:
-    if i_generatedProfiles > 50000:
-        if input(
-                "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
-                " <----- (Press Enter to continue, q to quit)") == "q":
-            printLog("Program exit by user")
-            sys.exit(0)
+    if not settings.skip_questions:
+        if i_generatedProfiles > 50000:
+            if input(
+                    "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                    " <----- (Press Enter to continue, q to quit)") == "q":
+                logging.info("Program exit by user")
+                sys.exit(0)
 
-if outputGenerated:
-    if i_generatedProfiles == 0:
-        print("No valid combinations found. Please check settings.py and your simpermut-export.")
-        sys.exit(1)
-
-if b_simcraft_enabled:
     if outputGenerated:
-        class_spec = s.getClassSpec()
-    else:
-        class_spec = getClassFromInput()
+        if i_generatedProfiles == 0:
+            raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
 
-    if s_stage == "":
-        s_stage = settings.default_sim_start_stage
+    if b_simcraft_enabled:
+        if outputGenerated:
+            class_spec = s.getClassSpec()
+        else:
+            class_spec = getClassFromInput()
 
-    if s_stage == "stage1":
-        stage1()
-    if s_stage == "stage2":
-        if restart:
-            if input("Do you want to restart stage 2?: (Enter to proceed, q to quit): ") == "q":
+        if s_stage == "":
+            s_stage = settings.default_sim_start_stage
+
+        if s_stage == "stage1":
+            stage1()
+        if s_stage == "stage2":
+            if restart:
+                if input("Do you want to restart stage 2?: (Enter to proceed, q to quit): ") == "q":
+                    printLog("Restart aborted by user")
+                else:
+                    stage2_restart()
+        if s_stage == "stage3":
+            if input("Do you want to restart stage 3?: (Enter to proceed, q to quit): ") == "q":
                 printLog("Restart aborted by user")
             else:
-                stage2_restart()
-    if s_stage == "stage3":
-        if input("Do you want to restart stage 3?: (Enter to proceed, q to quit): ") == "q":
-            printLog("Restart aborted by user")
-        else:
-            stage3_restart()
+                stage3_restart()
 
-if settings.clean_up_after_step3:
-    cleanup()
+    if settings.clean_up_after_step3:
+        cleanup()
 
-logging.shutdown()
+
+try:
+    main()
+    logging.shutdown()
+except Exception as e:
+    logging.error("Error: {}".format(e))
+    logging.debug("Main Exception", exc_info=True)
+    sys.exit(1)
