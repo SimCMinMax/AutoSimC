@@ -149,7 +149,8 @@ def cleanItem(item_string):
 antorusTrinkets = {"154172", "154173", "154174", "154175", "154176", "154177"}
 
 
-def checkUsability():
+def check_not_usable():
+    """Check if profile is un-usable. Return None if ok, otherwise return reason"""
     nbLeg = 0
     temp_t19 = 0
     temp_t20 = 0
@@ -247,7 +248,7 @@ def checkUsability():
     namingData["T20"] = temp_t20
     namingData["T21"] = temp_t21
 
-    return ""
+    return None
 
 
 itemIDsMemoization = {}
@@ -266,28 +267,34 @@ def getIdFromItem(item):
 
 
 # Print a simc profile
-def scpout(oh):
+def scpout(oh, outputFile):
     global c_profileid
     global i_generatedProfiles
-    result = checkUsability()
     digits = len(str(c_profilemaxid))
     mask = '00000000000000000000000000000000000'
     maskedProfileID = (mask + str(c_profileid))[-digits:]
+    c_profileid += 1
+
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
     if int(maskedProfileID) % 5000 == 0:
-        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
-            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
+        logging.info("Processed {}/{} ({:.2f}%)".format(maskedProfileID,
+                                                        c_profilemaxid,
+                                                        100.0 * float(int(maskedProfileID) / int(c_profilemaxid))))
     if int(maskedProfileID) == c_profilemaxid:
-        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
-            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
-    if result != "":
-        if settings.DEBUG:
-            printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
-    else:
-        if not b_quiet:
-            print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
-        outputFile.write(
+        logging.info("Processed: {}/{} ({:.2f}%)".format(maskedProfileID,
+                                                         c_profilemaxid,
+                                                         100.0 * float(int(maskedProfileID) / int(c_profilemaxid))))
+
+    not_usable = check_not_usable()
+    if not_usable:
+        logging.debug("Profile: {}/{}  Warning, not printed: {}".format(maskedProfileID,
+                                                                        c_profilemaxid,
+                                                                        not_usable))
+        return
+
+    logging.debug("Profile: {}/{}".format(maskedProfileID, c_profilemaxid))
+    outputFile.write(
 F"""{c_class}={getStringForProfile()}{maskedProfileID}
 specialization={c_spec}
 race={c_race}
@@ -297,19 +304,19 @@ position={c_position}
 talents={c_talents}
 artifact={c_artifact}
 """
-        )
-        if c_crucible != "":
-            outputFile.write("crucible=" + c_crucible + "\n")
-        if c_potion != "":
-            outputFile.write("potion=" + c_potion + "\n")
-        if c_flask != "":
-            outputFile.write("flask=" + c_flask + "\n")
-        if c_food != "":
-            outputFile.write("food=" + c_food + "\n")
-        if c_augmentation != "":
-            outputFile.write("augmentation=" + c_augmentation + "\n")
+    )
+    if c_crucible != "":
+        outputFile.write("crucible=" + c_crucible + "\n")
+    if c_potion != "":
+        outputFile.write("potion=" + c_potion + "\n")
+    if c_flask != "":
+        outputFile.write("flask=" + c_flask + "\n")
+    if c_food != "":
+        outputFile.write("food=" + c_food + "\n")
+    if c_augmentation != "":
+        outputFile.write("augmentation=" + c_augmentation + "\n")
 
-        outputFile.write(
+    outputFile.write(
 F"""
 head={cleanItem(l_gear[0])}
 neck={cleanItem(l_gear[1])}
@@ -327,14 +334,12 @@ trinket1={cleanItem(l_gear[12])}
 trinket2={cleanItem(l_gear[13])}
 main_hand={l_gear[14]}
 """
-        )
-        if oh == 1:
-            outputFile.write("off_hand=" + l_gear[15] + "\n\n\n")
-        else:
-            outputFile.write("\n\n")
-        i_generatedProfiles += 1
-    c_profileid += 1
-    return ()
+    )
+    if oh == 1:
+        outputFile.write("off_hand=" + l_gear[15] + "\n\n")
+    else:
+        outputFile.write("\n")
+    i_generatedProfiles += 1
 
 
 def parse_command_line_args():
@@ -422,6 +427,10 @@ def parse_command_line_args():
                         required=False,
                         help='Maximum number of legendaries in the permutations.')
 
+    parser.add_argument('--debug',
+                        action='store_true',
+                        help='Write debug information to log file.')
+
     return parser.parse_args()
 
 
@@ -467,6 +476,7 @@ def handleCommandLine():
         handlePermutation(args.legendaries.split(','))
     if args.gems is not None:
         handleGems(args.gems)
+    return args
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
@@ -487,29 +497,37 @@ def get_data(class_spec):
 
 def cleanup():
     printLog("Cleaning up")
-    if not os.path.exists(os.path.join(os.getcwd(), settings.result_subfolder)):
-        printLog("Result-subfolder does not exist: " + str(settings.result_subfolder) + ", creating it")
-        os.makedirs(settings.result_subfolder)
+    result_folder = os.path.join(os.getcwd(), settings.result_subfolder)
+    if not os.path.exists(result_folder):
+        logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
+        os.makedirs(result_folder)
 
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir3)):
+    subdir3 = os.path.join(os.getcwd(), settings.subdir3)
+    if os.path.exists(subdir3):
+        for _root, _dirs, files in os.walk(subdir3):
             for file in files:
                 if file.endswith(".html"):
                     printLog("Moving file: " + str(file))
                     shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
                                 os.path.join(os.getcwd(), settings.result_subfolder, file))
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
-        if settings.delete_temp_default or input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
-            printLog("Removing: " + settings.subdir1)
-            shutil.rmtree(settings.subdir1)
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
-        if settings.delete_temp_default or input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
-            shutil.rmtree(settings.subdir2)
-            printLog("Removing: " + settings.subdir2)
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        if settings.delete_temp_default or input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
-            shutil.rmtree(settings.subdir3)
-            printLog("Removing: " + settings.subdir3)
+
+    subdir1 = os.path.join(os.getcwd(), settings.subdir1)
+    if os.path.exists(subdir1):
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir1 + "? (Press y to confirm): ") == "y":
+            printLog("Removing: {}".format(subdir1))
+            shutil.rmtree(subdir1)
+
+    subdir2 = os.path.join(os.getcwd(), settings.subdir2)
+    if os.path.exists(subdir2):
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir2 + "? (Press y to confirm): ") == "y":
+            shutil.rmtree(subdir2)
+            printLog("Removing: " + subdir2)
+
+    subdir3 = os.path.join(os.getcwd(), settings.subdir3)
+    if os.path.exists(subdir3):
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir3 + "? (Press y to confirm): ") == "y":
+            shutil.rmtree(subdir3)
+            printLog("Removing: " + subdir3)
 
 
 def validateSettings():
@@ -536,7 +554,8 @@ def validateSettings():
     total_min = 0
     for tier_name, (tier_set_min, tier_set_max) in tier_sets.items():
         if tier_set_min < min_tier_sets:
-            raise ValueError("Invalid tier set minimum ({} < {}) for tier '{}'".format(tier_set_min, min_tier_sets, tier_name))
+            raise ValueError("Invalid tier set minimum ({} < {}) for tier '{}'".
+                             format(tier_set_min, min_tier_sets, tier_name))
         if tier_set_max > max_tier_sets:
             raise ValueError("Invalid tier set maximum ({} > {}) for tier '{}'".
                              format(tier_set_max, max_tier_sets, tier_name))
@@ -723,8 +742,7 @@ def permutate():
     gear = config['Gear']
 
     if 'class' in profile:
-        print("You input class format is wrong, please update SimPermut or your input file.\n")
-        sys.exit(1)
+        raise RuntimeError("You input class format is wrong, please update SimPermut or your input file.")
 
     # Read input.txt
     #   Profile
@@ -970,69 +988,66 @@ def permutate():
                         l_trinkets.append(trinket_combo)
 
     # Make permutations
-    global outputFile
-    outputFile = open(outputFileName, 'w')
-    global l_gear
-    l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
-              "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
-
-    # changed according to merged fields
-    global c_profilemaxid
-    c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
-        l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
-        l_off_hand) * len(l_talents)
-
-    if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
-            round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue, Enter to exit: ") == "y":
-        printLog("User exit")
-        sys.exit(0)
-
-    printLog("Starting permutations : " + str(c_profilemaxid))
-    for a in range(len(l_head)):
-        l_gear[0] = l_head[a]
-        for b in range(len(l_neck)):
-            l_gear[1] = l_neck[b]
-            for c in range(len(l_shoulders)):
-                l_gear[2] = l_shoulders[c]
-                for d in range(len(l_back)):
-                    l_gear[3] = l_back[d]
-                    for e in range(len(l_chest)):
-                        l_gear[4] = l_chest[e]
-                        for f in range(len(l_wrists)):
-                            l_gear[5] = l_wrists[f]
-                            for g in range(len(l_hands)):
-                                l_gear[6] = l_hands[g]
-                                for h in range(len(l_waist)):
-                                    l_gear[7] = l_waist[h]
-                                    for i in range(len(l_legs)):
-                                        l_gear[8] = l_legs[i]
-                                        for j in range(len(l_feet)):
-                                            l_gear[9] = l_feet[j]
-                                            # changed according to new concatenated fields
-                                            for k in range(len(l_fingers)):
-                                                fingers = l_fingers[k].split('|')
-                                                l_gear[10] = fingers[0]
-                                                l_gear[11] = fingers[1]
-                                                for l in range(len(l_trinkets)):
-                                                    trinkets = l_trinkets[l].split('|')
-                                                    l_gear[12] = trinkets[0]
-                                                    l_gear[13] = trinkets[1]
-                                                    for m in range(len(l_talents)):
-                                                        c_talents = l_talents[m]
-                                                        if c_off_hand != "":
-                                                            for o in range(len(l_main_hand)):
-                                                                l_gear[14] = l_main_hand[o]
-                                                                for p in range(len(l_off_hand)):
-                                                                    l_gear[15] = l_off_hand[p]
-                                                                    scpout(1)
-                                                        else:
-                                                            for o in range(len(l_main_hand)):
-                                                                l_gear[14] = l_main_hand[o]
-                                                                scpout(0)
-
-    printLog("Ending permutations. Valid: " + str(i_generatedProfiles))
-    print("Generated permutations. Valid: " + str(i_generatedProfiles))
-    outputFile.close()
+    with open(outputFileName, 'w') as output_file:
+        global l_gear
+        l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
+                  "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
+    
+        # changed according to merged fields
+        global c_profilemaxid
+        c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
+            l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
+            l_off_hand) * len(l_talents)
+    
+        if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
+                round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue, Enter to exit: ") == "y":
+            printLog("User exit")
+            sys.exit(0)
+    
+        printLog("Starting permutations : " + str(c_profilemaxid))
+        for a in range(len(l_head)):
+            l_gear[0] = l_head[a]
+            for b in range(len(l_neck)):
+                l_gear[1] = l_neck[b]
+                for c in range(len(l_shoulders)):
+                    l_gear[2] = l_shoulders[c]
+                    for d in range(len(l_back)):
+                        l_gear[3] = l_back[d]
+                        for e in range(len(l_chest)):
+                            l_gear[4] = l_chest[e]
+                            for f in range(len(l_wrists)):
+                                l_gear[5] = l_wrists[f]
+                                for g in range(len(l_hands)):
+                                    l_gear[6] = l_hands[g]
+                                    for h in range(len(l_waist)):
+                                        l_gear[7] = l_waist[h]
+                                        for i in range(len(l_legs)):
+                                            l_gear[8] = l_legs[i]
+                                            for j in range(len(l_feet)):
+                                                l_gear[9] = l_feet[j]
+                                                # changed according to new concatenated fields
+                                                for k in range(len(l_fingers)):
+                                                    fingers = l_fingers[k].split('|')
+                                                    l_gear[10] = fingers[0]
+                                                    l_gear[11] = fingers[1]
+                                                    for l in range(len(l_trinkets)):
+                                                        trinkets = l_trinkets[l].split('|')
+                                                        l_gear[12] = trinkets[0]
+                                                        l_gear[13] = trinkets[1]
+                                                        for m in range(len(l_talents)):
+                                                            c_talents = l_talents[m]
+                                                            if c_off_hand != "":
+                                                                for o in range(len(l_main_hand)):
+                                                                    l_gear[14] = l_main_hand[o]
+                                                                    for p in range(len(l_off_hand)):
+                                                                        l_gear[15] = l_off_hand[p]
+                                                                        scpout(1, output_file)
+                                                            else:
+                                                                for o in range(len(l_main_hand)):
+                                                                    l_gear[14] = l_main_hand[o]
+                                                                    scpout(0, output_file)
+        logging.info("Ending permutations. Valid: {:n}/{:n}".format(i_generatedProfiles,
+                                                                    c_profilemaxid))
 
 
 def checkResultFiles(subdir, count=2):
@@ -1440,9 +1455,11 @@ def main():
         raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
                            "Python-Version 3.6.x".format(sys.version))
 
-    handleCommandLine()
-    if b_quiet:
+    args = handleCommandLine()
+    if args.quiet:
         stdout_handler.setLevel(logging.WARNING)
+    if args.debug:
+        log_handler.setLevel(logging.DEBUG)
     validateSettings()
 
     # can always be rerun since it is now deterministic
