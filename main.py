@@ -514,17 +514,40 @@ def cleanup():
 
 def validateSettings():
     # validate amount of legendaries
-    if legmin > legmax or legmax > 3 or legmin > 3 or legmin < 0 or legmax < 0:
-        printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
-            legmax) + ". Please check settings.py for these parameters!")
-        sys.exit(0)
+    if legmin > legmax:
+        raise ValueError("Legendary min '{}' > legendary max '{}'".format(legmin, legmax))
+    if legmax > 3:
+        raise ValueError("Legendary Max '{}' too large (>3).".format(legmax))
+    if legmin > 3:
+        raise ValueError("Legendary Min '{}' too large (>3).".format(legmin))
+    if legmin < 0:
+        raise ValueError("Legendary Min '{}' is negative.".format(legmin))
+    if legmax < 0:
+        raise ValueError("Legendary Max '{}' is negative.".format(legmax))
+
     # validate tier-set
-    if (int(t19min) + int(t20min) + int(
-            t21min) > 6) or t19min < 0 or t19min > 6 or t20min < 0 or t20min > 6 or t21min < 0 or t21min > 6 or t19max < 0 or t19max > 6 or t20max < 0 or t20max > 6 or t21max < 0 or t21max > 6 or t19min > t19max or t20min > t20max or t21min > t21max:
-        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19min) + "/" + str(t19max) + ", T20: " + str(
-            t20min) + "/" + str(t20max) + ", T21: " + str(t21min) + "/" + str(
-            t21max) + ". Please check settings.py for these parameters!")
-        sys.exit(0)
+    min_tier_sets = 0
+    max_tier_sets = 6
+    tier_sets = {"Tier19": (t19min, t19max),
+                 "Tier20": (t20min, t20max),
+                 "Tier21": (t21min, t21max),
+                 }
+
+    total_min = 0
+    for tier_name, (tier_set_min, tier_set_max) in tier_sets.items():
+        if tier_set_min < min_tier_sets:
+            raise ValueError("Invalid tier set minimum ({} < {}) for tier '{}'".format(tier_set_min, min_tier_sets, tier_name))
+        if tier_set_max > max_tier_sets:
+            raise ValueError("Invalid tier set maximum ({} > {}) for tier '{}'".
+                             format(tier_set_max, max_tier_sets, tier_name))
+        if tier_set_min > tier_set_max:
+            raise ValueError("Tier set min > max ({} > {}) for tier '{}'".format(tier_set_min, tier_set_max, tier_name))
+        total_min += tier_set_min
+
+    if total_min > max_tier_sets:
+        raise ValueError("All tier sets together have too much combined min sets ({}=sum({}) > {}).".
+                         format(total_min, [t[0] for t in tier_sets.values()], max_tier_sets))
+
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
         printLog("Using Safe Mode")
@@ -532,15 +555,18 @@ def validateSettings():
     if b_simcraft_enabled:
         if os.name == "nt":
             if not settings.simc_path.endswith("simc.exe"):
-                printLog("simc.exe wrong or missing in settings.py path-variable, please edit it")
-                sys.exit(0)
-        if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
-            printLog("Analyzer-file found")
+                raise RuntimeError("simc.exe wrong or missing in settings.py path-variable, please edit it")
+
+        analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
+        if os.path.exists(analyzer_path):
+            logging.info("Analyzer-file found at '{}'.".format(analyzer_path))
         else:
-            printLog("Analyzer-file not found, make sure you have a complete AutoSimc-Package")
-            sys.exit(1)
+            raise RuntimeError("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.".
+                               format(analyzer_path))
+
     if settings.default_error_rate_multiplier <= 0:
-        printLog("Wrong default_error_rate_multiplier: " + str(settings.default_error_rate_multiplier))
+        raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
+                         format(settings.default_error_rate_multiplier))
 
 
 def generate_checksum_of_permutations():
