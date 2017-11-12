@@ -1123,6 +1123,11 @@ def stage_restart(player_profile, stage):
     if mode_choice == 1:
         static_stage(player_profile, stage)
     elif mode_choice == 2:
+        if stage == 3:
+            if input("Did you skip stage 2? (y,n)") == "y":
+                skip = True
+            else:
+                skip = False
         new_te = settings_target_error[stage]
         if not settings.skip_questions:
             user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
@@ -1133,7 +1138,7 @@ def stage_restart(player_profile, stage):
         if stage == 2:
             dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
         elif stage == 3:
-            dynamic_stage3(new_te, splitter.user_targeterror, player_profile)
+            dynamic_stage3(skip, new_te, splitter.user_targeterror, player_profile)
 
 
 def checkinterpreter():
