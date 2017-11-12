@@ -6,7 +6,6 @@ import time
 import datetime
 import concurrent.futures
 
-from specdata import specdata
 from settings import settings
 
 # change path accordingly to your location
@@ -34,7 +33,7 @@ def purge_subfolder(subfolder, retries=3):
                 sys.exit(1)
             print("Error creating folder, retrying in 3 secs")
             time.sleep(3000)
-            purge_subfolder(subfolder, retries-1)
+            purge_subfolder(subfolder, retries - 1)
     else:
         shutil.rmtree(subfolder)
         purge_subfolder(subfolder, retries)
@@ -100,7 +99,7 @@ def split(inputfile, size=50):
         sys.exit(1)
 
 
-def generateCommand(file, output, sim_type, stage3, multisim):
+def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
     cmd = []
     cmd.append(os.path.normpath(simc_path))
     cmd.append('ptr=' + str(settings.simc_ptr))
@@ -118,11 +117,11 @@ def generateCommand(file, output, sim_type, stage3, multisim):
     if stage3:
         if settings.simc_scale_factors_stage3:
             cmd.append('calculate_scale_factors=1')
-            if spec.getRole() == "strattack":
+            if player_profile.class_role == "strattack":
                 cmd.append('scale_only=str,crit,haste,mastery,vers')
-            elif spec.getRole() == "agiattack":
+            elif player_profile.class_role == "agiattack":
                 cmd.append('scale_only=agi,crit,haste,mastery,vers')
-            elif spec.getRole() == "spell":
+            elif player_profile.class_role == "spell":
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
     return cmd
 
@@ -141,7 +140,7 @@ def worker(item, counter, max):
         if counter % (3 * settings.number_of_instances) == 0:
             print(F"Remaining calculation time (est.): {round(remaining_time, 0)} seconds")
             print(F"Finish time (est.): {time.asctime(time.localtime(time.time() + remaining_time))}")
-    except Exception as e:
+    except Exception as _e:
         pass
 
     if settings.multi_sim_disable_console_output:
@@ -167,57 +166,57 @@ def processMultiSimcCommands(commands):
     executor.shutdown()
 
 
-def multisim(subdir, simtype, command=1):
+def multisim(files_to_sim, player_profile, simtype, command=1):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
         datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
 
     # some minor progress-bar-initialization
     amount_of_generated_splits = 0
-    for file in os.listdir(os.path.join(os.getcwd(), subdir)):
+    for file in files_to_sim:
         if file.endswith(".sim"):
             amount_of_generated_splits += 1
 
     commands = []
-    for file in os.listdir(os.path.join(os.getcwd(), subdir)):
+    for file in files_to_sim:
         if file.endswith(".sim"):
             name = file[0:file.find(".")]
             if command == 1:
-                cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
-                                      'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                      simtype, False, True)
+                cmd = generateCommand(file,
+                                      'output=' + file + '.result',
+                                      simtype,
+                                      False,
+                                      True,
+                                      player_profile)
             if command == 2:
-                cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
-                                      'html=' + os.path.join(os.getcwd(), subdir,
-                                                             str(output_time) + "-" + name) + '.html',
-                                      simtype, True, True)
+                cmd = generateCommand(file,
+                                      'html=' + file + str(output_time) + "-" + name + '.html',
+                                      simtype, True, True,
+                                      player_profile)
             commands.append(cmd)
     processMultiSimcCommands(commands)
 
 
 # chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, specd, command=1):
-    global spec
-    spec = specd
-    # determine number of .sim-files
-    files = os.listdir(os.path.join(os.getcwd(), subdir))
-    for file in files:
-        if file.endswith(".result"):
-            files.remove(file)
+def sim(subdir, simtype, player_profile, command=1):
+    subdir = os.path.join(os.getcwd(), subdir)
+    files = os.listdir(subdir)
+    files = [f for f in files if not f.endswith(".result")]
+    files = [os.path.join(subdir, f) for f in files]
 
     if settings.multi_sim_enabled:
         if len(files) > 1:
-            multisim(subdir, simtype, command)
+            multisim(files, player_profile, simtype, command)
         else:
-            singlesim(subdir, simtype, command)
+            singlesim(files, player_profile, simtype, command)
     else:
-        singlesim(subdir, simtype, command)
+        singlesim(files, player_profile, simtype, command)
 
 
 # Calls simcraft to simulate all .sim-files in a subdir
 # simtype: 'iterations=n' or 'target_error=n'
 # command: 1 for stage1 and 2, 2 for stage3 (uses html= instead of output=)
-def singlesim(subdir, simtype, command=1):
+def singlesim(files_to_sim, player_profile, simtype, command=1):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
         datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
@@ -225,44 +224,44 @@ def singlesim(subdir, simtype, command=1):
 
     # some minor progress-bar-initialization
     amount_of_generated_splits = 0
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-        for file in files:
-            if file.endswith(".sim"):
-                amount_of_generated_splits += 1
+    for file in files_to_sim:
+        if file.endswith(".sim"):
+            amount_of_generated_splits += 1
 
     files_processed = 0
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-        for file in files:
-            if file.endswith(".sim"):
-                name = file[0:file.find(".")]
-                if command == 1:
-                    cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
-                                          'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                          simtype, False, False)
-                if command == 2:
-                    cmd = generateCommand(os.path.join(os.getcwd(), subdir, file),
-                                          'html=' + os.path.join(os.getcwd(), subdir,
-                                                                 str(output_time) + "-" + name) + '.html',
-                                          simtype, True, False)
-                print(cmd)
-                print("-----------------------------------------------------------------")
-                print("Automated Simulation within AutoSimC.")
-                print("Currently processing: " + str(name))
-                print("Processed: " + str(files_processed) + "/" + str(amount_of_generated_splits) + " (" + str(
-                    round(100 * float(int(files_processed) / int(amount_of_generated_splits)), 1)) + "%)")
-                if files_processed > 0:
-                    duration = time.time() - starttime
-                    avg_calctime_hist = duration / files_processed
-                    remaining_time = (amount_of_generated_splits - files_processed) * avg_calctime_hist
-                    print("Remaining calculation time (est.): " + str(round(remaining_time, 0)) + " seconds")
-                    print("Finish time for Step 1(est.): " + time.asctime(time.localtime(time.time() + remaining_time)))
-                    print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
-                print("-----------------------------------------------------------------")
-                subprocess.call(cmd)
-                files_processed += 1
+    for file in files_to_sim:
+        if not file.endswith(".sim"):
+            continue
+        name = file[0:file.find(".")]
+        if command == 1:
+            cmd = generateCommand(file,
+                                  'output=' + file + '.result',
+                                  simtype, False, False,
+                                  player_profile)
+        if command == 2:
+            cmd = generateCommand(file,
+                                  'html=' + file + str(output_time) + "-" + name + '.html',
+                                  simtype, True, False,
+                                  player_profile)
+        print(cmd)
+        print("-----------------------------------------------------------------")
+        print("Automated Simulation within AutoSimC.")
+        print("Currently processing: " + str(name))
+        print("Processed: " + str(files_processed) + "/" + str(amount_of_generated_splits) + " (" + str(
+            round(100 * float(int(files_processed) / int(amount_of_generated_splits)), 1)) + "%)")
+        if files_processed > 0:
+            duration = time.time() - starttime
+            avg_calctime_hist = duration / files_processed
+            remaining_time = (amount_of_generated_splits - files_processed) * avg_calctime_hist
+            print("Remaining calculation time (est.): " + str(round(remaining_time, 0)) + " seconds")
+            print("Finish time for Step 1(est.): " + time.asctime(time.localtime(time.time() + remaining_time)))
+            print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
+        print("-----------------------------------------------------------------")
+        subprocess.call(cmd)
+        files_processed += 1
 
 
-def resim(subdir):
+def resim(subdir, player_profile):
     global user_targeterror
 
     print("Resimming empty files in " + str(subdir))
@@ -280,7 +279,7 @@ def resim(subdir):
         elif subdir == settings.subdir3:
             iterations = settings.default_iterations_stage3
         commands = []
-        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 if file.endswith(".sim"):
                     name = file[0:file.find(".")]
@@ -288,7 +287,8 @@ def resim(subdir):
                             os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "iterations=" + str(iterations), False, settings.multi_sim_enabled)
+                                              "iterations=" + str(iterations), False, settings.multi_sim_enabled,
+                                              player_profile)
                         if not settings.multi_sim_disable_console_output:
                             print("Cmd: " + str(cmd))
                         if settings.multi_sim_enabled:
@@ -315,7 +315,7 @@ def resim(subdir):
             else:
                 user_targeterror = input("Which target_error?: ")
         commands = []
-        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
             for file in files:
                 if file.endswith(".sim"):
                     name = file[0:file.find(".")]
@@ -324,7 +324,8 @@ def resim(subdir):
                         cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
                                               'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
                                               "target_error=" + str(user_targeterror), False,
-                                              settings.multi_sim_enabled)
+                                              settings.multi_sim_enabled,
+                                              player_profile)
                         if not settings.multi_sim_disable_console_output:
                             print("Cmd: " + str(cmd))
                         if settings.multi_sim_enabled:
@@ -352,7 +353,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
     user_class = ""
 
     best = {}
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
+    for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
         for file in files:
             # print("Grabbest -> file: " + str(file))
             if file.endswith(".result"):
@@ -381,7 +382,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
                             user_class = r
                             break
                         # dps, percentage, profilename
-                        a, b, c = line.lstrip().rstrip().split()
+                        a, _b, c = line.lstrip().rstrip().split()
                         # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
                         # put dps as key and profilename as value into dictionary
                         # dps might be equal for 2 profiles, but should very rarely happen
@@ -483,7 +484,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     user_class = ""
 
     best = {}
-    for root, dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
+    for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
         for file in files:
             # print("Grabbest -> file: " + str(file))
             if file.endswith(".result"):
@@ -512,7 +513,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
                             user_class = r
                             break
                         # dps, percentage, profilename
-                        a, b, c = line.lstrip().rstrip().split()
+                        a, _b, c = line.lstrip().rstrip().split()
                         # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
                         # put dps as key and profilename as value into dictionary
                         # dps might be equal for 2 profiles, but should very rarely happen

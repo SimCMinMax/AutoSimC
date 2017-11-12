@@ -15,7 +15,7 @@ import collections
 
 from settings import settings
 
-from specdata import specdata
+import specdata
 import splitter
 import hashlib
 
@@ -60,7 +60,6 @@ iterations_thirdpart = settings.default_iterations_stage3
 target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
 gemspermutation = False
-s = specdata()
 
 gem_ids = {}
 gem_ids["150haste"] = "130220"
@@ -148,7 +147,6 @@ def cleanItem(item_string):
 
 # Check if permutation is valid
 antorusTrinkets = {"154172", "154173", "154174", "154175", "154176", "154177"}
-
 
 
 itemIDsMemoization = {}
@@ -281,7 +279,8 @@ def handleCommandLine():
     legmax = args.legendary_max
     b_quiet = args.quiet
 
-    # Sim Argument is either None when not specified, a empty list [] when specified without an argument, or a list with one 
+    # Sim Argument is either None when not specified, a empty list [] when specified without an argument,
+    # or a list with one
     # argument, eg. ["stage1"]
     b_simcraft_enabled = (args.sim is not None)
     if args.sim is not None and len(args.sim) > 0:
@@ -459,11 +458,9 @@ def permutateGemsInSlotGearList(slot_gearlist):
         logging.debug("Permutating slot_item: {}".format(item))
         item_attributes = item.split(",")
         gems = []
-        gem_attr = None
         for attr in item_attributes:
             # look for gem_id-string in items
             if attr.startswith("gem_id"):
-                gem_attr = attr
                 _name, ids = attr.split("=")
                 logging.debug("Existing gems: {}".format(ids))
                 gems = ids.split("/")
@@ -517,17 +514,17 @@ def permutate_talents(talents):
     return permuted_talent_strings
 
 
-def print_permutation_progress(current, max):
+def print_permutation_progress(current, maximum):
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
     if current % 5000 == 0:
         logging.info("Processed {}/{} ({:.2f}%)".format(current,
-                                                        max,
-                                                        100.0 * current / max))
-    if current == max:
+                                                        maximum,
+                                                        100.0 * current / maximum))
+    if current == maximum:
         logging.info("Processed: {}/{} ({:.2f}%)".format(current,
                                                          max,
-                                                         100.0 * current / max))
+                                                         100.0 * current / maximum))
 
 
 class Profile:
@@ -540,19 +537,9 @@ class PermutationData:
     def __init__(self, permutation_data, to_permutate, profile):
         self.profile = profile
         self.combined_data = {}
-        #print("perm_data", permutation_data)
-        #print("to_permutate", to_permutate)
-        #return
         for j, entry in enumerate(to_permutate):
             entry = list(entry)
-            #print(j, type(entry), entry)
-            #print(permutation_data[j])
-#             for i, key in enumerate(entry):
-#                 print(i, key)
-#                 print(permutation_data[j])
-#                 self.combined_data[key] = permutation_data[j][i]
             self.combined_data.update({key: permutation_data[j][i] for i, key in enumerate(entry)})
-        #print(self.combined_data)
         self.not_usable = self.check_usable()
 
     def check_usable(self):
@@ -649,17 +636,17 @@ class PermutationData:
         # scpout later adds a increment for multiple versions of this
         template = "%A%B%C%D%E%F"
         if namingData.get('Leg0') != "None":
-            template = template.replace("%A", str(s.getAcronymForID(namingData.get('Leg0'))) + "_")
+            template = template.replace("%A", str(specdata.getAcronymForID(namingData.get('Leg0'))) + "_")
         else:
             template = template.replace("%A", "")
 
         if namingData.get('Leg1') != "None":
-            template = template.replace("%B", str(s.getAcronymForID(namingData.get('Leg1'))) + "_")
+            template = template.replace("%B", str(specdata.getAcronymForID(namingData.get('Leg1'))) + "_")
         else:
             template = template.replace("%B", "")
 
         if namingData.get('Leg2') != "None":
-            template = template.replace("%C", str(s.getAcronymForID(namingData.get('Leg2'))) + "_")
+            template = template.replace("%C", str(specdata.getAcronymForID(namingData.get('Leg2'))) + "_")
         else:
             template = template.replace("%C", "")
 
@@ -750,7 +737,11 @@ def permutate():
                             "food",
                             "augmentation"]
     for opt in simc_profile_options:
-        player_profile.simc_options[opt] = profile.get(opt, "")
+        if opt in profile:
+            player_profile.simc_options[opt] = profile[opt]
+
+    player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
+    player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
 
     # Build 'general' profile options which do not permutate once into a simc-string
     logging.info("SimC options: {}".format(player_profile.simc_options))
@@ -839,7 +830,8 @@ def permutate():
     for name, perm in normal_permutation_options.items():
         max_num_profiles *= len(perm)
     permutations_product = {"normal gear&talents":  "{} ({})".format(max_num_profiles,
-                                                                     {name: len(items) for name, items in normal_permutation_options.items()}
+                                                                     {name: len(items) for name, items in
+                                                                      normal_permutation_options.items()}
                                                                      )
                             }
     for name, _entries, opt in special_permutations:
@@ -863,7 +855,7 @@ def permutate():
     logging.info("Ending permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".
                  format(valid_profiles,
                         processed,
-                        100.0 * valid_profiles / max_num_profiles))
+                        100.0 * valid_profiles / max_num_profiles if max_num_profiles else 0.0))
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(outputFileName)
@@ -872,8 +864,10 @@ def permutate():
     global i_generatedProfiles
     i_generatedProfiles = valid_profiles
 
+    return player_profile
 
-def checkResultFiles(subdir, count=2):
+
+def checkResultFiles(subdir, player_profile, count = 2):
     subdir = os.path.join(os.getcwd(), subdir)
     printLog("Checking Files in subdirectory: {}".format(subdir))
     if os.path.exists(subdir):
@@ -882,14 +876,10 @@ def checkResultFiles(subdir, count=2):
         for _root, _dirs, files in os.walk(subdir):
             for file in files:
                 checkedFiles += 1
-                if file.endswith(".sim"):
-                    name = file[0:file.find(".")]
-                    result_file = os.path.join(subdir, name + ".result")
-                    if not os.path.exists(result_file):
-                        printLog("Result file not found for .sim: {}".format(result_file))
-                        empty += 1
-                    elif os.stat(result_file).st_size <= 0:
-                        printLog("File is empty: {}".format(result_file))
+                if file.endswith(".result"):
+                    filename = os.path.join(subdir, file)
+                    if os.stat(filename).st_size <= 0:
+                        printLog("File is empty: {}".format(file))
                         empty += 1
     else:
         printLog("Error: Subdir does not exist: {}".format(subdir))
@@ -913,7 +903,7 @@ def checkResultFiles(subdir, count=2):
         printLog(F"Resimming files: Count: {count}")
         if count > 0:
             count -= 1
-            if splitter.resim(subdir):
+            if splitter.resim(subdir, player_profile):
                 return checkResultFiles(subdir)
         else:
             printLog("Maximum number of retries reached, sth. is wrong; exiting")
@@ -924,36 +914,36 @@ def checkResultFiles(subdir, count=2):
         return True
 
 
-def static_stage1():
+def static_stage1(player_profile):
     printLog("Entering static mode, stage1")
     # split into chunks of 50
     splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), s, 1)
-    static_stage2()
+    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), player_profile, 1)
+    static_stage2(player_profile)
 
 
-def static_stage2():
+def static_stage2(player_profile):
     printLog("Entering static mode, stage2")
-    if checkResultFiles(settings.subdir1):
+    if checkResultFiles(settings.subdir1, player_profile):
         # now grab the top 100 of these and put the profiles into the 2nd temp_dir
         splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
         # where they are simmed again, now with 1000 iterations
-        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), s, 1)
+        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), player_profile, 1)
     else:
         printLog("Error, some result-files are empty in " + str(settings.subdir1))
         print("Error, some result-files are empty in " + str(settings.subdir1))
         sys.exit(1)
-    static_stage3()
+    static_stage3(player_profile)
 
 
-def static_stage3():
+def static_stage3(player_profile):
     printLog("Entering static mode, stage3")
-    if checkResultFiles(settings.subdir2):
+    if checkResultFiles(settings.subdir2, player_profile):
         # again, for a third time, get top 3 profiles and put them into subdir3
         splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in this folder
-        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), s, 2)
+        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), player_profile, 2)
     else:
         printLog("Error, some result-files are empty in " + str(settings.subdir1))
         print("Error, some result-files are empty in " + str(settings.subdir1))
@@ -961,7 +951,7 @@ def static_stage3():
     print("Simulation succeed!")
 
 
-def dynamic_stage1():
+def dynamic_stage1(player_profile):
     printLog("Entering dynamic mode, stage1")
     result_data = get_data(class_spec)
     print("Listing options:")
@@ -990,6 +980,7 @@ def dynamic_stage1():
         printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
 
         te = result_data[int(calc_choice)][0]
+        print("selected target error: {}".format(te))
         tp = round(float(result_data[int(calc_choice)][2]), 2)
         est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
 
@@ -1007,7 +998,7 @@ def dynamic_stage1():
         # split into chunks of n (max 100) to not destroy the hdd
         # todo: calculate dynamic amount of n
         splitter.split(outputFileName, settings.splitting_size)
-        splitter.sim(settings.subdir1, "target_error=" + str(te), s, 1)
+        splitter.sim(settings.subdir1, "target_error=" + str(te), player_profile, 1)
 
         # if the user chose a target_error which is lower than the default_one for the next step
         # he is given an option to either skip stage 2 or adjust the target_error
@@ -1026,26 +1017,26 @@ def dynamic_stage1():
             if new_value == "n":
                 target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
                 printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                dynamic_stage2(target_error_secondpart, str(te))
+                dynamic_stage2(target_error_secondpart, str(te), player_profile)
             if new_value == "s":
                 dynamic_stage3(True, settings.default_target_error_stage3, str(te))
             if new_value == "y":
-                dynamic_stage2(settings.default_target_error_stage2, str(te))
+                dynamic_stage2(settings.default_target_error_stage2, str(te), player_profile)
         else:
             pass
-            dynamic_stage2(settings.default_target_error_stage2, str(te))
+            dynamic_stage2(settings.default_target_error_stage2, str(te), player_profile)
 
 
-def dynamic_stage2(targeterror, targeterrorstage1):
+def dynamic_stage2(targeterror, targeterrorstage1, player_profile):
     printLog("Entering dynamic mode, stage2")
-    checkResultFiles(settings.subdir1)
+    checkResultFiles(settings.subdir1, player_profile)
     if settings.default_use_alternate_grabbing_method:
         splitter.grabBestAlternate(targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
     else:
         # grabbing top 100 files
         splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
     # where they are simmed again, now with higher quality
-    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), s, 1)
+    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), player_profile, 1)
     # if the user chose a target_error which is lower than the default_one for the next step
     # he is given an option to either skip stage 2 or adjust the target_error
     if float(target_error_secondpart) <= float(settings.default_target_error_stage3):
@@ -1064,20 +1055,20 @@ def dynamic_stage2(targeterror, targeterrorstage1):
         if new_value == "n":
             target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
             printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
-            dynamic_stage3(False, target_error_thirdpart, targeterror)
+            dynamic_stage3(False, target_error_thirdpart, targeterror, player_profile)
         if new_value == "y":
-            dynamic_stage3(False, settings.default_target_error_stage3, targeterror)
+            dynamic_stage3(False, settings.default_target_error_stage3, targeterror, player_profile)
     else:
-        dynamic_stage3(False, settings.default_target_error_stage3, targeterror)
+        dynamic_stage3(False, settings.default_target_error_stage3, targeterror, player_profile)
 
 
-def dynamic_stage3(skipped, targeterror, targeterrorstage2):
+def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
     printLog("Entering dynamic mode, stage3")
     ok = False
     if skipped:
-        ok = checkResultFiles(settings.subdir1)
+        ok = checkResultFiles(settings.subdir1, player_profile)
     else:
-        ok = checkResultFiles(settings.subdir2)
+        ok = checkResultFiles(settings.subdir2, player_profile)
     if ok:
         printLog(".result-files ok, proceeding")
         # again, for a third time, get top 3 profiles and put them into subdir3
@@ -1092,12 +1083,12 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2):
             else:
                 splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
-        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), s, 2)
+        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), player_profile, 2)
     else:
         printLog("No valid .result-files found for stage3!")
 
 
-def stage1():
+def stage1(player_profile):
     printLog("Entering Stage1")
     print("You have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
@@ -1114,9 +1105,9 @@ def stage1():
     else:
         sim_mode = input("Please choose your mode (Enter to exit): ")
     if sim_mode == "1":
-        static_stage1()
+        static_stage1(player_profile)
     elif sim_mode == "2":
-        dynamic_stage1()
+        dynamic_stage1(player_profile)
     else:
         print("Error, wrong mode: Stage1")
         printLog("Error, wrong mode: Stage1")
@@ -1183,7 +1174,6 @@ def stage3_restart():
         sys.exit(0)
 
 
-
 def checkinterpreter():
     major, minor, _micro, _releaselevel, _serial = sys.version_info
     if major != 3:
@@ -1245,12 +1235,12 @@ def main():
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
         start = datetime.datetime.now()
-        permutate()
+        player_profile = permutate()
         logging.info("Permutating took {}.".format(datetime.datetime.now()-start))
         outputGenerated = True
     else:
         if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
-            permutate()
+            player_profile = permutate()
             outputGenerated = True
         else:
             outputGenerated = False
@@ -1269,7 +1259,7 @@ def main():
 
     if b_simcraft_enabled:
         if outputGenerated:
-            class_spec = s.getClassSpec()
+            class_spec = player_profile.class_spec
         else:
             class_spec = getClassFromInput()
 
@@ -1277,7 +1267,7 @@ def main():
             s_stage = settings.default_sim_start_stage
 
         if s_stage == "stage1":
-            stage1()
+            stage1(player_profile)
         if s_stage == "stage2":
             if restart:
                 if input("Do you want to restart stage 2?: (Enter to proceed, q to quit): ") == "q":
