@@ -180,19 +180,20 @@ def parse_command_line_args():
                                      )
 
     parser.add_argument('-i', '--inputfile',
-                        default="input.txt",
+                        default=settings.default_inputFileName,
                         required=False,
                         help="Inputfile describing the permutation of SimC profiles to generate. See README for more "
                         "details.")
 
     parser.add_argument('-o', '--outputfile',
-                        default="out.simc",
+                        default=settings.default_outputFileName,
                         required=False,
                         help='Output file containing the generated profiles used for the simulation.')
 
     parser.add_argument('-sim',
                         required=False,
                         nargs="*",
+                        default=[settings.default_sim_start_stage] if settings.default_sim_enabled else None,
                         choices=['stage1', 'stage2', 'stage3'],
                         help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
                         "Might take a long time, depending on number of permutations. "
@@ -217,6 +218,7 @@ def parse_command_line_args():
 
     parser.add_argument('-quiet', '--quiet',
                         action='store_true',
+                        default=b_quiet,
                         help='Option for disabling Console-output. Generates the outputfile much faster for '
                         'large permuation-size')
 
@@ -1242,6 +1244,7 @@ def main():
 
     if settings.clean_up_after_step3:
         cleanup()
+    print("Finished.")
 
 
 if __name__ == "__main__":

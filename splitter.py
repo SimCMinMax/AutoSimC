@@ -195,7 +195,7 @@ def multisim(files_to_sim, player_profile, simtype, command):
                                       player_profile)
             if command == 2:
                 cmd = generateCommand(file,
-                                      'html=' + file + str(output_time) + "-" + name + '.html',
+                                      'html=' + name + "-" + str(output_time) + '.html',
                                       simtype, True, True,
                                       player_profile)
             commands.append(cmd)
@@ -245,7 +245,7 @@ def singlesim(files_to_sim, player_profile, simtype, command=1):
                                   player_profile)
         if command == 2:
             cmd = generateCommand(file,
-                                  'html=' + file + str(output_time) + "-" + name + '.html',
+                                  'html=' + name + "-" + str(output_time) + '.html',
                                   simtype, True, False,
                                   player_profile)
         print(cmd)
