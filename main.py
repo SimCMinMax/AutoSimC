@@ -545,7 +545,7 @@ class PermutationData:
         self.temp_t21 = 0
         for gear in self.combined_data.values():
             if len(gear) and gear[0] == "L":
-                nbLeg = self.nbLeg + 1
+                self.nbLeg += 1
                 continue
             gearLabel = gear[0:3]
             if gearLabel == "T19":
@@ -558,9 +558,9 @@ class PermutationData:
                 self.temp_t21 = self.temp_t21 + 1
 
         if self.nbLeg < legmin:
-            return str(nbLeg) + " leg (" + str(legmin) + " asked)"
+            return str(self.nbLeg) + " leg (" + str(legmin) + " asked)"
         if self.nbLeg > legmax:
-            return str(nbLeg) + " leg (" + str(legmax) + " asked)"
+            return str(self.nbLeg) + " leg (" + str(legmax) + " asked)"
         # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
         # because 3 other legs have been equipped
         if self.nbLeg == 3:
