@@ -904,41 +904,32 @@ def checkResultFiles(subdir, player_profile, count = 2):
         return True
 
 
-def static_stage1(player_profile):
-    printLog("Entering static mode, stage1")
-    # split into chunks of 50
-    splitter.split(outputFileName, settings.splitting_size)
+def static_stage(player_profile, stage):
+    if stage > 3:
+        return
+    subdir = {1: settings.subdir1,
+              2: settings.subdir2,
+              3: settings.subdir3
+              }
+    iterations = {1: int(settings.default_iterations_stage1),
+                  2: int(settings.default_iterations_stage2),
+                  3: int(settings.default_iterations_stage3)
+                  }
+    n_stage = {2: settings.default_top_n_stage2,
+               3: settings.default_top_n_stage3
+               }
+    printLog("\nEntering static mode, STAGE {}.\n".format(stage))
+
+    if stage > 1:
+        if not checkResultFiles(subdir[stage-1], player_profile):
+            raise RuntimeError("Error, some result-files are empty in {}".format(settings.subdir1))
+        splitter.grabBest(n_stage[stage], subdir[stage-1], subdir[stage], outputFileName)
+    else:
+        # Stage1 splitting
+        splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), player_profile, 1)
-    static_stage2(player_profile)
-
-
-def static_stage2(player_profile):
-    printLog("Entering static mode, stage2")
-    if checkResultFiles(settings.subdir1, player_profile):
-        # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-        splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
-        # where they are simmed again, now with 1000 iterations
-        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), player_profile, 1)
-    else:
-        printLog("Error, some result-files are empty in " + str(settings.subdir1))
-        print("Error, some result-files are empty in " + str(settings.subdir1))
-        sys.exit(1)
-    static_stage3(player_profile)
-
-
-def static_stage3(player_profile):
-    printLog("Entering static mode, stage3")
-    if checkResultFiles(settings.subdir2, player_profile):
-        # again, for a third time, get top 3 profiles and put them into subdir3
-        splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
-        # sim them finally with all options enabled; html-output remains in this folder
-        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), player_profile, 2)
-    else:
-        printLog("Error, some result-files are empty in " + str(settings.subdir1))
-        print("Error, some result-files are empty in " + str(settings.subdir1))
-        sys.exit(1)
-    print("Simulation succeed!")
+    splitter.sim(subdir[stage], "iterations={}".format(iterations[stage]), player_profile, stage-1)
+    static_stage(player_profile, stage+1)
 
 
 def dynamic_stage1(player_profile):
@@ -1095,16 +1086,16 @@ def stage1(player_profile):
     else:
         sim_mode = input("Please choose your mode (Enter to exit): ")
     if sim_mode == "1":
-        static_stage1(player_profile)
+        static_stage(player_profile, 1)
     elif sim_mode == "2":
-        dynamic_stage1(player_profile)
+        dynamic_stage1(player_profile, 1)
     else:
         print("Error, wrong mode: Stage1")
         printLog("Error, wrong mode: Stage1")
         sys.exit(0)
 
 
-def stage2_restart():
+def stage2_restart(player_profile):
     printLog("Restarting at Stage2")
     print("Restarting at Stage2")
     if not checkResultFiles(settings.subdir1):
@@ -1115,7 +1106,7 @@ def stage2_restart():
     else:
         mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
-        static_stage2()
+        static_stage(player_profile, 2)
     elif mode_choice == "2":
         if settings.skip_questions:
             new_te = settings.default_target_error_stage2
@@ -1132,7 +1123,7 @@ def stage2_restart():
         sys.exit(0)
 
 
-def stage3_restart():
+def stage3_restart(player_profile):
     printLog("Restarting at Stage3")
     print("Restarting at Stage3")
     if not checkResultFiles(settings.subdir2):
@@ -1143,7 +1134,7 @@ def stage3_restart():
     else:
         mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
     if mode_choice == "1":
-        static_stage3()
+        static_stage(player_profile, 3)
     elif mode_choice == "2":
         if input("Did you skip stage 2? (y,n)") == "y":
             skip = True

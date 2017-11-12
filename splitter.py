@@ -166,7 +166,7 @@ def processMultiSimcCommands(commands):
     executor.shutdown()
 
 
-def multisim(files_to_sim, player_profile, simtype, command=1):
+def multisim(files_to_sim, player_profile, simtype, command):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
         datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
@@ -181,7 +181,7 @@ def multisim(files_to_sim, player_profile, simtype, command=1):
     for file in files_to_sim:
         if file.endswith(".sim"):
             name = file[0:file.find(".")]
-            if command == 1:
+            if command <= 1:
                 cmd = generateCommand(file,
                                       'output=' + file + '.result',
                                       simtype,
@@ -233,7 +233,7 @@ def singlesim(files_to_sim, player_profile, simtype, command=1):
         if not file.endswith(".sim"):
             continue
         name = file[0:file.find(".")]
-        if command == 1:
+        if command <= 1:
             cmd = generateCommand(file,
                                   'output=' + file + '.result',
                                   simtype, False, False,
