@@ -243,13 +243,13 @@ def parse_command_line_args():
                         '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
 
     parser.add_argument('-Min_leg', '--legendary_min',
-                        default=0,
+                        default=settings.default_leg_min,
                         type=int,
                         required=False,
                         help='Minimum number of legendaries in the permutations.')
 
     parser.add_argument('-max_leg', '--legendary_max',
-                        default=2,
+                        default=settings.default_leg_max,
                         type=int,
                         required=False,
                         help='Maximum number of legendaries in the permutations.')
