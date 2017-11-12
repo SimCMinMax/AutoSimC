@@ -4,6 +4,7 @@ import sys
 import subprocess
 import time
 import datetime
+import logging
 import concurrent.futures
 
 from settings import settings
@@ -157,13 +158,17 @@ def processMultiSimcCommands(commands):
     print("-----------------------------------------------------------------")
     print("Automated Simulation within AutoSimC.")
     print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
-                                               thread_name_prefix="SimC-Worker") as executor:
+    try:
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
+                                               thread_name_prefix="SimC-Worker")
         counter = 0
         for c in commands:
             executor.submit(worker, c, counter, len(commands))
             counter += 1
-    executor.shutdown()
+        executor.shutdown()
+    except KeyboardInterrupt:
+        logging.info("KeyboardInterrupt in simc executor. Stopping.")
+        executor.shutdown(wait=False)
 
 
 def multisim(files_to_sim, player_profile, simtype, command):

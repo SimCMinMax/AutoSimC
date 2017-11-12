@@ -81,6 +81,22 @@ gem_ids["agi"] = "130247"
 gem_ids["200int"] = "130248"
 gem_ids["int"] = "130248"
 
+settings_subdir = {1: settings.subdir1,
+                   2: settings.subdir2,
+                   3: settings.subdir3
+                   }
+settings_iterations = {1: int(settings.default_iterations_stage1),
+                       2: int(settings.default_iterations_stage2),
+                       3: int(settings.default_iterations_stage3)
+                       }
+settings_n_stage = {2: settings.default_top_n_stage2,
+                    3: settings.default_top_n_stage3
+                    }
+
+settings_target_error = {2: settings.default_target_error_stage2,
+                         3: settings.default_target_error_stage3
+                         }
+
 
 #   Error handle
 def printLog(stringToPrint):
@@ -911,28 +927,18 @@ def checkResultFiles(subdir, player_profile, count = 2):
 def static_stage(player_profile, stage):
     if stage > 3:
         return
-    subdir = {1: settings.subdir1,
-              2: settings.subdir2,
-              3: settings.subdir3
-              }
-    iterations = {1: int(settings.default_iterations_stage1),
-                  2: int(settings.default_iterations_stage2),
-                  3: int(settings.default_iterations_stage3)
-                  }
-    n_stage = {2: settings.default_top_n_stage2,
-               3: settings.default_top_n_stage3
-               }
+
     printLog("\nEntering static mode, STAGE {}.\n".format(stage))
 
     if stage > 1:
-        if not checkResultFiles(subdir[stage-1], player_profile):
-            raise RuntimeError("Error, some result-files are empty in {}".format(settings.subdir1))
-        splitter.grabBest(n_stage[stage], subdir[stage-1], subdir[stage], outputFileName)
+        if not checkResultFiles(settings_subdir[stage-1], player_profile):
+            raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage-1]))
+        splitter.grabBest(settings_n_stage[stage], settings_subdir[stage-1], settings_subdir[stage], outputFileName)
     else:
         # Stage1 splitting
         splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(subdir[stage], "iterations={}".format(iterations[stage]), player_profile, stage-1)
+    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]), player_profile, stage-1)
     static_stage(player_profile, stage+1)
 
 
@@ -1098,64 +1104,36 @@ def stage1(player_profile):
         sys.exit(0)
 
 
-def stage2_restart(player_profile):
-    stage = 2
-    printLog("Restarting at Stage2")
-    print("Restarting at Stage2")
-    if not checkResultFiles(settings.subdir1, player_profile):
-        printLog("Error restarting at subdir: " + str(settings.subdir1))
-        print("Error restarting at subdir: " + str(settings.subdir1))
+def stage_restart(player_profile, stage):
+    if stage > 3 or stage < 1:
+        raise ValueError("No stage {} available to restart.".format(stage))
+    logging.info("\nRestarting STAGE{}".format(stage))
+    if not checkResultFiles(settings_subdir[stage-1], player_profile):
+        raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".format(stage,
+                                                                                                 settings_subdir[stage-1]))
     if settings.skip_questions:
         mode_choice = str(settings.auto_choose_static_or_dynamic)
     else:
         mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
-    if mode_choice == "1":
-        static_stage(player_profile, 2)
-    elif mode_choice == "2":
-        new_te = settings.default_target_error_stage2
+        mode_choice = int(mode_choice)
+    valid_modes = [1, 2]
+    if mode_choice not in valid_modes:
+        raise RuntimeError("Invalid mode '{}' selected. Valid modes: {}.".format(mode_choice,
+                                                                                 valid_modes))
+    if mode_choice == 1:
+        static_stage(player_profile, stage)
+    elif mode_choice == 2:
+        new_te = settings_target_error[stage]
         if not settings.skip_questions:
             user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
                                                                                                       new_te))
             if len(user_te):
                 new_te = float(user_te)
             logging.info("User selected target_error={} for stage{}.".format(new_te, stage))
-        dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
-    else:
-        printLog("Error, wrong mode: Stage2_restart")
-        print("Error, wrong mode: Stage2_restart")
-        sys.exit(0)
-
-
-def stage3_restart(player_profile):
-    stage = 3
-    printLog("Restarting at Stage3")
-    print("Restarting at Stage3")
-    if not checkResultFiles(settings.subdir2, player_profile):
-        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
-        print("Error restarting at subdir: " + str(settings.subdir1))
-    if settings.skip_questions:
-        mode_choice = str(settings.auto_choose_static_or_dynamic)
-    else:
-        mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
-    if mode_choice == "1":
-        static_stage(player_profile, 3)
-    elif mode_choice == "2":
-        if input("Did you skip stage 2? (y,n)") == "y":
-            skip = True
-        else:
-            skip = False
-        new_te = settings.default_target_error_stage3
-        if not settings.skip_questions:
-            user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
-                                                                                                      new_te))
-            if len(user_te):
-                new_te = float(user_te)
-            logging.info("User selected target_error={} for stage{}.".format(new_te, stage))
-        dynamic_stage3(skip, new_te, splitter.user_targeterror, player_profile)
-    else:
-        printLog("Error, wrong mode: Stage3_restart")
-        print("Error, wrong mode: Stage3_restart")
-        sys.exit(0)
+        if stage == 2:
+            dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
+        elif stage == 3:
+            dynamic_stage3(new_te, splitter.user_targeterror, player_profile)
 
 
 def checkinterpreter():
@@ -1253,9 +1231,9 @@ def main():
         if s_stage == "stage1":
             stage1(player_profile)
         if s_stage == "stage2":
-            stage2_restart(player_profile)
+            stage_restart(player_profile, 2)
         if s_stage == "stage3":
-            stage3_restart(player_profile)
+            stage_restart(player_profile, 3)
 
     if settings.clean_up_after_step3:
         cleanup()
