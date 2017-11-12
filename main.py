@@ -11,6 +11,7 @@ import shutil
 import argparse
 import logging
 import itertools
+import collections
 
 from settings import settings
 
@@ -149,107 +150,6 @@ def cleanItem(item_string):
 antorusTrinkets = {"154172", "154173", "154174", "154175", "154176", "154177"}
 
 
-def check_not_usable():
-    """Check if profile is un-usable. Return None if ok, otherwise return reason"""
-    nbLeg = 0
-    temp_t19 = 0
-    temp_t20 = 0
-    temp_t21 = 0
-    for gear in l_gear:
-        if gear[0] == "L":
-            nbLeg = nbLeg + 1
-            continue
-        gearLabel = gear[0:3]
-        if gearLabel == "T19":
-            temp_t19 = temp_t19 + 1
-            continue
-        if gearLabel == "T20":
-            temp_t20 = temp_t20 + 1
-            continue
-        if gearLabel == "T21":
-            temp_t21 = temp_t21 + 1
-
-    if nbLeg < legmin:
-        return str(nbLeg) + " leg (" + str(legmin) + " asked)"
-    if nbLeg > legmax:
-        return str(nbLeg) + " leg (" + str(legmax) + " asked)"
-    # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
-    # because 3 other legs have been equipped
-    if nbLeg == 3:
-        if not getIdFromItem(l_gear[12]) == "154172" and not getIdFromItem(l_gear[13]) == "154172":
-            return " 3 legs equipped, but no Amanthul-Trinket found"
-
-    if temp_t19 < t19min:
-        return " " + str(temp_t19) + ": too few T19-items (" + str(t19min) + " asked)"
-    if temp_t20 < t20min:
-        return " " + str(temp_t20) + ": too few T20-items (" + str(t20min) + " asked)"
-    if temp_t21 < t21min:
-        return " " + str(temp_t21) + ": too few T21-items (" + str(t21min) + " asked)"
-    if temp_t19 > t19max:
-        return " " + str(temp_t19) + ": too much T19-items (" + str(t19max) + " asked)"
-    if temp_t20 > t20max:
-        return " " + str(temp_t20) + ": too much T20-items (" + str(t20max) + " asked)"
-    if temp_t21 > t21max:
-        return " " + str(temp_t21) + ": too much T21-items (" + str(t21max) + " asked)"
-
-    if getIdFromItem(l_gear[10]) == getIdFromItem(l_gear[11]):
-        return F"Ring1: {l_gear[10]} same as Ring2: {l_gear[11]}"
-
-    trinket1itemID = getIdFromItem(l_gear[12])
-    trinket2itemID = getIdFromItem(l_gear[13])
-
-    if trinket1itemID == trinket2itemID:
-        return F"Trinket1: {l_gear[12]} same as Trinket2: {l_gear[13]}"
-
-    if trinket1itemID in antorusTrinkets:
-        if trinket2itemID in antorusTrinkets:
-            return " two Pantheon-Trinkets found"
-
-    # check gems
-    # int, str, agi should be only equipped once:
-    nUniqueGems = 0
-    for gear in l_gear:
-        gems = getGemsFromItem(gear)
-        if "130246" in gems or "130247" in gems or "130248" in gems:
-            nUniqueGems += 1
-    if nUniqueGems > 1:
-        return str(nUniqueGems) + " too many unique gems (str, agi, int)"
-
-    # namingdata contains info for the profile-name
-    global namingData
-    namingData = {}
-    # if a valid profile was detected, fill namingData; otherwise its pointless
-    if nbLeg == 0:
-        namingData['Leg0'] = ""
-        namingData["Leg1"] = ""
-    elif nbLeg == 1:
-        for gear in l_gear:
-            if gear[0] == "L":
-                namingData['Leg0'] = getIdFromItem(gear[0])
-    elif nbLeg == 2:
-        for gear in l_gear:
-            if gear[0] == "L":
-                if namingData.get('Leg0') is not None:
-                    namingData['Leg1'] = getIdFromItem(gear)
-                else:
-                    namingData['Leg0'] = getIdFromItem(gear)
-    elif nbLeg == 3:
-        for gear in l_gear:
-            if gear[0] == "L":
-                if namingData.get('Leg0') is None:
-                    namingData['Leg0'] = getIdFromItem(gear)
-                else:
-                    if namingData.get('Leg1') is not None:
-                        namingData['Leg1'] = getIdFromItem(gear)
-                    else:
-                        namingData['Leg2'] = getIdFromItem(gear)
-
-    namingData["T19"] = temp_t19
-    namingData["T20"] = temp_t20
-    namingData["T21"] = temp_t21
-
-    return None
-
 
 itemIDsMemoization = {}
 
@@ -264,83 +164,6 @@ def getIdFromItem(item):
             if s.startswith("id="):
                 itemIDsMemoization[item] = s[3:]
                 return itemIDsMemoization[item]
-
-
-# Print a simc profile
-def scpout(oh, outputFile):
-    global c_profileid
-    global i_generatedProfiles
-    digits = len(str(c_profilemaxid))
-    mask = '00000000000000000000000000000000000'
-    maskedProfileID = (mask + str(c_profileid))[-digits:]
-    c_profileid += 1
-
-    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
-    # computation very much
-    if int(maskedProfileID) % 5000 == 0:
-        logging.info("Processed {}/{} ({:.2f}%)".format(maskedProfileID,
-                                                        c_profilemaxid,
-                                                        100.0 * float(int(maskedProfileID) / int(c_profilemaxid))))
-    if int(maskedProfileID) == c_profilemaxid:
-        logging.info("Processed: {}/{} ({:.2f}%)".format(maskedProfileID,
-                                                         c_profilemaxid,
-                                                         100.0 * float(int(maskedProfileID) / int(c_profilemaxid))))
-
-    not_usable = check_not_usable()
-    if not_usable:
-        logging.debug("Profile: {}/{}  Warning, not printed: {}".format(maskedProfileID,
-                                                                        c_profilemaxid,
-                                                                        not_usable))
-        return
-
-    logging.debug("Profile: {}/{}".format(maskedProfileID, c_profilemaxid))
-    outputFile.write(
-F"""{c_class}={getStringForProfile()}{maskedProfileID}
-specialization={c_spec}
-race={c_race}
-level={c_level}
-role={c_role}
-position={c_position}
-talents={c_talents}
-artifact={c_artifact}
-"""
-    )
-
-    if c_crucible != "":
-        outputFile.write("crucible=" + c_crucible + "\n")
-    if c_potion != "":
-        outputFile.write("potion=" + c_potion + "\n")
-    if c_flask != "":
-        outputFile.write("flask=" + c_flask + "\n")
-    if c_food != "":
-        outputFile.write("food=" + c_food + "\n")
-    if c_augmentation != "":
-        outputFile.write("augmentation=" + c_augmentation + "\n")
-
-    outputFile.write(
-F"""
-head={cleanItem(l_gear[0])}
-neck={cleanItem(l_gear[1])}
-shoulders={cleanItem(l_gear[2])}
-back={cleanItem(l_gear[3])}
-chest={cleanItem(l_gear[4])}
-wrists={cleanItem(l_gear[5])}
-hands={cleanItem(l_gear[6])}
-waist={cleanItem(l_gear[7])}
-legs={cleanItem(l_gear[8])}
-feet={cleanItem(l_gear[9])}
-finger1={cleanItem(l_gear[10])}
-finger2={cleanItem(l_gear[11])}
-trinket1={cleanItem(l_gear[12])}
-trinket2={cleanItem(l_gear[13])}
-main_hand={l_gear[14]}
-"""
-    )
-    if oh == 1:
-        outputFile.write("off_hand=" + l_gear[15] + "\n\n")
-    else:
-        outputFile.write("\n")
-    i_generatedProfiles += 1
 
 
 def parse_command_line_args():
@@ -592,12 +415,12 @@ def validateSettings():
                          format(settings.default_error_rate_multiplier))
 
 
-def generate_checksum_of_permutations():
+def file_checksum(filename):
     hash_md5 = hashlib.sha3_256()
-    with open(settings.default_outputFileName, "rb") as f:
+    with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
-    print(str(hash_md5.hexdigest()))
+    return hash_md5.hexdigest()
 
 
 def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
@@ -632,19 +455,26 @@ def getGemsFromItem(item):
 
 # gearlist contains a list of items, as in l_head
 def permutateGemsInSlotGearList(slot_gearlist):
-    printLog("Permutating slot_gearlist: " + str(slot_gearlist))
     for item in slot_gearlist:
-        printLog(str(item))
+        logging.debug("Permutating slot_item: {}".format(item))
         item_attributes = item.split(",")
         gems = []
+        gem_attr = None
         for attr in item_attributes:
             # look for gem_id-string in items
             if attr.startswith("gem_id"):
+                gem_attr = attr
                 _name, ids = attr.split("=")
                 logging.debug("Existing gems: {}".format(ids))
                 gems = ids.split("/")
-        new_gems = get_Possible_Gem_Combinations(splitted_gems, len(gems))
-        logging.info("New Gems: {}".format(new_gems))
+                break
+        num_gems = len(gems)
+        if num_gems == 0:
+            logging.debug("No gems to permutate")
+            continue
+
+        new_gems = get_Possible_Gem_Combinations(splitted_gems, num_gems)
+        # logging.debug("New Gems: {}".format(new_gems))
         new_item = ""
         for attr in item_attributes:
             if not str(attr).startswith("gem") and not attr == "":
@@ -658,25 +488,12 @@ def permutateGemsInSlotGearList(slot_gearlist):
             # todo implement
             if attr.startswith("gems"):
                 print(str(attr))
+    logging.debug("Final slot list: {}".format(slot_gearlist))
 
 
-def permutateGems():
-    printLog("Permutating Gems")
-    slots = [l_head,
-             l_neck,
-             l_shoulders,
-             l_chest,
-             l_wrists,
-             l_hands,
-             l_waist,
-             l_legs,
-             l_feet,
-             l_finger1,
-             l_finger2,
-             l_trinket1,
-             l_trinket2]
-    for slot in slots:
-        permutateGemsInSlotGearList(slot)
+def permutateGems(slot_name, slot):
+    logging.debug("Permutating Gems for slot {}".format(slot_name))
+    permutateGemsInSlotGearList(slot)
 
 
 def permutate_talents(talents):
@@ -698,6 +515,183 @@ def permutate_talents(talents):
     permuted_talent_strings = ["".join(s) for s in product]
     logging.debug("Talent combinations: {}".format(permuted_talent_strings))
     return permuted_talent_strings
+
+
+def print_permutation_progress(current, max):
+    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
+    # computation very much
+    if current % 5000 == 0:
+        logging.info("Processed {}/{} ({:.2f}%)".format(current,
+                                                        max,
+                                                        100.0 * current / max))
+    if current == max:
+        logging.info("Processed: {}/{} ({:.2f}%)".format(current,
+                                                         max,
+                                                         100.0 * current / max))
+
+
+class Profile:
+    """Represent global profile data"""
+    pass
+
+
+class PermutationData:
+    """Data for each permutation"""
+    def __init__(self, permutation_data, to_permutate, profile):
+        self.profile = profile
+        self.combined_data = {}
+        #print("perm_data", permutation_data)
+        #print("to_permutate", to_permutate)
+        #return
+        for j, entry in enumerate(to_permutate):
+            entry = list(entry)
+            #print(j, type(entry), entry)
+            #print(permutation_data[j])
+#             for i, key in enumerate(entry):
+#                 print(i, key)
+#                 print(permutation_data[j])
+#                 self.combined_data[key] = permutation_data[j][i]
+            self.combined_data.update({key: permutation_data[j][i] for i, key in enumerate(entry)})
+        #print(self.combined_data)
+        self.not_usable = self.check_usable()
+
+    def check_usable(self):
+        """Check if profile is un-usable. Return None if ok, otherwise return reason"""
+        self.nbLeg = 0
+        self.temp_t19 = 0
+        self.temp_t20 = 0
+        self.temp_t21 = 0
+        for gear in self.combined_data.values():
+            if len(gear) and gear[0] == "L":
+                nbLeg = self.nbLeg + 1
+                continue
+            gearLabel = gear[0:3]
+            if gearLabel == "T19":
+                self.temp_t19 = self.temp_t19 + 1
+                continue
+            if gearLabel == "T20":
+                self.temp_t20 = self.temp_t20 + 1
+                continue
+            if gearLabel == "T21":
+                self.temp_t21 = self.temp_t21 + 1
+
+        if self.nbLeg < legmin:
+            return str(nbLeg) + " leg (" + str(legmin) + " asked)"
+        if self.nbLeg > legmax:
+            return str(nbLeg) + " leg (" + str(legmax) + " asked)"
+        # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
+        # because 3 other legs have been equipped
+        if self.nbLeg == 3:
+            if not getIdFromItem(self.combined_data["trinket1"]) == "154172" and not getIdFromItem(self.combined_data["trinket2"]) == "154172":
+                return " 3 legs equipped, but no Amanthul-Trinket found"
+
+        if self.temp_t19 < t19min:
+            return " " + str(self.temp_t19) + ": too few T19-items (" + str(t19min) + " asked)"
+        if self.temp_t20 < t20min:
+            return " " + str(self.temp_t20) + ": too few T20-items (" + str(t20min) + " asked)"
+        if self.temp_t21 < t21min:
+            return " " + str(self.temp_t21) + ": too few T21-items (" + str(t21min) + " asked)"
+        if self.temp_t19 > t19max:
+            return " " + str(self.temp_t19) + ": too much T19-items (" + str(t19max) + " asked)"
+        if self.temp_t20 > t20max:
+            return " " + str(self.temp_t20) + ": too much T20-items (" + str(t20max) + " asked)"
+        if self.temp_t21 > t21max:
+            return " " + str(self.temp_t21) + ": too much T21-items (" + str(t21max) + " asked)"
+
+        if getIdFromItem(self.combined_data["finger1"]) == getIdFromItem(self.combined_data["finger2"]):
+            return "Rings equal"
+
+        trinket1itemID = getIdFromItem(self.combined_data["trinket1"])
+        trinket2itemID = getIdFromItem(self.combined_data["trinket2"])
+
+        if trinket1itemID == trinket2itemID:
+            return "trinkets equal"
+
+        if trinket1itemID in antorusTrinkets:
+            if trinket2itemID in antorusTrinkets:
+                return " two Pantheon-Trinkets found"
+        return None
+
+    def get_profile_name(self, valid_profile_number):
+        # namingdata contains info for the profile-name
+        namingData = {}
+        # if a valid profile was detected, fill namingData; otherwise its pointless
+        if self.nbLeg == 0:
+            namingData['Leg0'] = ""
+            namingData["Leg1"] = ""
+        elif self.nbLeg == 1:
+            for gear in self.combined_data.values():
+                if len(gear) > 0 and gear[0] == "L":
+                    namingData['Leg0'] = getIdFromItem(gear[0])
+        elif self.nbLeg == 2:
+            for gear in self.combined_data.values():
+                if len(gear) > 0 and gear[0] == "L":
+                    if namingData.get('Leg0') is not None:
+                        namingData['Leg1'] = getIdFromItem(gear)
+                    else:
+                        namingData['Leg0'] = getIdFromItem(gear)
+        elif self.nbLeg == 3:
+            for gear in self.combined_data.values():
+                if len(gear) > 0 and gear[0] == "L":
+                    if namingData.get('Leg0') is None:
+                        namingData['Leg0'] = getIdFromItem(gear)
+                    else:
+                        if namingData.get('Leg1') is not None:
+                            namingData['Leg1'] = getIdFromItem(gear)
+                        else:
+                            namingData['Leg2'] = getIdFromItem(gear)
+
+        namingData["T19"] = self.temp_t19
+        namingData["T20"] = self.temp_t20
+        namingData["T21"] = self.temp_t21
+
+        # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
+        # scpout later adds a increment for multiple versions of this
+        template = "%A%B%C%D%E%F"
+        if namingData.get('Leg0') != "None":
+            template = template.replace("%A", str(s.getAcronymForID(namingData.get('Leg0'))) + "_")
+        else:
+            template = template.replace("%A", "")
+
+        if namingData.get('Leg1') != "None":
+            template = template.replace("%B", str(s.getAcronymForID(namingData.get('Leg1'))) + "_")
+        else:
+            template = template.replace("%B", "")
+
+        if namingData.get('Leg2') != "None":
+            template = template.replace("%C", str(s.getAcronymForID(namingData.get('Leg2'))) + "_")
+        else:
+            template = template.replace("%C", "")
+
+        if namingData.get("T19") != "None" and namingData.get("T19") != 0 and namingData.get(
+                "T19") != 1 and namingData.get("T19") != 3 and namingData.get("T19") != 5:
+            template = template.replace("%D", "T19-" + str(namingData.get('T19')) + "p_")
+        else:
+            template = template.replace("%D", "")
+
+        if namingData.get("T20") != "None" and namingData.get("T20") != 0 and namingData.get(
+                "T20") != 1 and namingData.get("T20") != 3 and namingData.get("T20") != 5:
+            template = template.replace("%E", "T20-" + str(namingData.get('T20')) + "p_")
+        else:
+            template = template.replace("%E", "")
+
+        if namingData.get("T21") != "None" and namingData.get("T21") != 0 and namingData.get(
+                "T21") != 1 and namingData.get("T21") != 3 and namingData.get("T21") != 5:
+            template = template.replace("%F", "T21-" + str(namingData.get('T21')) + "p_")
+        else:
+            template = template.replace("%F", "")
+
+        return "_".join((template, str(valid_profile_number)))
+
+    def get_profile(self):
+        return "\n".join(["{}={}".format(key, value) for key, value in self.combined_data.items()])
+
+    def write_to_file(self, filehandler, valid_profile_number):
+        profile_name = self.get_profile_name(valid_profile_number)
+        filehandler.write("{}={}\n".format(self.profile.wow_class, profile_name))
+        combined_profile = "\n".join((self.profile.general_options, self.get_profile()))
+        filehandler.write(combined_profile)
+        filehandler.write("\n\n")
 
 
 # todo: add checks for missing headers, prio low
@@ -730,10 +724,6 @@ def permutate():
                      "shaman",
                      "warlock",
                      ]
-    global c_class
-    c_class = ""
-    global c_profilename
-    c_profilename = ""
     for wow_class in valid_classes:
         if config.has_option('Profile', wow_class):
             c_class = wow_class
@@ -742,222 +732,145 @@ def permutate():
     else:
         raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
                            format(valid_classes))
-    global c_profileid
-    c_profileid = 1
-    global c_race
-    c_race = profile['race']
-    global c_level
-    c_level = profile['level']
-    global c_spec
-    c_spec = profile['spec']
-    global c_role
-    c_role = profile['role']
-    global c_position
-    c_position = profile['position']
-    global c_talents
-    c_talents = profile['talents']
-    global c_artifact
-    c_artifact = profile['artifact']
-    global c_crucible
-    if config.has_option('Profile', 'crucible'):
-        c_crucible = profile['crucible']
-    else:
-        c_crucible = ""
-    global c_potion
-    if config.has_option('Profile', 'potion'):
-        c_potion = profile['potion']
-    else:
-        c_potion = ""
-    global c_flask
-    if config.has_option('Profile', 'flask'):
-        c_flask = profile['flask']
-    else:
-        c_flask = ""
-    global c_food
-    if config.has_option('Profile', 'food'):
-        c_food = profile['food']
-    else:
-        c_food = ""
-    global c_augmentation
-    if config.has_option('Profile', 'augmentation'):
-        c_augmentation = profile['augmentation']
-    else:
-        c_augmentation = ""
-    #   Gear
-    c_head = gear['head']
-    c_neck = gear['neck']
-    if config.has_option('Gear', 'shoulders'):
-        c_shoulders = gear['shoulders']
-    else:
-        c_shoulders = gear['shoulder']
-    c_back = gear['back']
-    c_chest = gear['chest']
-    if config.has_option('Gear', 'wrists'):
-        c_wrists = gear['wrists']
-    else:
-        c_wrists = gear['wrist']
-    c_hands = gear['hands']
-    c_waist = gear['waist']
-    c_legs = gear['legs']
-    c_feet = gear['feet']
-    c_finger1 = gear['finger1']
-    c_finger2 = gear['finger2']
-    c_trinket1 = gear['trinket1']
-    c_trinket2 = gear['trinket2']
-    c_main_hand = gear['main_hand']
-    if config.has_option('Gear', 'off_hand'):
-        c_off_hand = gear['off_hand']
-    else:
-        c_off_hand = ""
+    player_profile = Profile()
+    player_profile.simc_options = {}
+    player_profile.wow_class = c_class
+    player_profile.profile_name = c_profilename
+
+    # Parse general profile options
+    simc_profile_options = ["race",
+                            "level",
+                            "spec",
+                            "role",
+                            "position",
+                            "artifacts",
+                            "crucible",
+                            "potion",
+                            "flask",
+                            "food",
+                            "augmentation"]
+    for opt in simc_profile_options:
+        player_profile.simc_options[opt] = profile.get(opt, "")
+
+    # Build 'general' profile options which do not permutate once into a simc-string
+    logging.info("SimC options: {}".format(player_profile.simc_options))
+    player_profile.general_options = "\n".join(["{}={}".format(key, value) for key, value in
+                                                player_profile.simc_options.items()])
+    logging.debug("Built simc general options string: {}".format(player_profile.general_options))
+
+    # Items to parse
+    gear_slots = ["head",
+                  "neck",
+                  "shoulder",
+                  "back",
+                  "chest",
+                  "wrist",
+                  "hands",
+                  "waist",
+                  "legs",
+                  "feet",
+                  "finger1",
+                  "finger2",
+                  "trinket1",
+                  "trinket2",
+                  "main_hand",
+                  "off_hand"]
+    parsed_gear = {}
+    for gear_slot in gear_slots:
+        parsed_gear[gear_slot] = gear.get(gear_slot, "").split("|")
+
+    logging.info("Parsed gear: {}".format(parsed_gear))
 
     # Split vars to lists
-    global l_head
-    l_head = c_head.split('|')
-    global l_neck
-    l_neck = c_neck.split('|')
-    global l_shoulders
-    l_shoulders = c_shoulders.split('|')
-    global l_back
-    l_back = c_back.split('|')
-    global l_chest
-    l_chest = c_chest.split('|')
-    global l_wrists
-    l_wrists = c_wrists.split('|')
-    global l_hands
-    l_hands = c_hands.split('|')
-    global l_waist
-    l_waist = c_waist.split('|')
-    global l_legs
-    l_legs = c_legs.split('|')
-    global l_feet
-    l_feet = c_feet.split('|')
-    global l_finger1
-    l_finger1 = c_finger1.split('|')
-    global l_finger2
-    l_finger2 = c_finger2.split('|')
-    global l_trinket1
-    l_trinket1 = c_trinket1.split('|')
-    global l_trinket2
-    l_trinket2 = c_trinket2.split('|')
-    global l_main_hand
-    l_main_hand = c_main_hand.split('|')
-    global l_off_hand
-    l_off_hand = c_off_hand.split('|')
-    global l_talents
-    l_talents = c_talents.split('|')
+    l_talents = profile.get("talents", "").split('|')
 
-    # permutate talents
+    # This represents a dict of all options which will be permutated fully with itertools.product
+    normal_permutation_options = collections.OrderedDict({})
+
+    # Add talents to permutations
     if settings.enable_talent_permutation:
-        permutated_talents = permutate_talents(l_talents)
-        l_talents = permutated_talents
+        normal_permutation_options["talents"] = permutate_talents(l_talents)
 
-    # add gem-permutations
+    # add gem-permutations to gear
     if gemspermutation:
-        permutateGems()
+        for name, gear in parsed_gear.items():
+            permutateGems(name, gear)
 
-    # better handle rings and trinket-combinations
-    # should now be deterministic, previous versions generated a random order and numbering
+    # Add 'normal' gear to normal permutations, excluding trinket/rings
+    gear_normal = {k: v for k, v in parsed_gear.items() if (not k.startswith("finger") and not k.startswith("trinket"))}
+    normal_permutation_options.update(gear_normal)
 
-    for a in l_finger2:
-        if l_finger1.count(a) == 0:
-            l_finger1.append(a)
+    # Calculate normal permutations
+    normal_permutations = itertools.product(*normal_permutation_options.values())
 
-    for b in l_trinket2:
-        if l_trinket1.count(b) == 0:
-            l_trinket1.append(b)
+    special_permutations_config = {"finger": ("finger1", "finger2"),
+                                   "trinket": ("trinket1", "trinket2")
+                                   }
+    special_permutations = []
+    for name, values in special_permutations_config.items():
+        # Get entries from parsed gear, exclude empty finger/trinket lines
+        entries = [v for k, v in parsed_gear.items() if k.startswith(name)]
+        entries = list(itertools.chain(*entries))
+        entries = [e for e in entries if len(e)]  # Filter empty finger/trinket input lines
+        logging.debug("Input list for special permutation '{}': {}".format(name,
+                                                                           entries))
+        if 1:  # Unique finger/trinkets. This might be exposed as an option later
+            # This will not completly avoid 2 same ring ids equipped, but at least not two exactly equal
+            # ring strings.
+            permutations = itertools.combinations(entries, len(values))
+        else:
+            permutations = itertools.combinations_with_replacement(entries, len(values))
+        permutations = list(permutations)
+        logging.info("Got {} permutations for {}.".format(len(permutations),
+                                                          name))
+        logging.debug(permutations)
 
-    l_fingers = []
-    l_trinkets = []
+        entry_dict = {v: None for v in values}
+        special_permutations.append((name, entry_dict, permutations))
 
-    for ring in l_finger1:
-        for ring2 in l_finger1:
-            if ring == ring2:
-                continue
-            else:
-                if ring < ring2:
-                    ring_combo = ring + "|" + ring2
-                    if ring_combo not in l_fingers:
-                        l_fingers.append(ring_combo)
-                else:
-                    ring_combo = ring2 + "|" + ring
-                    if ring_combo not in l_fingers:
-                        l_fingers.append(ring_combo)
+    # Set up the combined permutation list with normal + special permutations
+    all_permutation_options = [normal_permutations, *[opt for _name, _entries, opt in special_permutations]]
+    all_permutations = itertools.product(*all_permutation_options)
+    special_names = [list(entries.keys()) for _name, entries, _opt in special_permutations]
+    all_permutation_names = [list(normal_permutation_options.keys()), *special_names]
 
-    for trinket in l_trinket1:
-        for trinket2 in l_trinket1:
-            if trinket == trinket2:
-                continue
-            else:
-                if trinket < trinket2:
-                    trinket_combo = trinket + "|" + trinket2
-                    if trinket_combo not in l_trinkets:
-                        l_trinkets.append(trinket_combo)
-                else:
-                    trinket_combo = trinket2 + "|" + trinket
-                    if trinket_combo not in l_trinkets:
-                        l_trinkets.append(trinket_combo)
+    # Calculate & Display number of permutations
+    max_num_profiles = 1
+    for name, perm in normal_permutation_options.items():
+        max_num_profiles *= len(perm)
+    permutations_product = {"normal gear&talents":  "{} ({})".format(max_num_profiles,
+                                                                     {name: len(items) for name, items in normal_permutation_options.items()}
+                                                                     )
+                            }
+    for name, _entries, opt in special_permutations:
+        max_num_profiles *= len(opt)
+        permutations_product[name] = len(opt)
+    logging.info("Max number of profiles: {}".format(max_num_profiles))
+    logging.info("Number of permutations: {}".format(permutations_product))
 
-    # Make permutations
+    # Start the permutation!
+    processed = 0
+    valid_profiles = 0
     with open(outputFileName, 'w') as output_file:
-        global l_gear
-        l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
-                  "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
-    
-        # changed according to merged fields
-        global c_profilemaxid
-        c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
-            l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
-            l_off_hand) * len(l_talents)
-    
-        if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
-                round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue, Enter to exit: ") == "y":
-            printLog("User exit")
-            sys.exit(0)
-    
-        printLog("Starting permutations : " + str(c_profilemaxid))
-        for a in range(len(l_head)):
-            l_gear[0] = l_head[a]
-            for b in range(len(l_neck)):
-                l_gear[1] = l_neck[b]
-                for c in range(len(l_shoulders)):
-                    l_gear[2] = l_shoulders[c]
-                    for d in range(len(l_back)):
-                        l_gear[3] = l_back[d]
-                        for e in range(len(l_chest)):
-                            l_gear[4] = l_chest[e]
-                            for f in range(len(l_wrists)):
-                                l_gear[5] = l_wrists[f]
-                                for g in range(len(l_hands)):
-                                    l_gear[6] = l_hands[g]
-                                    for h in range(len(l_waist)):
-                                        l_gear[7] = l_waist[h]
-                                        for i in range(len(l_legs)):
-                                            l_gear[8] = l_legs[i]
-                                            for j in range(len(l_feet)):
-                                                l_gear[9] = l_feet[j]
-                                                # changed according to new concatenated fields
-                                                for k in range(len(l_fingers)):
-                                                    fingers = l_fingers[k].split('|')
-                                                    l_gear[10] = fingers[0]
-                                                    l_gear[11] = fingers[1]
-                                                    for l in range(len(l_trinkets)):
-                                                        trinkets = l_trinkets[l].split('|')
-                                                        l_gear[12] = trinkets[0]
-                                                        l_gear[13] = trinkets[1]
-                                                        for m in range(len(l_talents)):
-                                                            c_talents = l_talents[m]
-                                                            if c_off_hand != "":
-                                                                for o in range(len(l_main_hand)):
-                                                                    l_gear[14] = l_main_hand[o]
-                                                                    for p in range(len(l_off_hand)):
-                                                                        l_gear[15] = l_off_hand[p]
-                                                                        scpout(1, output_file)
-                                                            else:
-                                                                for o in range(len(l_main_hand)):
-                                                                    l_gear[14] = l_main_hand[o]
-                                                                    scpout(0, output_file)
-        logging.info("Ending permutations. Valid: {:n}/{:n}".format(i_generatedProfiles,
-                                                                    c_profilemaxid))
+        for perm in all_permutations:
+            data = PermutationData(perm, all_permutation_names, player_profile)
+            if not data.not_usable:
+                data.write_to_file(output_file, valid_profiles)
+                valid_profiles += 1
+            print_permutation_progress(processed, max_num_profiles)
+            processed += 1
+
+    logging.info("Ending permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".
+                 format(valid_profiles,
+                        processed,
+                        100.0 * valid_profiles / max_num_profiles))
+
+    # Print checksum so we can check for equality when making changes in the code
+    outfile_checksum = file_checksum(outputFileName)
+    logging.info("Output file checksum: {}".format(outfile_checksum))
+
+    global i_generatedProfiles
+    i_generatedProfiles = valid_profiles
 
 
 def checkResultFiles(subdir, count=2):
@@ -1270,45 +1183,6 @@ def stage3_restart():
         sys.exit(0)
 
 
-def getStringForProfile():
-    # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
-    # scpout later adds a increment for multiple versions of this
-    template = "%A%B%C%D%E%F"
-    if namingData.get('Leg0') != "None":
-        template = template.replace("%A", str(s.getAcronymForID(namingData.get('Leg0'))) + "_")
-    else:
-        template = template.replace("%A", "")
-
-    if namingData.get('Leg1') != "None":
-        template = template.replace("%B", str(s.getAcronymForID(namingData.get('Leg1'))) + "_")
-    else:
-        template = template.replace("%B", "")
-
-    if namingData.get('Leg2') != "None":
-        template = template.replace("%C", str(s.getAcronymForID(namingData.get('Leg2'))) + "_")
-    else:
-        template = template.replace("%C", "")
-
-    if namingData.get("T19") != "None" and namingData.get("T19") != 0 and namingData.get(
-            "T19") != 1 and namingData.get("T19") != 3 and namingData.get("T19") != 5:
-        template = template.replace("%D", "T19-" + str(namingData.get('T19')) + "p_")
-    else:
-        template = template.replace("%D", "")
-
-    if namingData.get("T20") != "None" and namingData.get("T20") != 0 and namingData.get(
-            "T20") != 1 and namingData.get("T20") != 3 and namingData.get("T20") != 5:
-        template = template.replace("%E", "T20-" + str(namingData.get('T20')) + "p_")
-    else:
-        template = template.replace("%E", "")
-
-    if namingData.get("T21") != "None" and namingData.get("T21") != 0 and namingData.get(
-            "T21") != 1 and namingData.get("T21") != 3 and namingData.get("T21") != 5:
-        template = template.replace("%F", "T21-" + str(namingData.get('T21')) + "p_")
-    else:
-        template = template.replace("%F", "")
-
-    return template
-
 
 def checkinterpreter():
     major, minor, _micro, _releaselevel, _serial = sys.version_info
@@ -1325,12 +1199,6 @@ def getClassFromInput():
     config.read(inputFileName, encoding='utf-8-sig')
     profile = config['Profile']
     return profile['class']
-
-
-# just set things in the data-file, has to be accessed later in splitter.py
-def setClassSpecData():
-    s.c_class = c_class
-    s.c_spec = c_spec
 
 
 ########################
@@ -1371,11 +1239,14 @@ def main():
         stdout_handler.setLevel(logging.WARNING)
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
+        stdout_handler.setLevel(logging.DEBUG)
     validateSettings()
 
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
+        start = datetime.datetime.now()
         permutate()
+        logging.info("Permutating took {}.".format(datetime.datetime.now()-start))
         outputGenerated = True
     else:
         if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
@@ -1383,8 +1254,6 @@ def main():
             outputGenerated = True
         else:
             outputGenerated = False
-
-    setClassSpecData()
 
     if not settings.skip_questions:
         if i_generatedProfiles > 50000:
@@ -1424,11 +1293,11 @@ def main():
     if settings.clean_up_after_step3:
         cleanup()
 
+
 if __name__ == "__main__":
     try:
         main()
         logging.shutdown()
     except Exception as e:
-        logging.error("Error: {}".format(e))
-        logging.debug("Main Exception", exc_info=True)
+        logging.error("Error: {}".format(e), exc_info=True)
         sys.exit(1)
