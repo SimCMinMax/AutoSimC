@@ -88,44 +88,33 @@ def printLog(stringToPrint):
 
 
 # Add legendary to the right tab
-def addToTab(x):
-    stringToAdd = "L,id=" + x[1] + (",bonus_id=" + x[2] if x[2] != "" else "") + (
-        ",enchant_id=" + x[3] if x[3] != "" else "") + (",gem_id=" + x[4] if x[4] != "" else "")
-    if x[0] == 'head':
-        l_head.append(stringToAdd)
-    elif x[0] == 'neck':
-        l_neck.append(stringToAdd)
-    elif x[0] == 'shoulders':
-        l_shoulders.append(stringToAdd)
-    elif x[0] == 'back':
-        l_back.append(stringToAdd)
-    elif x[0] == 'chest':
-        l_chest.append(stringToAdd)
-    elif x[0] == 'wrist':
-        l_wrists.append(stringToAdd)
-    elif x[0] == 'hands':
-        l_hands.append(stringToAdd)
-    elif x[0] == 'waist':
-        l_waist.append(stringToAdd)
-    elif x[0] == 'legs':
-        l_legs.append(stringToAdd)
-    elif x[0] == 'feet':
-        l_feet.append(stringToAdd)
-    elif x[0] == 'finger1':
-        l_finger1.append(stringToAdd)
-    elif x[0] == 'finger2':
-        l_finger2.append(stringToAdd)
-    elif x[0] == 'trinket1':
-        l_trinket1.append(stringToAdd)
-    elif x[0] == 'trinket2':
-        l_trinket2.append(stringToAdd)
+def add_legendary(legendary_split, gear_list):
+    logging.info("Adding legendary: {}".format(legendary_split))
+    try:
+        slot, item_id, *tail = legendary_split
+        bonus_id = tail[0] if len(tail) > 0 else None
+        enchant_id = tail[1] if len(tail) > 1 else None
+        gem_id = tail[2] if len(tail) > 2 else None
 
+        legendary_string = "L,id={}".format(item_id)
+        if bonus_id:
+            legendary_string += ",bonus_id={}".format(bonus_id)
+        if enchant_id:
+            legendary_string += ",enchant_id={}".format(enchant_id)
+        if gem_id:
+            legendary_string += ",gem_id={}".format(gem_id)
 
-# Manage legendary with command line
-def handlePermutation(elements):
-    for element in elements:
-        pieces = element.split('|')
-        addToTab(pieces)
+        logging.debug("Legendary string: {}".format(legendary_string))
+        if slot in gear_list.keys():
+            gear_list[slot].append(legendary_string)
+            logging.info("Added legendary '{}' to {}.".format(legendary_string,
+                                                              slot))
+        else:
+            raise ValueError("Invalid legendary gear slot '{}' not in {}".format(slot,
+                                                                                 list(gear_list.keys())))
+    except Exception as e:
+        raise Exception("Could not add legendary: {}".format(e)) from e
+
 
 
 def build_gem_list(gems):
@@ -296,8 +285,6 @@ def handleCommandLine():
             printLog("Path to simc.exe valid, proceeding...")
 
     gemspermutation = args.gems
-    if args.legendaries is not None:
-        handlePermutation(args.legendaries.split(','))
     if args.gems is not None:
         global splitted_gems
         splitted_gems = build_gem_list(args.gems)
@@ -682,7 +669,7 @@ class PermutationData:
 
 
 # todo: add checks for missing headers, prio low
-def permutate():
+def permutate(args):
     # Read input.txt to init vars
     config = configparser.ConfigParser()
 
@@ -770,7 +757,14 @@ def permutate():
     for gear_slot in gear_slots:
         parsed_gear[gear_slot] = gear.get(gear_slot, "").split("|")
 
-    logging.info("Parsed gear: {}".format(parsed_gear))
+    logging.debug("Parsed gear before legendaries: {}".format(parsed_gear))
+
+    # Adding legendaries
+    if args.legendaries is not None:
+        for legendary in args.legendaries.split(','):
+            add_legendary(legendary.split("/"), parsed_gear)
+
+    logging.info("Parsed gear including legendaries: {}".format(parsed_gear))
 
     # Split vars to lists
     l_talents = profile.get("talents", "").split('|')
@@ -1235,12 +1229,12 @@ def main():
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
         start = datetime.datetime.now()
-        player_profile = permutate()
+        player_profile = permutate(args)
         logging.info("Permutating took {}.".format(datetime.datetime.now()-start))
         outputGenerated = True
     else:
         if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
-            player_profile = permutate()
+            player_profile = permutate(args)
             outputGenerated = True
         else:
             outputGenerated = False
