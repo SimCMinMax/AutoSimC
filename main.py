@@ -659,13 +659,8 @@ class PermutationData:
         filehandler.write(combined_profile)
         filehandler.write("\n\n")
 
-
-# todo: add checks for missing headers, prio low
-def permutate(args):
-    # Build gem list
-    if args.gems is not None:
-        splitted_gems = build_gem_list(args.gems)
-
+def build_profile(args):
+    
     # Read input.txt to init vars
     config = configparser.ConfigParser()
 
@@ -674,7 +669,6 @@ def permutate(args):
         config.read_file(f)
 
     profile = config['Profile']
-    gear = config['Gear']
 
     if 'class' in profile:
         raise RuntimeError("You input class format is wrong, please update SimPermut or your input file.")
@@ -703,6 +697,7 @@ def permutate(args):
         raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
                            format(valid_classes))
     player_profile = Profile()
+    player_profile.config = config
     player_profile.simc_options = {}
     player_profile.wow_class = c_class
     player_profile.profile_name = c_profilename
@@ -732,6 +727,15 @@ def permutate(args):
                                                 player_profile.simc_options.items()])
     logging.debug("Built simc general options string: {}".format(player_profile.general_options))
 
+    return player_profile
+
+
+# todo: add checks for missing headers, prio low
+def permutate(args, player_profile):
+    # Build gem list
+    if args.gems is not None:
+        splitted_gems = build_gem_list(args.gems)
+
     # Items to parse
     gear_slots = ["head",
                   "neck",
@@ -749,6 +753,8 @@ def permutate(args):
                   "trinket2",
                   "main_hand",
                   "off_hand"]
+    
+    gear = player_profile.config['Gear']
     parsed_gear = {}
     for gear_slot in gear_slots:
         parsed_gear[gear_slot] = gear.get(gear_slot, "").split("|")
@@ -763,7 +769,7 @@ def permutate(args):
     logging.info("Parsed gear including legendaries: {}".format(parsed_gear))
 
     # Split vars to lists
-    l_talents = profile.get("talents", "").split('|')
+    l_talents = player_profile.config['Profile'].get("talents", "").split('|')
 
     # This represents a dict of all options which will be permutated fully with itertools.product
     normal_permutation_options = collections.OrderedDict({})
@@ -854,8 +860,6 @@ def permutate(args):
     global i_generatedProfiles
     i_generatedProfiles = valid_profiles
 
-    return player_profile
-
 
 def checkResultFiles(subdir, player_profile, count = 2):
     subdir = os.path.join(os.getcwd(), subdir)
@@ -934,10 +938,10 @@ def static_stage(player_profile, stage):
 
 def dynamic_stage1(player_profile):
     printLog("Entering dynamic mode, stage1")
-    result_data = get_data(class_spec)
+    result_data = get_data(player_profile.class_spec)
     print("Listing options:")
     print("Estimated calculation times based on your data:")
-    print("Class/Spec: " + str(class_spec))
+    print("Class/Spec: " + str(player_profile.class_spec))
     print("Number of permutations to simulate: " + str(i_generatedProfiles))
     for current in range(len(result_data)):
         te = result_data[current][0]
@@ -956,7 +960,6 @@ def dynamic_stage1(player_profile):
         printLog("Quitting application")
         sys.exit(0)
     if int(calc_choice) < len(result_data) and int(calc_choice) >= 0:
-        printLog("Sim: Chosen Class/Spec: " + str(class_spec))
         printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
         printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
 
@@ -1088,7 +1091,7 @@ def stage1(player_profile):
     if sim_mode == "1":
         static_stage(player_profile, 1)
     elif sim_mode == "2":
-        dynamic_stage1(player_profile, 1)
+        dynamic_stage1(player_profile)
     else:
         print("Error, wrong mode: Stage1")
         printLog("Error, wrong mode: Stage1")
@@ -1096,9 +1099,10 @@ def stage1(player_profile):
 
 
 def stage2_restart(player_profile):
+    stage = 2
     printLog("Restarting at Stage2")
     print("Restarting at Stage2")
-    if not checkResultFiles(settings.subdir1):
+    if not checkResultFiles(settings.subdir1, player_profile):
         printLog("Error restarting at subdir: " + str(settings.subdir1))
         print("Error restarting at subdir: " + str(settings.subdir1))
     if settings.skip_questions:
@@ -1108,15 +1112,14 @@ def stage2_restart(player_profile):
     if mode_choice == "1":
         static_stage(player_profile, 2)
     elif mode_choice == "2":
-        if settings.skip_questions:
-            new_te = settings.default_target_error_stage2
-        else:
-            new_te = input("Which target_error do you want to use for stage2: (Press enter for default: " + str(
-                target_error_secondpart) + "):")
-        if str(new_te) != str(target_error_secondpart) and splitter.user_targeterror != "0.0":
-            dynamic_stage2(new_te, splitter.user_targeterror)
-        else:
-            dynamic_stage2(target_error_secondpart, splitter.user_targeterror)
+        new_te = settings.default_target_error_stage2
+        if not settings.skip_questions:
+            user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
+                                                                                                      new_te))
+            if len(user_te):
+                new_te = float(user_te)
+            logging.info("User selected target_error={} for stage{}.".format(new_te, stage))
+        dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
     else:
         printLog("Error, wrong mode: Stage2_restart")
         print("Error, wrong mode: Stage2_restart")
@@ -1124,9 +1127,10 @@ def stage2_restart(player_profile):
 
 
 def stage3_restart(player_profile):
+    stage = 3
     printLog("Restarting at Stage3")
     print("Restarting at Stage3")
-    if not checkResultFiles(settings.subdir2):
+    if not checkResultFiles(settings.subdir2, player_profile):
         printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
         print("Error restarting at subdir: " + str(settings.subdir1))
     if settings.skip_questions:
@@ -1140,15 +1144,14 @@ def stage3_restart(player_profile):
             skip = True
         else:
             skip = False
-        if settings.skip_questions:
-            new_te = settings.default_target_error_stage3
-        else:
-            new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(
-                target_error_thirdpart) + "):")
-        if str(new_te) != str(target_error_thirdpart) and splitter.user_targeterror != "0.0":
-            dynamic_stage3(skip, new_te, splitter.user_targeterror)
-        else:
-            dynamic_stage3(skip, target_error_thirdpart, splitter.user_targeterror)
+        new_te = settings.default_target_error_stage3
+        if not settings.skip_questions:
+            user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
+                                                                                                      new_te))
+            if len(user_te):
+                new_te = float(user_te)
+            logging.info("User selected target_error={} for stage{}.".format(new_te, stage))
+        dynamic_stage3(skip, new_te, splitter.user_targeterror, player_profile)
     else:
         printLog("Error, wrong mode: Stage3_restart")
         print("Error, wrong mode: Stage3_restart")
@@ -1165,11 +1168,14 @@ def checkinterpreter():
 
 
 # just a workaround for skipping generation of out.simc
-def getClassFromInput():
+def getClassFromInput(args):
     config = configparser.ConfigParser()
-    config.read(inputFileName, encoding='utf-8-sig')
-    profile = config['Profile']
-    return profile['class']
+
+    # use read_file to get a error when input file is not available
+    with open(inputFileName, encoding='utf-8-sig') as f:
+        config.read_file(f)
+        profile = config['Profile']
+        return profile['class']
 
 
 ########################
@@ -1213,15 +1219,17 @@ def main():
         stdout_handler.setLevel(logging.DEBUG)
     validateSettings()
 
+    player_profile = build_profile(args)
+
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
         start = datetime.datetime.now()
-        player_profile = permutate(args)
+        permutate(args, player_profile)
         logging.info("Permutating took {}.".format(datetime.datetime.now()-start))
         outputGenerated = True
     else:
         if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
-            player_profile = permutate(args)
+            permutate(args, player_profile)
             outputGenerated = True
         else:
             outputGenerated = False
@@ -1239,27 +1247,15 @@ def main():
             raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
 
     if b_simcraft_enabled:
-        if outputGenerated:
-            class_spec = player_profile.class_spec
-        else:
-            class_spec = getClassFromInput()
-
         if s_stage == "":
             s_stage = settings.default_sim_start_stage
 
         if s_stage == "stage1":
             stage1(player_profile)
         if s_stage == "stage2":
-            if restart:
-                if input("Do you want to restart stage 2?: (Enter to proceed, q to quit): ") == "q":
-                    printLog("Restart aborted by user")
-                else:
-                    stage2_restart()
+            stage2_restart(player_profile)
         if s_stage == "stage3":
-            if input("Do you want to restart stage 3?: (Enter to proceed, q to quit): ") == "q":
-                printLog("Restart aborted by user")
-            else:
-                stage3_restart()
+            stage3_restart(player_profile)
 
     if settings.clean_up_after_step3:
         cleanup()
