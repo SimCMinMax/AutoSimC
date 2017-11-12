@@ -116,7 +116,6 @@ def add_legendary(legendary_split, gear_list):
         raise Exception("Could not add legendary: {}".format(e)) from e
 
 
-
 def build_gem_list(gems):
     splitted_gems = gems.split(",")
     for gem in splitted_gems:
@@ -285,9 +284,6 @@ def handleCommandLine():
             printLog("Path to simc.exe valid, proceeding...")
 
     gemspermutation = args.gems
-    if args.gems is not None:
-        global splitted_gems
-        splitted_gems = build_gem_list(args.gems)
 
     return args
 
@@ -440,7 +436,8 @@ def getGemsFromItem(item):
 
 
 # gearlist contains a list of items, as in l_head
-def permutateGemsInSlotGearList(slot_gearlist):
+def permutate_gems_for_slot(splitted_gems, slot_name, slot_gearlist):
+    logging.debug("Permutating Gems for slot {}".format(slot_name))
     for item in slot_gearlist:
         logging.debug("Permutating slot_item: {}".format(item))
         item_attributes = item.split(",")
@@ -473,11 +470,6 @@ def permutateGemsInSlotGearList(slot_gearlist):
             if attr.startswith("gems"):
                 print(str(attr))
     logging.debug("Final slot list: {}".format(slot_gearlist))
-
-
-def permutateGems(slot_name, slot):
-    logging.debug("Permutating Gems for slot {}".format(slot_name))
-    permutateGemsInSlotGearList(slot)
 
 
 def permutate_talents(talents):
@@ -670,6 +662,10 @@ class PermutationData:
 
 # todo: add checks for missing headers, prio low
 def permutate(args):
+    # Build gem list
+    if args.gems is not None:
+        splitted_gems = build_gem_list(args.gems)
+
     # Read input.txt to init vars
     config = configparser.ConfigParser()
 
@@ -779,7 +775,7 @@ def permutate(args):
     # add gem-permutations to gear
     if gemspermutation:
         for name, gear in parsed_gear.items():
-            permutateGems(name, gear)
+            permutate_gems_for_slot(splitted_gems, name, gear)
 
     # Add 'normal' gear to normal permutations, excluding trinket/rings
     gear_normal = {k: v for k, v in parsed_gear.items() if (not k.startswith("finger") and not k.startswith("trinket"))}
