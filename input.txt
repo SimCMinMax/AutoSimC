@@ -15,10 +15,10 @@ other=
 [Gear]
 head=T20,id=147136,bonus_id=3562/42/1502/3336|,id=147034,bonus_id=3562/1808/1507/3528
 neck=,id=137311,enchant_id=5890,bonus_id=3534/1572/3337
-shoulder=,id=137364,bonus_id=3418/1582/3337|T20,id=147138,enchant_id=5883,bonus_id=3562/1507/3336
+shoulders=,id=137364,bonus_id=3418/1582/3337|T20,id=147138,enchant_id=5883,bonus_id=3562/1507/3336
 back=,id=146984,enchant_id=5436,bonus_id=3562/1517/3337|T20,id=147134,enchant_id=5436,bonus_id=3562/1507/3336
 chest=T20,id=147133,bonus_id=3562/1497/3528|,id=144483,bonus_id=3418/1607/3337
-wrist=,id=140889,bonus_id=3516/1517/3337|L,id=137092,bonus_id=3459/3570
+wrists=,id=140889,bonus_id=3516/1517/3337|L,id=137092,bonus_id=3459/3570
 hands=T20,id=147135,bonus_id=3562/1502/3336|,id=152360,bonus_id=3614/42/1472/3528
 waist=,id=152364,bonus_id=3614/1808/1472/3528,gem_id=130222
 legs=,id=134460,bonus_id=3418/1607/3337|T20,id=147137,bonus_id=3562/1502/3336

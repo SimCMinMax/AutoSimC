@@ -763,28 +763,35 @@ def permutate(args, player_profile):
     if args.gems is not None:
         splitted_gems = build_gem_list(args.gems)
 
-    # Items to parse
-    gear_slots = ["head",
-                  "neck",
-                  "shoulder",
-                  "back",
-                  "chest",
-                  "wrist",
-                  "hands",
-                  "waist",
-                  "legs",
-                  "feet",
-                  "finger1",
-                  "finger2",
-                  "trinket1",
-                  "trinket2",
-                  "main_hand",
-                  "off_hand"]
-    
+    # Items to parse. First entry is the "correct" name
+    gear_slots = [("head",),
+                  ("neck",),
+                  ("shoulders", "shoulder"),
+                  ("back",),
+                  ("chest",),
+                  ("wrists", "wrist"),
+                  ("hands",),
+                  ("waist",),
+                  ("legs",),
+                  ("feet",),
+                  ("finger1", "finger"),
+                  ("finger2",),
+                  ("trinket1", "trinket"),
+                  ("trinket2",),
+                  ("main_hand",),
+                  ("off_hand",)]
+
     gear = player_profile.config['Gear']
     parsed_gear = {}
     for gear_slot in gear_slots:
-        parsed_gear[gear_slot] = gear.get(gear_slot, "").split("|")
+        assert(type(gear_slot) is not str)
+        for entry in gear_slot:
+            if entry in gear:
+                parsed_gear[gear_slot[0]] = gear[entry].split("|")
+                break
+        else:
+            # We haven found any, add empty string
+            parsed_gear[gear_slot[0]] = "".split("|")
 
     logging.debug("Parsed gear before legendaries: {}".format(parsed_gear))
 
