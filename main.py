@@ -1157,17 +1157,6 @@ def check_interpreter():
                                                        required_minor))
 
 
-# just a workaround for skipping generation of out.simc
-def getClassFromInput(args):
-    config = configparser.ConfigParser()
-
-    # use read_file to get a error when input file is not available
-    with open(args.inputfile, encoding='utf-8-sig') as f:
-        config.read_file(f)
-        profile = config['Profile']
-        return profile['class']
-
-
 ########################
 #     Program Start    #
 ########################

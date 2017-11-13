@@ -438,19 +438,16 @@ def grabBest(count, source_subdir, target_subdir, origin):
         currentbestprofile = ""
 
         if line.startswith(user_class + "="):
-            separator = line.find("=")
-            profilename = line[separator + 1:len(line)]
+            _classname, profilename = line.split("=")
             if profilename in sortednames:
-                # print(profilename+": "+(str)(sortednames.index(profilename)))
-
-                # print(profilename)
-                line = line + "\n"
-                # TODO: better way to loop until next {class}= entry, without crashing on EOL.
-                while not line.startswith("trinket2"):
-                    currentbestprofile += line
-                    line = next(lines_iter)
-                currentbestprofile += line
-                currentbestprofile += "\n"
+                currentbestprofile += line + "\n"
+                line = next(lines_iter)
+                while not line.startswith(user_class + "="):
+                    try:
+                        currentbestprofile += line
+                        line = next(lines_iter)
+                    except StopIteration:
+                        break
                 bestprofiles.append(currentbestprofile)
         if target_subdir == settings.subdir2:
             amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
@@ -463,6 +460,7 @@ def grabBest(count, source_subdir, target_subdir, origin):
                 filenumber += 1
             bestprofiles.clear()
 
+    logging.info("Got {} best profiles.".format(len(bestprofiles)))
     if len(bestprofiles) > 0:
         with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
             for line in bestprofiles:
@@ -573,18 +571,16 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
         currentbestprofile = ""
 
         if line.startswith(user_class + "="):
-            separator = line.find("=")
-            profilename = line[separator + 1:len(line)]
+            _classname, profilename = line.split("=")
             if profilename in sortednames:
-                # print(profilename+": "+(str)(sortednames.index(profilename)))
-
-                # print(profilename)
-                line = line + "\n"
-                while not line.startswith("trinket2"):
-                    currentbestprofile += line
-                    line = next(lines_iter)
-                currentbestprofile += line
-                currentbestprofile += "\n"
+                currentbestprofile += line + "\n"
+                line = next(lines_iter)
+                while not line.startswith(user_class + "="):
+                    try:
+                        currentbestprofile += line
+                        line = next(lines_iter)
+                    except StopIteration:
+                        break
                 bestprofiles.append(currentbestprofile)
         if target_subdir == settings.subdir2:
             amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
@@ -596,6 +592,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
                     out.write(line)
                 filenumber += 1
             bestprofiles.clear()
+    logging.info("Got {} best profiles.".format(len(bestprofiles)))
     if len(bestprofiles) > 0:
         with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
             for line in bestprofiles:
