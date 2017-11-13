@@ -668,7 +668,16 @@ class PermutationData:
         return "_".join((template, str(valid_profile_number)))
 
     def get_profile(self):
-        return "\n".join(["{}={}".format(key, value) for key, value in self.combined_data.items()])
+        items = []
+        # Hack for now to get Txx and L strings removed from items
+        for key, value in self.combined_data.items():
+            values = value.split(",")
+            if len(values):
+                itemname_with_extra = values[0].split("--")
+                if len(itemname_with_extra) > 1:
+                    values[0] = itemname_with_extra[1]  # Remove Txx and L string from items
+            items.append((key, ",".join(values)))
+        return "\n".join(["{}={}".format(key, value) for key, value in items])
 
     def write_to_file(self, filehandler, valid_profile_number):
         profile_name = self.get_profile_name(valid_profile_number)
@@ -1145,7 +1154,8 @@ def stage_restart(player_profile, stage):
 
 def check_interpreter():
     """Check interpreter for minimum requirements."""
-    # Does not really work in practice, since formatted string literals lead to SyntaxError prior to execution.
+    # Does not really work in practice, since formatted string literals (3.6) lead to SyntaxError prior to execution of
+    # the program with older interpreters.
     required_major, required_minor = (3, 6)
     major, minor, _micro, _releaselevel, _serial = sys.version_info
     if major > required_major:
@@ -1200,7 +1210,6 @@ def main():
 
     # check version of python-interpreter running the script
     check_interpreter()
-        
 
     args = handleCommandLine()
     if args.quiet:

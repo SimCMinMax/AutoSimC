@@ -37,6 +37,10 @@ Example :
 
     neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
 
+To specify Tier/Legendary set and item names, use the following syntax:
+
+    neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
+    
 You can also use SimPermut to generate the string directly with the gear you have equipped and in your bag (See below).
 
 ## Launch.bat
