@@ -1143,13 +1143,20 @@ def stage_restart(player_profile, stage):
             dynamic_stage3(skip, new_te, splitter.user_targeterror, player_profile)
 
 
-def checkinterpreter():
+def check_interpreter():
+    """Check interpreter for minimum requirements."""
+    # Does not really work in practice, since formatted string literals lead to SyntaxError prior to execution.
+    required_major, required_minor = (3, 6)
     major, minor, _micro, _releaselevel, _serial = sys.version_info
-    if major != 3:
-        return False
-    if minor < 6:
-        return False
-    return True
+    if major > required_major:
+        return
+    elif major == required_major:
+        if minor >= required_minor:
+            return
+    raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
+                       "Python-Version {}.{}.x".format(sys.version,
+                                                       required_major,
+                                                       required_minor))
 
 
 # just a workaround for skipping generation of out.simc
@@ -1192,9 +1199,8 @@ def main():
                                                        stdout_handler])
 
     # check version of python-interpreter running the script
-    if not checkinterpreter():
-        raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
-                           "Python-Version 3.6.x".format(sys.version))
+    check_interpreter()
+        
 
     args = handleCommandLine()
     if args.quiet:
