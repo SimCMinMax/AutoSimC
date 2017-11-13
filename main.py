@@ -61,25 +61,25 @@ target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
 gemspermutation = False
 
-gem_ids = {}
-gem_ids["150haste"] = "130220"
-gem_ids["200haste"] = "151583"
-gem_ids["haste"] = "151583"  # always contains maximum quality
-gem_ids["150crit"] = "130219"
-gem_ids["200crit"] = "151580"
-gem_ids["crit"] = "151580"  # always contains maximum quality
-gem_ids["150vers"] = "130221"
-gem_ids["200vers"] = "151585"
-gem_ids["vers"] = "151585"  # always contains maximum quality
-gem_ids["150mast"] = "130222"
-gem_ids["200mast"] = "151584"
-gem_ids["mast"] = "151584"  # always contains maximum quality
-gem_ids["200str"] = "130246"
-gem_ids["str"] = "130246"
-gem_ids["200agi"] = "130247"
-gem_ids["agi"] = "130247"
-gem_ids["200int"] = "130248"
-gem_ids["int"] = "130248"
+gem_ids = {"150haste":  130220,
+           "200haste":  151583,
+           "haste":     151583,  # always contains maximum quality
+           "150crit":   130219,
+           "200crit":   151580,
+           "crit":      151580,  # always contains maximum quality
+           "150vers":   130221,
+           "200vers":   151585,
+           "vers":      151585,  # always contains maximum quality
+           "150mast":   130222,
+           "200mast":   151584,
+           "mast":      151584,  # always contains maximum quality
+           "200str":    130246,
+           "str":       130246,
+           "200agi":    130247,
+           "agi":       130247,
+           "200int":    130248,
+           "int":       130248,
+           }
 
 settings_subdir = {1: settings.subdir1,
                    2: settings.subdir2,
@@ -686,8 +686,8 @@ class PermutationData:
         filehandler.write(combined_profile)
         filehandler.write("\n\n")
 
+
 def build_profile(args):
-    
     # Read input.txt to init vars
     config = configparser.ConfigParser()
 
@@ -790,7 +790,7 @@ def permutate(args, player_profile):
                 parsed_gear[gear_slot[0]] = gear[entry].split("|")
                 break
         else:
-            # We haven found any, add empty string
+            # We havent found any, add empty string
             parsed_gear[gear_slot[0]] = "".split("|")
 
     logging.debug("Parsed gear before legendaries: {}".format(parsed_gear))
