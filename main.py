@@ -18,7 +18,6 @@ from settings import settings
 import specdata
 import splitter
 import hashlib
-from numpy import minimum, maximum
 
 if __name__ == "__main__":
     try:
