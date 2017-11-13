@@ -717,7 +717,7 @@ def build_profile(args):
                             "spec",
                             "role",
                             "position",
-                            "artifacts",
+                            "artifact",
                             "crucible",
                             "potion",
                             "flask",
