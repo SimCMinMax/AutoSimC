@@ -278,7 +278,7 @@ def printItem(item):
             legString = "L"
         itemNB = itemNB+1
         printstats = ""
-        printstats = "(" + item["stats"]+ ")"
+        # printstats = "(" + item["stats"]+ ")"
         stringToPrint = legString + setString + ("--" if not setString == "" or not legString == "" else "") + sanitizeString(item["name"]) + ',id=' + str(item["id"])+ ',bonus_id=' + item["bonus_id"] + gemString + enchantString + printstats +"|"
     return stringToPrint
 
