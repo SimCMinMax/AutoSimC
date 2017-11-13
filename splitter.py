@@ -445,15 +445,11 @@ def grabBest(count, source_subdir, target_subdir, origin):
 
                 # print(profilename)
                 line = line + "\n"
-                while not line.startswith("main_hand"):
+                # TODO: better way to loop until next {class}= entry, without crashing on EOL.
+                while not line.startswith("trinket2"):
                     currentbestprofile += line
                     line = next(lines_iter)
                 currentbestprofile += line
-                line = next(lines_iter)
-                if line.startswith("off_hand"):
-                    currentbestprofile += line + "\n"
-                else:
-                    currentbestprofile += "\n"
                 bestprofiles.append(currentbestprofile)
         if target_subdir == settings.subdir2:
             amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
