@@ -31,7 +31,6 @@ if __name__ == "__main__":
 # Var init with default value
 c_profileid = 0
 c_profilemaxid = 0
-legmin = int(settings.default_leg_min)
 legmax = int(settings.default_leg_max)
 t19min = int(settings.default_equip_t19_min)
 t19max = int(settings.default_equip_t19_max)
@@ -39,10 +38,6 @@ t20min = int(settings.default_equip_t20_min)
 t20max = int(settings.default_equip_t20_max)
 t21min = int(settings.default_equip_t21_min)
 t21max = int(settings.default_equip_t21_max)
-
-outputFileName = settings.default_outputFileName
-# txt, because standard-user cannot be trusted
-inputFileName = settings.default_inputFileName
 
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
@@ -59,7 +54,6 @@ iterations_thirdpart = settings.default_iterations_stage3
 
 target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
-gemspermutation = False
 
 gem_ids = {"150haste":  130220,
            "200haste":  151583,
@@ -270,18 +264,13 @@ def handleCommandLine():
     logging.debug("Parsed command line arguments: {}".format(args))
 
     # For now, just write command line arguments into globals
-    global inputFileName
     global outputFileName
-    global legmin
     global legmax
     global b_quiet
     global b_simcraft_enabled
     global s_stage
     global restart
-    global gemspermutation
-    inputFileName = args.inputfile
     outputFileName = args.outputfile
-    legmin = args.legendary_min
     legmax = args.legendary_max
     b_quiet = args.quiet
 
@@ -300,8 +289,6 @@ def handleCommandLine():
             sys.exit(1)
         else:
             printLog("Path to simc.exe valid, proceeding...")
-
-    gemspermutation = args.gems
 
     return args
 
@@ -357,18 +344,18 @@ def cleanup():
             printLog("Removing: " + subdir3)
 
 
-def validateSettings():
+def validateSettings(args):
     # validate amount of legendaries
-    if legmin > legmax:
-        raise ValueError("Legendary min '{}' > legendary max '{}'".format(legmin, legmax))
-    if legmax > 3:
-        raise ValueError("Legendary Max '{}' too large (>3).".format(legmax))
-    if legmin > 3:
-        raise ValueError("Legendary Min '{}' too large (>3).".format(legmin))
-    if legmin < 0:
-        raise ValueError("Legendary Min '{}' is negative.".format(legmin))
-    if legmax < 0:
-        raise ValueError("Legendary Max '{}' is negative.".format(legmax))
+    if args.legendary_min > legmax:
+        raise ValueError("Legendary min '{}' > legendary max '{}'".format(args.legendary_min, args.legendary_max))
+    if args.legendary_max > 3:
+        raise ValueError("Legendary Max '{}' too large (>3).".format(args.legendary_max))
+    if args.legendary_min > 3:
+        raise ValueError("Legendary Min '{}' too large (>3).".format(args.legendary_min))
+    if args.legendary_min < 0:
+        raise ValueError("Legendary Min '{}' is negative.".format(args.legendary_min))
+    if args.legendary_max < 0:
+        raise ValueError("Legendary Max '{}' is negative.".format(args.legendary_max))
 
     # validate tier-set
     min_tier_sets = 0
@@ -429,7 +416,7 @@ def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
     printLog("Creating Gem Combinations")
     printLog("Number of Gems: " + str(numberOfGems))
     combinations = itertools.combinations_with_replacement(gems_to_use, r=numberOfGems)
-    combinations = ["/".join(c) for c in combinations]
+    combinations = ["/".join([str(gem) for gem in c]) for c in combinations]
     return combinations
 
 
@@ -559,10 +546,10 @@ class PermutationData:
             if gearLabel == "T21":
                 self.temp_t21 = self.temp_t21 + 1
 
-        if self.nbLeg < legmin:
-            return str(self.nbLeg) + " leg (" + str(legmin) + " asked)"
-        if self.nbLeg > legmax:
-            return str(self.nbLeg) + " leg (" + str(legmax) + " asked)"
+        if self.nbLeg < self.profile.args.legendary_min:
+            return "too few legendaries"
+        if self.nbLeg > self.profile.args.legendary_max:
+            return "too many legendaries"
         # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
         # because 3 other legs have been equipped
         if self.nbLeg == 3:
@@ -692,7 +679,7 @@ def build_profile(args):
     config = configparser.ConfigParser()
 
     # use read_file to get a error when input file is not available
-    with open(inputFileName, encoding='utf-8-sig') as f:
+    with open(args.inputfile, encoding='utf-8-sig') as f:
         config.read_file(f)
 
     profile = config['Profile']
@@ -724,6 +711,7 @@ def build_profile(args):
         raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
                            format(valid_classes))
     player_profile = Profile()
+    player_profile.args = args
     player_profile.config = config
     player_profile.simc_options = {}
     player_profile.wow_class = c_class
@@ -759,9 +747,6 @@ def build_profile(args):
 
 # todo: add checks for missing headers, prio low
 def permutate(args, player_profile):
-    # Build gem list
-    if args.gems is not None:
-        splitted_gems = build_gem_list(args.gems)
 
     # Items to parse. First entry is the "correct" name
     gear_slots = [("head",),
@@ -813,7 +798,8 @@ def permutate(args, player_profile):
         normal_permutation_options["talents"] = permutate_talents(l_talents)
 
     # add gem-permutations to gear
-    if gemspermutation:
+    if args.gems:
+        splitted_gems = build_gem_list(args.gems)
         for name, gear in parsed_gear.items():
             permutate_gems_for_slot(splitted_gems, name, gear)
 
@@ -873,7 +859,7 @@ def permutate(args, player_profile):
     # Start the permutation!
     processed = 0
     valid_profiles = 0
-    with open(outputFileName, 'w') as output_file:
+    with open(args.outputfile, 'w') as output_file:
         for perm in all_permutations:
             data = PermutationData(perm, all_permutation_names, player_profile)
             if not data.not_usable:
@@ -888,7 +874,7 @@ def permutate(args, player_profile):
                         100.0 * valid_profiles / max_num_profiles if max_num_profiles else 0.0))
 
     # Print checksum so we can check for equality when making changes in the code
-    outfile_checksum = file_checksum(outputFileName)
+    outfile_checksum = file_checksum(args.outputfile)
     logging.info("Output file checksum: {}".format(outfile_checksum))
 
     global i_generatedProfiles
@@ -1181,7 +1167,7 @@ def getClassFromInput(args):
     config = configparser.ConfigParser()
 
     # use read_file to get a error when input file is not available
-    with open(inputFileName, encoding='utf-8-sig') as f:
+    with open(args.inputfile, encoding='utf-8-sig') as f:
         config.read_file(f)
         profile = config['Profile']
         return profile['class']
@@ -1224,7 +1210,7 @@ def main():
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
-    validateSettings()
+    validateSettings(args)
 
     player_profile = build_profile(args)
 
@@ -1235,7 +1221,7 @@ def main():
         logging.info("Permutating took {}.".format(datetime.datetime.now()-start))
         outputGenerated = True
     else:
-        if input(F"Do you want to generate {outputFileName} again? Press y to regenerate: ") == "y":
+        if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
             permutate(args, player_profile)
             outputGenerated = True
         else:
