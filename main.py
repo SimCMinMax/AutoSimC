@@ -18,6 +18,7 @@ from settings import settings
 import specdata
 import splitter
 import hashlib
+from numpy import minimum, maximum
 
 if __name__ == "__main__":
     try:
@@ -31,7 +32,6 @@ if __name__ == "__main__":
 # Var init with default value
 c_profileid = 0
 c_profilemaxid = 0
-legmax = int(settings.default_leg_max)
 t19min = int(settings.default_equip_t19_min)
 t19max = int(settings.default_equip_t19_max)
 t20min = int(settings.default_equip_t20_min)
@@ -42,7 +42,6 @@ t21max = int(settings.default_equip_t21_max)
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
 # quiet_mode for faster output; console is very slow
-b_quiet = settings.b_quiet
 i_generatedProfiles = 0
 
 b_simcraft_enabled = settings.default_sim_enabled
@@ -204,15 +203,16 @@ def parse_command_line_args():
                         "You have to set the simc path in the settings.py file."
                         "- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during "
                         "stage1, by launching with the parameter -sim stage2 (or stage3). You will have to enter the "
-                        "amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)"
+                        "amount of iterations or target_error of the broken simulation-stage. "
+                        "(See logs.txt for details)"
                         "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
                         "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
-                        "or instabilities, edit settings.py and change the corresponding parameters or even disable it. "
+                        "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
                         )
 
     parser.add_argument('-quiet', '--quiet',
                         action='store_true',
-                        default=b_quiet,
+                        default=settings.b_quiet,
                         help='Option for disabling Console-output. Generates the outputfile much faster for '
                         'large permuation-size')
 
@@ -265,14 +265,9 @@ def handleCommandLine():
 
     # For now, just write command line arguments into globals
     global outputFileName
-    global legmax
-    global b_quiet
     global b_simcraft_enabled
     global s_stage
-    global restart
     outputFileName = args.outputfile
-    legmax = args.legendary_max
-    b_quiet = args.quiet
 
     # Sim Argument is either None when not specified, a empty list [] when specified without an argument,
     # or a list with one
@@ -346,7 +341,7 @@ def cleanup():
 
 def validateSettings(args):
     # validate amount of legendaries
-    if args.legendary_min > legmax:
+    if args.legendary_min > args.legendary_max:
         raise ValueError("Legendary min '{}' > legendary max '{}'".format(args.legendary_min, args.legendary_max))
     if args.legendary_max > 3:
         raise ValueError("Legendary Max '{}' too large (>3).".format(args.legendary_max))
@@ -516,11 +511,26 @@ class Profile:
     pass
 
 
+class TierCheck:
+    def __init__(self, name, minimum, maximum):
+        self.name = name
+        self.minimum = minimum
+        self.maximum = maximum
+        self.count = 0
+
+
 class PermutationData:
     """Data for each permutation"""
     def __init__(self, permutation_data, to_permutate, profile):
         self.profile = profile
         self.combined_data = {}
+        self.nbLeg = 0
+
+        # name, num_available, min, max
+        self.tiers_to_check = [TierCheck("T19",  t19min, t19max),
+                               TierCheck("T20", t20min, t20max),
+                               TierCheck("T21", t21min, t21max),
+                               ]
         for j, entry in enumerate(to_permutate):
             entry = list(entry)
             self.combined_data.update({key: permutation_data[j][i] for i, key in enumerate(entry)})
@@ -528,23 +538,15 @@ class PermutationData:
 
     def check_usable(self):
         """Check if profile is un-usable. Return None if ok, otherwise return reason"""
-        self.nbLeg = 0
-        self.temp_t19 = 0
-        self.temp_t20 = 0
-        self.temp_t21 = 0
         for gear in self.combined_data.values():
             if len(gear) and gear[0] == "L":
                 self.nbLeg += 1
                 continue
             gearLabel = gear[0:3]
-            if gearLabel == "T19":
-                self.temp_t19 = self.temp_t19 + 1
-                continue
-            if gearLabel == "T20":
-                self.temp_t20 = self.temp_t20 + 1
-                continue
-            if gearLabel == "T21":
-                self.temp_t21 = self.temp_t21 + 1
+            for tier in self.tiers_to_check:
+                if gearLabel == tier.name:
+                    tier.count += 1
+                    break
 
         if self.nbLeg < self.profile.args.legendary_min:
             return "too few legendaries"
@@ -556,18 +558,11 @@ class PermutationData:
             if not getIdFromItem(self.combined_data["trinket1"]) == "154172" and not getIdFromItem(self.combined_data["trinket2"]) == "154172":
                 return " 3 legs equipped, but no Amanthul-Trinket found"
 
-        if self.temp_t19 < t19min:
-            return " " + str(self.temp_t19) + ": too few T19-items (" + str(t19min) + " asked)"
-        if self.temp_t20 < t20min:
-            return " " + str(self.temp_t20) + ": too few T20-items (" + str(t20min) + " asked)"
-        if self.temp_t21 < t21min:
-            return " " + str(self.temp_t21) + ": too few T21-items (" + str(t21min) + " asked)"
-        if self.temp_t19 > t19max:
-            return " " + str(self.temp_t19) + ": too much T19-items (" + str(t19max) + " asked)"
-        if self.temp_t20 > t20max:
-            return " " + str(self.temp_t20) + ": too much T20-items (" + str(t20max) + " asked)"
-        if self.temp_t21 > t21max:
-            return " " + str(self.temp_t21) + ": too much T21-items (" + str(t21max) + " asked)"
+        for tier in self.tiers_to_check:
+            if tier.count < tier.minimum:
+                return "too few tier items"
+            if tier.count > tier.maximum:
+                return "too many tier items"
 
         if getIdFromItem(self.combined_data["finger1"]) == getIdFromItem(self.combined_data["finger2"]):
             return "Rings equal"
@@ -612,9 +607,9 @@ class PermutationData:
                         else:
                             namingData['Leg2'] = getIdFromItem(gear)
 
-        namingData["T19"] = self.temp_t19
-        namingData["T20"] = self.temp_t20
-        namingData["T21"] = self.temp_t21
+        namingData["T19"] = self.tiers_to_check[0].count
+        namingData["T20"] = self.tiers_to_check[1].count
+        namingData["T21"] = self.tiers_to_check[2].count
 
         # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
         # scpout later adds a increment for multiple versions of this
@@ -881,7 +876,7 @@ def permutate(args, player_profile):
     i_generatedProfiles = valid_profiles
 
 
-def checkResultFiles(subdir, player_profile, count = 2):
+def checkResultFiles(subdir, player_profile, count=2):
     subdir = os.path.join(os.getcwd(), subdir)
     printLog("Checking Files in subdirectory: {}".format(subdir))
     if os.path.exists(subdir):
@@ -1113,8 +1108,8 @@ def stage_restart(player_profile, stage):
         raise ValueError("No stage {} available to restart.".format(stage))
     logging.info("\nRestarting STAGE{}".format(stage))
     if not checkResultFiles(settings_subdir[stage-1], player_profile):
-        raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".format(stage,
-                                                                                                 settings_subdir[stage-1]))
+        raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".
+                           format(stage, settings_subdir[stage-1]))
     if settings.skip_questions:
         mode_choice = str(settings.auto_choose_static_or_dynamic)
     else:
@@ -1178,7 +1173,6 @@ def getClassFromInput(args):
 ########################
 
 def main():
-    global b_quiet
     global s_stage
     global b_simcraft_enabled
     global class_spec
