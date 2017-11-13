@@ -7889,7 +7889,7 @@
                     "type": "finger",
                     "material": "",
                     "stats": "stam/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 1,
                     "bonus_id": "3630"
                 },
@@ -8005,7 +8005,7 @@
                     "type": "hands",
                     "material": "mail",
                     "stats": "stam/agi/int/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
