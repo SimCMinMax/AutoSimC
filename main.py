@@ -19,6 +19,7 @@ from settings import settings
 import specdata
 import splitter
 import hashlib
+from builtins import property
 
 if __name__ == "__main__":
     try:
@@ -742,7 +743,8 @@ def build_profile(args):
 
 
 class Item:
-    tiers = [19,20,21]
+    """WoW Item"""
+    tiers = [19, 20, 21]
 
     def __init__(self, slot, input_string=""):
         self.slot = slot
@@ -755,7 +757,7 @@ class Item:
         self.is_legendary = False
         if len(input_string):
             self.parse_input(input_string)
-        self.output_str_tail = self._build_output_str()
+        self._build_output_str()  # Pre-Build output string as good as possible
         for tier in self.tiers:
             n = "T{}".format(tier)
             if self.name.startswith(n):
@@ -763,6 +765,15 @@ class Item:
                 # self.name = self.name[len(n):]
             else:
                 setattr(self, "tier_{}".format(tier), False)
+
+    @property
+    def gem_ids(self):
+        return self._gem_ids
+
+    @gem_ids.setter
+    def gem_ids(self, value):
+        self._gem_ids = value
+        self._build_output_str()
 
     def parse_input(self, input_string):
         parts = input_string.split(",")
@@ -773,7 +784,6 @@ class Item:
         if self.name.startswith("L"):
             self.is_legendary = True
             # self.name = self.name[1:]
-
 
         for s in parts[1:]:
             print(s, s.split("="))
@@ -789,40 +799,41 @@ class Item:
 
     def _build_output_str(self):
         # Use external slot name because of permutation reasons with finger1/2
-        return "={},id={},bonus_id={},enchant_id={},gem_id={}".format(self.name,
-                                                                 self.item_id,
-                                                                 "/".join([str(v) for v in self.bonus_ids]),
-                                                                 "/".join([str(v) for v in self.enchant_ids]),
-                                                                 "/".join([str(v) for v in self.gem_ids]),
-                                                                 )
+        self.output_str_tail = "={},id={},bonus_id={},enchant_id={},gem_id={}".\
+            format(self.name,
+                   self.item_id,
+                   "/".join([str(v) for v in self.bonus_ids]),
+                   "/".join([str(v) for v in self.enchant_ids]),
+                   "/".join([str(v) for v in self.gem_ids]),
+                   )
 
     def output_str(self, slotname):
         return str(slotname) + self.output_str_tail
 
     def __str__(self):
         return "Item(n={},slot={},id={},bonus={},ench={},gem={},l={})".format(self.name,
-                                                                        self.slot,
-                                                                   self.item_id,
-                                                                   self.bonus_ids,
-                                                                   self.enchant_ids,
-                                                                   self.gem_ids,
-                                                                   self.is_legendary)
-    
+                                                                              self.slot,
+                                                                              self.item_id,
+                                                                              self.bonus_ids,
+                                                                              self.enchant_ids,
+                                                                              self.gem_ids,
+                                                                              self.is_legendary)
+
     def __repr__(self):
         return self.__str__()
-    
+
     def __key(self):
         return self.__dict__.values()
 
-    def __eq__(x, y):
-        return x.__key() == y.__key()
+    def __eq__(self, y):
+        return self.__key() == y.__key()
 
     def __hash__(self):
         return hash(self.__key())
 
+
 # todo: add checks for missing headers, prio low
 def permutate(args, player_profile):
-
     # Items to parse. First entry is the "correct" name
     gear_slots = [("head",),
                   ("neck",),
@@ -895,7 +906,7 @@ def permutate(args, player_profile):
         entries = list(itertools.chain(*entries))
         logging.debug("Input list for special permutation '{}': {}".format(name,
                                                                            entries))
-        if 1:  # Unique finger/trinkets. This might be exposed as an option later
+        if False:  # Unique finger/trinkets. This might be exposed as an option later
             # This will not completly avoid 2 same ring ids equipped, but at least not two exactly equal
             # ring strings.
             permutations = itertools.combinations(entries, len(values))
@@ -904,7 +915,7 @@ def permutate(args, player_profile):
         permutations = list(permutations)
 
         logging.debug("Got {} permutations for {}.".format(len(permutations),
-                                                          name))
+                                                           name))
         for p in permutations:
             logging.debug(p)
 
@@ -924,7 +935,7 @@ def permutate(args, player_profile):
 
         entry_dict = {v: None for v in values}
         special_permutations[name] = [name, entry_dict, permutations]
-    
+
     # Exclude antorus trinkets
     p_trinkets = special_permutations["trinket"][2]
     p_trinkets = [p for p in p_trinkets if p[0].item_id not in antorusTrinkets or p[1].item_id not in antorusTrinkets]
@@ -936,8 +947,7 @@ def permutate(args, player_profile):
 
     # Set up the combined permutation list with normal + special permutations
     all_permutation_options = [normal_permutations, *[opt for _name, _entries, opt in special_permutations.values()]]
-    
-    #logging.debug("Permutation options: {}".format(n_permutation_options))
+
     all_permutations = itertools.product(*all_permutation_options)
     special_names = [list(entries.keys()) for _name, entries, _opt in special_permutations.values()]
     all_permutation_names = list(itertools.chain(*[list(normal_permutation_options.keys()), *special_names]))
