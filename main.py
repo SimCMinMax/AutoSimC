@@ -759,14 +759,14 @@ class Item:
         self.is_legendary = False
         if len(input_string):
             self.parse_input(input_string)
-        self._build_output_str()  # Pre-Build output string as good as possible
         for tier in self.tiers:
             n = "T{}".format(tier)
             if self.name.startswith(n):
                 setattr(self, "tier_{}".format(tier), True)
-                # self.name = self.name[len(n):]
+                self.name = self.name[len(n):]
             else:
                 setattr(self, "tier_{}".format(tier), False)
+        self._build_output_str()  # Pre-Build output string as good as possible
 
     @property
     def gem_ids(self):
@@ -785,10 +785,9 @@ class Item:
             self.name = splitted_name[1]
         if self.name.startswith("L"):
             self.is_legendary = True
-            # self.name = self.name[1:]
+            self.name = self.name[1:]
 
         for s in parts[1:]:
-            print(s, s.split("="))
             name, value = s.split("=")
             if name == "id":
                 self.item_id = int(value)
@@ -815,9 +814,9 @@ class Item:
         return str(slotname) + self.output_str_tail
 
     def __str__(self):
-        return "Item(n={},slot={},id={},bonus={},ench={},gem={},l={})".format(self.name,
+        return "Item(id={},slot={},n={},bonus={},ench={},gem={},l={})".format(self.item_id,
                                                                               self.slot,
-                                                                              self.item_id,
+                                                                              self.name,
                                                                               self.bonus_ids,
                                                                               self.enchant_ids,
                                                                               self.gem_ids,
@@ -875,7 +874,9 @@ def permutate(args, player_profile):
         for legendary in args.legendaries.split(','):
             add_legendary(legendary.split("/"), parsed_gear)
 
-    logging.info("Parsed gear including legendaries: {}".format(parsed_gear))
+    logging.info("Parsed gear including legendaries:")
+    for slot, item in parsed_gear.items():
+        logging.info("{:10s}: {}".format(slot, item))
 
     # This represents a dict of all options which will be permutated fully with itertools.product
     normal_permutation_options = collections.OrderedDict({})
@@ -907,9 +908,8 @@ def permutate(args, player_profile):
         entries = list(itertools.chain(*entries))
         logging.debug("Input list for special permutation '{}': {}".format(name,
                                                                            entries))
-        if False:  # Unique finger/trinkets. This might be exposed as an option later
-            # This will not completly avoid 2 same ring ids equipped, but at least not two exactly equal
-            # ring strings.
+        if args.unique_jewelry:
+            # Unique finger/trinkets.
             permutations = itertools.combinations(entries, len(values))
         else:
             permutations = itertools.combinations_with_replacement(entries, len(values))
@@ -1317,7 +1317,7 @@ def main():
     player_profile = build_profile(args)
 
     print("Combinations in progress...")
-    
+
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
         start = datetime.datetime.now()
