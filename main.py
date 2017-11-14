@@ -486,14 +486,22 @@ def permutate_talents(enabled, talents):
     return permuted_talent_strings
 
 
+def chop_microseconds(delta):
+    """Chop microseconds from a timedelta object"""
+    return delta - datetime.timedelta(microseconds=delta.microseconds)
+
+
 def print_permutation_progress(current, maximum, start_time, max_profile_chars):
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
     if current % 50000 == 0 or current == maximum:
         pct = 100.0 * current / maximum
         elapsed = datetime.datetime.now() - start_time
+        elapsed = chop_microseconds(elapsed)
         remaining_time = elapsed * (100.0 / pct - 1.0) if current else "nan"
-        bandwith = current / 1000 / elapsed.total_seconds()
+        if type(remaining_time) is datetime.timedelta:
+            remaining_time = chop_microseconds(remaining_time)
+        bandwith = current / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
         logging.info("Processed {}/{} ({:5.2f}%) elapsed_time {} remaining {} bandwith {:.0f}k/s".
                      format(str(current).rjust(max_profile_chars),
                             maximum,
