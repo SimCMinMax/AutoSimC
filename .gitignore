@@ -13,10 +13,10 @@ temp_step3/
 logs.txt
 error.txt
 out.simc
-.vs/*
+.vs/
+.vscode/
+.settings/
 .project
 .pydevproject
-out.simc
-logs.txt
-error.txt
-.settings/
+
+
