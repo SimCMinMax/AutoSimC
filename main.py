@@ -489,21 +489,18 @@ def permutate_talents(enabled, talents):
 def print_permutation_progress(current, maximum, start_time, max_profile_chars):
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
-    if current % 50000 == 0:
+    if current % 50000 == 0 or current == maximum:
         pct = 100.0 * current / maximum
         elapsed = datetime.datetime.now() - start_time
         remaining_time = elapsed * (100.0 / pct - 1.0) if current else "nan"
-        logging.info("Processed {}/{} ({:5.2f}%) elapsed_time {} remaining {}".
+        bandwith = current / 1000 / elapsed.total_seconds()
+        logging.info("Processed {}/{} ({:5.2f}%) elapsed_time {} remaining {} bandwith {:.0f}k/s".
                      format(str(current).rjust(max_profile_chars),
                             maximum,
                             pct,
                             elapsed,
-                            remaining_time))
-    if current == maximum:
-        logging.info("Processed: {}/{} ({:5.2f}%)".
-                     format(current,
-                            max,
-                            100.0 * current / maximum))
+                            remaining_time,
+                            bandwith))
 
 
 class Profile:
@@ -1009,8 +1006,8 @@ def permutate(args, player_profile):
             if not data.not_usable:
                 data.write_to_file(output_file, valid_profiles)
                 valid_profiles += 1
-            print_permutation_progress(processed, max_num_profiles, start_time, max_profile_chars)
             processed += 1
+            print_permutation_progress(processed, max_num_profiles, start_time, max_profile_chars)
 
     result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
         format(valid_profiles,
