@@ -150,7 +150,6 @@ def cleanItem(item_string):
 # Check if permutation is valid
 antorusTrinkets = {154172, 154173, 154174, 154175, 154176, 154177}
 
-
 itemIDsMemoization = {}
 
 
@@ -487,17 +486,24 @@ def permutate_talents(enabled, talents):
     return permuted_talent_strings
 
 
-def print_permutation_progress(current, maximum):
+def print_permutation_progress(current, maximum, start_time, max_profile_chars):
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
-    if current % 5000 == 0:
-        logging.info("Processed {}/{} ({:.2f}%)".format(current,
-                                                        maximum,
-                                                        100.0 * current / maximum))
+    if current % 50000 == 0:
+        pct = 100.0 * current / maximum
+        elapsed = datetime.datetime.now() - start_time
+        remaining_time = elapsed * (100.0 / pct - 1.0) if current else "nan"
+        logging.info("Processed {}/{} ({:5.2f}%) elapsed_time {} remaining {}".
+                     format(str(current).rjust(max_profile_chars),
+                            maximum,
+                            pct,
+                            elapsed,
+                            remaining_time))
     if current == maximum:
-        logging.info("Processed: {}/{} ({:.2f}%)".format(current,
-                                                         max,
-                                                         100.0 * current / maximum))
+        logging.info("Processed: {}/{} ({:5.2f}%)".
+                     format(current,
+                            max,
+                            100.0 * current / maximum))
 
 
 class Profile:
@@ -506,6 +512,7 @@ class Profile:
 
 
 class TierCheck:
+
     def __init__(self, n, minimum, maximum):
         self.name = "T{}".format(n)
         self.n = n
@@ -516,6 +523,7 @@ class TierCheck:
 
 class PermutationData:
     """Data for each permutation"""
+
     def __init__(self, permutations, slot_names, profile, max_profile_chars):
         self.profile = profile
         self.max_profile_chars = max_profile_chars
@@ -839,6 +847,23 @@ class Item:
         return hash(self.__key())
 
 
+def product(*iterables):
+    """
+    Custom product function as a generator, instead of itertools.product
+    This uses way less memory than itertools.product, because it is a generator only yielding a single item at a time.
+    requirement for this is that each iterable can be restarted.
+    Thanks to https://stackoverflow.com/questions/12093364/cartesian-product-of-large-iterators-itertools/12094519#12094519
+    """
+    if len(iterables) == 0:
+        yield ()
+    else:
+        iterables = iterables
+        it = iterables[0]
+        for item in it() if callable(it) else iter(it):
+            for items in product(*iterables[1:]):
+                yield (item,) + items
+
+
 # todo: add checks for missing headers, prio low
 def permutate(args, player_profile):
     # Items to parse. First entry is the "correct" name
@@ -900,7 +925,8 @@ def permutate(args, player_profile):
     normal_permutation_options.update(gear_normal)
 
     # Calculate normal permutations
-    normal_permutations = itertools.product(*normal_permutation_options.values())
+    normal_permutations = product(*normal_permutation_options.values())
+    logging.debug("Building permutations matrix finished.")
 
     special_permutations_config = {"finger": ("finger1", "finger2"),
                                    "trinket": ("trinket1", "trinket2")
@@ -953,7 +979,7 @@ def permutate(args, player_profile):
     # Set up the combined permutation list with normal + special permutations
     all_permutation_options = [normal_permutations, *[opt for _name, _entries, opt in special_permutations.values()]]
 
-    all_permutations = itertools.product(*all_permutation_options)
+    all_permutations = product(*all_permutation_options)
     special_names = [list(entries.keys()) for _name, entries, _opt in special_permutations.values()]
     all_permutation_names = list(itertools.chain(*[list(normal_permutation_options.keys()), *special_names]))
 
@@ -976,13 +1002,14 @@ def permutate(args, player_profile):
     # Start the permutation!
     processed = 0
     valid_profiles = 0
+    start_time = datetime.datetime.now()
     with open(args.outputfile, 'w') as output_file:
         for perm in all_permutations:
             data = PermutationData(perm, all_permutation_names, player_profile, max_profile_chars)
             if not data.not_usable:
                 data.write_to_file(output_file, valid_profiles)
                 valid_profiles += 1
-            print_permutation_progress(processed, max_num_profiles)
+            print_permutation_progress(processed, max_num_profiles, start_time, max_profile_chars)
             processed += 1
 
     result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
@@ -1054,15 +1081,15 @@ def static_stage(player_profile, stage):
     printLog("\nEntering static mode, STAGE {}.\n".format(stage))
 
     if stage > 1:
-        if not checkResultFiles(settings_subdir[stage-1], player_profile):
-            raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage-1]))
-        splitter.grabBest(settings_n_stage[stage], settings_subdir[stage-1], settings_subdir[stage], outputFileName)
+        if not checkResultFiles(settings_subdir[stage - 1], player_profile):
+            raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
+        splitter.grabBest(settings_n_stage[stage], settings_subdir[stage - 1], settings_subdir[stage], outputFileName)
     else:
         # Stage1 splitting
         splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]), player_profile, stage-1)
-    static_stage(player_profile, stage+1)
+    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]), player_profile, stage - 1)
+    static_stage(player_profile, stage + 1)
 
 
 def dynamic_stage1(player_profile):
@@ -1231,9 +1258,9 @@ def stage_restart(player_profile, stage):
     if stage > 3 or stage < 1:
         raise ValueError("No stage {} available to restart.".format(stage))
     logging.info("\nRestarting STAGE{}".format(stage))
-    if not checkResultFiles(settings_subdir[stage-1], player_profile):
+    if not checkResultFiles(settings_subdir[stage - 1], player_profile):
         raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".
-                           format(stage, settings_subdir[stage-1]))
+                           format(stage, settings_subdir[stage - 1]))
     if settings.skip_questions:
         mode_choice = str(settings.auto_choose_static_or_dynamic)
     else:
@@ -1280,10 +1307,10 @@ def check_interpreter():
                                                        required_major,
                                                        required_minor))
 
-
 ########################
 #     Program Start    #
 ########################
+
 
 def main():
     global s_stage
@@ -1328,7 +1355,7 @@ def main():
     if s_stage == "stage1" or s_stage == "":
         start = datetime.datetime.now()
         permutate(args, player_profile)
-        logging.info("Permutating took {}.".format(datetime.datetime.now()-start))
+        logging.info("Permutating took {}.".format(datetime.datetime.now() - start))
         outputGenerated = True
     else:
         if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
