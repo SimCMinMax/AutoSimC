@@ -116,7 +116,7 @@ def add_legendary(legendary_split, gear_list):
 
         logging.debug("Legendary string: {}".format(legendary_string))
         if slot in gear_list.keys():
-            gear_list[slot].append(legendary_string)
+            gear_list[slot].append(Item(slot, legendary_string))
             logging.info("Added legendary '{}' to {}.".format(legendary_string,
                                                               slot))
         else:
