@@ -1208,6 +1208,8 @@ def main():
 
     player_profile = build_profile(args)
 
+    print("Combinations in progress...")
+    
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
         start = datetime.datetime.now()
@@ -1234,6 +1236,7 @@ def main():
             raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
 
     if b_simcraft_enabled:
+        print("Simulation in progress...")
         if s_stage == "":
             s_stage = settings.default_sim_start_stage
 
