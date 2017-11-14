@@ -512,8 +512,9 @@ class TierCheck:
 
 class PermutationData:
     """Data for each permutation"""
-    def __init__(self, items, slot_names, profile):
+    def __init__(self, items, slot_names, profile, max_profile_chars):
         self.profile = profile
+        self.max_profile_chars = max_profile_chars
         self.items = itertools.chain(*items)
 
         # Build this dict to get correct slot names for finger1/2. Do not use item.slot in here
@@ -653,7 +654,7 @@ class PermutationData:
         else:
             template = template.replace("%F", "")
 
-        return "_".join((template, str(valid_profile_number)))
+        return "_".join((template, str(valid_profile_number).rjust(self.max_profile_chars, "0")))
 
     def get_profile(self):
         items = []
@@ -799,13 +800,15 @@ class Item:
 
     def _build_output_str(self):
         # Use external slot name because of permutation reasons with finger1/2
-        self.output_str_tail = "={},id={},bonus_id={},enchant_id={},gem_id={}".\
+        self.output_str_tail = "={},id={}".\
             format(self.name,
-                   self.item_id,
-                   "/".join([str(v) for v in self.bonus_ids]),
-                   "/".join([str(v) for v in self.enchant_ids]),
-                   "/".join([str(v) for v in self.gem_ids]),
-                   )
+                   self.item_id)
+        if len(self.bonus_ids):
+            self.output_str_tail += ",bonus_id=" + "/".join([str(v) for v in self.bonus_ids])
+        if len(self.enchant_ids):
+            self.output_str_tail += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
+        if len(self.gem_ids):
+            self.output_str_tail += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
 
     def output_str(self, slotname):
         return str(slotname) + self.output_str_tail
@@ -966,13 +969,14 @@ def permutate(args, player_profile):
         permutations_product[name] = len(opt)
     logging.info("Max number of profiles: {}".format(max_num_profiles))
     logging.info("Number of permutations: {}".format(permutations_product))
+    max_profile_chars = len(str(max_num_profiles))  # String length of max_num_profiles
 
     # Start the permutation!
     processed = 0
     valid_profiles = 0
     with open(args.outputfile, 'w') as output_file:
         for perm in all_permutations:
-            data = PermutationData(perm, all_permutation_names, player_profile)
+            data = PermutationData(perm, all_permutation_names, player_profile, max_profile_chars)
             if not data.not_usable:
                 data.write_to_file(output_file, valid_profiles)
                 valid_profiles += 1
