@@ -133,7 +133,11 @@ def build_gem_list(gems):
             raise ValueError("Unknown gem '{}' to sim, please check your input. Valid gems: {}".
                              format(gem, gem_ids.keys()))
     # Convert parsed gems to list of gem ids
-    return [gem_ids[gem] for gem in splitted_gems]
+    gems = [gem_ids[gem] for gem in splitted_gems]
+
+    # Unique by gem id, so that if user specifies eg. 200haste,haste there will only be 1 gem added.
+    gems = list(set(gems))
+    return gems
 
 
 def cleanItem(item_string):
@@ -981,10 +985,12 @@ def permutate(args, player_profile):
             print_permutation_progress(processed, max_num_profiles)
             processed += 1
 
-    logging.info("Ending permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".
-                 format(valid_profiles,
-                        processed,
-                        100.0 * valid_profiles / max_num_profiles if max_num_profiles else 0.0))
+    result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
+        format(valid_profiles,
+               processed,
+               100.0 * valid_profiles / max_num_profiles if max_num_profiles else 0.0)
+    print(result)
+    logging.info(result)
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(args.outputfile)
