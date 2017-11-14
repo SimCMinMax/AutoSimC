@@ -462,11 +462,11 @@ def permutate_gems_for_slot(splitted_gems, slot_name, slot_gearlist):
     logging.debug("Final slot list: {}".format(slot_gearlist))
 
 
-def permutate_talents(talents):
+def permutate_talents(enabled, talents):
     # First create a list where each entry represents all the talent permutations in that row.
     talent_combinations = []
     for i, talent in enumerate(talents[0]):
-        if settings.permutate_row[i]:
+        if enabled and settings.permutate_row[i]:
             # We permutate the talent row, adding ['1', '2', '3'] to that row
             talent_combinations.append([str(x) for x in range(1, 4)])
         else:
@@ -512,13 +512,14 @@ class TierCheck:
 
 class PermutationData:
     """Data for each permutation"""
-    def __init__(self, items, slot_names, profile, max_profile_chars):
+    def __init__(self, permutations, slot_names, profile, max_profile_chars):
         self.profile = profile
         self.max_profile_chars = max_profile_chars
-        self.items = itertools.chain(*items)
+        permutations = list(itertools.chain(*permutations))
 
         # Build this dict to get correct slot names for finger1/2. Do not use item.slot in here
-        self.items = {slot_names[i]: item for i, item in enumerate(self.items)}
+        self.items = {slot_names[i]: item for i, item in enumerate(permutations) if type(item) is Item}
+        self.talents = permutations[slot_names.index("talents")]
         self.nbLeg = 0
 
         # name, num_available, min, max
@@ -666,8 +667,9 @@ class PermutationData:
     def write_to_file(self, filehandler, valid_profile_number):
         profile_name = self.get_profile_name(valid_profile_number)
         filehandler.write("{}={}\n".format(self.profile.wow_class, profile_name))
-        combined_profile = "\n".join((self.profile.general_options, self.get_profile()))
-        filehandler.write(combined_profile)
+        filehandler.write(self.profile.general_options)
+        filehandler.write("\ntalents={}\n".format(self.talents))
+        filehandler.write(self.get_profile())
         filehandler.write("\n\n")
 
 
@@ -720,7 +722,6 @@ def build_profile(args):
                             "spec",
                             "role",
                             "position",
-                            "talents",
                             "artifact",
                             "crucible",
                             "potion",
@@ -876,15 +877,12 @@ def permutate(args, player_profile):
 
     logging.info("Parsed gear including legendaries: {}".format(parsed_gear))
 
-    # Split vars to lists
-    l_talents = player_profile.config['Profile'].get("talents", "").split('|')
-
     # This represents a dict of all options which will be permutated fully with itertools.product
     normal_permutation_options = collections.OrderedDict({})
 
     # Add talents to permutations
-    if settings.enable_talent_permutation:
-        normal_permutation_options["talents"] = permutate_talents(l_talents)
+    l_talents = player_profile.config['Profile'].get("talents", "").split('|')
+    normal_permutation_options["talents"] = permutate_talents(settings.enable_talent_permutation, l_talents)
 
     # add gem-permutations to gear
     if args.gems:
