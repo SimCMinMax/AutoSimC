@@ -1349,19 +1349,19 @@ def main():
         else:
             outputGenerated = False
 
-    if not settings.skip_questions:
-        if i_generatedProfiles > 50000:
-            if input(
-                    "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
-                    " <----- (Press Enter to continue, q to quit)") == "q":
-                logging.info("Program exit by user")
-                sys.exit(0)
-
     if outputGenerated:
         if i_generatedProfiles == 0:
             raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
 
     if b_simcraft_enabled:
+        if not settings.skip_questions:
+            if i_generatedProfiles > 50000:
+                if input(
+                        "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                        " <----- (Press Enter to continue, q to quit)") == "q":
+                    logging.info("Program exit by user")
+                    sys.exit(0)
+
         print("Simulation in progress...")
         if s_stage == "":
             s_stage = settings.default_sim_start_stage
