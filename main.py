@@ -540,37 +540,31 @@ class PermutationData:
         # Build this dict to get correct slot names for finger1/2. Do not use item.slot in here
         self.items = {slot_names[i]: item for i, item in enumerate(permutations) if type(item) is Item}
         self.talents = permutations[slot_names.index("talents")]
-        self.nbLeg = 0
 
-        # name, num_available, min, max
-        self.count_t19 = 0
-        self.count_t20 = 0
-        self.count_t21 = 0
         self.count_leg_and_tier()
         self.not_usable = self.check_usable()
-#         if not self.not_usable:
-#             for name, item in self.items.items():
-#                 print(name, item)
-#             print(self.nbLeg)
-#             print("")
 
     def count_leg_and_tier(self):
+        self.legendaries = []
+        self.t19 = 0
+        self.t20 = 0
+        self.t21 = 0
         for item in self.items.values():
             if item.is_legendary:
-                self.nbLeg += 1
+                self.legendaries.append(item)
                 continue
             if item.tier_19:
-                self.count_t19 += 1
+                self.t19 += 1
             elif item.tier_20:
-                self.count_t20 += 1
+                self.t20 += 1
             elif item.tier_21:
-                self.count_t21 += 1
+                self.t21 += 1
 
     def check_usable(self):
         """Check if profile is un-usable. Return None if ok, otherwise return reason"""
-        if self.nbLeg < self.profile.args.legendary_min:
-            return "too few legendaries {} < {}".format(self.nbLeg, self.profile.args.legendary_min)
-        if self.nbLeg > self.profile.args.legendary_max:
+        if len(self.legendaries) < self.profile.args.legendary_min:
+            return "too few legendaries {} < {}".format(len(self.legendaries), self.profile.args.legendary_min)
+        if len(self.legendaries) > self.profile.args.legendary_max:
             return "too many legendaries"
 
         trinket1itemID = self.items["trinket1"].item_id
@@ -578,104 +572,56 @@ class PermutationData:
 
         # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
         # because 3 other legs have been equipped
-        if self.nbLeg == 3:
+        if len(self.legendaries) == 3:
             if not trinket1itemID == 154172 and not trinket2itemID == 154172:
                 return " 3 legs equipped, but no Amanthul-Trinket found"
 
-        if self.count_t19 < t19min:
+        if self.t19 < t19min:
             return "too few tier 19 items"
-        if self.count_t19 > t19max:
+        if self.t19 > t19max:
             return "too many tier 19 items"
-        if self.count_t20 < t20min:
+        if self.t20 < t20min:
             return "too few tier 20 items"
-        if self.count_t20 > t20max:
+        if self.t20 > t20max:
             return "too many tier 20 items"
-        if self.count_t21 < t21min:
+        if self.t21 < t21min:
             return "too few tier 21 items"
-        if self.count_t21 > t21max:
+        if self.t21 > t21max:
             return "too many tier 21 items"
 
-#         if self.items["finger1"].item_id == self.items["finger2"].item_id:
-#             return "Rings equal"
-
-#         if trinket1itemID == trinket2itemID:
-#             return "trinkets equal"
-
-#         if trinket1itemID in antorusTrinkets:
-#             if trinket2itemID in antorusTrinkets:
-#                 return " two Pantheon-Trinkets found"
         return None
 
     def get_profile_name(self, valid_profile_number):
         # namingdata contains info for the profile-name
-        namingData = {}
+        namingData = {"Leg0": "None",
+                      "Leg1": "None",
+                      "Leg2": "None",
+                      "T19": "",
+                      "T20": "",
+                      "T21": ""}
         # if a valid profile was detected, fill namingData; otherwise its pointless
-        if self.nbLeg == 0:
-            namingData['Leg0'] = ""
-            namingData["Leg1"] = ""
-        elif self.nbLeg == 1:
-            for item in self.items.values():
-                if item.is_legendary:
-                    namingData['Leg0'] = item.item_id
-        elif self.nbLeg == 2:
-            for item in self.items.values():
-                if item.is_legendary:
-                    if namingData.get('Leg0') is not None:
-                        namingData['Leg1'] = item.item_id
-                    else:
-                        namingData['Leg0'] = item.item_id
-        elif self.nbLeg == 3:
-            for item in self.items.values():
-                if item.is_legendary:
-                    if namingData.get('Leg0') is None:
-                        namingData['Leg0'] = item.item_id
-                    else:
-                        if namingData.get('Leg1') is not None:
-                            namingData['Leg1'] = item.item_id
-                        else:
-                            namingData['Leg2'] = item.item_id
+        for i in range(1, 4):
+            if len(self.legendaries) == i:
+                for j in range(i):
+                    namingData['Leg' + str(j)] = specdata.getAcronymForID(str(self.legendaries[j].item_id))
 
-        namingData["T19"] = self.count_t19
-        namingData["T20"] = self.count_t20
-        namingData["T21"] = self.count_t21
+        for tier in (19, 20, 21):
+            count = getattr(self, "t" + str(tier))
+            tiername = "T" + str(tier)
+            if count:
+                pieces = 0
+                if count >= 2:
+                    pieces = 2
+                if count >= 4:
+                    pieces = 4
+                    namingData[tiername] = "_{}_{}p".format(tiername, pieces)
 
         # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
         # scpout later adds a increment for multiple versions of this
-        template = "%A%B%C%D%E%F"
-        if namingData.get('Leg0') != "None":
-            template = template.replace("%A", str(specdata.getAcronymForID(str(namingData.get('Leg0')))) + "_")
-        else:
-            template = template.replace("%A", "")
+        template = "{Leg0}_{Leg1}_{Leg2}{T19}{T20}{T21}_".\
+            format(**namingData)
 
-        if namingData.get('Leg1') != "None":
-            template = template.replace("%B", str(specdata.getAcronymForID(str(namingData.get('Leg1')))) + "_")
-        else:
-            template = template.replace("%B", "")
-
-        if namingData.get('Leg2') != "None":
-            template = template.replace("%C", str(specdata.getAcronymForID(str(namingData.get('Leg2')))) + "_")
-        else:
-            template = template.replace("%C", "")
-
-        if namingData.get("T19") != "None" and namingData.get("T19") != 0 and namingData.get(
-                "T19") != 1 and namingData.get("T19") != 3 and namingData.get("T19") != 5:
-            template = template.replace("%D", "T19-" + str(namingData.get('T19')) + "p_")
-        else:
-            template = template.replace("%D", "")
-
-        if namingData.get("T20") != "None" and namingData.get("T20") != 0 and namingData.get(
-                "T20") != 1 and namingData.get("T20") != 3 and namingData.get("T20") != 5:
-            template = template.replace("%E", "T20-" + str(namingData.get('T20')) + "p_")
-        else:
-            template = template.replace("%E", "")
-
-        if namingData.get("T21") != "None" and namingData.get("T21") != 0 and namingData.get(
-                "T21") != 1 and namingData.get("T21") != 3 and namingData.get("T21") != 5:
-            template = template.replace("%F", "T21-" + str(namingData.get('T21')) + "p_")
-        else:
-            template = template.replace("%F", "")
-
-        return "_".join((template, str(valid_profile_number).rjust(self.max_profile_chars, "0")))
+        return template + str(valid_profile_number).rjust(self.max_profile_chars, "0")
 
     def get_profile(self):
         items = []
