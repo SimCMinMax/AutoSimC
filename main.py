@@ -816,6 +816,16 @@ def product(*iterables):
                 yield (item,) + items
 
 
+def stable_unique(seq):
+    """
+    Filter sequence to only contain unique elements, in a stable order
+    Credit to https://stackoverflow.com/a/480227
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
 # todo: add checks for missing headers, prio low
 def permutate(args, player_profile):
     # Items to parse. First entry is the "correct" name
@@ -836,7 +846,7 @@ def permutate(args, player_profile):
 
     # Parse gear
     gear = player_profile.config['Gear']
-    parsed_gear = {}
+    parsed_gear = collections.OrderedDict({})
     for gear_slot in gear_slots:
         slot_base_name = gear_slot[0]  # First mentioned "correct" item name
         parsed_gear[slot_base_name] = []
@@ -852,7 +862,7 @@ def permutate(args, player_profile):
 
     # Filter each slot to only have unique items, before doing any gem/legendary permutation.
     for key, value in parsed_gear.items():
-        parsed_gear[key] = list(set(value))
+        parsed_gear[key] = stable_unique(value)
 
     # Add legendaries
     if args.legendaries is not None:
@@ -921,7 +931,7 @@ def permutate(args, player_profile):
             for p in permutations:
                 logging.debug(p)
         # Make unique
-        permutations = list(set(permutations))
+        permutations = stable_unique(permutations)
         logging.info("Got {} permutations for {} after unique filter.".format(len(permutations),
                                                                               name))
         for p in permutations:
