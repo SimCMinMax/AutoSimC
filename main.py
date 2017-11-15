@@ -845,14 +845,12 @@ class Item:
     def __repr__(self):
         return self.__str__()
 
-    def __key(self):
-        return self.__dict__.values()
-
-    def __eq__(self, y):
-        return self.__key() == y.__key()
+    def __eq__(self, other):
+        return self.__str__() == other.__str__()
 
     def __hash__(self):
-        return hash(self.__key())
+        # We are just lazy and use __str__ to avoid all the complexity about having mutable members, etc.
+        return hash(self.__str__())
 
 
 def product(*iterables):
@@ -885,28 +883,32 @@ def permutate(args, player_profile):
                   ("waist",),
                   ("legs",),
                   ("feet",),
-                  ("finger1", "finger"),
-                  ("finger2",),
-                  ("trinket1", "trinket"),
-                  ("trinket2",),
+                  ("finger", "finger1", "finger2"),
+                  ("trinket", "trinket1", "trinket2",),
                   ("main_hand",),
                   ("off_hand",)]
 
+    # Parse gear
     gear = player_profile.config['Gear']
     parsed_gear = {}
     for gear_slot in gear_slots:
-        assert(type(gear_slot) is not str)
+        slot_base_name = gear_slot[0]  # First mentioned "correct" item name
+        parsed_gear[slot_base_name] = []
         for entry in gear_slot:
             if entry in gear:
-                parsed_gear[gear_slot[0]] = [Item(gear_slot[0], s) for s in gear[entry].split("|") if len(s)]
-                break
-        else:
-            # We havent found any, add empty string
-            parsed_gear[gear_slot[0]] = [Item(gear_slot[0], "")]
+                for s in gear[entry].split("|"):
+                    parsed_gear[slot_base_name].append(Item(slot_base_name, s))
+        if len(parsed_gear[slot_base_name]) == 0:
+            # We havent found any items for that slot, add empty dummy item
+            parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
 
     logging.debug("Parsed gear before legendaries: {}".format(parsed_gear))
 
-    # Adding legendaries
+    # Filter each slot to only have unique items, before doing any gem/legendary permutation.
+    for key, value in parsed_gear.items():
+        parsed_gear[key] = list(set(value))
+
+    # Add legendaries
     if args.legendaries is not None:
         for legendary in args.legendaries.split(','):
             add_legendary(legendary.split("/"), parsed_gear)
@@ -929,7 +931,7 @@ def permutate(args, player_profile):
             permutate_gems_for_slot(splitted_gems, name, gear)
 
     # Add 'normal' gear to normal permutations, excluding trinket/rings
-    gear_normal = {k: v for k, v in parsed_gear.items() if (not k.startswith("finger") and not k.startswith("trinket"))}
+    gear_normal = {k: v for k, v in parsed_gear.items() if (not k == "finger" and not k == "trinket")}
     normal_permutation_options.update(gear_normal)
 
     # Calculate normal permutations
@@ -944,6 +946,13 @@ def permutate(args, player_profile):
         # Get entries from parsed gear, exclude empty finger/trinket lines
         entries = [v for k, v in parsed_gear.items() if k.startswith(name)]
         entries = list(itertools.chain(*entries))
+
+        # Remove empty (id=0) items from trinket/rings, except if there are 0 ring/trinkets specified. Then we need
+        # the single dummy item
+        remove_empty_entries = [item for item in entries if item.item_id != 0]
+        if len(remove_empty_entries):
+            entries = remove_empty_entries
+
         logging.debug("Input list for special permutation '{}': {}".format(name,
                                                                            entries))
         if args.unique_jewelry:
@@ -1011,7 +1020,7 @@ def permutate(args, player_profile):
     processed = 0
     valid_profiles = 0
     start_time = datetime.datetime.now()
-    unusable_histogram = {} # Record not usable reasons
+    unusable_histogram = {}  # Record not usable reasons
     with open(args.outputfile, 'w') as output_file:
         for perm in all_permutations:
             data = PermutationData(perm, all_permutation_names, player_profile, max_profile_chars)

@@ -23,8 +23,6 @@ hands=T20,id=147135,bonus_id=3562/1502/3336|,id=152360,bonus_id=3614/42/1472/352
 waist=,id=152364,bonus_id=3614/1808/1472/3528,gem_id=130222
 legs=,id=134460,bonus_id=3418/1607/3337|T20,id=147137,bonus_id=3562/1502/3336
 feet=,id=137397,bonus_id=3418/1587/3337
-finger1=L,id=137039,enchant_id=5428,bonus_id=3459/3570,gem_id=130220|,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
-finger2=
-trinket1=,id=153172,bonus_id=3573/1527/3337|,id=147016,bonus_id=3562/1497/3528
-trinket2=
+finger=L,id=137039,enchant_id=5428,bonus_id=3459/3570,gem_id=130220|,id=147020,enchant_id=5429,bonus_id=3562/1507/3336
+trinket=,id=153172,bonus_id=3573/1527/3337|,id=147016,bonus_id=3562/1497/3528
 main_hand=,id=128858,bonus_id=722,relic_id=3562:1507:3336/3536:1542:3337/3562:1522:3337,gem_id=147076/142309/147076
