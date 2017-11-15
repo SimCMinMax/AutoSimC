@@ -720,7 +720,8 @@ class Item:
         self.item_id = 0
         self.bonus_ids = []
         self.enchant_ids = []
-        self.gem_ids = []
+        self._gem_ids = []
+        self.relic_ids = []
         self.tier_set = {}
         self.is_legendary = False
         if len(input_string):
@@ -763,6 +764,8 @@ class Item:
                 self.enchant_ids = [int(v) for v in value.split("/")]
             elif name == "gem_id":
                 self.gem_ids = [int(v) for v in value.split("/")]
+            elif name == "relic_id":
+                self.relic_ids = [v for v in value.split("/")]
 
     def _build_output_str(self):
         # Use external slot name because of permutation reasons with finger1/2
@@ -775,18 +778,21 @@ class Item:
             self.output_str_tail += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
         if len(self.gem_ids):
             self.output_str_tail += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
+        if len(self.relic_ids):
+            self.output_str_tail += ",relic_id=" + "/".join([str(v) for v in self.relic_ids])
 
     def output_str(self, slotname):
         return str(slotname) + self.output_str_tail
 
     def __str__(self):
-        return "Item(id={},slot={},n={},bonus={},ench={},gem={},l={})".format(self.item_id,
-                                                                              self.slot,
-                                                                              self.name,
-                                                                              self.bonus_ids,
-                                                                              self.enchant_ids,
-                                                                              self.gem_ids,
-                                                                              self.is_legendary)
+        return "Item(id={},slot={},n={},bonus={},ench={},gem={},relic={},l={})".format(self.item_id,
+                                                                                       self.slot,
+                                                                                       self.name,
+                                                                                       self.bonus_ids,
+                                                                                       self.enchant_ids,
+                                                                                       self.gem_ids,
+                                                                                       self.relic_ids,
+                                                                                       self.is_legendary)
 
     def __repr__(self):
         return self.__str__()
