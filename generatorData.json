@@ -1,4 +1,25 @@
 {
+	"tiers":{
+		"T19": {
+			"itemIlvl": "875",
+			"legendaryIlvl": "910",
+			"itemBonusID":"3519",
+			"legendaryBonusID":""
+		},
+		"T20": {
+			"itemIlvl": "890",
+			"legendaryIlvl": "910",
+			"itemBonusID":"1512/3563",
+			"legendaryBonusID":"3570"
+		},
+		"T21": {
+			"itemIlvl": "930/940",
+			"legendaryIlvl": "910",
+			"itemBonusID":"3612/1502",
+			"legendaryBonusID":"3630",
+			"amanthulBonusID":"4213"
+		}
+	},
 	"classes":{
 		"warlock": { 
 			"material":"cloth",
@@ -297,7 +318,7 @@
 				"elemental":{
 					"potion":"prolonged_power",
 					"flask":"whispered_pact",
-					"food":"hungry_magister",
+					"food":"lemon_herb_filet",
 					"augmentation":"defiled",
 					"enchant":
 					{
@@ -313,7 +334,7 @@
 				"enhancement":{
 					"potion":"prolonged_power",
 					"flask":"seventh_demon",
-					"food":"lavish_suramar_feast",
+					"food":"lemon_herb_filet",
 					"augmentation":"defiled",
 					"enchant":
 					{

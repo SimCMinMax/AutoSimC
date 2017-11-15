@@ -4,7 +4,7 @@
             {
                 "id": "147121",
                 "name": "Gravewarden Chestplate",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/crit",
@@ -16,7 +16,7 @@
             {
                 "id": "147157",
                 "name": "Radiant Lightbringer Breastplate",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -28,7 +28,7 @@
             {
                 "id": "147187",
                 "name": "Titanic Onslaught Breastplate",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -40,7 +40,7 @@
             {
                 "id": "152017",
                 "name": "Soul-Tempered Chestplate",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -51,7 +51,7 @@
             {
                 "id": "152018",
                 "name": "Breastplate of Molten Rebirth",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/crit/haste",
@@ -62,7 +62,7 @@
             {
                 "id": "152090",
                 "name": "Impenetrable Garothi Breastplate",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -73,7 +73,7 @@
             {
                 "id": "152112",
                 "name": "Dreadwake Bonecage",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/vers/crit",
@@ -85,7 +85,7 @@
             {
                 "id": "152148",
                 "name": "Light's Vanguard Breastplate",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/haste/crit",
@@ -97,7 +97,7 @@
             {
                 "id": "152178",
                 "name": "Juggernaut Breastplate",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/haste",
@@ -109,7 +109,7 @@
             {
                 "id": "152378",
                 "name": "Breastplate of Terminal End",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "plate",
                 "stats": "stam/str/int/crit/vers",
@@ -122,7 +122,7 @@
             {
                 "id": "147127",
                 "name": "Demonbane Harness",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -134,7 +134,7 @@
             {
                 "id": "147133",
                 "name": "Stormheart Tunic",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -146,7 +146,7 @@
             {
                 "id": "147151",
                 "name": "Xuen's Tunic",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/haste",
@@ -158,7 +158,7 @@
             {
                 "id": "147169",
                 "name": "Fanged Slayer's Chestguard",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -170,7 +170,7 @@
             {
                 "id": "151979",
                 "name": "Vest of Unfathomable Anguish",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/mastery",
@@ -181,7 +181,7 @@
             {
                 "id": "151980",
                 "name": "Harness of Oppressing Dark",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/haste",
@@ -192,7 +192,7 @@
             {
                 "id": "151982",
                 "name": "Vest of Waning Life",
-                "level": "940",
+                "level": 940,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -203,7 +203,7 @@
             {
                 "id": "152118",
                 "name": "Felreaper Vest",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/mastery",
@@ -215,7 +215,7 @@
             {
                 "id": "152124",
                 "name": "Bearmantle Harness",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -227,7 +227,7 @@
             {
                 "id": "152142",
                 "name": "Tunic of Chi'Ji",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -239,7 +239,7 @@
             {
                 "id": "152160",
                 "name": "Vest of the Dashing Scoundrel",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/vers",
@@ -251,7 +251,7 @@
             {
                 "id": "152358",
                 "name": "Imp-Overseer's Vest",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -264,7 +264,7 @@
             {
                 "id": "147139",
                 "name": "Wildstalker Chestguard",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/haste",
@@ -276,7 +276,7 @@
             {
                 "id": "147175",
                 "name": "Harness of the Skybreaker",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -288,7 +288,7 @@
             {
                 "id": "151994",
                 "name": "Fleet Commander's Hauberk",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/mastery",
@@ -299,7 +299,7 @@
             {
                 "id": "151995",
                 "name": "Robes of the Forsaken Dreadlord",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/haste",
@@ -310,7 +310,7 @@
             {
                 "id": "152088",
                 "name": "Horror Fiend-Scale Breastplate",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -321,7 +321,7 @@
             {
                 "id": "152130",
                 "name": "Serpentstalker Tunic",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/vers/mastery",
@@ -333,7 +333,7 @@
             {
                 "id": "152166",
                 "name": "Robes of Venerated Spirits",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/haste",
@@ -345,7 +345,7 @@
             {
                 "id": "152366",
                 "name": "Enthralling Chain Armor",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -358,7 +358,7 @@
             {
                 "id": "147149",
                 "name": "Robes of the Arcane Tempest",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -370,7 +370,7 @@
             {
                 "id": "147167",
                 "name": "Robes of Blind Absolution",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -382,7 +382,7 @@
             {
                 "id": "147185",
                 "name": "Diabolic Robe",
-                "level": "890",
+                "level": 890,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/haste/vers",
@@ -394,7 +394,7 @@
             {
                 "id": "151947",
                 "name": "Vestments of Enflamed Blight",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/crit/haste",
@@ -405,7 +405,7 @@
             {
                 "id": "151948",
                 "name": "Magma-Spattered Smock",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/mastery/vers",
@@ -416,7 +416,7 @@
             {
                 "id": "152140",
                 "name": "Runebound Tunic",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/haste/vers",
@@ -428,7 +428,7 @@
             {
                 "id": "152158",
                 "name": "Gilded Seraph's Robes",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/vers/crit",
@@ -440,7 +440,7 @@
             {
                 "id": "152176",
                 "name": "Grim Inquisitor's Robes",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -452,7 +452,7 @@
             {
                 "id": "152353",
                 "name": "Robes of Demonic Purpose",
-                "level": "930",
+                "level": 930,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -463,7 +463,7 @@
             {
                 "id": "152679",
                 "name": "Gambeson of Sargeras' Corruption",
-                "level": "940",
+                "level": 940,
                 "type": "chest",
                 "material": "cloth",
                 "stats": "stam/int/haste/mastery",
@@ -477,7 +477,7 @@
         {
             "id": "147122",
             "name": "Gravewarden Cloak",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/haste/mastery",
@@ -489,7 +489,7 @@
         {
             "id": "147128",
             "name": "Demonbane Shroud",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/haste/vers",
@@ -501,7 +501,7 @@
         {
             "id": "147134",
             "name": "Stormheart Drape",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/haste/crit",
@@ -513,7 +513,7 @@
         {
             "id": "147140",
             "name": "Wildstalker Cape",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/haste/crit",
@@ -525,7 +525,7 @@
         {
             "id": "147145",
             "name": "Drape of the Arcane Tempest",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/vers/mastery",
@@ -537,7 +537,7 @@
         {
             "id": "147152",
             "name": "Xuen's Cloak",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/vers/mastery",
@@ -549,7 +549,7 @@
         {
             "id": "147158",
             "name": "Radiant Lightbringer Cape",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/haste/vers",
@@ -561,7 +561,7 @@
         {
             "id": "147163",
             "name": "Shawl of Blind Absolution",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/mastery",
@@ -573,7 +573,7 @@
         {
             "id": "147170",
             "name": "Fanged Slayer's Shroud",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/haste",
@@ -585,7 +585,7 @@
         {
             "id": "147176",
             "name": "Drape of the Skybreaker",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/vers/crit",
@@ -597,7 +597,7 @@
         {
             "id": "147181",
             "name": "Diabolic Shroud",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/vers",
@@ -609,7 +609,7 @@
         {
             "id": "147188",
             "name": "Titanic Onslaught Cloak",
-            "level": "890",
+            "level": 890,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/mastery/crit",
@@ -621,7 +621,7 @@
         {
             "id": "151937",
             "name": "Cloak of the Burning Vanguard",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "cloth",
             "stats": "stam/agi/str/int/crit/mastery",
@@ -632,7 +632,7 @@
         {
             "id": "151938",
             "name": "Drape of the Spirited Hunt",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "cloth",
             "stats": "stam/agi/str/int/mastery/haste",
@@ -643,7 +643,7 @@
         {
             "id": "152062",
             "name": "Greatcloak of the Dark Pantheon",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "cloth",
             "stats": "stam/agi/str/int/haste/crit",
@@ -654,7 +654,7 @@
         {
             "id": "152113",
             "name": "Dreadwake Greatcloak",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/mastery/haste",
@@ -666,7 +666,7 @@
         {
             "id": "152119",
             "name": "Felreaper Drape",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/mastery/crit",
@@ -678,7 +678,7 @@
         {
             "id": "152125",
             "name": "Bearmantle Cloak",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/vers",
@@ -690,7 +690,7 @@
         {
             "id": "152131",
             "name": "Serpentstalker Drape",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/mastery/vers",
@@ -702,7 +702,7 @@
         {
             "id": "152136",
             "name": "Runebound Cape",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/mastery/crit",
@@ -714,7 +714,7 @@
         {
             "id": "152143",
             "name": "Cloak of Chi'Ji",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/haste",
@@ -726,7 +726,7 @@
         {
             "id": "152149",
             "name": "Light's Vanguard Greatcloak",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/vers",
@@ -738,7 +738,7 @@
         {
             "id": "152154",
             "name": "Gilded Seraph's Drape",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/haste/vers",
@@ -750,7 +750,7 @@
         {
             "id": "152161",
             "name": "Cloak of the Dashing Scoundrel",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/vers/crit",
@@ -762,7 +762,7 @@
         {
             "id": "152167",
             "name": "Drape of Venerated Spirits",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/mastery/vers",
@@ -774,7 +774,7 @@
         {
             "id": "152172",
             "name": "Grim Inquisitor's Cloak",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/crit/haste",
@@ -786,7 +786,7 @@
         {
             "id": "152179",
             "name": "Juggernaut Cloak",
-            "level": "930",
+            "level": 930,
             "type": "back",
             "material": "mail",
             "stats": "stam/agi/str/int/vers/haste",
@@ -801,7 +801,7 @@
             {
                 "id": "147123",
                 "name": "Gravewarden Handguards",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/crit/vers",
@@ -813,7 +813,7 @@
             {
                 "id": "147159",
                 "name": "Radiant Lightbringer Gauntlets",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/vers/crit",
@@ -825,7 +825,7 @@
             {
                 "id": "147189",
                 "name": "Titanic Onslaught Handguards",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/vers/crit",
@@ -837,7 +837,7 @@
             {
                 "id": "152012",
                 "name": "Molten Bite Handguards",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/haste/crit",
@@ -848,7 +848,7 @@
             {
                 "id": "152114",
                 "name": "Dreadwake Gauntlets",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -860,7 +860,7 @@
             {
                 "id": "152150",
                 "name": "Light's Vanguard Gauntlets",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -872,7 +872,7 @@
             {
                 "id": "152180",
                 "name": "Juggernaut Gauntlets",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -884,7 +884,7 @@
             {
                 "id": "152375",
                 "name": "Gauntlets of Barbaric Cruelty",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/crit/vers",
@@ -895,7 +895,7 @@
             {
                 "id": "152686",
                 "name": "Nascent Deathbringer's Clutches",
-                "level": "940",
+                "level": 940,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/crit/mastery",
@@ -906,7 +906,7 @@
             {
                 "id": "152687",
                 "name": "Imonar's Demi-Gauntlets",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "plate",
                 "stats": "stam/str/int/vers/haste",
@@ -919,7 +919,7 @@
             {
                 "id": "147129",
                 "name": "Demonbane Gauntlets",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/mastery",
@@ -931,7 +931,7 @@
             {
                 "id": "147135",
                 "name": "Stormheart Gloves",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/vers",
@@ -943,7 +943,7 @@
             {
                 "id": "147153",
                 "name": "Xuen's Gauntlets",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -955,7 +955,7 @@
             {
                 "id": "147171",
                 "name": "Fanged Slayer's Handguards",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/crit",
@@ -967,7 +967,7 @@
             {
                 "id": "151984",
                 "name": "Lurid Grips of the Obscene",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -978,7 +978,7 @@
             {
                 "id": "152086",
                 "name": "Grips of Hungering Shadows",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/haste",
@@ -989,7 +989,7 @@
             {
                 "id": "152120",
                 "name": "Felreaper Gloves",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/haste",
@@ -1001,7 +1001,7 @@
             {
                 "id": "152126",
                 "name": "Bearmantle Paws",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -1013,7 +1013,7 @@
             {
                 "id": "152144",
                 "name": "Grips of Chi'Ji",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -1025,7 +1025,7 @@
             {
                 "id": "152162",
                 "name": "Gloves of the Dashing Scoundrel",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -1037,7 +1037,7 @@
             {
                 "id": "152360",
                 "name": "Gloves of Barbarous Feats",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -1050,7 +1050,7 @@
             {
                 "id": "147141",
                 "name": "Wildstalker Gauntlets",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/vers/crit",
@@ -1062,7 +1062,7 @@
             {
                 "id": "147177",
                 "name": "Grips of the Skybreaker",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/vers",
@@ -1074,7 +1074,7 @@
             {
                 "id": "151998",
                 "name": "Heedless Eradication Gauntlets",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/vers",
@@ -1085,7 +1085,7 @@
             {
                 "id": "151999",
                 "name": "Preysnare Vicegrips",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/haste",
@@ -1096,7 +1096,7 @@
             {
                 "id": "152132",
                 "name": "Serpentstalker Grips",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/crit",
@@ -1108,7 +1108,7 @@
             {
                 "id": "152168",
                 "name": "Gloves of Venerated Spirits",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/crit",
@@ -1120,7 +1120,7 @@
             {
                 "id": "152368",
                 "name": "Fel-Linked Crushers",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/mastery",
@@ -1133,7 +1133,7 @@
             {
                 "id": "147146",
                 "name": "Gloves of the Arcane Tempest",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/haste/vers",
@@ -1145,7 +1145,7 @@
             {
                 "id": "147164",
                 "name": "Gloves of Blind Absolution",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/mastery/vers",
@@ -1157,7 +1157,7 @@
             {
                 "id": "147182",
                 "name": "Diabolic Gloves",
-                "level": "890",
+                "level": 890,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/vers/mastery",
@@ -1169,7 +1169,7 @@
             {
                 "id": "151941",
                 "name": "Aranasi Shadow-Weaver's Gloves",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/haste/mastery",
@@ -1180,7 +1180,7 @@
             {
                 "id": "152084",
                 "name": "Gloves of Abhorrent Strategies",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/vers/haste",
@@ -1191,7 +1191,7 @@
             {
                 "id": "152137",
                 "name": "Runebound Gloves",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/crit/haste",
@@ -1203,7 +1203,7 @@
             {
                 "id": "152155",
                 "name": "Gilded Seraph's Handwraps",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -1215,7 +1215,7 @@
             {
                 "id": "152173",
                 "name": "Grim Inquisitor's Gloves",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -1227,7 +1227,7 @@
             {
                 "id": "152350",
                 "name": "Gloves of Grim Direction",
-                "level": "930",
+                "level": 930,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/crit/mastery",
@@ -1238,7 +1238,7 @@
             {
                 "id": "152680",
                 "name": "Handwraps of Inevitable Doom",
-                "level": "940",
+                "level": 940,
                 "type": "hands",
                 "material": "cloth",
                 "stats": "stam/int/mastery/crit",
@@ -1253,7 +1253,7 @@
             {
                 "id": "147124",
                 "name": "Gravewarden Visage",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/crit/haste",
@@ -1265,7 +1265,7 @@
             {
                 "id": "147160",
                 "name": "Radiant Lightbringer Crown",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -1277,7 +1277,7 @@
             {
                 "id": "147190",
                 "name": "Titanic Onslaught Greathelm",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/crit/haste",
@@ -1289,7 +1289,7 @@
             {
                 "id": "152013",
                 "name": "Helmet of the Hidden Sanctuary",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/haste",
@@ -1300,7 +1300,7 @@
             {
                 "id": "152014",
                 "name": "Titan-Subjugator's Visage",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/haste/vers",
@@ -1311,7 +1311,7 @@
             {
                 "id": "152115",
                 "name": "Dreadwake Helm",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/crit",
@@ -1323,7 +1323,7 @@
             {
                 "id": "152151",
                 "name": "Light's Vanguard Helm",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/crit/mastery",
@@ -1335,7 +1335,7 @@
             {
                 "id": "152181",
                 "name": "Juggernaut Helm",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/vers/crit",
@@ -1347,7 +1347,7 @@
             {
                 "id": "152376",
                 "name": "Crown of Burning Resolve",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "plate",
                 "stats": "stam/str/int/haste/vers",
@@ -1360,7 +1360,7 @@
             {
                 "id": "147130",
                 "name": "Demonbane Faceguard",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -1372,7 +1372,7 @@
             {
                 "id": "147136",
                 "name": "Stormheart Headdress",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -1384,7 +1384,7 @@
             {
                 "id": "147154",
                 "name": "Xuen's Helm",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -1396,7 +1396,7 @@
             {
                 "id": "147172",
                 "name": "Fanged Slayer's Helm",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -1408,7 +1408,7 @@
             {
                 "id": "151985",
                 "name": "General Erodus' Tricorne",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/vers",
@@ -1419,7 +1419,7 @@
             {
                 "id": "152121",
                 "name": "Felreaper Hood",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/mastery",
@@ -1431,7 +1431,7 @@
             {
                 "id": "152127",
                 "name": "Bearmantle Headdress",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -1443,7 +1443,7 @@
             {
                 "id": "152145",
                 "name": "Douli of Chi'Ji",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -1455,7 +1455,7 @@
             {
                 "id": "152163",
                 "name": "Cavalier Hat of the Dashing Scoundrel",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -1467,7 +1467,7 @@
             {
                 "id": "152361",
                 "name": "Horned Hood of Retaliation",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/mastery",
@@ -1478,7 +1478,7 @@
             {
                 "id": "152681",
                 "name": "Headdress of Living Brambles",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/crit",
@@ -1491,7 +1491,7 @@
             {
                 "id": "147142",
                 "name": "Wildstalker Helmet",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/mastery",
@@ -1503,7 +1503,7 @@
             {
                 "id": "147178",
                 "name": "Helmet of the Skybreaker",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/haste",
@@ -1515,7 +1515,7 @@
             {
                 "id": "152000",
                 "name": "Shadowfused Chain Coif",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/crit",
@@ -1526,7 +1526,7 @@
             {
                 "id": "152001",
                 "name": "Nexus Conductor's Headgear",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/haste",
@@ -1537,7 +1537,7 @@
             {
                 "id": "152133",
                 "name": "Serpentstalker Helmet",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/vers/haste",
@@ -1549,7 +1549,7 @@
             {
                 "id": "152169",
                 "name": "Headdress of Venerated Spirits",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -1561,7 +1561,7 @@
             {
                 "id": "152369",
                 "name": "Helm of the Vigilant Eye",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/vers",
@@ -1572,7 +1572,7 @@
             {
                 "id": "152423",
                 "name": "Helm of the Awakened Soul",
-                "level": "940",
+                "level": 940,
                 "type": "head",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/mastery",
@@ -1585,7 +1585,7 @@
             {
                 "id": "147147",
                 "name": "Crown of the Arcane Tempest",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -1597,7 +1597,7 @@
             {
                 "id": "147165",
                 "name": "Hood of Blind Absolution",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/haste/vers",
@@ -1609,7 +1609,7 @@
             {
                 "id": "147183",
                 "name": "Diabolic Helm",
-                "level": "890",
+                "level": 890,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/crit/mastery",
@@ -1621,7 +1621,7 @@
             {
                 "id": "151943",
                 "name": "Crown of Relentless Annihilation",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -1632,7 +1632,7 @@
             {
                 "id": "151944",
                 "name": "Soulhunter's Cowl",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/haste/mastery",
@@ -1643,7 +1643,7 @@
             {
                 "id": "152138",
                 "name": "Runebound Collar",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -1655,7 +1655,7 @@
             {
                 "id": "152156",
                 "name": "Gilded Seraph's Crown",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/crit/mastery",
@@ -1667,7 +1667,7 @@
             {
                 "id": "152174",
                 "name": "Grim Inquisitor's Death Mask",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/mastery/vers",
@@ -1679,7 +1679,7 @@
             {
                 "id": "152351",
                 "name": "Mesmerizing Soul Hood",
-                "level": "930",
+                "level": 930,
                 "type": "head",
                 "material": "cloth",
                 "stats": "stam/int/mastery/vers",
@@ -1694,7 +1694,7 @@
             {
                 "id": "147125",
                 "name": "Gravewarden Legplates",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/haste/vers",
@@ -1706,7 +1706,7 @@
             {
                 "id": "147161",
                 "name": "Radiant Lightbringer Greaves",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/crit/haste",
@@ -1718,7 +1718,7 @@
             {
                 "id": "147191",
                 "name": "Titanic Onslaught Greaves",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -1730,7 +1730,7 @@
             {
                 "id": "152015",
                 "name": "Greaves of Mercurial Alliegance",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -1741,7 +1741,7 @@
             {
                 "id": "152016",
                 "name": "Cosmos-Culling Legplates",
-                "level": "940",
+                "level": 940,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -1752,7 +1752,7 @@
             {
                 "id": "152116",
                 "name": "Dreadwake Legplates",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/haste/vers",
@@ -1764,7 +1764,7 @@
             {
                 "id": "152152",
                 "name": "Light's Vanguard Legplates",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/haste",
@@ -1776,7 +1776,7 @@
             {
                 "id": "152182",
                 "name": "Juggernaut Legplates",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/crit/vers",
@@ -1788,7 +1788,7 @@
             {
                 "id": "152377",
                 "name": "Gore-Soaked Legplates",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -1799,7 +1799,7 @@
             {
                 "id": "153019",
                 "name": "Hulking Demolisher Legplates",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "plate",
                 "stats": "stam/str/int/vers/crit",
@@ -1812,7 +1812,7 @@
             {
                 "id": "147131",
                 "name": "Demonbane Leggings",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/crit",
@@ -1824,7 +1824,7 @@
             {
                 "id": "147137",
                 "name": "Stormheart Legguards",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -1836,7 +1836,7 @@
             {
                 "id": "147155",
                 "name": "Xuen's Legguards",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -1848,7 +1848,7 @@
             {
                 "id": "147173",
                 "name": "Fanged Slayer's Legguards",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -1860,7 +1860,7 @@
             {
                 "id": "151987",
                 "name": "Breach-Blocker Legguards",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -1871,7 +1871,7 @@
             {
                 "id": "151993",
                 "name": "Leggings of the Sable Stalkers",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -1882,7 +1882,7 @@
             {
                 "id": "152122",
                 "name": "Felreaper Leggings",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -1894,7 +1894,7 @@
             {
                 "id": "152128",
                 "name": "Bearmantle Legguards",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/haste",
@@ -1906,7 +1906,7 @@
             {
                 "id": "152146",
                 "name": "Leggings of Chi'Ji",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -1918,7 +1918,7 @@
             {
                 "id": "152164",
                 "name": "Pants of the Dashing Scoundrel",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -1930,7 +1930,7 @@
             {
                 "id": "152282",
                 "name": "Caustic Titanspite Legguards",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -1941,7 +1941,7 @@
             {
                 "id": "152362",
                 "name": "Leggings of Heinous Acts",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -1954,7 +1954,7 @@
             {
                 "id": "147143",
                 "name": "Wildstalker Leggings",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -1966,7 +1966,7 @@
             {
                 "id": "147179",
                 "name": "Legguards of the Skybreaker",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/haste",
@@ -1978,7 +1978,7 @@
             {
                 "id": "152002",
                 "name": "Battalion-Shattering Leggings",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/crit",
@@ -1989,7 +1989,7 @@
             {
                 "id": "152003",
                 "name": "Legguards of Numbing Gloom",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/vers",
@@ -2000,7 +2000,7 @@
             {
                 "id": "152134",
                 "name": "Serpentstalker Legguards",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/crit",
@@ -2012,7 +2012,7 @@
             {
                 "id": "152170",
                 "name": "Leggings of Venerated Spirits",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/mastery",
@@ -2024,7 +2024,7 @@
             {
                 "id": "152370",
                 "name": "Legguards of Doomed Chattel",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -2035,7 +2035,7 @@
             {
                 "id": "152682",
                 "name": "Greaves of the Felblade Defenders",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "mail",
                 "stats": "stam/agi/int/vers/haste",
@@ -2048,7 +2048,7 @@
             {
                 "id": "147148",
                 "name": "Leggings of the Arcane Tempest",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/mastery/crit",
@@ -2060,7 +2060,7 @@
             {
                 "id": "147166",
                 "name": "Leggings of Blind Absolution",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/crit/haste",
@@ -2072,7 +2072,7 @@
             {
                 "id": "147184",
                 "name": "Diabolic Leggings",
-                "level": "890",
+                "level": 890,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -2084,7 +2084,7 @@
             {
                 "id": "151946",
                 "name": "Fervent Twilight Legwraps",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/haste/vers",
@@ -2095,7 +2095,7 @@
             {
                 "id": "152139",
                 "name": "Runebound Leggings",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -2107,7 +2107,7 @@
             {
                 "id": "152157",
                 "name": "Gilded Seraph's Leggings",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -2119,7 +2119,7 @@
             {
                 "id": "152175",
                 "name": "Grim Inquisitor's Leggings",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/haste/mastery",
@@ -2131,7 +2131,7 @@
             {
                 "id": "152352",
                 "name": "Subjugated Drudge's Leggings",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/haste/vers",
@@ -2142,7 +2142,7 @@
             {
                 "id": "152424",
                 "name": "Legwraps of the Seasoned Exterminator",
-                "level": "930",
+                "level": 930,
                 "type": "legs",
                 "material": "cloth",
                 "stats": "stam/int/mastery/crit",
@@ -2157,7 +2157,7 @@
             {
                 "id": "147126",
                 "name": "Gravewarden Pauldrons",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/vers/mastery",
@@ -2169,7 +2169,7 @@
             {
                 "id": "147162",
                 "name": "Radiant Lightbringer Shoulderguards",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/crit/mastery",
@@ -2181,7 +2181,7 @@
             {
                 "id": "147192",
                 "name": "Titanic Onslaught Pauldrons",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/haste/vers",
@@ -2193,7 +2193,7 @@
             {
                 "id": "152019",
                 "name": "Pauldrons of the Eternal Offensive",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/haste/crit",
@@ -2204,7 +2204,7 @@
             {
                 "id": "152117",
                 "name": "Dreadwake Pauldrons",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/crit/vers",
@@ -2216,7 +2216,7 @@
             {
                 "id": "152153",
                 "name": "Light's Vanguard Shoulderplates",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/vers/haste",
@@ -2228,7 +2228,7 @@
             {
                 "id": "152183",
                 "name": "Juggernaut Pauldrons",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/crit",
@@ -2240,7 +2240,7 @@
             {
                 "id": "152379",
                 "name": "Spaulders of Vile Determination",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/crit/vers",
@@ -2251,7 +2251,7 @@
             {
                 "id": "152416",
                 "name": "Shoulderguards of Indomitable Purpose",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -2264,7 +2264,7 @@
             {
                 "id": "147132",
                 "name": "Demonbane Shoulderpads",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -2276,7 +2276,7 @@
             {
                 "id": "147138",
                 "name": "Stormheart Mantle",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/crit",
@@ -2288,7 +2288,7 @@
             {
                 "id": "147156",
                 "name": "Xuen's Shoulderguards",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -2300,7 +2300,7 @@
             {
                 "id": "147174",
                 "name": "Fanged Slayer's Shoulderpads",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/vers",
@@ -2312,7 +2312,7 @@
             {
                 "id": "151988",
                 "name": "Shoulderpads of the Demonic Blitz",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -2323,7 +2323,7 @@
             {
                 "id": "151989",
                 "name": "Spaulders of the Relentless Tracker",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/haste",
@@ -2334,7 +2334,7 @@
             {
                 "id": "152123",
                 "name": "Felreaper Spaulders",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -2346,7 +2346,7 @@
             {
                 "id": "152129",
                 "name": "Bearmantle Shoulders",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/mastery",
@@ -2358,7 +2358,7 @@
             {
                 "id": "152147",
                 "name": "Meditation Spheres of Chi'Ji",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/vers/mastery",
@@ -2370,7 +2370,7 @@
             {
                 "id": "152165",
                 "name": "Shoulderpads of the Dashing Scoundrel",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -2382,7 +2382,7 @@
             {
                 "id": "152363",
                 "name": "Fel-Spike Shoulderpads",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/crit",
@@ -2393,7 +2393,7 @@
             {
                 "id": "152413",
                 "name": "Felflame Inferno Shoulderpads",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/haste",
@@ -2406,7 +2406,7 @@
             {
                 "id": "147144",
                 "name": "Wildstalker Spaulders",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/vers",
@@ -2418,7 +2418,7 @@
             {
                 "id": "147180",
                 "name": "Pauldrons of the Skybreaker",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/mastery",
@@ -2430,7 +2430,7 @@
             {
                 "id": "152004",
                 "name": "Pauldrons of the Soulburner",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/mastery",
@@ -2441,7 +2441,7 @@
             {
                 "id": "152005",
                 "name": "Pauldrons of Colossal Burden",
-                "level": "940",
+                "level": 940,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/crit",
@@ -2452,7 +2452,7 @@
             {
                 "id": "152135",
                 "name": "Serpentstalker Mantle",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/haste",
@@ -2464,7 +2464,7 @@
             {
                 "id": "152171",
                 "name": "Pauldrons of Venerated Spirits",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/vers/crit",
@@ -2476,7 +2476,7 @@
             {
                 "id": "152371",
                 "name": "Shoulderguards of the Despondent Masses",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -2489,7 +2489,7 @@
             {
                 "id": "147150",
                 "name": "Mantle of the Arcane Tempest",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -2501,7 +2501,7 @@
             {
                 "id": "147168",
                 "name": "Mantle of Blind Absolution",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/vers/crit",
@@ -2513,7 +2513,7 @@
             {
                 "id": "147186",
                 "name": "Diabolic Mantle",
-                "level": "890",
+                "level": 890,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -2525,7 +2525,7 @@
             {
                 "id": "151949",
                 "name": "Soul-Siphon Mantle",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -2536,7 +2536,7 @@
             {
                 "id": "151950",
                 "name": "Fallen Avenger's Amice",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -2547,7 +2547,7 @@
             {
                 "id": "152141",
                 "name": "Runebound Mantle",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/vers/mastery",
@@ -2559,7 +2559,7 @@
             {
                 "id": "152159",
                 "name": "Gilded Seraph's Amice",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/mastery/vers",
@@ -2571,7 +2571,7 @@
             {
                 "id": "152177",
                 "name": "Grim Inquisitor's Shoulderguards",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/vers/mastery",
@@ -2583,7 +2583,7 @@
             {
                 "id": "152354",
                 "name": "Accursed Defiler's Mantle",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/crit/mastery",
@@ -2594,7 +2594,7 @@
             {
                 "id": "153018",
                 "name": "Corrupted Mantle of the Felseekers",
-                "level": "930",
+                "level": 930,
                 "type": "shoulders",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -2609,7 +2609,7 @@
             {
                 "id": "151939",
                 "name": "Whisperstep Runners",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "cloth",
                 "stats": "stam/int/crit/mastery",
@@ -2620,7 +2620,7 @@
             {
                 "id": "151940",
                 "name": "Sandals of the Reborn Colossus",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "cloth",
                 "stats": "stam/int/mastery/haste",
@@ -2631,7 +2631,7 @@
             {
                 "id": "151945",
                 "name": "Lady Dacidion's Silk Slippers",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -2642,7 +2642,7 @@
             {
                 "id": "152349",
                 "name": "Nefarious Light-Step Slippers",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -2655,7 +2655,7 @@
             {
                 "id": "151981",
                 "name": "Life-Bearing Footpads",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/mastery",
@@ -2666,7 +2666,7 @@
             {
                 "id": "151983",
                 "name": "Vicious Flamepaws",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/vers",
@@ -2677,7 +2677,7 @@
             {
                 "id": "152359",
                 "name": "Vile Drifter's Footpads",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -2688,7 +2688,7 @@
             {
                 "id": "152412",
                 "name": "Depraved Machinist's Footpads",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/crit",
@@ -2701,7 +2701,7 @@
             {
                 "id": "151996",
                 "name": "Deft Soulhunter's Sabatons",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/crit",
@@ -2712,7 +2712,7 @@
             {
                 "id": "151997",
                 "name": "Nathrezim Shade-Walkers",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/vers",
@@ -2723,7 +2723,7 @@
             {
                 "id": "152367",
                 "name": "Sabatons of Ceaseless Assault",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -2734,7 +2734,7 @@
             {
                 "id": "152684",
                 "name": "Greatboots of the Searing Tempest",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/haste",
@@ -2747,7 +2747,7 @@
             {
                 "id": "152009",
                 "name": "Doomwalker Warboots",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "plate",
                 "stats": "stam/str/int/crit/haste",
@@ -2758,7 +2758,7 @@
             {
                 "id": "152010",
                 "name": "Burning Coven Sabatons",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -2769,7 +2769,7 @@
             {
                 "id": "152011",
                 "name": "Eredar Warcouncil Sabatons",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -2780,7 +2780,7 @@
             {
                 "id": "152374",
                 "name": "Soul Crushing Stompers",
-                "level": "930",
+                "level": 930,
                 "type": "feet",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -2795,7 +2795,7 @@
             {
                 "id": "151942",
                 "name": "Cord of Surging Hysteria",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "cloth",
                 "stats": "stam/int/haste/mastery",
@@ -2806,7 +2806,7 @@
             {
                 "id": "151951",
                 "name": "Enhanced Worldscorcher Cinch",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "cloth",
                 "stats": "stam/int/mastery/crit",
@@ -2817,7 +2817,7 @@
             {
                 "id": "151952",
                 "name": "Cord of Blossoming Petals",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "cloth",
                 "stats": "stam/int/crit/vers",
@@ -2828,7 +2828,7 @@
             {
                 "id": "152355",
                 "name": "Sash of Diabolic Preparation",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -2841,7 +2841,7 @@
             {
                 "id": "151986",
                 "name": "Death-Enveloping Cincture",
-                "level": "940",
+                "level": 940,
                 "type": "waist",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/mastery",
@@ -2852,7 +2852,7 @@
             {
                 "id": "151990",
                 "name": "Portal Keeper's Cincture",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -2863,7 +2863,7 @@
             {
                 "id": "151991",
                 "name": "Belt of Fractured Sanity",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/vers",
@@ -2874,7 +2874,7 @@
             {
                 "id": "152364",
                 "name": "Cinch of Detestable Guile",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -2887,7 +2887,7 @@
             {
                 "id": "152006",
                 "name": "Depraved Tactician's Waistguard",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/haste",
@@ -2898,7 +2898,7 @@
             {
                 "id": "152007",
                 "name": "Sash of the Gilded Rose",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "mail",
                 "stats": "stam/agi/int/vers/mastery",
@@ -2909,7 +2909,7 @@
             {
                 "id": "152372",
                 "name": "Waistguard of Devilish Deeds",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/mastery",
@@ -2920,7 +2920,7 @@
             {
                 "id": "152683",
                 "name": "World-Ravager Waistguard",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/crit",
@@ -2933,7 +2933,7 @@
             {
                 "id": "152020",
                 "name": "Nathrezim Battle Girdle",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/crit",
@@ -2944,7 +2944,7 @@
             {
                 "id": "152021",
                 "name": "Flamelicked Girdle",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "plate",
                 "stats": "stam/str/int/vers/haste",
@@ -2955,7 +2955,7 @@
             {
                 "id": "152022",
                 "name": "Grond-Father Girdle",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -2966,7 +2966,7 @@
             {
                 "id": "152380",
                 "name": "Waistguard of Fel Magics",
-                "level": "930",
+                "level": 930,
                 "type": "waist",
                 "material": "plate",
                 "stats": "stam/str/int/crit/mastery",
@@ -2981,7 +2981,7 @@
             {
                 "id": "151953",
                 "name": "Man'ari Pyromancer Cuffs",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "cloth",
                 "stats": "stam/int/mastery/vers",
@@ -2992,7 +2992,7 @@
             {
                 "id": "151954",
                 "name": "Blood-Drenched Bindings",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "cloth",
                 "stats": "stam/int/crit/mastery",
@@ -3003,7 +3003,7 @@
             {
                 "id": "152085",
                 "name": "Cuffs of the Viridian Flameweavers",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "cloth",
                 "stats": "stam/int/haste/crit",
@@ -3014,7 +3014,7 @@
             {
                 "id": "152356",
                 "name": "Fel-Absorbant Wristbands",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "cloth",
                 "stats": "stam/int/haste/mastery",
@@ -3027,7 +3027,7 @@
             {
                 "id": "151992",
                 "name": "Fiendish Logistician's Wristwraps",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "leather",
                 "stats": "stam/agi/int/crit/haste",
@@ -3038,7 +3038,7 @@
             {
                 "id": "152087",
                 "name": "Sinuous Kerapteron Bindings",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "leather",
                 "stats": "stam/agi/int/mastery/crit",
@@ -3049,7 +3049,7 @@
             {
                 "id": "152365",
                 "name": "Bracers of Diabolic Fury",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/mastery",
@@ -3060,7 +3060,7 @@
             {
                 "id": "152414",
                 "name": "Bracers of Wanton Morality",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "leather",
                 "stats": "stam/agi/int/haste/vers",
@@ -3073,7 +3073,7 @@
             {
                 "id": "152008",
                 "name": "Reality-Splitting Wristguards",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/vers",
@@ -3084,7 +3084,7 @@
             {
                 "id": "152089",
                 "name": "Wristguards of Ominous Forging",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "mail",
                 "stats": "stam/agi/int/crit/mastery",
@@ -3095,7 +3095,7 @@
             {
                 "id": "152280",
                 "name": "Scalding Shatterguards",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "mail",
                 "stats": "stam/agi/int/mastery/haste",
@@ -3106,7 +3106,7 @@
             {
                 "id": "152373",
                 "name": "Poison-Barbed Bracers",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "mail",
                 "stats": "stam/agi/int/haste/crit",
@@ -3119,7 +3119,7 @@
             {
                 "id": "152023",
                 "name": "Vambraces of Life's Assurance",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "plate",
                 "stats": "stam/str/int/haste/mastery",
@@ -3130,7 +3130,7 @@
             {
                 "id": "152091",
                 "name": "Wristguards of the Dark Keepers",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/crit",
@@ -3141,7 +3141,7 @@
             {
                 "id": "152281",
                 "name": "Varimathras' Shattered Manacles",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "plate",
                 "stats": "stam/str/int/crit/haste",
@@ -3152,7 +3152,7 @@
             {
                 "id": "152381",
                 "name": "Tainted Corruptor's Vambraces",
-                "level": "930",
+                "level": 930,
                 "type": "wrists",
                 "material": "plate",
                 "stats": "stam/str/int/mastery/vers",
@@ -3166,7 +3166,7 @@
         {
             "id": "151955",
             "name": "Acrid Catalyst Injector",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "int",
@@ -3177,7 +3177,7 @@
         {
             "id": "151956",
             "name": "Garothi Feedback Conduit",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "int",
@@ -3188,7 +3188,7 @@
         {
             "id": "151957",
             "name": "Ishkar's Felshield Emitter",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "vers",
@@ -3199,7 +3199,7 @@
         {
             "id": "151958",
             "name": "Tarratus Keystone",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "int",
@@ -3210,7 +3210,7 @@
         {
             "id": "151960",
             "name": "Carafe of Searing Light",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "int",
@@ -3221,7 +3221,7 @@
         {
             "id": "151961",
             "name": "Legionsteel Flywheel",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "crit",
@@ -3232,7 +3232,7 @@
         {
             "id": "151962",
             "name": "Prototype Personnel Decimator",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "haste",
@@ -3243,7 +3243,7 @@
         {
             "id": "151963",
             "name": "Forgefiend's Fabricator",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "mastery",
@@ -3254,7 +3254,7 @@
         {
             "id": "151964",
             "name": "Seeping Scourgewing",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "vers",
@@ -3265,7 +3265,7 @@
         {
             "id": "151968",
             "name": "Shadow-Singed Fang",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "",
@@ -3276,7 +3276,7 @@
         {
             "id": "151969",
             "name": "Terminus Signaling Beacon",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "mastery",
@@ -3287,7 +3287,7 @@
         {
             "id": "151970",
             "name": "Vitality Resonator",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "vers",
@@ -3298,7 +3298,7 @@
         {
             "id": "151971",
             "name": "Sheath of Asara",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "int",
@@ -3309,7 +3309,7 @@
         {
             "id": "151974",
             "name": "Eye of",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "",
@@ -3320,7 +3320,7 @@
         {
             "id": "151975",
             "name": "Apocalypse Drive",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "haste",
@@ -3331,7 +3331,7 @@
         {
             "id": "151976",
             "name": "Riftworld Codex",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "crit",
@@ -3342,7 +3342,7 @@
         {
             "id": "151977",
             "name": "Diima's Glacial Aegis",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "agi/str",
@@ -3353,7 +3353,7 @@
         {
             "id": "151978",
             "name": "Smoldering Titanguard",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "mastery",
@@ -3364,7 +3364,7 @@
         {
             "id": "152093",
             "name": "Gorshalach's Legacy",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "plate",
             "stats": "haste",
@@ -3375,7 +3375,7 @@
         {
             "id": "152289",
             "name": "Highfather's Machination",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "mastery",
@@ -3386,7 +3386,7 @@
         {
             "id": "152645",
             "name": "Eye of Shatug",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "stam/vers",
@@ -3397,7 +3397,7 @@
         {
             "id": "153544",
             "name": "Eye of F'harg",
-            "level": "930",
+            "level": 930,
             "type": "trinket",
             "material": "",
             "stats": "agi/str/bonus_armor",
@@ -3408,7 +3408,7 @@
         {
             "id": "154172",
             "name": "Aman'Thul's Vision",
-            "level": "940",
+            "level": 940,
             "type": "trinket",
             "material": "",
             "stats": "vers/mastery/crit/haste",
@@ -3419,7 +3419,7 @@
         {
             "id": "154173",
             "name": "Aggramar's Conviction",
-            "level": "940",
+            "level": 940,
             "type": "trinket",
             "material": "",
             "stats": "agi/str",
@@ -3430,7 +3430,7 @@
         {
             "id": "154174",
             "name": "Golganneth's Vitality",
-            "level": "940",
+            "level": 940,
             "type": "trinket",
             "material": "",
             "stats": "agi",
@@ -3441,7 +3441,7 @@
         {
             "id": "154175",
             "name": "Eonar's Compassion",
-            "level": "940",
+            "level": 940,
             "type": "trinket",
             "material": "",
             "stats": "int",
@@ -3452,7 +3452,7 @@
         {
             "id": "154176",
             "name": "Khaz'goroth's Courage",
-            "level": "940",
+            "level": 940,
             "type": "trinket",
             "material": "",
             "stats": "str",
@@ -3463,7 +3463,7 @@
         {
             "id": "154177",
             "name": "Norgannon's Prowess",
-            "level": "940",
+            "level": 940,
             "type": "trinket",
             "material": "",
             "stats": "mastery",
@@ -3476,7 +3476,7 @@
         {
             "id": "151965",
             "name": "Vulcanarcore Pendant",
-            "level": "930",
+            "level": 930,
             "type": "neck",
             "material": "",
             "stats": "stam/vers/crit",
@@ -3487,7 +3487,7 @@
         {
             "id": "151966",
             "name": "Riveted Choker of Delirium",
-            "level": "930",
+            "level": 930,
             "type": "neck",
             "material": "",
             "stats": "stam/haste/mastery",
@@ -3498,7 +3498,7 @@
         {
             "id": "151973",
             "name": "Collar of Null-Flame",
-            "level": "930",
+            "level": 930,
             "type": "neck",
             "material": "",
             "stats": "stam/mastery/vers",
@@ -3509,7 +3509,7 @@
         {
             "id": "152283",
             "name": "Chain of the Unmaker",
-            "level": "940",
+            "level": 940,
             "type": "neck",
             "material": "",
             "stats": "stam/crit/haste",
@@ -3522,7 +3522,7 @@
         {
             "id": "151972",
             "name": "Sullied Seal of the Pantheon",
-            "level": "940",
+            "level": 940,
             "type": "finger",
             "material": "",
             "stats": "stam/mastery/vers",
@@ -3533,7 +3533,7 @@
         {
             "id": "152063",
             "name": "Seal of the Portalmaster",
-            "level": "930",
+            "level": 930,
             "type": "finger",
             "material": "",
             "stats": "stam/vers/haste",
@@ -3544,7 +3544,7 @@
         {
             "id": "152064",
             "name": "Band of the Sargerite Smith",
-            "level": "930",
+            "level": 930,
             "type": "finger",
             "material": "",
             "stats": "stam/crit/mastery",
@@ -3555,7 +3555,7 @@
         {
             "id": "152284",
             "name": "Zealous Tormentor's Ring",
-            "level": "930",
+            "level": 930,
             "type": "finger",
             "material": "",
             "stats": "stam/haste/crit",
@@ -3566,7 +3566,7 @@
         {
             "id": "152688",
             "name": "Loop of the Life-Binder",
-            "level": "930",
+            "level": 930,
             "type": "finger",
             "material": "",
             "stats": "stam/mastery/haste",
@@ -3574,5 +3574,447 @@
             "gems": 0,
             "bonus_id": "3612/1502"
         }
-    ]
+    ],
+    "relic": {
+        "arcane": [
+            {
+                "id": "152024",
+                "name": "Fallen Magi's Seerstone",
+                "level": 930,
+                "type": "relic",
+                "relicType": "arcane"
+            },
+            {
+                "id": "152025",
+                "name": "Thu'rayan Lash",
+                "level": 930,
+                "type": "relic",
+                "relicType": "arcane"
+            },
+            {
+                "id": "152026",
+                "name": "Prototype Titan-Disc",
+                "level": 930,
+                "type": "relic",
+                "relicType": "arcane"
+            },
+            {
+                "id": "152027",
+                "name": "Gravitational Condensate",
+                "level": 930,
+                "type": "relic",
+                "relicType": "arcane"
+            },
+            {
+                "id": "152344",
+                "name": "Meto's Orb of Entropy",
+                "level": 930,
+                "type": "relic",
+                "relicType": "arcane"
+            },
+            {
+                "id": "155846",
+                "name": "Miniaturized Cosmic Beacon",
+                "level": 930,
+                "type": "relic",
+                "relicType": "arcane"
+            }
+        ],
+        "blood": [
+            {
+                "id": "152028",
+                "name": "Spurting Reaver Heart",
+                "level": 930,
+                "type": "relic",
+                "relicType": "blood"
+            },
+            {
+                "id": "152029",
+                "name": "Shivarran Cachabon",
+                "level": 930,
+                "type": "relic",
+                "relicType": "blood"
+            },
+            {
+                "id": "152030",
+                "name": "Scourge of Perverse Desire",
+                "level": 930,
+                "type": "relic",
+                "relicType": "blood"
+            },
+            {
+                "id": "152092",
+                "name": "Nathrezim Incisor",
+                "level": 930,
+                "type": "relic",
+                "relicType": "blood"
+            },
+            {
+                "id": "152295",
+                "name": "Svirax's Grim Trophy",
+                "level": 930,
+                "type": "relic",
+                "relicType": "blood"
+            },
+            {
+                "id": "155847",
+                "name": "Cruor of the Avenger",
+                "level": 930,
+                "type": "relic",
+                "relicType": "blood"
+            }
+        ],
+        "fel": [
+            {
+                "id": "152031",
+                "name": "Doomfire Dynamo",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fel"
+            },
+            {
+                "id": "152032",
+                "name": "Twisted Engineer's Fel-Infuser",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fel"
+            },
+            {
+                "id": "152033",
+                "name": "Sliver of Corruption",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fel"
+            },
+            {
+                "id": "152034",
+                "name": "Obliterator Propellant",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fel"
+            },
+            {
+                "id": "152345",
+                "name": "Vilemus' Bile",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fel"
+            },
+            {
+                "id": "155848",
+                "name": "Condensed Blight Orb",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fel"
+            }
+        ],
+        "fire": [
+            {
+                "id": "152035",
+                "name": "Blazing Dreadsteed Horseshoe",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fire"
+            },
+            {
+                "id": "152036",
+                "name": "Hellfire Ignition Switch",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fire"
+            },
+            {
+                "id": "152037",
+                "name": "Tormentor's Brand",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fire"
+            },
+            {
+                "id": "152038",
+                "name": "Pyretic Bronze Clasp",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fire"
+            },
+            {
+                "id": "152294",
+                "name": "Fel Mistress' Brand",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fire"
+            },
+            {
+                "id": "155849",
+                "name": "Flickering Ember of Rage",
+                "level": 930,
+                "type": "relic",
+                "relicType": "fire"
+            }
+        ],
+        "frost": [
+            {
+                "id": "152039",
+                "name": "Viscous Reaver-Coolant",
+                "level": 930,
+                "type": "relic",
+                "relicType": "frost"
+            },
+            {
+                "id": "152040",
+                "name": "Frigid Gloomstone",
+                "level": 930,
+                "type": "relic",
+                "relicType": "frost"
+            },
+            {
+                "id": "152041",
+                "name": "Sublimating Portal Frost",
+                "level": 930,
+                "type": "relic",
+                "relicType": "frost"
+            },
+            {
+                "id": "152042",
+                "name": "Hoarfrost-Beast Talon",
+                "level": 930,
+                "type": "relic",
+                "relicType": "frost"
+            },
+            {
+                "id": "152346",
+                "name": "Frigid Earring",
+                "level": 930,
+                "type": "relic",
+                "relicType": "frost"
+            },
+            {
+                "id": "155850",
+                "name": "Rime of the Spirit Realm",
+                "level": 930,
+                "type": "relic",
+                "relicType": "frost"
+            }
+        ],
+        "holy": [
+            {
+                "id": "152043",
+                "name": "Lightshield Amplifier",
+                "level": 930,
+                "type": "relic",
+                "relicType": "holy"
+            },
+            {
+                "id": "152044",
+                "name": "Spark of Everburning Light",
+                "level": 930,
+                "type": "relic",
+                "relicType": "holy"
+            },
+            {
+                "id": "152045",
+                "name": "Venerated Puresoul Idol",
+                "level": 930,
+                "type": "relic",
+                "relicType": "holy"
+            },
+            {
+                "id": "152046",
+                "name": "Coven Prayer Bead",
+                "level": 930,
+                "type": "relic",
+                "relicType": "holy"
+            },
+            {
+                "id": "152347",
+                "name": "Occularus' Unblemished Lens",
+                "level": 930,
+                "type": "relic",
+                "relicType": "holy"
+            },
+            {
+                "id": "155851",
+                "name": "Reorigination Spark",
+                "level": 930,
+                "type": "relic",
+                "relicType": "holy"
+            }
+        ],
+        "iron": [
+            {
+                "id": "152047",
+                "name": "Ironvine Thorn",
+                "level": 930,
+                "type": "relic",
+                "relicType": "iron"
+            },
+            {
+                "id": "152048",
+                "name": "Decimator Crankshaft",
+                "level": 930,
+                "type": "relic",
+                "relicType": "iron"
+            },
+            {
+                "id": "152049",
+                "name": "Fel-Engraved Handbell",
+                "level": 930,
+                "type": "relic",
+                "relicType": "iron"
+            },
+            {
+                "id": "152292",
+                "name": "Spike of Immortal Command",
+                "level": 930,
+                "type": "relic",
+                "relicType": "iron"
+            },
+            {
+                "id": "152293",
+                "name": "Fasces of the Endless Legions",
+                "level": 930,
+                "type": "relic",
+                "relicType": "iron"
+            },
+            {
+                "id": "155855",
+                "name": "Mote of the Forgemaster",
+                "level": 930,
+                "type": "relic",
+                "relicType": "iron"
+            }
+        ],
+        "life": [
+            {
+                "id": "152050",
+                "name": "Mysterious Petrified Egg",
+                "level": 930,
+                "type": "relic",
+                "relicType": "life"
+            },
+            {
+                "id": "152051",
+                "name": "Eidolon of Life",
+                "level": 930,
+                "type": "relic",
+                "relicType": "life"
+            },
+            {
+                "id": "152052",
+                "name": "Sporemound Seedling",
+                "level": 930,
+                "type": "relic",
+                "relicType": "life"
+            },
+            {
+                "id": "152053",
+                "name": "Essence of the Burgeoning Brood",
+                "level": 930,
+                "type": "relic",
+                "relicType": "life"
+            },
+            {
+                "id": "152291",
+                "name": "Fraternal Fervor",
+                "level": 930,
+                "type": "relic",
+                "relicType": "life"
+            },
+            {
+                "id": "155854",
+                "name": "Root of the Lifebinder",
+                "level": 930,
+                "type": "relic",
+                "relicType": "life"
+            }
+        ],
+        "shadow": [
+            {
+                "id": "152054",
+                "name": "Unwavering Soul Essence",
+                "level": 930,
+                "type": "relic",
+                "relicType": "shadow"
+            },
+            {
+                "id": "152055",
+                "name": "Kin'garoth's Oil-Sump",
+                "level": 930,
+                "type": "relic",
+                "relicType": "shadow"
+            },
+            {
+                "id": "152056",
+                "name": "Corrupting Dewclaw",
+                "level": 930,
+                "type": "relic",
+                "relicType": "shadow"
+            },
+            {
+                "id": "152057",
+                "name": "Crepuscular Skitterer Egg",
+                "level": 930,
+                "type": "relic",
+                "relicType": "shadow"
+            },
+            {
+                "id": "152290",
+                "name": "Censer of Dark Intent",
+                "level": 930,
+                "type": "relic",
+                "relicType": "shadow"
+            },
+            {
+                "id": "155852",
+                "name": "Volatile Soul Fragment",
+                "level": 930,
+                "type": "relic",
+                "relicType": "shadow"
+            }
+        ],
+        "storm": [
+            {
+                "id": "152058",
+                "name": "Stormcaller's Fury",
+                "level": 930,
+                "type": "relic",
+                "relicType": "storm"
+            },
+            {
+                "id": "152059",
+                "name": "Whistling Ulna",
+                "level": 930,
+                "type": "relic",
+                "relicType": "storm"
+            },
+            {
+                "id": "152060",
+                "name": "Neuroshock Electrode",
+                "level": 930,
+                "type": "relic",
+                "relicType": "storm"
+            },
+            {
+                "id": "152061",
+                "name": "Droplets of the Cleansing Storm",
+                "level": 930,
+                "type": "relic",
+                "relicType": "storm"
+            },
+            {
+                "id": "152348",
+                "name": "Sotanathor's Thundering Hoof",
+                "level": 930,
+                "type": "relic",
+                "relicType": "storm"
+            },
+            {
+                "id": "155853",
+                "name": "Conch of the Thunderer",
+                "level": 930,
+                "type": "relic",
+                "relicType": "storm"
+            }
+        ]
+    }
 }
