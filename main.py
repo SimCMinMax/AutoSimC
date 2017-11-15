@@ -91,6 +91,9 @@ settings_target_error = {2: settings.default_target_error_stage2,
                          3: settings.default_target_error_stage3
                          }
 
+# Global logger instance
+logger = logging.getLogger()
+
 
 #   Error handle
 def printLog(stringToPrint):
@@ -1008,12 +1011,17 @@ def permutate(args, player_profile):
     processed = 0
     valid_profiles = 0
     start_time = datetime.datetime.now()
+    unusable_histogram = {} # Record not usable reasons
     with open(args.outputfile, 'w') as output_file:
         for perm in all_permutations:
             data = PermutationData(perm, all_permutation_names, player_profile, max_profile_chars)
             if not data.not_usable:
                 data.write_to_file(output_file, valid_profiles)
                 valid_profiles += 1
+            elif args.debug:
+                if data.not_usable not in unusable_histogram:
+                    unusable_histogram[data.not_usable] = 0
+                unusable_histogram[data.not_usable] += 1
             processed += 1
             print_permutation_progress(processed, max_num_profiles, start_time, max_profile_chars)
 
@@ -1023,6 +1031,14 @@ def permutate(args, player_profile):
                100.0 * valid_profiles / max_num_profiles if max_num_profiles else 0.0)
     print(result)
     logging.info(result)
+
+    # Not usable histogram debug output
+    if logger.isEnabledFor(logging.DEBUG):
+        unusable_string = []
+        for key, value in unusable_histogram.items():
+            unusable_string.append("'{}': {} ({:.2f}%)".
+                                   format(key, value, value * 100.0 / max_num_profiles if max_num_profiles else 0.0))
+        logging.debug("Not usable histogram: {}".format(unusable_string))
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(args.outputfile)
