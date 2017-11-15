@@ -4063,7 +4063,7 @@
                     "type": "legs",
                     "material": "plate",
                     "stats": "stam/str/haste/crit",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -4122,7 +4122,7 @@
                     "type": "head",
                     "material": "plate",
                     "stats": "stam/str/haste/mastery",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 }
@@ -5544,7 +5544,7 @@
                     "type": "back",
                     "material": "cloth",
                     "stats": "stam/str/int/crit/haste",
-                    "enable": false,
+                    "enable": true,
                     "gems": 0,
                     "bonus_id": "3630"
                 },
