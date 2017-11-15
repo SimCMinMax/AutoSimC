@@ -785,14 +785,7 @@ class Item:
         return str(slotname) + self.output_str_tail
 
     def __str__(self):
-        return "Item(id={},slot={},n={},bonus={},ench={},gem={},relic={},l={})".format(self.item_id,
-                                                                                       self.slot,
-                                                                                       self.name,
-                                                                                       self.bonus_ids,
-                                                                                       self.enchant_ids,
-                                                                                       self.gem_ids,
-                                                                                       self.relic_ids,
-                                                                                       self.is_legendary)
+        return "Item({})".format(self.output_str(self.slot))
 
     def __repr__(self):
         return self.__str__()
@@ -802,7 +795,7 @@ class Item:
 
     def __hash__(self):
         # We are just lazy and use __str__ to avoid all the complexity about having mutable members, etc.
-        return hash(self.__str__())
+        return hash(str(self.__dict__))
 
 
 def product(*iterables):
