@@ -304,18 +304,20 @@ def handleCommandLine():
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
-def get_data(class_spec):
+def get_analyzer_data(class_spec):
     result = []
-    f = open(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename), "r")
-    file = json.load(f)
-    for variant in file[0]:
-        for p in variant["playerdata"]:
-            if p["specialization"] == class_spec:
-                for s in range(len(p["specdata"])):
-                    item = (
-                        variant["target_error"], p["specdata"][s]["iterations"],
-                        p["specdata"][s]["elapsed_time_seconds"])
-                    result.append(item)
+    filename = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
+    with open(filename, "r") as f:
+        file = json.load(f)
+        for variant in file[0]:
+            for p in variant["playerdata"]:
+                if p["specialization"] == class_spec:
+                    for s in range(len(p["specdata"])):
+                        item = (float(variant["target_error"]),
+                                int(p["specdata"][s]["iterations"]),
+                                float(p["specdata"][s]["elapsed_time_seconds"])
+                                )
+                        result.append(item)
     return result
 
 
@@ -1079,77 +1081,78 @@ def static_stage(player_profile, stage):
 
 def dynamic_stage1(player_profile):
     printLog("Entering dynamic mode, stage1")
-    result_data = get_data(player_profile.class_spec)
+    result_data = get_analyzer_data(player_profile.class_spec)
     print("Listing options:")
     print("Estimated calculation times based on your data:")
     print("Class/Spec: " + str(player_profile.class_spec))
     print("Number of permutations to simulate: " + str(i_generatedProfiles))
-    for current in range(len(result_data)):
-        te = result_data[current][0]
-        tp = round(float(result_data[current][2]), 2)
-        est = round(float(result_data[current][2]) * i_generatedProfiles, 0)
-        h = round(est / 3600, 1)
+    for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
+        elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+        estimated_time = elapsed_time * i_generatedProfiles
+        estimated_time = chop_microseconds(estimated_time)
 
-        print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
-            tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
+        print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+              format(i,
+                     target_error,
+                     elapsed_time.total_seconds(),
+                     estimated_time)
+              )
 
     if settings.skip_questions:
         calc_choice = settings.auto_dynamic_stage1_target_error_table
     else:
         calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
-    if calc_choice == "q":
-        printLog("Quitting application")
-        sys.exit(0)
-    if int(calc_choice) < len(result_data) and int(calc_choice) >= 0:
-        printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
-        printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
+        if calc_choice == "q":
+            printLog("Quitting application")
+            sys.exit(0)
+    calc_choice = int(calc_choice)
+    if calc_choice >= len(result_data) or calc_choice < 0:
+        raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
+                                                                                    len(result_data) - 1))
+    printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
+    printLog("Sim: Chosen calculation: {}".format(calc_choice))
 
-        te = result_data[int(calc_choice)][0]
-        print("selected target error: {}".format(te))
-        tp = round(float(result_data[int(calc_choice)][2]), 2)
-        est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
+    target_error, _iterations, elapsed_time_seconds = result_data[calc_choice]
+    elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+    estimated_time = elapsed_time * i_generatedProfiles
+    estimated_time = chop_microseconds(estimated_time)
 
-        printLog(
-            "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + " Time/Profile: " + str(
-                tp) + " => Est. calc. time: " + str(est) + " sec")
-        time_all = round(est, 0)
-        printLog("Estimated calculation time: " + str(time_all) + "")
-        if not settings.skip_questions:
-            if time_all > 43200:
-                if input("Warning: This might take a *VERY* long time (>12h) (q to quit, Enter to continue: )") == "q":
-                    print("Quitting application")
-                    sys.exit(0)
-
-        # split into chunks of n (max 100) to not destroy the hdd
-        # todo: calculate dynamic amount of n
-        splitter.split(outputFileName, settings.splitting_size)
-        splitter.sim(settings.subdir1, "target_error=" + str(te), player_profile, 1)
-
-        # if the user chose a target_error which is lower than the default_one for the next step
-        # he is given an option to either skip stage 2 or adjust the target_error
-        if float(te) <= float(settings.default_target_error_stage2):
-            printLog("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
-                settings.default_target_error_stage2) + "\n")
-            print("Warning!\n")
-            print("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
-                settings.default_target_error_stage2) + "\n")
-            new_value = input(
-                "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error"
-                " for stage2 (n)?: ")
-            printLog("User chose: " + str(new_value))
-            if new_value == "q":
+    logger.info("Selected: ({:2n}): Target Error: {:.3f}%: Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                format(i,
+                       target_error,
+                       elapsed_time.total_seconds(),
+                       estimated_time))
+    if not settings.skip_questions:
+        if estimated_time.total_seconds() > 43200:  # 12h
+            if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".format(estimated_time)) == "q":
+                printLog("Quitting application")
                 sys.exit(0)
-            if new_value == "n":
-                target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
-                printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                dynamic_stage2(target_error_secondpart, str(te), player_profile)
-            if new_value == "s":
-                dynamic_stage3(True, settings.default_target_error_stage3, str(te))
-            if new_value == "y":
-                dynamic_stage2(settings.default_target_error_stage2, str(te), player_profile)
-        else:
-            pass
-            dynamic_stage2(settings.default_target_error_stage2, str(te), player_profile)
+
+    # split into chunks of n (max 100) to not destroy the hdd
+    # todo: calculate dynamic amount of n
+    splitter.split(outputFileName, settings.splitting_size)
+    splitter.sim(settings.subdir1, "target_error=" + str(target_error), player_profile, 1)
+
+    # if the user chose a target_error which is lower than the default_one for the next step
+    # he is given an option to either skip stage 2 or adjust the target_error
+    stage2_target_error = float(settings.default_target_error_stage2)
+    if target_error <= stage2_target_error:
+        print("Warning Target_Error chosen in stage 1: {} <= Default_Target_Error for stage 2: {}".
+              format(target_error, stage2_target_error))
+        new_value = input(
+            "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error"
+            " for stage2 (n)?: ")
+        printLog("User chose: " + str(new_value))
+        if new_value == "q":
+            printLog("Quitting application")
+            sys.exit(0)
+        if new_value == "n":
+            stage2_target_error = float(input("Enter new target_error (Format: 0.3): "))
+            printLog("User entered target_error_secondpart: " + str(stage2_target_error))
+        if new_value == "s":
+            dynamic_stage3(True, settings.default_target_error_stage3, target_error, player_profile)
+            return
+    dynamic_stage2(stage2_target_error, target_error, player_profile)
 
 
 def dynamic_stage2(targeterror, targeterrorstage1, player_profile):
