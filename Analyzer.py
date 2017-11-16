@@ -204,8 +204,7 @@ def main():
     # output it
     with open(os.path.join(combined_path, analysis_filename), "w") as write:
         schema = VariantSchema(many="True")
-        json.dump(schema.dump(analyzed_data), write)
-        write.close()
+        json.dump(schema.dump(analyzed_data), write, indent=4)
 
         # we have now generated our analysis-intermediate which contains aggregated details
         # schema: fightvariant n -> spec s -> race r

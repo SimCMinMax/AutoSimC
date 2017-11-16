@@ -373,6 +373,8 @@ def autoDownloadSimc():
                 print("Exception when unpacking: {}".format(e))
         else:
             raise RuntimeError("Could not unpack SimC.")
+    else:
+        print("simc_path={}".format(repr(settings.simc_path)))
 
 
 def cleanup():
