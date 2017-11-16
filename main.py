@@ -256,7 +256,7 @@ def parse_command_line_args():
                         help='List of legendaries to add to the template. Format:\n'
                         '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
 
-    parser.add_argument('-Min_leg', '--legendary_min',
+    parser.add_argument('-min_leg', '--legendary_min',
                         default=settings.default_leg_min,
                         type=int,
                         required=False,
@@ -268,14 +268,14 @@ def parse_command_line_args():
                         required=False,
                         help='Maximum number of legendaries in the permutations.')
 
-    parser.add_argument('--debug',
-                        action='store_true',
-                        help='Write debug information to log file.')
-
     parser.add_argument('--unique_jewelry',
                         type=str2bool,
                         default="true",
                         help='Assume ring and trinkets are unique-equipped, and only a single item id can be equipped.')
+
+    parser.add_argument('--debug',
+                        action='store_true',
+                        help='Write debug information to log file.')
 
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
 
