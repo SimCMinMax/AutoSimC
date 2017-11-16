@@ -324,8 +324,8 @@ def get_analyzer_data(class_spec):
 def autoDownloadSimc():
     try:
         if settings.auto_download_simc:
-            if not platform.architecture() == ('64bit', 'WindowsPE'):
-                print("Sorry autodownloading only supported on 64bit windows")
+            if platform.system() != "Windows" or not platform.machine().endswith('64'):
+                print("Sorry autodownloading only supported for 64bit windows")
                 return
     except AttributeError:
         return
