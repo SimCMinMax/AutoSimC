@@ -330,37 +330,40 @@ def autoDownloadSimc():
     except AttributeError:
         return
 
-    # check if there is a new build of simc
+    # Application root path, and destination path
+    rootpath = os.path.dirname(os.path.realpath(__file__))
+    download_dir = os.path.join(rootpath, "auto_download")
+    if not os.path.exists(download_dir):
+        os.makedirs(download_dir)
+
+    # Get filename of latest build of simc
     html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
     filename = search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     print("Latest simc:", filename)
-    rootpath = os.path.dirname(os.path.realpath(__file__))
-    download_path = os.path.join(rootpath, "auto_download")
-    if not os.path.exists(download_path):
-        os.makedirs(download_path)
-    filepath = os.path.join(download_path, filename)
-    settings.simc_path = os.path.join(download_path, filename[:filename.find("win64")+len("win64")], "simc.exe")
-    splitter.simc_path = settings.simc_path
 
+    # Download latest build of simc
+    filepath = os.path.join(download_dir, filename)
     if not os.path.exists(filepath):
-        # download and unzip it (you can change the next line if you want simc installed in a different location)
         url = 'http://downloads.simulationcraft.org/' + filename
         logging.info("Retrieving simc from url {} to {}.".format(url,
                                                                  filepath))
         urlretrieve(url, filepath)
     else:
         logging.debug("Latest simc version already downloaded at {}.".format(filename))
-    
+
+    # Unpack downloaded build and set simc_path
+    settings.simc_path = os.path.join(download_dir, filename[:filename.find("win64")+len("win64")], "simc.exe")
+    splitter.simc_path = settings.simc_path
     if not os.path.exists(settings.simc_path):
         seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
         for seven_zip_executable in seven_zip_executables:
             try:
-                cmd = seven_zip_executable + ' x "'+filepath+'" -aoa -o"' + download_path + '"'
+                cmd = seven_zip_executable + ' x "'+filepath+'" -aoa -o"' + download_dir + '"'
                 logging.debug("Running unpack command '{}'".format(cmd))
                 subprocess.call(cmd)
                 
                 # keep the latest 7z to remember current version, but clean up any other ones
-                files = glob.glob(download_path + '/simc*win64*7z')
+                files = glob.glob(download_dir + '/simc*win64*7z')
                 for f in files:
                     if not os.path.basename(f)==filename:
                         print("Removing old simc:", os.path.basename(f))
@@ -1153,8 +1156,8 @@ def static_stage(player_profile, stage):
     static_stage(player_profile, stage + 1)
 
 
-def dynamic_stage1(player_profile):
-    printLog("Entering dynamic mode, stage1")
+def dynamic_stage1(player_profile, stage=1):
+    printLog("Entering dynamic mode, STAGE {}".format(stage))
     result_data = get_analyzer_data(player_profile.class_spec)
     print("Listing options:")
     print("Estimated calculation times based on your data:")
@@ -1209,10 +1212,10 @@ def dynamic_stage1(player_profile):
 
     # if the user chose a target_error which is lower than the default_one for the next step
     # he is given an option to either skip stage 2 or adjust the target_error
-    stage2_target_error = float(settings.default_target_error_stage2)
-    if target_error <= stage2_target_error:
-        print("Warning Target_Error chosen in stage 1: {} <= Default_Target_Error for stage 2: {}".
-              format(target_error, stage2_target_error))
+    stage_next_target_error = float(settings.default_target_error_stage2)
+    if target_error <= stage_next_target_error:
+        print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
+              format(stage, target_error, stage+1, stage_next_target_error))
         new_value = input(
             "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error"
             " for stage2 (n)?: ")
@@ -1221,12 +1224,12 @@ def dynamic_stage1(player_profile):
             printLog("Quitting application")
             sys.exit(0)
         if new_value == "n":
-            stage2_target_error = float(input("Enter new target_error (Format: 0.3): "))
-            printLog("User entered target_error_secondpart: " + str(stage2_target_error))
+            stage_next_target_error = float(input("Enter new target_error (Format: 0.3): "))
+            printLog("User entered target_error_secondpart: " + str(stage_next_target_error))
         if new_value == "s":
             dynamic_stage3(True, settings.default_target_error_stage3, target_error, player_profile)
             return
-    dynamic_stage2(stage2_target_error, target_error, player_profile)
+    dynamic_stage2(stage_next_target_error, target_error, player_profile)
 
 
 def dynamic_stage2(targeterror, targeterrorstage1, player_profile):

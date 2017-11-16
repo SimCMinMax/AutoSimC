@@ -6,6 +6,7 @@ import time
 import datetime
 import logging
 import concurrent.futures
+import collections
 
 from settings import settings
 
@@ -14,7 +15,7 @@ from settings import settings
 try:
     simc_path = settings.simc_path
 except AttributeError:
-    #set path after downloading nightly
+    # set path after downloading nightly
     pass
 
 subdir1 = settings.subdir1
@@ -473,6 +474,13 @@ def grabBest(count, source_subdir, target_subdir, origin):
     source.close()
 
 
+def dump_profiles_to_file(filename, profiles):
+    logging.debug("Writing {} profiles to file {}.".format(len(profiles), filename))
+    with open(filename, "w") as out:
+        for line in profiles:
+            out.write(line)
+
+
 # determine best n dps-simulations and grabs their profiles for further simming
 # targeterror: the span which removes all profile-dps not fulfilling it (see settings.py)
 # source_subdir: directory of .result-files
@@ -481,125 +489,124 @@ def grabBest(count, source_subdir, target_subdir, origin):
 def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     print("Grabbest:")
     print("Variables: targeterror: " + str(targeterror))
-    print("Variables: source_subdir: " + str(source_subdir))
     print("Variables: target_subdir: " + str(target_subdir))
     print("Variables: origin: " + str(origin))
 
     user_class = ""
 
-    best = {}
-    for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
-        for file in files:
-            # print("Grabbest -> file: " + str(file))
-            if file.endswith(".result"):
-                if os.stat(os.path.join(os.getcwd(), source_subdir, file)).st_size > 0:
-                    src = open(os.path.join(os.getcwd(), source_subdir, file), encoding='utf-8', mode="r")
-                    for line in src.readlines():
-                        line = line.lstrip().rstrip()
-                        if not line:
-                            continue
-                        if line.rstrip().startswith("Raid"):
-                            continue
-                        if line.rstrip().startswith("raid_event"):
-                            continue
-                        if line.rstrip().startswith("HPS"):
-                            continue
-                        if line.rstrip().startswith("DPS"):
-                            continue
-                        # here parsing stops, because its useless profile-junk
-                        if line.rstrip().startswith("DPS:"):
-                            break
-                        if line.rstrip().endswith("Raid"):
-                            continue
-                        # just get user_class from player_info, very dirty
-                        if line.rstrip().startswith("Player"):
-                            q, w, e, r, t, z = line.split()
-                            user_class = r
-                            break
-                        # dps, percentage, profilename
-                        a, _b, c = line.lstrip().rstrip().split()
-                        # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
-                        # put dps as key and profilename as value into dictionary
-                        # dps might be equal for 2 profiles, but should very rarely happen
-                        # could lead to a problem with very minor dps due to variance,
-                        # but seeing dps going into millions nowadays equal dps should not pose to be a problem at all
-                        best[a] = c
-                    src.close()
-                else:
-                    print("Error: .result-file in: " + str(source_subdir) + " is empty, exiting")
-                    sys.exit(1)
+    best = []
+    source_subdir = os.path.join(os.getcwd(), source_subdir)
+    print("Variables: source_subdir: " + str(source_subdir))
+    files = os.listdir(source_subdir)
+    files = [f for f in files if f.endswith(".result")]
+    files = [os.path.join(source_subdir, f) for f in files]
+    logging.debug("Grabbing files: {}".format(files))
 
-    # put best dps into a list, descending order
-    sortedlist = []
-    for entry in best.keys():
-        sortedlist.append(int(entry))
-    sortedlist.sort()
-    sortedlist.reverse()
-    # print(str(sortedlist))
+    for file in files:
+        if os.stat(file).st_size <= 0:
+            raise RuntimeError("Error: .result-file in: " + str(source_subdir) + " is empty, exiting")
+
+        with open(file, encoding='utf-8', mode="r") as src:
+            for line in src.readlines():
+                line = line.lstrip().rstrip()
+                if not line:
+                    continue
+                if line.rstrip().startswith("Raid"):
+                    continue
+                if line.rstrip().startswith("raid_event"):
+                    continue
+                if line.rstrip().startswith("HPS"):
+                    continue
+                if line.rstrip().startswith("DPS"):
+                    continue
+                # here parsing stops, because its useless profile-junk
+                if line.rstrip().startswith("DPS:"):
+                    break
+                if line.rstrip().endswith("Raid"):
+                    continue
+                # just get user_class from player_info, very dirty
+                if line.rstrip().startswith("Player"):
+                    q, w, e, r, t, z = line.split()
+                    user_class = r
+                    break
+                # dps, percentage, profilename
+                dps, _pct, profile_name = line.lstrip().rstrip().split()
+                # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
+                # put dps as key and profilename as value into dictionary
+                # dps might be equal for 2 profiles, but should very rarely happen
+                # could lead to a problem with very minor dps due to variance,
+                # but seeing dps going into millions nowadays equal dps should not pose to be a problem at all
+                best.append((float(dps), profile_name))
+
+    # sort best dps, descending order
+    best = list(reversed(sorted(best, key=lambda entry: entry[0])))
+    logging.debug("Result from parsing dps")
+    for dps, name in best:
+        logging.debug("{}: {}".format(dps, name))
 
     # remove all profiles not within the errorrange
-    if len(sortedlist) > 2:
-        dps_min = int(sortedlist[0]) - (
-            int(sortedlist[0]) * (settings.default_error_rate_multiplier * float(targeterror)) / 100)
-        print("target_error: " + str(targeterror) + " -> dps_minimum: " + str(dps_min))
-        while len(sortedlist) > 1:
-            if sortedlist[-1] < dps_min:
-                sortedlist.pop()
-            else:
-                break
+    if len(best) > 2:
+        dps_best_player = best[0][0]
+        dps_min = dps_best_player * (1.0 - (settings.default_error_rate_multiplier * targeterror) / 100.0)
+        logging.debug("Filtering out all players below dps_min={}".format(dps_min))
+        best = [e for e in best if e[0] >= dps_min]
 
-    # print("Sortedlist: "+str(sortedlist))
-    # and finally generate a second list with the corresponding profile-names
-    sortednames = []
-    while len(sortedlist) > 0:
-        sortednames.append(best.get(str(sortedlist.pop())))
-    # print("Sortednames: "+str(sortednames))
+    logging.debug("Filtered dps results")
+    for dps, name in best:
+        logging.debug("{}: {}".format(dps, name))
+
+    sortednames = [name for _dps, name in best]
 
     bestprofiles = []
+    outfile_count = 0
+    num_profiles = 0
     # print(str(bestprofiles))
 
+    # Determine chunk length we want to split the profiles
+    if target_subdir == settings.subdir2:
+        if settings.multi_sim_enabled:
+            chunk_length = int(len(sortednames) / settings.number_of_instances)
+    else:
+        chunk_length = settings.splitting_size
+    if chunk_length < 1:
+        chunk_length = 1
+
     # now parse our "database" and extract the profiles of our top n
-    source = open(origin, "r")
-    lines = source.readlines()
-    lines_iter = iter(lines)
+    with open(origin, "r") as source:
+        lines_iter = iter(source)
+        subfolder = os.path.join(os.getcwd(), target_subdir)
+        purge_subfolder(subfolder)
 
-    subfolder = os.path.join(os.getcwd(), target_subdir)
-    purge_subfolder(subfolder)
-    filenumber = 1
+        for line in lines_iter:
+            line = line.lstrip().rstrip()
+            if not line:
+                continue
 
-    for line in lines_iter:
-        line = line.lstrip().rstrip()
-        if not line:
-            continue
+            currentbestprofile = ""
 
-        currentbestprofile = ""
+            if line.startswith(user_class + "="):
+                _classname, profilename = line.split("=")
+                if profilename in sortednames:
+                    currentbestprofile += line + "\n"
+                    line = next(lines_iter)
+                    while not line.startswith(user_class + "="):
+                        try:
+                            currentbestprofile += line
+                            line = next(lines_iter)
+                        except StopIteration:
+                            break
+                    bestprofiles.append(currentbestprofile)
+                    num_profiles += 1
+                    # If we reached chunk length, dump collected profiles and reset, so we do not store everything in memory
+                    if len(bestprofiles) >= chunk_length:
+                        outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
+                        dump_profiles_to_file(outfile, bestprofiles)
+                        bestprofiles.clear()
+                        outfile_count += 1
+    # Write tail
+    if len(bestprofiles):
+        outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
+        dump_profiles_to_file(outfile, bestprofiles)
+        outfile_count += 1
 
-        if line.startswith(user_class + "="):
-            _classname, profilename = line.split("=")
-            if profilename in sortednames:
-                currentbestprofile += line + "\n"
-                line = next(lines_iter)
-                while not line.startswith(user_class + "="):
-                    try:
-                        currentbestprofile += line
-                        line = next(lines_iter)
-                    except StopIteration:
-                        break
-                bestprofiles.append(currentbestprofile)
-        if target_subdir == settings.subdir2:
-            amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
-        else:
-            amount = settings.splitting_size
-        if len(bestprofiles) > amount:
-            with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
-                for line in bestprofiles:
-                    out.write(line)
-                filenumber += 1
-            bestprofiles.clear()
-    logging.info("Got {} best profiles.".format(len(bestprofiles)))
-    if len(bestprofiles) > 0:
-        with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
-            for line in bestprofiles:
-                out.write(line)
-
-    source.close()
+    logging.info("Got {} best profiles written to {} files..".format(num_profiles, outfile_count))
