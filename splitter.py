@@ -80,6 +80,7 @@ def split(inputfile, size, wow_class):
     bestprofiles = []
     outfile_count = 0
     subfolder = os.path.join(os.getcwd(), subdir1)
+    purge_subfolder(subfolder)
     with open(inputfile, encoding='utf-8', mode="r") as src:
         for profile in parse_profiles_from_file(src, wow_class):
             profile.append("")  # Add tailing empty line
@@ -187,9 +188,7 @@ def sim(subdir, simtype, player_profile, command=1):
 
 
 def multisim(files_to_sim, player_profile, simtype, command):
-    output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
-        datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
-        datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
+    output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
 
     # some minor progress-bar-initialization
     amount_of_generated_splits = 0
@@ -221,9 +220,7 @@ def multisim(files_to_sim, player_profile, simtype, command):
 # simtype: 'iterations=n' or 'target_error=n'
 # command: 1 for stage1 and 2, 2 for stage3 (uses html= instead of output=)
 def singlesim(files_to_sim, player_profile, simtype, command=1):
-    output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
-        datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
-        datetime.datetime.now().minute) + "-" + str(datetime.datetime.now().second)
+    output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
     starttime = time.time()
 
     # some minor progress-bar-initialization
