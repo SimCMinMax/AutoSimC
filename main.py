@@ -14,16 +14,16 @@ import logging
 import itertools
 import collections
 import copy
+import subprocess
 
 from settings import settings
 
 import specdata
 import splitter
 import hashlib
-from urllib.request import urlopen,urlretrieve
-from re import search,match
+from urllib.request import urlopen, urlretrieve
+from re import search, match
 import platform
-from builtins import property
 
 __version__ = "0.0.1"
 
@@ -300,15 +300,6 @@ def handleCommandLine():
     if args.sim is not None and len(args.sim) > 0:
         s_stage = args.sim[0]
 
-    # Check simc executable availability. Maybe move to somewhere else.
-    if b_simcraft_enabled:
-        if not os.path.exists(settings.simc_path):
-            printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-            print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-            sys.exit(1)
-        else:
-            printLog("Path to simc.exe valid, proceeding...")
-
     return args
 
 
@@ -329,6 +320,7 @@ def get_analyzer_data(class_spec):
                         result.append(item)
     return result
 
+
 def autoDownloadSimc():
     try:
         if settings.auto_download_simc:
@@ -338,28 +330,46 @@ def autoDownloadSimc():
     except AttributeError:
         return
 
-    #check if there is a new build of simc
+    # check if there is a new build of simc
     html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
-    filename = search(r'<a href="(simc.+win64.+7z)">',html).group(1)
+    filename = search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     print("Latest simc:", filename)
     rootpath = os.path.dirname(os.path.realpath(__file__))
-    filepath = os.path.join(rootpath, filename)
-    settings.simc_path = os.path.join(rootpath, filename[:filename.find("win64")+len("win64")], "simc.exe")
+    download_path = os.path.join(rootpath, "auto_download")
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+    filepath = os.path.join(download_path, filename)
+    settings.simc_path = os.path.join(download_path, filename[:filename.find("win64")+len("win64")], "simc.exe")
     splitter.simc_path = settings.simc_path
 
     if not os.path.exists(filepath):
-        #download and unzip it (you can change the next line if you want simc installed in a different location)
-        os.chdir(rootpath)
-        urlretrieve('http://downloads.simulationcraft.org/' + filename, filepath)
-        cmd =  '7z.exe x "'+filepath+'" -aoa -o"' + rootpath + '"'
-        os.system(cmd)
-        
-        #keep the latest 7z to remember current version, but clean up any other ones
-        files = glob.glob(rootpath + '/simc*win64*7z')
-        for f in files:
-            if not os.path.basename(f)==filename:
-                print("Removing old simc:", os.path.basename(f))
-                os.remove(f)
+        # download and unzip it (you can change the next line if you want simc installed in a different location)
+        url = 'http://downloads.simulationcraft.org/' + filename
+        logging.info("Retrieving simc from url {} to {}.".format(url,
+                                                                 filepath))
+        urlretrieve(url, filepath)
+    else:
+        logging.debug("Latest simc version already downloaded at {}.".format(filename))
+    
+    if not os.path.exists(settings.simc_path):
+        seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
+        for seven_zip_executable in seven_zip_executables:
+            try:
+                cmd = seven_zip_executable + ' x "'+filepath+'" -aoa -o"' + download_path + '"'
+                logging.debug("Running unpack command '{}'".format(cmd))
+                subprocess.call(cmd)
+                
+                # keep the latest 7z to remember current version, but clean up any other ones
+                files = glob.glob(download_path + '/simc*win64*7z')
+                for f in files:
+                    if not os.path.basename(f)==filename:
+                        print("Removing old simc:", os.path.basename(f))
+                        os.remove(f)
+                break
+            except Exception as e:
+                print("Exception when unpacking: {}".format(e))
+        else:
+            raise RuntimeError("Could not unpack SimC.")
 
 
 def cleanup():
@@ -398,6 +408,15 @@ def cleanup():
 
 
 def validateSettings(args):
+    # Check simc executable availability. Maybe move to somewhere else.
+    if b_simcraft_enabled:
+        if not os.path.exists(settings.simc_path):
+            printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+            print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+            sys.exit(1)
+        else:
+            printLog("Path to simc.exe valid, proceeding...")
+
     # validate amount of legendaries
     if args.legendary_min > args.legendary_max:
         raise ValueError("Legendary min '{}' > legendary max '{}'".format(args.legendary_min, args.legendary_max))
@@ -767,6 +786,17 @@ class Item:
         self.relic_ids = []
         self.tier_set = {}
         self.is_legendary = False
+        if self.name.startswith("L"):
+            self.is_legendary = True
+            self.name = self.name[1:]
+
+        for tier in self.tiers:
+            n = "T{}".format(tier)
+            if self.name.startswith(n):
+                setattr(self, "tier_{}".format(tier), True)
+                self.name = self.name[len(n):]
+            else:
+                setattr(self, "tier_{}".format(tier), False)
         if len(input_string):
             self.parse_input(input_string)
 
@@ -1377,13 +1407,13 @@ def main():
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
     logging.debug("Parsed command line arguments: {}".format(args))
+    
+    autoDownloadSimc()
     validateSettings(args)
 
     player_profile = build_profile(args)
 
     print("Combinations in progress...")
-    
-    autoDownloadSimc()
 
     # can always be rerun since it is now deterministic
     if s_stage == "stage1" or s_stage == "":
