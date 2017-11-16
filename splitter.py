@@ -10,8 +10,12 @@ import concurrent.futures
 from settings import settings
 
 # change path accordingly to your location
-# do not forget to add double-backslash for subdirs, as shown below
-simc_path = settings.simc_path
+# don´t forget to add double-backslash for subdirs, as shown below
+try:
+    simc_path = settings.simc_path
+except AttributeError:
+    #set path after downloading nightly
+    pass
 
 subdir1 = settings.subdir1
 subdir2 = settings.subdir2
