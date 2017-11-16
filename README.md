@@ -7,7 +7,7 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 
 ## How does it work ?
-You must have python (ideally >3.6) installed on you computer for this to work.
+You must have python (>3.6.1) installed on you computer for this to work.
 - Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
 - Download the project and extract it.
 - Open input.txt and enter parameters depending on your character (see below for more informations). Save and close.
@@ -37,6 +37,10 @@ Example :
 
     neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
 
+To specify Tier/Legendary set and item names, use the following syntax:
+
+    neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
+    
 You can also use SimPermut to generate the string directly with the gear you have equipped and in your bag (See below).
 
 ## Launch.bat
@@ -57,13 +61,14 @@ What can be changed (command prefix are case sensitive):
          (These numbers might be changed in future versions)
 		 You have to set the simc path in the settings.py file.
 	- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during stage1, by launching with the parameter "-sim stage2" (or stage3). You will have to enter the amount of iterations or target_error of the broken simulation-stage. (See logs.txt for details)
+	- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems or instabilities, edit settings.py and change the corresponding parameters or even disable it. 
 - -gems : Enables permutation of gem-combinations in your gear. With e.g. <-gems "crit,haste,int"> you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon greens are not supported) in addition to the ones you have currently equipped.
   - Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> (without <>) into the commandline, the permutation process uses the single int- and mastery-gem-combination you have currrently equipped and adds ALL combinations from the ones in the commandline, therefore mastery would be excluded. However, adding mastery to the commandline reenables that.
   - Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] Simpermut usually creates this for you.
   - WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as command, the number of combinations will go through the roof VERY quickly. Please be cautious when enabling this.
   
 After are parameters that I added to help Aethys build SimulationCraft's best legendary combinations for each class easily
-- -l Leg_List : List of legendaries to add to the template. Format :
+- -l Leg_List : List of legendaries to add to the template. Format:
 
     "leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."
 
@@ -71,7 +76,12 @@ After are parameters that I added to help Aethys build SimulationCraft's best le
 - Min_leg : Minimum number of legendaries in the permutations. Default : 0
 - Max_Leg : Maximum number of legendaries in the permutations. Default : 2
 
-You can change a good number of settings in the settings.py file.
+You can/have to finetune your settings in the settings.py file:
+- enable permutation of talents
+- set amount of tier-items and legendaries
+- default number of iterations for each step
+- change type of fight (patchwerk, LightMovement etc.)
+- and several more
 
 ## Analyzer:
 Included is Analyzer.py, which uses the standard-simc-profiles for each class to generate a Analysis.json (in profiles-folder), which represents calculation data for each class/spec.

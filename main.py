@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=C0103
+# pylint: disable=C0301
+
 import configparser
 import sys
 import datetime
@@ -5,30 +9,46 @@ import os
 import glob
 import json
 import shutil
+import argparse
+import logging
+import itertools
+import collections
+import copy
+
 from settings import settings
+
+import specdata
 import splitter
 import hashlib
 from urllib.request import urlopen,urlretrieve
 from re import search,match
 import platform
+from builtins import property
+
+__version__ = "0.0.1"
+
+if __name__ == "__main__":
+    try:
+        filename = "settings.py"
+        source = open(filename, 'r').read()
+        compile(source, filename, 'exec')
+    except SyntaxError:
+        print("Error in settings.py, pls check for syntax-errors")
+        sys.exit(1)
 
 # Var init with default value
 c_profileid = 0
 c_profilemaxid = 0
-legmin = settings.default_leg_min
-legmax = settings.default_leg_max
-t19 = settings.default_equip_t19_min
-t20 = settings.default_equip_t20_min
-t21 = settings.default_equip_t21_min
-
-outputFileName = settings.default_outputFileName
-# txt, because standard-user cannot be trusted
-inputFileName = settings.default_inputFileName
+t19min = int(settings.default_equip_t19_min)
+t19max = int(settings.default_equip_t19_max)
+t20min = int(settings.default_equip_t20_min)
+t20max = int(settings.default_equip_t20_max)
+t21min = int(settings.default_equip_t21_min)
+t21max = int(settings.default_equip_t21_max)
 
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
 # quiet_mode for faster output; console is very slow
-b_quiet = settings.b_quiet
 i_generatedProfiles = 0
 
 b_simcraft_enabled = settings.default_sim_enabled
@@ -40,534 +60,274 @@ iterations_thirdpart = settings.default_iterations_stage3
 
 target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
-gemspermutation = False
 
-gem_ids = {}
-gem_ids["150haste"] = "130220"
-gem_ids["haste"] = "130220"
-gem_ids["150crit"] = "130219"
-gem_ids["crit"] = "130219"
-gem_ids["150vers"] = "130221"  # checkname
-gem_ids["vers"] = "130221"  # checkname
-gem_ids["150mast"] = "130222"  # checkname
-gem_ids["mast"] = "130222"  # checkname
-gem_ids["200str"] = "130246"
-gem_ids["str"] = "130246"
-gem_ids["200agi"] = "130247"
-gem_ids["agi"] = "130247"
-gem_ids["200int"] = "130248"
-gem_ids["int"] = "130248"
+gem_ids = {"150haste":  130220,
+           "200haste":  151583,
+           "haste":     151583,  # always contains maximum quality
+           "150crit":   130219,
+           "200crit":   151580,
+           "crit":      151580,  # always contains maximum quality
+           "150vers":   130221,
+           "200vers":   151585,
+           "vers":      151585,  # always contains maximum quality
+           "150mast":   130222,
+           "200mast":   151584,
+           "mast":      151584,  # always contains maximum quality
+           "200str":    130246,
+           "str":       130246,
+           "200agi":    130247,
+           "agi":       130247,
+           "200int":    130248,
+           "int":       130248,
+           }
+
+settings_subdir = {1: settings.subdir1,
+                   2: settings.subdir2,
+                   3: settings.subdir3
+                   }
+settings_iterations = {1: int(settings.default_iterations_stage1),
+                       2: int(settings.default_iterations_stage2),
+                       3: int(settings.default_iterations_stage3)
+                       }
+settings_n_stage = {2: settings.default_top_n_stage2,
+                    3: settings.default_top_n_stage3
+                    }
+
+settings_target_error = {2: settings.default_target_error_stage2,
+                         3: settings.default_target_error_stage3
+                         }
+
+# Global logger instance
+logger = logging.getLogger()
 
 
 #   Error handle
 def printLog(stringToPrint):
-    if not b_quiet:
-        # should this console-output be here at all? outputting to file AND console could be handled separately
-        # e.g. via simple debug-toggle (if b_debug: print(...))
-        print(stringToPrint)
-    today = datetime.date.today()
-    logFile.write(str(today) + ":" + stringToPrint + "\n")
+    logging.info(stringToPrint)
 
 
 # Add legendary to the right tab
-def addToTab(x):
-    stringToAdd = "L,id=" + x[1] + (",bonus_id=" + x[2] if x[2] != "" else "") + (
-        ",enchant_id=" + x[3] if x[3] != "" else "") + (",gem_id=" + x[4] if x[4] != "" else "")
-    if x[0] == 'head':
-        l_head.append(stringToAdd)
-    elif x[0] == 'neck':
-        l_neck.append(stringToAdd)
-    elif x[0] == 'shoulders':
-        l_shoulders.append(stringToAdd)
-    elif x[0] == 'back':
-        l_back.append(stringToAdd)
-    elif x[0] == 'chest':
-        l_chest.append(stringToAdd)
-    elif x[0] == 'wrist':
-        l_wrists.append(stringToAdd)
-    elif x[0] == 'hands':
-        l_hands.append(stringToAdd)
-    elif x[0] == 'waist':
-        l_waist.append(stringToAdd)
-    elif x[0] == 'legs':
-        l_legs.append(stringToAdd)
-    elif x[0] == 'feet':
-        l_feet.append(stringToAdd)
-    elif x[0] == 'finger1':
-        l_finger1.append(stringToAdd)
-    elif x[0] == 'finger2':
-        l_finger2.append(stringToAdd)
-    elif x[0] == 'trinket1':
-        l_trinket1.append(stringToAdd)
-    elif x[0] == 'trinket2':
-        l_trinket2.append(stringToAdd)
+def add_legendary(legendary_split, gear_list):
+    logging.info("Adding legendary: {}".format(legendary_split))
+    try:
+        slot, item_id, *tail = legendary_split
+        bonus_id = tail[0] if len(tail) > 0 else None
+        enchant_id = tail[1] if len(tail) > 1 else None
+        gem_id = tail[2] if len(tail) > 2 else None
+
+        legendary_string = "L,id={}".format(item_id)
+        if bonus_id:
+            legendary_string += ",bonus_id={}".format(bonus_id)
+        if enchant_id:
+            legendary_string += ",enchant_id={}".format(enchant_id)
+        if gem_id:
+            legendary_string += ",gem_id={}".format(gem_id)
+
+        logging.debug("Legendary string: {}".format(legendary_string))
+        if slot in gear_list.keys():
+            gear_list[slot].append(Item(slot, legendary_string))
+            logging.info("Added legendary '{}' to {}.".format(legendary_string,
+                                                              slot))
+        else:
+            raise ValueError("Invalid legendary gear slot '{}' not in {}".format(slot,
+                                                                                 list(gear_list.keys())))
+    except Exception as e:
+        raise Exception("Could not add legendary: {}".format(e)) from e
 
 
-# Manage legendary with command line
-def handlePermutation(elements):
-    for element in elements:
-        pieces = element.split('|')
-        addToTab(pieces)
+def build_gem_list(gems):
+    splitted_gems = gems.split(",")
+    for gem in splitted_gems:
+        if gem not in gem_ids.keys():
+            raise ValueError("Unknown gem '{}' to sim, please check your input. Valid gems: {}".
+                             format(gem, gem_ids.keys()))
+    # Convert parsed gems to list of gem ids
+    gems = [gem_ids[gem] for gem in splitted_gems]
+
+    # Unique by gem id, so that if user specifies eg. 200haste,haste there will only be 1 gem added.
+    gems = list(set(gems))
+    return gems
 
 
-def handleGems(gems):
-    allowed_gems = ["crit", "vers", "haste", "mast", "int", "str", "agi"]
-    global splitted_gems
-    if gems:
-        splitted_gems = gems.split(",")
-        for i in range(len(splitted_gems)):
-            if splitted_gems[i] not in allowed_gems:
-                printLog("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
-                print("Unknown gem to sim, please check your input: " + str(splitted_gems[i]))
-                sys.exit(1)
+def cleanItem(item_string):
+    if "--" in item_string:
+        item_string = item_string.split("--")[1]
+
+    return item_string
 
 
 # Check if permutation is valid
-def checkUsability():
-    temp_t19 = 0
-    temp_t20 = 0
-    temp_t21 = 0
+antorusTrinkets = {154172, 154173, 154174, 154175, 154176, 154177}
 
-    for i in range(len(l_gear)):
-        if l_gear[i][0:3] == "T19":
-            temp_t19 = temp_t19 + 1
-        if l_gear[i][0:3] == "T20":
-            temp_t20 = temp_t20 + 1
-        if l_gear[i][0:3] == "T21":
-            temp_t21 = temp_t21 + 1
-    if temp_t19 < int(t19):
-        return str(temp_t19) + ": too few T19-items"
-    if temp_t20 < int(t20):
-        return str(temp_t20) + ": too few T20-items"
-    if temp_t21 < int(t21):
-        return str(temp_t21) + ": too few T21-items"
-
-    if l_gear[10] == l_gear[11]:
-        return "Same ring"
-    if l_gear[12] == l_gear[13]:
-        return "Same trinket"
-
-    nbLeg = 0
-    for a in range(len(l_gear)):
-        if l_gear[a][0] == "L":
-            nbLeg = nbLeg + 1
-    if nbLeg < legmin:
-        return str(nbLeg) + " leg (too low)"
-    if nbLeg > legmax:
-        return str(nbLeg) + " leg (too much)"
-
-    # check gems
-    # int, str, agi should be only equipped once:
-    nUniqueGems = 0
-    for a in range(len(l_gear)):
-        gems = getGemsFromItem(l_gear[a])
-        if "130246" in gems or "130247" in gems or "130248" in gems:
-            nUniqueGems += 1
-    if nUniqueGems > 1:
-        return str(nUniqueGems) + " too many unique gems (str, agi, int)"
-    return ""
+itemIDsMemoization = {}
 
 
-# Print a simc profile
-def scpout(oh):
-    global c_profileid
-    global i_generatedProfiles
-    result = checkUsability()
-    digits = len(str(c_profilemaxid))
-    mask = '00000000000000000000000000000000000'
-    maskedProfileID = (mask + str(c_profileid))[-digits:]
-    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
-    # computation very much
-    if int(maskedProfileID) % 5000 == 0:
-        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
-            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
-    if int(maskedProfileID) == c_profilemaxid:
-        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
-            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
-    if result != "":
-        printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
+def getIdFromItem(item):
+    # Since items aren't object with an itemID property, we do some memoization here
+    if item in itemIDsMemoization:
+        return itemIDsMemoization[item]
     else:
-        if not b_quiet:
-            print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
-        outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
-        outputFile.write("specialization=" + c_spec + "\n")
-        outputFile.write("race=" + c_race + "\n")
-        outputFile.write("level=" + c_level + "\n")
-        outputFile.write("role=" + c_role + "\n")
-        outputFile.write("position=" + c_position + "\n")
-        outputFile.write("talents=" + c_talents + "\n")
-        outputFile.write("artifact=" + c_artifact + "\n")
-        if c_other != "":
-            outputFile.write(c_other + "\n")
-        if l_gear[0][0] == "L":
-            outputFile.write("head=" + l_gear[0][1:] + "\n")
-        elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20"):
-            outputFile.write("head=" + l_gear[0][3:] + "\n")
-        else:
-            outputFile.write("head=" + l_gear[0] + "\n")
-        outputFile.write("neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
-
-        if l_gear[2][0] == "L":
-            outputFile.write("shoulders=" + l_gear[2][1:] + "\n")
-        elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20"):
-            outputFile.write("shoulders=" + l_gear[2][3:] + "\n")
-        else:
-            outputFile.write("shoulders=" + l_gear[2] + "\n")
-
-        if l_gear[3][0] == "L":
-            outputFile.write("back=" + l_gear[3][1:] + "\n")
-        elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20"):
-            outputFile.write("back=" + l_gear[3][3:] + "\n")
-        else:
-            outputFile.write("back=" + l_gear[3] + "\n")
-
-        if l_gear[4][0] == "L":
-            outputFile.write("chest=" + l_gear[4][1:] + "\n")
-        elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20"):
-            outputFile.write("chest=" + l_gear[4][3:] + "\n")
-        else:
-            outputFile.write("chest=" + l_gear[4] + "\n")
-
-        outputFile.write("wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
-
-        if l_gear[6][0] == "L":
-            outputFile.write("hands=" + l_gear[6][1:] + "\n")
-        elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20"):
-            outputFile.write("hands=" + l_gear[6][3:] + "\n")
-        else:
-            outputFile.write("hands=" + l_gear[6] + "\n")
-
-        outputFile.write("waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
-
-        if l_gear[8][0] == "L":
-            outputFile.write("legs=" + l_gear[8][1:] + "\n")
-        elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20"):
-            outputFile.write("legs=" + l_gear[8][3:] + "\n")
-        else:
-            outputFile.write("legs=" + l_gear[8] + "\n")
-
-        outputFile.write("feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
-        outputFile.write("finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
-        outputFile.write("finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
-        outputFile.write("trinket1=" + (l_gear[12] if l_gear[12][0] != "L" else l_gear[12][1:]) + "\n")
-        outputFile.write("trinket2=" + (l_gear[13] if l_gear[13][0] != "L" else l_gear[13][1:]) + "\n")
-        outputFile.write("main_hand=" + l_gear[14] + "\n")
-        if oh == 1:
-            outputFile.write("off_hand=" + l_gear[15] + "\n\n")
-        else:
-            outputFile.write("\n")
-        i_generatedProfiles += 1
-    c_profileid += 1
-    return ()
+        splits = item.split(",")
+        for s in splits:
+            if s.startswith("id="):
+                itemIDsMemoization[item] = s[3:]
+                return itemIDsMemoization[item]
 
 
-# Print a simc profile
-def scpoutprofileset(oh):
-    global c_profileid
-    global i_generatedProfiles
-    result = checkUsability()
-    digits = len(str(c_profilemaxid))
-    mask = '00000000000000000000000000000000000'
-    maskedProfileID = (mask + str(c_profileid))[-digits:]
-    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
-    # computation very much
-    if int(maskedProfileID) % 5000 == 0:
-        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
-            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
-    if int(maskedProfileID) == c_profilemaxid:
-        print("Processed: " + str(maskedProfileID) + "/" + str(c_profilemaxid) + " (" + str(
-            round(100 * float(int(maskedProfileID) / int(c_profilemaxid)), 1)) + "%)")
-    if result != "":
-        printLog("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid) + ' Warning, not printed:' + result)
-    else:
-        if not b_quiet:
-            print("Profile:" + str(maskedProfileID) + "/" + str(c_profilemaxid))
-        # generate first profile
-        if i_generatedProfiles == 0:
-            outputFile.write(c_class + "=" + c_profilename + "_" + maskedProfileID + "\n")
-            outputFile.write("specialization=" + c_spec + "\n")
-            outputFile.write("race=" + c_race + "\n")
-            outputFile.write("level=" + c_level + "\n")
-            outputFile.write("role=" + c_role + "\n")
-            outputFile.write("position=" + c_position + "\n")
-            outputFile.write("talents=" + c_talents + "\n")
-            outputFile.write("artifact=" + c_artifact + "\n")
-            if c_other != "":
-                outputFile.write(c_other + "\n")
-            if l_gear[0][0] == "L":
-                outputFile.write("head=" + l_gear[0][1:] + "\n")
-            elif (l_gear[0][0:3] == "T19" or l_gear[0][0:3] == "T20" or l_gear[0][0:3] == "T21"):
-                outputFile.write("head=" + l_gear[0][3:] + "\n")
-            else:
-                outputFile.write("head=" + l_gear[0] + "\n")
-            outputFile.write("neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
+def str2bool(v):
+    return v.lower() in ("yes", "true", "t", "1")
 
-            if l_gear[2][0] == "L":
-                outputFile.write("shoulders=" + l_gear[2][1:] + "\n")
-            elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20" or l_gear[2][0:3] == "T21"):
-                outputFile.write("shoulders=" + l_gear[2][3:] + "\n")
-            else:
-                outputFile.write("shoulders=" + l_gear[2] + "\n")
 
-            if l_gear[3][0] == "L":
-                outputFile.write("back=" + l_gear[3][1:] + "\n")
-            elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20" or l_gear[3][0:3] == "T21"):
-                outputFile.write("back=" + l_gear[3][3:] + "\n")
-            else:
-                outputFile.write("back=" + l_gear[3] + "\n")
+def parse_command_line_args():
+    """Parse command line arguments using argparse. Also provides --help functionality, and default values for args"""
 
-            if l_gear[4][0] == "L":
-                outputFile.write("chest=" + l_gear[4][1:] + "\n")
-            elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20" or l_gear[4][0:3] == "T21"):
-                outputFile.write("chest=" + l_gear[4][3:] + "\n")
-            else:
-                outputFile.write("chest=" + l_gear[4] + "\n")
+    parser = argparse.ArgumentParser(prog="AutoSimC",
+                                     description="Python script to create multiple profiles for SimulationCraft to "
+                                     "find Best-in-Slot and best enchants/gems/talents combinations.",
+                                     epilog="Don't hesitate to go on the SimcMinMax Discord "
+                                     "(https://discordapp.com/invite/tFR2uvK) "
+                                     "in the #simpermut-autosimc Channel to ask about specific stuff.",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter  # Show default arguments
+                                     )
 
-            outputFile.write("wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
+    parser.add_argument('-i', '--inputfile',
+                        default=settings.default_inputFileName,
+                        required=False,
+                        help="Inputfile describing the permutation of SimC profiles to generate. See README for more "
+                        "details.")
 
-            if l_gear[6][0] == "L":
-                outputFile.write("hands=" + l_gear[6][1:] + "\n")
-            elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20" or l_gear[6][0:3] == "T21"):
-                outputFile.write("hands=" + l_gear[6][3:] + "\n")
-            else:
-                outputFile.write("hands=" + l_gear[6] + "\n")
+    parser.add_argument('-o', '--outputfile',
+                        default=settings.default_outputFileName,
+                        required=False,
+                        help='Output file containing the generated profiles used for the simulation.')
 
-            outputFile.write("waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
+    parser.add_argument('-sim',
+                        required=False,
+                        nargs="*",
+                        default=[settings.default_sim_start_stage] if settings.default_sim_enabled else None,
+                        choices=['stage1', 'stage2', 'stage3'],
+                        help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
+                        "Might take a long time, depending on number of permutations. "
+                        "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
+                        "will be saved in results-subfolder."
+                        "There are 2 modes available for calculating the possible huge amount of permutations: "
+                        "Static and dynamic mode:"
+                        "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
+                        "100, 1000 and 10000 for each stage."
+                        "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
+                        "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
+                        "target_error=0.2, and 0.05 for the final stage 3."
+                        "(These numbers might be changed in future versions)"
+                        "You have to set the simc path in the settings.py file."
+                        "- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during "
+                        "stage1, by launching with the parameter -sim stage2 (or stage3). You will have to enter the "
+                        "amount of iterations or target_error of the broken simulation-stage. "
+                        "(See logs.txt for details)"
+                        "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
+                        "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
+                        "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
+                        )
 
-            if l_gear[8][0] == "L":
-                outputFile.write("legs=" + l_gear[8][1:] + "\n")
-            elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20" or l_gear[8][0:3] == "T21"):
-                outputFile.write("legs=" + l_gear[8][3:] + "\n")
-            else:
-                outputFile.write("legs=" + l_gear[8] + "\n")
+    parser.add_argument('-quiet', '--quiet',
+                        action='store_true',
+                        default=settings.b_quiet,
+                        help='Option for disabling Console-output. Generates the outputfile much faster for '
+                        'large permuation-size')
 
-            outputFile.write("feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
-            outputFile.write("finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
-            outputFile.write("finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
-            outputFile.write("trinket1=" + (l_gear[12] if l_gear[12][0] != "L" else l_gear[12][1:]) + "\n")
-            outputFile.write("trinket2=" + (l_gear[13] if l_gear[13][0] != "L" else l_gear[13][1:]) + "\n")
-            outputFile.write("main_hand=" + l_gear[14] + "\n")
-            if oh == 1:
-                outputFile.write("off_hand=" + l_gear[15] + "\n\n")
-            else:
-                outputFile.write("\n")
-            i_generatedProfiles += 1
-        # all other profiles
-        else:
-            pset_prefix = "profileset.\"" + c_profilename + "_" + maskedProfileID + "\"+="
-            outputFile.write("talents=" + c_talents + "\n")
-            if c_other != "":
-                outputFile.write(pset_prefix + c_other + "\n")
-            if l_gear[0][0] == "L":
-                outputFile.write(pset_prefix + "head=" + l_gear[0][1:] + "\n")
-            elif (l_gear[0][0:3] == "T19" or l_gear[8][0:3] == "T20" or l_gear[8][0:3] == "T21"):
-                outputFile.write(pset_prefix + "head=" + l_gear[0][3:] + "\n")
-            else:
-                outputFile.write(pset_prefix + "head=" + l_gear[0] + "\n")
-            outputFile.write(pset_prefix + "neck=" + (l_gear[1] if l_gear[1][0] != "L" else l_gear[1][1:]) + "\n")
+    parser.add_argument('-gems', '--gems',
+                        required=False,
+                        help='Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
+                        'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
+                        'greens are not supported) in addition to the ones you have currently equipped.\n'
+                        'Valid gems: {}'
+                        '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
+                        '(without <>) into the commandline, the permutation process uses the single int- '
+                        'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
+                        'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
+                        'commandline reenables that.\n'
+                        '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
+                        'Simpermut usually creates this for you.\n'
+                        '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
+                        'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
+                        'when enabling this.'.format(list(gem_ids.keys())))
 
-            if l_gear[2][0] == "L":
-                outputFile.write(pset_prefix + "shoulders=" + l_gear[2][1:] + "\n")
-            elif (l_gear[2][0:3] == "T19" or l_gear[2][0:3] == "T20" or l_gear[2][0:3] == "T21"):
-                outputFile.write(pset_prefix + "shoulders=" + l_gear[2][3:] + "\n")
-            else:
-                outputFile.write(pset_prefix + "shoulders=" + l_gear[2] + "\n")
+    parser.add_argument('-l', '--legendaries',
+                        required=False,
+                        help='List of legendaries to add to the template. Format:\n'
+                        '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
 
-            if l_gear[3][0] == "L":
-                outputFile.write(pset_prefix + "back=" + l_gear[3][1:] + "\n")
-            elif (l_gear[3][0:3] == "T19" or l_gear[3][0:3] == "T20" or l_gear[3][0:3] == "T21"):
-                outputFile.write(pset_prefix + "back=" + l_gear[3][3:] + "\n")
-            else:
-                outputFile.write(pset_prefix + "back=" + l_gear[3] + "\n")
+    parser.add_argument('-Min_leg', '--legendary_min',
+                        default=settings.default_leg_min,
+                        type=int,
+                        required=False,
+                        help='Minimum number of legendaries in the permutations.')
 
-            if l_gear[4][0] == "L":
-                outputFile.write(pset_prefix + "chest=" + l_gear[4][1:] + "\n")
-            elif (l_gear[4][0:3] == "T19" or l_gear[4][0:3] == "T20" or l_gear[4][0:3] == "T21"):
-                outputFile.write(pset_prefix + "chest=" + l_gear[4][3:] + "\n")
-            else:
-                outputFile.write(pset_prefix + "chest=" + l_gear[4] + "\n")
+    parser.add_argument('-max_leg', '--legendary_max',
+                        default=settings.default_leg_max,
+                        type=int,
+                        required=False,
+                        help='Maximum number of legendaries in the permutations.')
 
-            outputFile.write(pset_prefix + "wrists=" + (l_gear[5] if l_gear[5][0] != "L" else l_gear[5][1:]) + "\n")
+    parser.add_argument('--debug',
+                        action='store_true',
+                        help='Write debug information to log file.')
 
-            if l_gear[6][0] == "L":
-                outputFile.write(pset_prefix + "hands=" + l_gear[6][1:] + "\n")
-            elif (l_gear[6][0:3] == "T19" or l_gear[6][0:3] == "T20" or l_gear[6][0:3] == "T21"):
-                outputFile.write(pset_prefix + "hands=" + l_gear[6][3:] + "\n")
-            else:
-                outputFile.write(pset_prefix + "hands=" + l_gear[6] + "\n")
+    parser.add_argument('--unique_jewelry',
+                        type=str2bool,
+                        default="true",
+                        help='Assume ring and trinkets are unique-equipped, and only a single item id can be equipped.')
 
-            outputFile.write(pset_prefix + "waist=" + (l_gear[7] if l_gear[7][0] != "L" else l_gear[7][1:]) + "\n")
+    parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
 
-            if l_gear[8][0] == "L":
-                outputFile.write(pset_prefix + "legs=" + l_gear[8][1:] + "\n")
-            elif (l_gear[8][0:3] == "T19" or l_gear[8][0:3] == "T20" or l_gear[8][0:3] == "T21"):
-                outputFile.write(pset_prefix + "legs=" + l_gear[8][3:] + "\n")
-            else:
-                outputFile.write(pset_prefix + "legs=" + l_gear[8] + "\n")
-
-            outputFile.write(pset_prefix + "feet=" + (l_gear[9] if l_gear[9][0] != "L" else l_gear[9][1:]) + "\n")
-            outputFile.write(pset_prefix + "finger1=" + (l_gear[10] if l_gear[10][0] != "L" else l_gear[10][1:]) + "\n")
-            outputFile.write(pset_prefix + "finger2=" + (l_gear[11] if l_gear[11][0] != "L" else l_gear[11][1:]) + "\n")
-            outputFile.write(
-                pset_prefix + "trinket1=" + (l_gear[12] if l_gear[12][0] != "L" else l_gear[12][1:]) + "\n")
-            outputFile.write(
-                pset_prefix + "trinket2=" + (l_gear[13] if l_gear[13][0] != "L" else l_gear[13][1:]) + "\n")
-            outputFile.write(pset_prefix + "main_hand=" + l_gear[14] + "\n")
-            if oh == 1:
-                outputFile.write(pset_prefix + "off_hand=" + l_gear[15] + "\n\n")
-            else:
-                outputFile.write("\n")
-            i_generatedProfiles += 1
-
-    c_profileid += 1
-    return ()
+    return parser.parse_args()
 
 
 # Manage command line parameters
 # todo: include logic to split into smaller/larger files (default 50)
 def handleCommandLine():
-    global inputFileName
+    args = parse_command_line_args()
+
+    # For now, just write command line arguments into globals
     global outputFileName
-    global legmin
-    global legmax
-    global b_quiet
     global b_simcraft_enabled
     global s_stage
-    global restart
-    global gemspermutation
+    outputFileName = args.outputfile
 
-    # parameter-list, so they are "protected" if user enters wrong commandline
-    set_parameters = set()
-    set_parameters.add("-i")
-    set_parameters.add("-o")
-    set_parameters.add("-l")
-    set_parameters.add("-quiet")
-    set_parameters.add("-sim")
-    set_parameters.add("-gems")
+    # Sim Argument is either None when not specified, a empty list [] when specified without an argument,
+    # or a list with one
+    # argument, eg. ["stage1"]
+    b_simcraft_enabled = (args.sim is not None)
+    if args.sim is not None and len(args.sim) > 0:
+        s_stage = args.sim[0]
 
-    for a in range(1, len(sys.argv)):
-        if sys.argv[a] == "-i":
-            inputFileName = sys.argv[a + 1]
-            if inputFileName not in set_parameters:
-                if os.path.isfile(inputFileName):
-                    printLog("Input file changed to " + inputFileName)
-                else:
-                    print("Error: Input file does not exist")
-                    sys.exit(1)
-            else:
-                print("Error: No or invalid input file declared: " + inputFileName)
-                sys.exit(1)
-        if sys.argv[a] == "-o":
-            outputFileName = sys.argv[a + 1]
-            if outputFileName not in set_parameters:
-                printLog("Output file changed to " + outputFileName)
-                # if os.path.isfile(outputFileName):
-                #    print("Error: Output file already exists")
-                #    sys.exit(1)
-            else:
-                print("Error: No or invalid output file declared: " + outputFileName)
-                sys.exit(1)
-        if sys.argv[a] == "-l":
-            elements = sys.argv[a + 1].split(',')
-            # produces an error if <-l "" 2:2> was entered, what is the correct syntax?
-            # i handle this in settings.py
-            if elements:
-                handlePermutation(elements)
-            # number of leg
-            if sys.argv[a + 2][0] != "-":
-                legNb = sys.argv[a + 2].split(':')
-                legmin = int(legNb[0])
-                legmax = int(legNb[1])
-                printLog("Set legendary to  " + str(legmin) + "/" + str(legmax))
-        if sys.argv[a] == "-quiet":
-            printLog("Quiet-Mode enabled")
-            b_quiet = 1
-        # if option -sim exists in commandline incl. stage1,2,3, it overwrites all values of settings.py
-        if sys.argv[a] == "-sim":
-            # check path of simc.exe
-            if not os.path.exists(settings.simc_path):
-                printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-                print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-                sys.exit(1)
-            else:
-                printLog("Path to simc.exe valid, proceeding...")
-            print("SimCraft-Mode enabled")
-            printLog("SimCraft-Mode enabled")
-            b_simcraft_enabled = True
-            # optional parameter to skip steps and continue at a certain point without deleting intermediate files:
-            # usage main.py -i ... -o ... -sim [stage1|stage2|stage3]
-            # staging is equivalent to the 3 iteration processes:
-            #   - 1: mass processing with few iterations (default)
-            #   - 2: picking best n and process these
-            #   - 3: picking top n out of these
-            # it is essentially used to skip the most time consuming part, stage 1
-            # to test alterations and different outputs, e.g. using same gear within different scenarios
-            # (standard might be patchwerk, but what happens with this gear- and talentchoice in a helterskelter-szenario?)
-            if sys.argv[a + 1] != s_stage:
-                restart = True
-            else:
-                restart = False
-            s_stage = sys.argv[a + 1]
-            if s_stage in set_parameters:
-                printLog("Wrong parameter for -sim: " + str(s_stage))
-                print("Wrong parameter for ""-sim"" option: " + str(s_stage))
-                sys.exit(1)
-            if not s_stage:
-                printLog("Missing parameter for -sim: " + s_stage)
-                print("Missing parameter for ""-sim"" option: " + str(s_stage))
-                sys.exit(1)
-            if s_stage != "stage1" and s_stage != "stage2" and s_stage != "stage3":
-                printLog("Wrong Parameter for Stage: " + str(s_stage))
-                sys.exit(1)
-        if sys.argv[a] == "-gems":
-            gems = sys.argv[a + 1]
-            if gems not in set_parameters:
-                gemspermutation = True
-                handleGems(gems)
+    # Check simc executable availability. Maybe move to somewhere else.
+    if b_simcraft_enabled:
+        if not os.path.exists(settings.simc_path):
+            printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+            print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
+            sys.exit(1)
+        else:
+            printLog("Path to simc.exe valid, proceeding...")
+
+    return args
 
 
 # returns target_error, iterations, elapsed_time_seconds for a given class_spec
-def get_data(class_spec):
+def get_analyzer_data(class_spec):
     result = []
-    f = open(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename), "r")
-    file = json.load(f)
-    for variant in file[0]:
-        for p in variant["playerdata"]:
-            if p["specialization"] == class_spec:
-                for s in range(len(p["specdata"])):
-                    item = (
-                        variant["target_error"], p["specdata"][s]["iterations"],
-                        p["specdata"][s]["elapsed_time_seconds"])
-                    result.append(item)
+    filename = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
+    with open(filename, "r") as f:
+        file = json.load(f)
+        for variant in file[0]:
+            for p in variant["playerdata"]:
+                if p["specialization"] == class_spec:
+                    for s in range(len(p["specdata"])):
+                        item = (float(variant["target_error"]),
+                                int(p["specdata"][s]["iterations"]),
+                                float(p["specdata"][s]["elapsed_time_seconds"])
+                                )
+                        result.append(item)
     return result
-
-
-def cleanup():
-    printLog("Cleaning up")
-    if not os.path.exists(os.path.join(os.getcwd(), settings.result_subfolder)):
-        printLog("Result-subfolder does not exist: " + str(settings.result_subfolder) + ", creating it")
-        os.makedirs(settings.result_subfolder)
-
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        for root, dirs, files in os.walk(os.path.join(os.getcwd(), settings.subdir3)):
-            for file in files:
-                if file.endswith(".html"):
-                    printLog("Moving file: " + str(file))
-                    shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
-                                os.path.join(os.getcwd(), settings.result_subfolder, file))
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir1)):
-        if input("Do you want to remove subfolder: " + settings.subdir1 + "? (Press y to confirm): ") == "y":
-            printLog("Removing: " + settings.subdir1)
-            shutil.rmtree(settings.subdir1)
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir2)):
-        if input("Do you want to remove subfolder: " + settings.subdir2 + "? (Press y to confirm): ") == "y":
-            shutil.rmtree(settings.subdir2)
-            printLog("Removing: " + settings.subdir2)
-    if os.path.exists(os.path.join(os.getcwd(), settings.subdir3)):
-        if input("Do you want to remove subfolder: " + settings.subdir3 + "? (Press y to confirm): ") == "y":
-            shutil.rmtree(settings.subdir3)
-            printLog("Removing: " + settings.subdir3)
-
 
 def autoDownloadSimc():
     try:
@@ -601,502 +361,719 @@ def autoDownloadSimc():
                 print("Removing old simc:", os.path.basename(f))
                 os.remove(f)
 
-def validateSettings():
+
+def cleanup():
+    printLog("Cleaning up")
+    result_folder = os.path.join(os.getcwd(), settings.result_subfolder)
+    if not os.path.exists(result_folder):
+        logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
+        os.makedirs(result_folder)
+
+    subdir3 = os.path.join(os.getcwd(), settings.subdir3)
+    if os.path.exists(subdir3):
+        for _root, _dirs, files in os.walk(subdir3):
+            for file in files:
+                if file.endswith(".html"):
+                    printLog("Moving file: " + str(file))
+                    shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
+                                os.path.join(os.getcwd(), settings.result_subfolder, file))
+
+    subdir1 = os.path.join(os.getcwd(), settings.subdir1)
+    if os.path.exists(subdir1):
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir1 + "? (Press y to confirm): ") == "y":
+            printLog("Removing: {}".format(subdir1))
+            shutil.rmtree(subdir1)
+
+    subdir2 = os.path.join(os.getcwd(), settings.subdir2)
+    if os.path.exists(subdir2):
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir2 + "? (Press y to confirm): ") == "y":
+            shutil.rmtree(subdir2)
+            printLog("Removing: " + subdir2)
+
+    subdir3 = os.path.join(os.getcwd(), settings.subdir3)
+    if os.path.exists(subdir3):
+        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir3 + "? (Press y to confirm): ") == "y":
+            shutil.rmtree(subdir3)
+            printLog("Removing: " + subdir3)
+
+
+def validateSettings(args):
     # validate amount of legendaries
-    if legmin > legmax or legmax > 2 or legmin > 2 or legmin < 0 or legmax < 0:
-        printLog("Error: Legmin: " + str(legmin) + ", Legmax: " + str(
-            legmax) + ". Please check settings.py for these parameters!")
-        sys.exit(1)
+    if args.legendary_min > args.legendary_max:
+        raise ValueError("Legendary min '{}' > legendary max '{}'".format(args.legendary_min, args.legendary_max))
+    if args.legendary_max > 3:
+        raise ValueError("Legendary Max '{}' too large (>3).".format(args.legendary_max))
+    if args.legendary_min > 3:
+        raise ValueError("Legendary Min '{}' too large (>3).".format(args.legendary_min))
+    if args.legendary_min < 0:
+        raise ValueError("Legendary Min '{}' is negative.".format(args.legendary_min))
+    if args.legendary_max < 0:
+        raise ValueError("Legendary Max '{}' is negative.".format(args.legendary_max))
+
     # validate tier-set
-    if (int(t19) + int(t20) + int(t21) > 6) or t19 < 0 or t19 > 6 or t20 < 0 or t20 > 6 or t21 < 0 or t21 > 6:
-        printLog("Error: Wrong Tier-Set-Combination: T19: " + str(t19) + ", T20: " + str(
-            t20) + ", T21: " + str(t21) +". Please check settings.py for these parameters!")
-        sys.exit(1)
+    min_tier_sets = 0
+    max_tier_sets = 6
+    tier_sets = {"Tier19": (t19min, t19max),
+                 "Tier20": (t20min, t20max),
+                 "Tier21": (t21min, t21max),
+                 }
+
+    total_min = 0
+    for tier_name, (tier_set_min, tier_set_max) in tier_sets.items():
+        if tier_set_min < min_tier_sets:
+            raise ValueError("Invalid tier set minimum ({} < {}) for tier '{}'".
+                             format(tier_set_min, min_tier_sets, tier_name))
+        if tier_set_max > max_tier_sets:
+            raise ValueError("Invalid tier set maximum ({} > {}) for tier '{}'".
+                             format(tier_set_max, max_tier_sets, tier_name))
+        if tier_set_min > tier_set_max:
+            raise ValueError("Tier set min > max ({} > {}) for tier '{}'".format(tier_set_min, tier_set_max, tier_name))
+        total_min += tier_set_min
+
+    if total_min > max_tier_sets:
+        raise ValueError("All tier sets together have too much combined min sets ({}=sum({}) > {}).".
+                         format(total_min, [t[0] for t in tier_sets.values()], max_tier_sets))
+
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
         printLog("Using Safe Mode")
         settings.simc_threads = 1
     if b_simcraft_enabled:
-        if os.path.exists(os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)):
-            printLog("Analyzer-file found")
+        if os.name == "nt":
+            if not settings.simc_path.endswith("simc.exe"):
+                raise RuntimeError("simc.exe wrong or missing in settings.py path-variable, please edit it")
+
+        analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
+        if os.path.exists(analyzer_path):
+            logging.info("Analyzer-file found at '{}'.".format(analyzer_path))
         else:
-            printLog("Analyzer-file not found, make sure you have a complete AutoSimc-Package")
-            sys.exit(1)
+            raise RuntimeError("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.".
+                               format(analyzer_path))
+
     if settings.default_error_rate_multiplier <= 0:
-        printLog("Wrong default_error_rate_multiplier: " + str(settings.default_error_rate_multiplier))
+        raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
+                         format(settings.default_error_rate_multiplier))
 
 
-def generate_checksum_of_permutations():
+def file_checksum(filename):
     hash_md5 = hashlib.sha3_256()
-    with open(settings.default_outputFileName, "rb") as f:
+    with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
-    print(str(hash_md5.hexdigest()))
+    return hash_md5.hexdigest()
 
 
-def get_Possible_Gem_Combinations(numberOfGems):
+def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
+    if numberOfGems <= 0:
+        return []
     printLog("Creating Gem Combinations")
     printLog("Number of Gems: " + str(numberOfGems))
-    l_gems = []
-    # 1 gem
-    if numberOfGems == 1:
-        for r in splitted_gems:
-            l_gems.append(gem_ids.get(r))
-    # 2 gems
-    if numberOfGems == 2:
-        for r in splitted_gems:
-            for s in splitted_gems:
-                if r < s:
-                    l_gems.append(gem_ids.get(r) + "/" + gem_ids.get(s))
-                else:
-                    l_gems.append(gem_ids.get(s) + "/" + gem_ids.get(r))
-    if numberOfGems == 3:
-        for r in splitted_gems:
-            for s in splitted_gems:
-                for t in splitted_gems:
-                    p = [r, s, t]
-                    p.sort()
-                    l_gems.append(gem_ids.get(p[0]) + "/" + gem_ids.get(p[1]) + "/" + gem_ids.get(p[2]))
-    return l_gems
+    combinations = itertools.combinations_with_replacement(gems_to_use, r=numberOfGems)
+    return list(combinations)
+
+
+gemIDsMemoization = {}
 
 
 def getGemsFromItem(item):
-    a = item.split(",")
-    gems = []
-    for i in range(len(a)):
-        # look for gem_id-string in items
-        if a[i].startswith("gem_id"):
-            b, c = a[i].split("=")
-            gems = c.split("/")
-            # up to 3 possible gems
-    return gems
-
-
-# gearlist contains a list of items, as in l_head
-def permutateGemsInSlotGearList(slot_gearlist, slot):
-    printLog("Permutating slot_gearlist: " + str(slot_gearlist))
-    for item in slot_gearlist:
-        printLog(str(item))
+    # Since items aren't object with an itemID property, we do some memoization here
+    if item in gemIDsMemoization:
+        return gemIDsMemoization[item]
+    else:
         a = item.split(",")
         gems = []
         for i in range(len(a)):
             # look for gem_id-string in items
             if a[i].startswith("gem_id"):
-                b, c = a[i].split("=")
+                _b, c = a[i].split("=")
                 gems = c.split("/")
                 # up to 3 possible gems
-        new_gems = get_Possible_Gem_Combinations(len(gems))
-        printLog("New Gems: " + str(new_gems))
-        new_item = ""
-        for n in range(len(a)):
-            if not str(a[n]).startswith("gem") and not a[n] == "":
-                new_item += "," + str(a[n])
-        while new_gems:
-            ins = new_item + ",gem_id=" + new_gems.pop()
-            if slot == 1:
-                if ins not in l_head:
-                    l_head.insert(0, ins)
-            if slot == 2:
-                if ins not in l_neck:
-                    l_neck.insert(0, ins)
-            if slot == 3:
-                if ins not in l_shoulders:
-                    l_shoulders.insert(0, ins)
-            if slot == 4:
-                if ins not in l_chest:
-                    l_chest.insert(0, ins)
-            if slot == 5:
-                if ins not in l_wrists:
-                    l_wrists.insert(0, ins)
-            if slot == 6:
-                if ins not in l_hands:
-                    l_hands.insert(0, ins)
-            if slot == 7:
-                if ins not in l_waist:
-                    l_waist.insert(0, ins)
-            if slot == 8:
-                if ins not in l_legs:
-                    l_legs.insert(0, ins)
-            if slot == 9:
-                if ins not in l_feet:
-                    l_feet.insert(0, ins)
-            if slot == 10:
-                if ins not in l_finger1:
-                    l_finger1.insert(0, ins)
-            if slot == 11:
-                if ins not in l_finger2:
-                    l_finger2.insert(0, ins)
-            if slot == 12:
-                if ins not in l_trinket1:
-                    l_trinket1.insert(0, ins)
-            if slot == 13:
-                if ins not in l_trinket2:
-                    l_trinket2.insert(0, ins)
-            # look for gems-string in items
-            # todo implement
-            if a[i].startswith("gems"):
-                print(str(a[i]))
+        gemIDsMemoization[item] = gems
+        return gems
 
 
-# add gems to the lists
-# current template
-## gems=150crit_150crit_150crit (not implemented yet)
-## shoulder=,id=146666,bonus_id=3459/3530,gem_id=130220/130220/130220
-def permutateGems():
-    printLog("Permutating Gems")
-    permutateGemsInSlotGearList(l_head, 1)
-    permutateGemsInSlotGearList(l_neck, 2)
-    permutateGemsInSlotGearList(l_shoulders, 3)
-    permutateGemsInSlotGearList(l_chest, 4)
-    permutateGemsInSlotGearList(l_wrists, 5)
-    permutateGemsInSlotGearList(l_hands, 6)
-    permutateGemsInSlotGearList(l_waist, 7)
-    permutateGemsInSlotGearList(l_legs, 8)
-    permutateGemsInSlotGearList(l_feet, 9)
-    permutateGemsInSlotGearList(l_finger1, 10)
-    permutateGemsInSlotGearList(l_finger2, 11)
-    permutateGemsInSlotGearList(l_trinket1, 12)
-    permutateGemsInSlotGearList(l_trinket2, 13)
+# gearlist contains a list of items, as in l_head
+def permutate_gems_for_slot(splitted_gems, slot_name, slot_gearlist):
+    logging.debug("Permutating Gems for slot {}".format(slot_name))
+    for item in slot_gearlist.copy():
+        logging.debug("Permutating slot_item: {}".format(item))
+        num_gems = len(item.gem_ids)
+        if num_gems == 0:
+            logging.debug("No gems to permutate")
+            continue
+
+        new_gems = get_Possible_Gem_Combinations(splitted_gems, num_gems)
+        logging.debug("New Gems: {}".format(new_gems))
+        for gems in new_gems:
+            new_item = copy.deepcopy(item)
+            new_item.gem_ids = gems
+            slot_gearlist.append(new_item)
+    logging.debug("Final slot list: {}".format(slot_gearlist))
 
 
-def permutate():
+def permutate_talents(enabled, talents):
+    # First create a list where each entry represents all the talent permutations in that row.
+    talent_combinations = []
+    for i, talent in enumerate(talents[0]):
+        if enabled and settings.permutate_row[i]:
+            # We permutate the talent row, adding ['1', '2', '3'] to that row
+            talent_combinations.append([str(x) for x in range(1, 4)])
+        else:
+            # Do not permutate the talent row, just add the talent from the profile
+            talent_combinations.append([talent])
+    logging.debug("Talent combination input: {}".format(talent_combinations))
+
+    # Use some itertools magic to unpack the product of all talent combinations
+    product = itertools.product(*talent_combinations)
+
+    # Format each permutation back to a nice talent string.
+    permuted_talent_strings = ["".join(s) for s in product]
+    logging.debug("Talent combinations: {}".format(permuted_talent_strings))
+    return permuted_talent_strings
+
+
+def chop_microseconds(delta):
+    """Chop microseconds from a timedelta object"""
+    return delta - datetime.timedelta(microseconds=delta.microseconds)
+
+
+def print_permutation_progress(current, maximum, start_time, max_profile_chars):
+    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
+    # computation very much
+    if current % 50000 == 0 or current == maximum:
+        pct = 100.0 * current / maximum
+        elapsed = datetime.datetime.now() - start_time
+        bandwith = current / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
+        elapsed = chop_microseconds(elapsed)
+        remaining_time = elapsed * (100.0 / pct - 1.0) if current else "nan"
+        if type(remaining_time) is datetime.timedelta:
+            remaining_time = chop_microseconds(remaining_time)
+        logging.info("Processed {}/{} ({:5.2f}%) elapsed_time {} remaining {} bandwith {:.0f}k/s".
+                     format(str(current).rjust(max_profile_chars),
+                            maximum,
+                            pct,
+                            elapsed,
+                            remaining_time,
+                            bandwith))
+
+
+class Profile:
+    """Represent global profile data"""
+    pass
+
+
+class TierCheck:
+
+    def __init__(self, n, minimum, maximum):
+        self.name = "T{}".format(n)
+        self.n = n
+        self.minimum = minimum
+        self.maximum = maximum
+        self.count = 0
+
+
+class PermutationData:
+    """Data for each permutation"""
+
+    def __init__(self, permutations, slot_names, profile, max_profile_chars):
+        self.profile = profile
+        self.max_profile_chars = max_profile_chars
+        permutations = list(itertools.chain(*permutations))
+
+        # Build this dict to get correct slot names for finger1/2. Do not use item.slot in here
+        self.items = {slot_names[i]: item for i, item in enumerate(permutations) if type(item) is Item}
+        self.talents = permutations[slot_names.index("talents")]
+
+        self.count_leg_and_tier()
+        self.not_usable = self.check_usable()
+
+    def count_leg_and_tier(self):
+        self.legendaries = []
+        self.t19 = 0
+        self.t20 = 0
+        self.t21 = 0
+        for item in self.items.values():
+            if item.is_legendary:
+                self.legendaries.append(item)
+                continue
+            if item.tier_19:
+                self.t19 += 1
+            elif item.tier_20:
+                self.t20 += 1
+            elif item.tier_21:
+                self.t21 += 1
+
+    def check_usable(self):
+        """Check if profile is un-usable. Return None if ok, otherwise return reason"""
+        if len(self.legendaries) < self.profile.args.legendary_min:
+            return "too few legendaries {} < {}".format(len(self.legendaries), self.profile.args.legendary_min)
+        if len(self.legendaries) > self.profile.args.legendary_max:
+            return "too many legendaries"
+
+        trinket1itemID = self.items["trinket1"].item_id
+        trinket2itemID = self.items["trinket2"].item_id
+
+        # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
+        # because 3 other legs have been equipped
+        if len(self.legendaries) == 3:
+            if not trinket1itemID == 154172 and not trinket2itemID == 154172:
+                return " 3 legs equipped, but no Amanthul-Trinket found"
+
+        if self.t19 < t19min:
+            return "too few tier 19 items"
+        if self.t19 > t19max:
+            return "too many tier 19 items"
+        if self.t20 < t20min:
+            return "too few tier 20 items"
+        if self.t20 > t20max:
+            return "too many tier 20 items"
+        if self.t21 < t21min:
+            return "too few tier 21 items"
+        if self.t21 > t21max:
+            return "too many tier 21 items"
+
+        return None
+
+    def get_profile_name(self, valid_profile_number):
+        # namingdata contains info for the profile-name
+        namingData = {"Leg0": "None",
+                      "Leg1": "None",
+                      "Leg2": "None",
+                      "T19": "",
+                      "T20": "",
+                      "T21": ""}
+        # if a valid profile was detected, fill namingData; otherwise its pointless
+        for i in range(1, 4):
+            if len(self.legendaries) == i:
+                for j in range(i):
+                    namingData['Leg' + str(j)] = specdata.getAcronymForID(str(self.legendaries[j].item_id))
+
+        for tier in (19, 20, 21):
+            count = getattr(self, "t" + str(tier))
+            tiername = "T" + str(tier)
+            if count:
+                pieces = 0
+                if count >= 2:
+                    pieces = 2
+                if count >= 4:
+                    pieces = 4
+                    namingData[tiername] = "_{}_{}p".format(tiername, pieces)
+
+        # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
+        # scpout later adds a increment for multiple versions of this
+        template = "{Leg0}_{Leg1}_{Leg2}{T19}{T20}{T21}_".\
+            format(**namingData)
+
+        return template + str(valid_profile_number).rjust(self.max_profile_chars, "0")
+
+    def get_profile(self):
+        items = []
+        # Hack for now to get Txx and L strings removed from items
+        for slot, item in self.items.items():
+            items.append(item.output_str(slot))
+        return "\n".join(items)
+
+    def write_to_file(self, filehandler, valid_profile_number):
+        profile_name = self.get_profile_name(valid_profile_number)
+        filehandler.write("{}={}\n".format(self.profile.wow_class, profile_name))
+        filehandler.write(self.profile.general_options)
+        filehandler.write("\ntalents={}\n".format(self.talents))
+        filehandler.write(self.get_profile())
+        filehandler.write("\n\n")
+
+
+def build_profile(args):
     # Read input.txt to init vars
     config = configparser.ConfigParser()
-    config.read(inputFileName, encoding='utf-8-sig')
+
+    # use read_file to get a error when input file is not available
+    with open(args.inputfile, encoding='utf-8-sig') as f:
+        config.read_file(f)
+
     profile = config['Profile']
-    gear = config['Gear']
+
+    if 'class' in profile:
+        raise RuntimeError("You input class format is wrong, please update SimPermut or your input file.")
 
     # Read input.txt
     #   Profile
-    global c_profilename
-    c_profilename = profile['profilename']
-    global c_profileid
-    c_profileid = int(profile['profileid'])
-    global c_class
-    c_class = profile['class']
-    global c_race
-    c_race = profile['race']
-    global c_level
-    c_level = profile['level']
-    global c_spec
-    c_spec = profile['spec']
-    global c_role
-    c_role = profile['role']
-    global c_position
-    c_position = profile['position']
-    global c_talents
-    c_talents = profile['talents']
-    global c_artifact
-    c_artifact = profile['artifact']
-    global c_other
-    c_other = profile['other']
-
-    #   Gear
-    c_head = gear['head']
-    c_neck = gear['neck']
-    if config.has_option('Gear', 'shoulders'):
-        c_shoulders = gear['shoulders']
+    valid_classes = ["priest",
+                     "druid",
+                     "warrior",
+                     "paladin",
+                     "hunter",
+                     "deathknight",
+                     "demonhunter",
+                     "mage",
+                     "monk",
+                     "rogue",
+                     "shaman",
+                     "warlock",
+                     ]
+    for wow_class in valid_classes:
+        if config.has_option('Profile', wow_class):
+            c_class = wow_class
+            c_profilename = profile[wow_class]
+            break
     else:
-        c_shoulders = gear['shoulder']
-    c_back = gear['back']
-    c_chest = gear['chest']
-    if config.has_option('Gear', 'wrists'):
-        c_wrists = gear['wrists']
-    else:
-        c_wrists = gear['wrist']
-    c_hands = gear['hands']
-    c_waist = gear['waist']
-    c_legs = gear['legs']
-    c_feet = gear['feet']
-    c_finger1 = gear['finger1']
-    c_finger2 = gear['finger2']
-    c_trinket1 = gear['trinket1']
-    c_trinket2 = gear['trinket2']
-    c_main_hand = gear['main_hand']
-    if config.has_option('Gear', 'off_hand'):
-        c_off_hand = gear['off_hand']
-    else:
-        c_off_hand = ""
+        raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
+                           format(valid_classes))
+    player_profile = Profile()
+    player_profile.args = args
+    player_profile.config = config
+    player_profile.simc_options = {}
+    player_profile.wow_class = c_class
+    player_profile.profile_name = c_profilename
 
-    # Split vars to lists
-    global l_head
-    l_head = c_head.split('|')
-    global l_neck
-    l_neck = c_neck.split('|')
-    global l_shoulders
-    l_shoulders = c_shoulders.split('|')
-    global l_back
-    l_back = c_back.split('|')
-    global l_chest
-    l_chest = c_chest.split('|')
-    global l_wrists
-    l_wrists = c_wrists.split('|')
-    global l_hands
-    l_hands = c_hands.split('|')
-    global l_waist
-    l_waist = c_waist.split('|')
-    global l_legs
-    l_legs = c_legs.split('|')
-    global l_feet
-    l_feet = c_feet.split('|')
-    global l_finger1
-    l_finger1 = c_finger1.split('|')
-    global l_finger2
-    l_finger2 = c_finger2.split('|')
-    global l_trinket1
-    l_trinket1 = c_trinket1.split('|')
-    global l_trinket2
-    l_trinket2 = c_trinket2.split('|')
-    global l_main_hand
-    l_main_hand = c_main_hand.split('|')
-    global l_off_hand
-    l_off_hand = c_off_hand.split('|')
-    global l_talents
-    l_talents = c_talents.split('|')
+    # Parse general profile options
+    simc_profile_options = ["race",
+                            "level",
+                            "spec",
+                            "role",
+                            "position",
+                            "artifact",
+                            "crucible",
+                            "potion",
+                            "flask",
+                            "food",
+                            "augmentation"]
+    for opt in simc_profile_options:
+        if opt in profile:
+            player_profile.simc_options[opt] = profile[opt]
 
-    # add gem-permutations
-    if gemspermutation:
-        permutateGems()
+    player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
+    player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
 
-    # better handle rings and trinket-combinations
-    # should now be deterministic, previous versions generated a random order and numbering
+    # Build 'general' profile options which do not permutate once into a simc-string
+    logging.info("SimC options: {}".format(player_profile.simc_options))
+    player_profile.general_options = "\n".join(["{}={}".format(key, value) for key, value in
+                                                player_profile.simc_options.items()])
+    logging.debug("Built simc general options string: {}".format(player_profile.general_options))
 
-    for a in l_finger2:
-        if l_finger1.count(a) == 0:
-            l_finger1.append(a)
+    return player_profile
 
-    for b in l_trinket2:
-        if l_trinket1.count(b) == 0:
-            l_trinket1.append(b)
 
-    l_fingers = []
-    l_trinkets = []
+class Item:
+    """WoW Item"""
+    tiers = [19, 20, 21]
 
-    for ring in l_finger1:
-        for ring2 in l_finger1:
-            if ring == ring2:
-                continue
+    def __init__(self, slot, input_string=""):
+        self.slot = slot
+        self.name = ""
+        self.item_id = 0
+        self.bonus_ids = []
+        self.enchant_ids = []
+        self._gem_ids = []
+        self.relic_ids = []
+        self.tier_set = {}
+        self.is_legendary = False
+        if len(input_string):
+            self.parse_input(input_string)
+
+        self._build_output_str()  # Pre-Build output string as good as possible
+
+    @property
+    def gem_ids(self):
+        return self._gem_ids
+
+    @gem_ids.setter
+    def gem_ids(self, value):
+        self._gem_ids = value
+        self._build_output_str()
+
+    def parse_input(self, input_string):
+        parts = input_string.split(",")
+        self.name = parts[0]
+        if self.name.startswith("L"):
+            self.is_legendary = True
+            self.name = self.name[1:]
+
+        for tier in self.tiers:
+            n = "T{}".format(tier)
+            if self.name.startswith(n):
+                setattr(self, "tier_{}".format(tier), True)
+                self.name = self.name[len(n):]
             else:
-                if ring < ring2:
-                    ring_combo = ring + "|" + ring2
-                    if ring_combo not in l_fingers:
-                        l_fingers.append(ring_combo)
-                else:
-                    ring_combo = ring2 + "|" + ring
-                    if ring_combo not in l_fingers:
-                        l_fingers.append(ring_combo)
+                setattr(self, "tier_{}".format(tier), False)
 
-    for trinket in l_trinket1:
-        for trinket2 in l_trinket1:
-            if trinket == trinket2:
-                continue
-            else:
-                if trinket < trinket2:
-                    trinket_combo = trinket + "|" + trinket2
-                    if trinket_combo not in l_trinkets:
-                        l_trinkets.append(trinket_combo)
-                else:
-                    trinket_combo = trinket2 + "|" + trinket
-                    if trinket_combo not in l_trinkets:
-                        l_trinkets.append(trinket_combo)
+        splitted_name = self.name.split("--")
+        if len(splitted_name) > 1:
+            self.name = splitted_name[1]
 
-    # Make permutations
-    global outputFile
-    outputFile = open(outputFileName, 'w')
-    global l_gear
-    l_gear = ["head", "neck", "shoulders", "back", "chest", "wrists", "hands", "waist", "legs", "feet", "finger1",
-              "finger2", "trinket1", "trinket2", "main_hand", "off_hand"]
+        for s in parts[1:]:
+            name, value = s.split("=")
+            if name == "id":
+                self.item_id = int(value)
+            elif name == "bonus_id":
+                self.bonus_ids = [int(v) for v in value.split("/")]
+            elif name == "enchant_id":
+                self.enchant_ids = [int(v) for v in value.split("/")]
+            elif name == "gem_id":
+                self.gem_ids = [int(v) for v in value.split("/")]
+            elif name == "relic_id":
+                self.relic_ids = [v for v in value.split("/")]
 
-    # changed according to merged fields
-    global c_profilemaxid
-    c_profilemaxid = len(l_head) * len(l_neck) * len(l_shoulders) * len(l_back) * len(l_chest) * len(l_wrists) * len(
-        l_hands) * len(l_waist) * len(l_legs) * len(l_feet) * len(l_fingers) * len(l_trinkets) * len(l_main_hand) * len(
-        l_off_hand) * len(l_talents)
+    def _build_output_str(self):
+        # Use external slot name because of permutation reasons with finger1/2
+        self.output_str_tail = "={},id={}".\
+            format(self.name,
+                   self.item_id)
+        if len(self.bonus_ids):
+            self.output_str_tail += ",bonus_id=" + "/".join([str(v) for v in self.bonus_ids])
+        if len(self.enchant_ids):
+            self.output_str_tail += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
+        if len(self.gem_ids):
+            self.output_str_tail += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
+        if len(self.relic_ids):
+            self.output_str_tail += ",relic_id=" + "/".join([str(v) for v in self.relic_ids])
 
-    if not input("About " + str(c_profilemaxid) + " permutations will be generated. They will take approx. " + str(
-            round(c_profilemaxid * 1.05, 2)) + " kB. Press y to continue, Enter to exit: ") == "y":
-        printLog("User exit")
-        sys.exit(0)
+    def output_str(self, slotname):
+        return str(slotname) + self.output_str_tail
 
-    printLog("Starting permutations : " + str(c_profilemaxid))
-    for a in range(len(l_head)):
-        l_gear[0] = l_head[a]
-        for b in range(len(l_neck)):
-            l_gear[1] = l_neck[b]
-            for c in range(len(l_shoulders)):
-                l_gear[2] = l_shoulders[c]
-                for d in range(len(l_back)):
-                    l_gear[3] = l_back[d]
-                    for e in range(len(l_chest)):
-                        l_gear[4] = l_chest[e]
-                        for f in range(len(l_wrists)):
-                            l_gear[5] = l_wrists[f]
-                            for g in range(len(l_hands)):
-                                l_gear[6] = l_hands[g]
-                                for h in range(len(l_waist)):
-                                    l_gear[7] = l_waist[h]
-                                    for i in range(len(l_legs)):
-                                        l_gear[8] = l_legs[i]
-                                        for j in range(len(l_feet)):
-                                            l_gear[9] = l_feet[j]
-                                            # changed according to new concatenated fields
-                                            for k in range(len(l_fingers)):
-                                                fingers = l_fingers[k].split('|')
-                                                l_gear[10] = fingers[0]
-                                                l_gear[11] = fingers[1]
-                                                for l in range(len(l_trinkets)):
-                                                    trinkets = l_trinkets[l].split('|')
-                                                    l_gear[12] = trinkets[0]
-                                                    l_gear[13] = trinkets[1]
-                                                    for m in range(len(l_talents)):
-                                                        c_talents = l_talents[m]
-                                                        if c_off_hand != "":
-                                                            for o in range(len(l_main_hand)):
-                                                                l_gear[14] = l_main_hand[o]
-                                                                for p in range(len(l_off_hand)):
-                                                                    l_gear[15] = l_off_hand[p]
-                                                                    scpout(1)
-                                                        else:
-                                                            for o in range(len(l_main_hand)):
-                                                                l_gear[14] = l_main_hand[o]
-                                                                scpout(0)
+    def __str__(self):
+        return "Item({})".format(self.output_str(self.slot))
 
-    printLog("Ending permutations. Valid: " + str(i_generatedProfiles))
-    print("Generated permutations. Valid: " + str(i_generatedProfiles))
-    outputFile.close()
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        return self.__str__() == other.__str__()
+
+    def __hash__(self):
+        # We are just lazy and use __str__ to avoid all the complexity about having mutable members, etc.
+        return hash(str(self.__dict__))
 
 
-def getClassSpec():
-    b_heal = False
-    b_tank = False
-    if c_class == "deathknight":
-        if c_spec == "frost":
-            class_spec = "Frost Death Knight"
-        elif c_spec == "unholy":
-            class_spec = "Unholy Death Knight"
-        elif c_spec == "blood":
-            class_spec = "Blood Death Knight"
-            b_tank = True
-    elif c_class == "demonhunter":
-        if c_spec == "havoc":
-            class_spec = "Havoc Demon Hunter"
-        elif c_spec == "vengeance":
-            class_spec = "Vengeance Demon Hunter"
-            b_tank = True
-    elif c_class == "druid":
-        if c_spec == "balance":
-            class_spec = "Balance Druid"
-        elif c_spec == "feral":
-            class_spec = "Feral Druid"
-        elif c_spec == "guardian":
-            class_spec = "Guardian Druid"
-            b_tank = True
-        elif c_spec == "restoration":
-            class_spec = "Restoration Druid"
-            b_heal = True
-    elif c_class == "hunter":
-        if c_spec == "beast_mastery":
-            class_spec = "Beast Mastery Hunter"
-        elif c_spec == "survival":
-            class_spec = "Survival Hunter"
-        elif c_spec == "marksmanship":
-            class_spec = "Marksmanship Hunter"
-    elif c_class == "mage":
-        if c_spec == "frost":
-            class_spec = "Frost Mage"
-        elif c_spec == "arcane":
-            class_spec = "Arcane Mage"
-        elif c_spec == "fire":
-            class_spec = "Fire Mage"
-    elif c_class == "priest":
-        if c_spec == "shadow":
-            class_spec = "Shadow Priest"
-        elif c_spec == "diszipline":
-            class_spec = "Diszipline Priest"
-            b_heal = True
-        elif c_spec == "holy":
-            class_spec = "Holy Priest"
-            b_heal = True
-    elif c_class == "paladin":
-        if c_spec == "retribution":
-            class_spec = "Retribution Paladin"
-        elif c_spec == "holy":
-            class_spec = "Holy Paladin"
-            b_heal = True
-        elif c_spec == "protection":
-            class_spec = "Protection Paladin"
-            b_tank = True
-    elif c_class == "monk":
-        if c_spec == "windwalker":
-            class_spec = "Windwalker Monk"
-        elif c_spec == "brewmaster":
-            class_spec = "Brewmaster Monk"
-            b_tank = True
-        elif c_spec == "mistweaver":
-            class_spec = "Mistweaver Monk"
-            b_heal = True
-    elif c_class == "shaman":
-        if c_spec == "enhancement":
-            class_spec = "Enhancement Shaman"
-        elif c_spec == "elemental":
-            class_spec = "Elemental Shaman"
-        elif c_spec == "restoration":
-            class_spec = "Restoration Shaman"
-            b_heal = True
-    elif c_class == "rogue":
-        if c_spec == "subtlety":
-            class_spec = "Subtlety Rogue"
-        elif c_spec == "outlaw":
-            class_spec = "Outlaw Rogue"
-        elif c_spec == "assassination":
-            class_spec = "Assassination Rogue"
-    elif c_class == "warrior":
-        if c_spec == "fury":
-            class_spec = "Fury Warrior"
-        elif c_spec == "arms":
-            class_spec = "Arms Warrior"
-        elif c_spec == "protection":
-            class_spec = "Protection Warrior"
-            b_tank = True
-    elif c_class == "warlock":
-        if c_spec == "affliction":
-            class_spec = "Affliction Warlock"
-        elif c_spec == "demonology":
-            class_spec = "Demonology Warlock"
-        elif c_spec == "destruction":
-            class_spec = "Destruction Warlock"
+def product(*iterables):
+    """
+    Custom product function as a generator, instead of itertools.product
+    This uses way less memory than itertools.product, because it is a generator only yielding a single item at a time.
+    requirement for this is that each iterable can be restarted.
+    Thanks to https://stackoverflow.com/questions/12093364/cartesian-product-of-large-iterators-itertools/12094519#12094519
+    """
+    if len(iterables) == 0:
+        yield ()
     else:
-        printLog("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec))
-        print("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
-        sys.exit(1)
-    printLog("Using class_spec: " + class_spec)
-    if b_tank or b_heal:
-        if input(
-                "You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a profile with your spec (Enter to continue") == "q":
-            printLog("Manually aborting because heal- or tankspec was chosen")
-            sys.exit(0)
-    return class_spec
+        iterables = iterables
+        it = iterables[0]
+        for item in it() if callable(it) else iter(it):
+            for items in product(*iterables[1:]):
+                yield (item,) + items
 
 
-def checkResultFiles(subdir):
-    printLog("Checking Files in subdirectory: " + str(subdir))
-    print("Checking Files in subdirectory: " + str(subdir))
-    if os.path.exists(os.path.join(os.getcwd(), subdir)):
+def stable_unique(seq):
+    """
+    Filter sequence to only contain unique elements, in a stable order
+    Credit to https://stackoverflow.com/a/480227
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
+# todo: add checks for missing headers, prio low
+def permutate(args, player_profile):
+    # Items to parse. First entry is the "correct" name
+    gear_slots = [("head",),
+                  ("neck",),
+                  ("shoulders", "shoulder"),
+                  ("back",),
+                  ("chest",),
+                  ("wrists", "wrist"),
+                  ("hands",),
+                  ("waist",),
+                  ("legs",),
+                  ("feet",),
+                  ("finger", "finger1", "finger2"),
+                  ("trinket", "trinket1", "trinket2",),
+                  ("main_hand",),
+                  ("off_hand",)]
+
+    # Parse gear
+    gear = player_profile.config['Gear']
+    parsed_gear = collections.OrderedDict({})
+    for gear_slot in gear_slots:
+        slot_base_name = gear_slot[0]  # First mentioned "correct" item name
+        parsed_gear[slot_base_name] = []
+        for entry in gear_slot:
+            if entry in gear:
+                for s in gear[entry].split("|"):
+                    parsed_gear[slot_base_name].append(Item(slot_base_name, s))
+        if len(parsed_gear[slot_base_name]) == 0:
+            # We havent found any items for that slot, add empty dummy item
+            parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
+
+    logging.debug("Parsed gear before legendaries: {}".format(parsed_gear))
+
+    # Filter each slot to only have unique items, before doing any gem/legendary permutation.
+    for key, value in parsed_gear.items():
+        parsed_gear[key] = stable_unique(value)
+
+    # Add legendaries
+    if args.legendaries is not None:
+        for legendary in args.legendaries.split(','):
+            add_legendary(legendary.split("/"), parsed_gear)
+
+    logging.info("Parsed gear including legendaries:")
+    for slot, item in parsed_gear.items():
+        logging.info("{:10s}: {}".format(slot, item))
+
+    # This represents a dict of all options which will be permutated fully with itertools.product
+    normal_permutation_options = collections.OrderedDict({})
+
+    # Add talents to permutations
+    l_talents = player_profile.config['Profile'].get("talents", "").split('|')
+    normal_permutation_options["talents"] = permutate_talents(settings.enable_talent_permutation, l_talents)
+
+    # add gem-permutations to gear
+    if args.gems:
+        splitted_gems = build_gem_list(args.gems)
+        for name, gear in parsed_gear.items():
+            permutate_gems_for_slot(splitted_gems, name, gear)
+
+    # Add 'normal' gear to normal permutations, excluding trinket/rings
+    gear_normal = {k: v for k, v in parsed_gear.items() if (not k == "finger" and not k == "trinket")}
+    normal_permutation_options.update(gear_normal)
+
+    # Calculate normal permutations
+    normal_permutations = product(*normal_permutation_options.values())
+    logging.debug("Building permutations matrix finished.")
+
+    special_permutations_config = {"finger": ("finger1", "finger2"),
+                                   "trinket": ("trinket1", "trinket2")
+                                   }
+    special_permutations = {}
+    for name, values in special_permutations_config.items():
+        # Get entries from parsed gear, exclude empty finger/trinket lines
+        entries = [v for k, v in parsed_gear.items() if k.startswith(name)]
+        entries = list(itertools.chain(*entries))
+
+        # Remove empty (id=0) items from trinket/rings, except if there are 0 ring/trinkets specified. Then we need
+        # the single dummy item
+        remove_empty_entries = [item for item in entries if item.item_id != 0]
+        if len(remove_empty_entries):
+            entries = remove_empty_entries
+
+        logging.debug("Input list for special permutation '{}': {}".format(name,
+                                                                           entries))
+        if args.unique_jewelry:
+            # Unique finger/trinkets.
+            permutations = itertools.combinations(entries, len(values))
+        else:
+            permutations = itertools.combinations_with_replacement(entries, len(values))
+        permutations = list(permutations)
+
+        logging.debug("Got {} permutations for {}.".format(len(permutations),
+                                                           name))
+        for p in permutations:
+            logging.debug(p)
+
+        # Remove equal id's
+        if args.unique_jewelry:
+            permutations = [p for p in permutations if p[0].item_id != p[1].item_id]
+            logging.debug("Got {} permutations for {} after id filter.".format(len(permutations),
+                                                                               name))
+            for p in permutations:
+                logging.debug(p)
+        # Make unique
+        permutations = stable_unique(permutations)
+        logging.info("Got {} permutations for {} after unique filter.".format(len(permutations),
+                                                                              name))
+        for p in permutations:
+            logging.debug(p)
+
+        entry_dict = {v: None for v in values}
+        special_permutations[name] = [name, entry_dict, permutations]
+
+    # Exclude antorus trinkets
+    p_trinkets = special_permutations["trinket"][2]
+    p_trinkets = [p for p in p_trinkets if p[0].item_id not in antorusTrinkets or p[1].item_id not in antorusTrinkets]
+    special_permutations["trinket"][2] = p_trinkets
+    logging.info("Got {} permutations for trinkets after Antorus filter.".
+                 format(len(special_permutations["trinket"][2])))
+    for p in special_permutations["trinket"][2]:
+        logging.debug(p)
+
+    # Set up the combined permutation list with normal + special permutations
+    all_permutation_options = [normal_permutations, *[opt for _name, _entries, opt in special_permutations.values()]]
+
+    all_permutations = product(*all_permutation_options)
+    special_names = [list(entries.keys()) for _name, entries, _opt in special_permutations.values()]
+    all_permutation_names = list(itertools.chain(*[list(normal_permutation_options.keys()), *special_names]))
+
+    # Calculate & Display number of permutations
+    max_num_profiles = 1
+    for name, perm in normal_permutation_options.items():
+        max_num_profiles *= len(perm)
+    permutations_product = {"normal gear&talents":  "{} ({})".format(max_num_profiles,
+                                                                     {name: len(items) for name, items in
+                                                                      normal_permutation_options.items()}
+                                                                     )
+                            }
+    for name, _entries, opt in special_permutations.values():
+        max_num_profiles *= len(opt)
+        permutations_product[name] = len(opt)
+    logging.info("Max number of profiles: {}".format(max_num_profiles))
+    logging.info("Number of permutations: {}".format(permutations_product))
+    max_profile_chars = len(str(max_num_profiles))  # String length of max_num_profiles
+
+    # Start the permutation!
+    processed = 0
+    valid_profiles = 0
+    start_time = datetime.datetime.now()
+    unusable_histogram = {}  # Record not usable reasons
+    with open(args.outputfile, 'w') as output_file:
+        for perm in all_permutations:
+            data = PermutationData(perm, all_permutation_names, player_profile, max_profile_chars)
+            if not data.not_usable:
+                data.write_to_file(output_file, valid_profiles)
+                valid_profiles += 1
+            elif args.debug:
+                if data.not_usable not in unusable_histogram:
+                    unusable_histogram[data.not_usable] = 0
+                unusable_histogram[data.not_usable] += 1
+            processed += 1
+            print_permutation_progress(processed, max_num_profiles, start_time, max_profile_chars)
+
+    result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
+        format(valid_profiles,
+               processed,
+               100.0 * valid_profiles / max_num_profiles if max_num_profiles else 0.0)
+    print(result)
+    logging.info(result)
+
+    # Not usable histogram debug output
+    if logger.isEnabledFor(logging.DEBUG):
+        unusable_string = []
+        for key, value in unusable_histogram.items():
+            unusable_string.append("'{}': {} ({:.2f}%)".
+                                   format(key, value, value * 100.0 / max_num_profiles if max_num_profiles else 0.0))
+        logging.debug("Not usable histogram: {}".format(unusable_string))
+
+    # Print checksum so we can check for equality when making changes in the code
+    outfile_checksum = file_checksum(args.outputfile)
+    logging.info("Output file checksum: {}".format(outfile_checksum))
+
+    global i_generatedProfiles
+    i_generatedProfiles = valid_profiles
+
+
+def checkResultFiles(subdir, player_profile, count=2):
+    subdir = os.path.join(os.getcwd(), subdir)
+    printLog("Checking Files in subdirectory: {}".format(subdir))
+    if os.path.exists(subdir):
         empty = 0
         checkedFiles = 0
-        for root, dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
+        for _root, _dirs, files in os.walk(subdir):
             for file in files:
                 checkedFiles += 1
-                if file.endswith(".sim"):
-                    name = file[0:file.find(".")]
-                    if not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result")):
-                        printLog("Result file not found for .sim: " + str(subdir) + "/" + str(file))
-                        empty += 1
-                    elif os.stat(os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
-                        printLog("File is empty: " + str(subdir) + "/" + str(name))
+                if file.endswith(".result"):
+                    filename = os.path.join(subdir, file)
+                    if os.stat(filename).st_size <= 0:
+                        printLog("File is empty: {}".format(file))
                         empty += 1
     else:
-        printLog("Error: Subdir does not exist: " + str(subdir))
+        printLog("Error: Subdir does not exist: {}".format(subdir))
         return False
 
     if checkedFiles == 0:
@@ -1107,135 +1084,131 @@ def checkResultFiles(subdir):
     if empty > 0:
         printLog("Empty files in: " + str(subdir) + " -> " + str(empty))
         print("Warning: Empty files in: " + str(subdir) + " -> " + str(empty))
-        if input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ") == "q":
-            printLog("User exit")
-            sys.exit(0)
-        else:
-            printLog("Resimming files")
-            if splitter.resim(subdir):
+
+        if not settings.skip_questions:
+            q = input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ")
+            if q == "q":
+                printLog("User exit")
+                sys.exit(0)
+
+        printLog(F"Resimming files: Count: {count}")
+        if count > 0:
+            count -= 1
+            if splitter.resim(subdir, player_profile):
                 return checkResultFiles(subdir)
+        else:
+            printLog("Maximum number of retries reached, sth. is wrong; exiting")
+            sys.exit(0)
     else:
         printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
         print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
         return True
 
 
-def static_stage1():
-    printLog("Entering static mode, stage1")
-    # split into chunks of 50
-    splitter.split(outputFileName, settings.splitting_size)
+def static_stage(player_profile, stage):
+    if stage > 3:
+        return
+
+    printLog("\nEntering static mode, STAGE {}.\n".format(stage))
+
+    if stage > 1:
+        if not checkResultFiles(settings_subdir[stage - 1], player_profile):
+            raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
+        splitter.grabBest(settings_n_stage[stage], settings_subdir[stage - 1], settings_subdir[stage], outputFileName)
+    else:
+        # Stage1 splitting
+        splitter.split(outputFileName, settings.splitting_size)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings.subdir1, "iterations=" + str(iterations_firstpart), 1)
-    static_stage2()
+    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]), player_profile, stage - 1)
+    static_stage(player_profile, stage + 1)
 
 
-def static_stage2():
-    printLog("Entering static mode, stage2")
-    if checkResultFiles(settings.subdir1):
-        # now grab the top 100 of these and put the profiles into the 2nd temp_dir
-        splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
-        # where they are simmed again, now with 1000 iterations
-        splitter.sim(settings.subdir2, "iterations=" + str(iterations_secondpart), 1)
-    else:
-        printLog("Error, some result-files are empty in " + str(settings.subdir1))
-        print("Error, some result-files are empty in " + str(settings.subdir1))
-        sys.exit(1)
-    static_stage3()
-
-
-def static_stage3():
-    printLog("Entering static mode, stage3")
-    if checkResultFiles(settings.subdir2):
-        # again, for a third time, get top 3 profiles and put them into subdir3
-        splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
-        # sim them finally with all options enabled; html-output remains in this folder
-        splitter.sim(settings.subdir3, "iterations=" + str(iterations_thirdpart), 2)
-    else:
-        printLog("Error, some result-files are empty in " + str(settings.subdir1))
-        print("Error, some result-files are empty in " + str(settings.subdir1))
-        sys.exit(1)
-    print("Simulation succeed!")
-
-
-def dynamic_stage1():
+def dynamic_stage1(player_profile):
     printLog("Entering dynamic mode, stage1")
-    result_data = get_data(class_spec)
+    result_data = get_analyzer_data(player_profile.class_spec)
     print("Listing options:")
     print("Estimated calculation times based on your data:")
-    print("Class/Spec: " + str(class_spec))
+    print("Class/Spec: " + str(player_profile.class_spec))
     print("Number of permutations to simulate: " + str(i_generatedProfiles))
-    for current in range(len(result_data)):
-        te = result_data[current][0]
-        tp = round(float(result_data[current][2]), 2)
-        est = round(float(result_data[current][2]) * i_generatedProfiles, 0)
-        h = round(est / 3600, 1)
+    for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
+        elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+        estimated_time = elapsed_time * i_generatedProfiles
+        estimated_time = chop_microseconds(estimated_time)
 
-        print("(" + str(current) + "): Target Error: " + str(te) + "%: " + " Time/Profile: " + str(
-            tp) + " sec => Est. calc. time: " + str(est) + " sec (~" + str(h) + " hours)")
+        print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+              format(i,
+                     target_error,
+                     elapsed_time.total_seconds(),
+                     estimated_time)
+              )
 
-    calc_choice = input("Please enter the type of calculation to perform (q to quit):")
-    if calc_choice == "q":
-        printLog("Quitting application")
-        sys.exit(0)
-    if int(calc_choice) < len(result_data) and int(calc_choice) >= 0:
-        printLog("Sim: Chosen Class/Spec: " + str(class_spec))
-        printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
-        printLog("Sim: Chosen calculation:" + str(int(calc_choice)))
+    if settings.skip_questions:
+        calc_choice = settings.auto_dynamic_stage1_target_error_table
+    else:
+        calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
+        if calc_choice == "q":
+            printLog("Quitting application")
+            sys.exit(0)
+    calc_choice = int(calc_choice)
+    if calc_choice >= len(result_data) or calc_choice < 0:
+        raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
+                                                                                    len(result_data) - 1))
+    printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
+    printLog("Sim: Chosen calculation: {}".format(calc_choice))
 
-        te = result_data[int(calc_choice)][0]
-        tp = round(float(result_data[int(calc_choice)][2]), 2)
-        est = round(float(result_data[int(calc_choice)][2]) * i_generatedProfiles, 0)
+    target_error, _iterations, elapsed_time_seconds = result_data[calc_choice]
+    elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+    estimated_time = elapsed_time * i_generatedProfiles
+    estimated_time = chop_microseconds(estimated_time)
 
-        printLog(
-            "Sim: (" + str(calc_choice) + "): Target Error: " + str(te) + "%:" + " Time/Profile: " + str(
-                tp) + " => Est. calc. time: " + str(est) + " sec")
-        time_all = round(est, 0)
-        printLog("Estimated calculation time: " + str(time_all) + "")
-        if time_all > 43200:
-            if input("Warning: This might take a *VERY* long time (>12h) (q to quit, Enter to continue: )") == "q":
-                print("Quitting application")
+    logger.info("Selected: ({:2n}): Target Error: {:.3f}%: Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                format(i,
+                       target_error,
+                       elapsed_time.total_seconds(),
+                       estimated_time))
+    if not settings.skip_questions:
+        if estimated_time.total_seconds() > 43200:  # 12h
+            if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".format(estimated_time)) == "q":
+                printLog("Quitting application")
                 sys.exit(0)
 
-        # split into chunks of n (max 100) to not destroy the hdd
-        # todo: calculate dynamic amount of n
-        splitter.split(outputFileName, settings.splitting_size)
-        splitter.sim(settings.subdir1, "target_error=" + str(te), 1)
+    # split into chunks of n (max 100) to not destroy the hdd
+    # todo: calculate dynamic amount of n
+    splitter.split(outputFileName, settings.splitting_size)
+    splitter.sim(settings.subdir1, "target_error=" + str(target_error), player_profile, 1)
 
-        # if the user chose a target_error which is lower than the default_one for the next step
-        # he is given an option to either skip stage 2 or adjust the target_error
-        if float(te) <= float(settings.default_target_error_stage2):
-            printLog("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
-                settings.default_target_error_stage2) + "\n")
-            print("Warning!\n")
-            print("Target_Error chosen in stage 1: " + str(te) + " <= Default_Target_Error for stage 2: " + str(
-                settings.default_target_error_stage2) + "\n")
-            new_value = input(
-                "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error for stage2 (n)?: ")
-            printLog("User chose: " + str(new_value))
-            if new_value == "q":
-                sys.exit(0)
-            if new_value == "n":
-                target_error_secondpart = input("Enter new target_error (Format: 0.3): ")
-                printLog("User entered target_error_secondpart: " + str(target_error_secondpart))
-                dynamic_stage2(target_error_secondpart, str(te))
-            if new_value == "s":
-                dynamic_stage3(True, settings.default_target_error_stage3, str(te))
-            if new_value == "y":
-                dynamic_stage2(settings.default_target_error_stage2, str(te))
-        else:
-            dynamic_stage2(settings.default_target_error_stage2, str(te))
+    # if the user chose a target_error which is lower than the default_one for the next step
+    # he is given an option to either skip stage 2 or adjust the target_error
+    stage2_target_error = float(settings.default_target_error_stage2)
+    if target_error <= stage2_target_error:
+        print("Warning Target_Error chosen in stage 1: {} <= Default_Target_Error for stage 2: {}".
+              format(target_error, stage2_target_error))
+        new_value = input(
+            "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error"
+            " for stage2 (n)?: ")
+        printLog("User chose: " + str(new_value))
+        if new_value == "q":
+            printLog("Quitting application")
+            sys.exit(0)
+        if new_value == "n":
+            stage2_target_error = float(input("Enter new target_error (Format: 0.3): "))
+            printLog("User entered target_error_secondpart: " + str(stage2_target_error))
+        if new_value == "s":
+            dynamic_stage3(True, settings.default_target_error_stage3, target_error, player_profile)
+            return
+    dynamic_stage2(stage2_target_error, target_error, player_profile)
 
 
-def dynamic_stage2(targeterror, targeterrorstage1):
+def dynamic_stage2(targeterror, targeterrorstage1, player_profile):
     printLog("Entering dynamic mode, stage2")
-    checkResultFiles(settings.subdir1)
+    checkResultFiles(settings.subdir1, player_profile)
     if settings.default_use_alternate_grabbing_method:
         splitter.grabBestAlternate(targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
     else:
         # grabbing top 100 files
         splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
     # where they are simmed again, now with higher quality
-    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), 1)
+    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), player_profile, 1)
     # if the user chose a target_error which is lower than the default_one for the next step
     # he is given an option to either skip stage 2 or adjust the target_error
     if float(target_error_secondpart) <= float(settings.default_target_error_stage3):
@@ -1254,20 +1227,20 @@ def dynamic_stage2(targeterror, targeterrorstage1):
         if new_value == "n":
             target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
             printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
-            dynamic_stage3(False, target_error_thirdpart, targeterror)
+            dynamic_stage3(False, target_error_thirdpart, targeterror, player_profile)
         if new_value == "y":
-            dynamic_stage3(False, settings.default_target_error_stage3, targeterror)
+            dynamic_stage3(False, settings.default_target_error_stage3, targeterror, player_profile)
     else:
-        dynamic_stage3(False, settings.default_target_error_stage3, targeterror)
+        dynamic_stage3(False, settings.default_target_error_stage3, targeterror, player_profile)
 
 
-def dynamic_stage3(skipped, targeterror, targeterrorstage2):
+def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
     printLog("Entering dynamic mode, stage3")
     ok = False
     if skipped:
-        ok = checkResultFiles(settings.subdir1)
+        ok = checkResultFiles(settings.subdir1, player_profile)
     else:
-        ok = checkResultFiles(settings.subdir2)
+        ok = checkResultFiles(settings.subdir2, player_profile)
     if ok:
         printLog(".result-files ok, proceeding")
         # again, for a third time, get top 3 profiles and put them into subdir3
@@ -1282,12 +1255,12 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2):
             else:
                 splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
-        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), 2)
+        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), player_profile, 2)
     else:
         printLog("No valid .result-files found for stage3!")
 
 
-def stage1():
+def stage1(player_profile):
     printLog("Entering Stage1")
     print("You have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
@@ -1299,102 +1272,165 @@ def stage1():
         "   It uses the chosen target_error for the first part; in stage2 error lowers to " + str(
             target_error_secondpart) + " and " + str(
             target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
-    sim_mode = input("Please choose your mode (Enter to exit): ")
+    if settings.skip_questions:
+        sim_mode = str(settings.auto_choose_static_or_dynamic)
+    else:
+        sim_mode = input("Please choose your mode (Enter to exit): ")
     if sim_mode == "1":
-        static_stage1()
+        static_stage(player_profile, 1)
     elif sim_mode == "2":
-        dynamic_stage1()
+        dynamic_stage1(player_profile)
     else:
-        printLog("Error, wrong mode")
-
-
-def stage2_restart():
-    printLog("Restarting at Stage2")
-    print("Restarting at Stage2")
-    if not checkResultFiles(settings.subdir1):
-        printLog("Error restarting at subdir: " + str(settings.subdir1))
-        print("Error restarting at subdir: " + str(settings.subdir1))
-    mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
-    if mode_choice == "1":
-        static_stage2()
-    elif mode_choice == "2":
-        new_te = input("Which target_error do you want to use for stage2: (Press enter for default: " + str(
-            target_error_secondpart) + "):")
-        if str(new_te) != str(target_error_secondpart) and splitter.user_targeterror != "0.0":
-            dynamic_stage2(new_te, splitter.user_targeterror)
-        else:
-            dynamic_stage2(target_error_secondpart, splitter.user_targeterror)
-    else:
-        printLog("Error, wrong mode")
-
-
-def stage3_restart():
-    printLog("Restarting at Stage3")
-    print("Restarting at Stage3")
-    if not checkResultFiles(settings.subdir2):
-        printLog("Error restarting, some .result-files are empty in " + str(settings.subdir2))
-        print("Error restarting at subdir: " + str(settings.subdir1))
-    mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
-    if mode_choice == "1":
-        static_stage3()
-    elif mode_choice == "2":
-        if input("Did you skip stage 2? (y,n)") == "y":
-            skip = True
-        else:
-            skip = False
-        new_te = input("Which target_error do you want to use for stage3: (Press enter for default: " + str(
-            target_error_thirdpart) + "):")
-        if str(new_te) != str(target_error_thirdpart) and splitter.user_targeterror != "0.0":
-            dynamic_stage3(skip, new_te, splitter.user_targeterror)
-        else:
-            dynamic_stage3(skip, target_error_thirdpart, splitter.user_targeterror)
-    else:
-        printLog("Error, wrong mode")
-
-
-#########################
-#### Program Start ######
-#########################
-sys.stderr = open(errorFileName, 'w')
-logFile = open(logFileName, 'w')
-autoDownloadSimc()
-handleCommandLine()
-validateSettings()
-# can always be rerun since it is now deterministic
-permutate()
-
-if i_generatedProfiles > 50000:
-    if input(
-            "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles! <----- (Press Enter to continue, q to quit)") == "q":
-        printLog("Program exit by user")
+        print("Error, wrong mode: Stage1")
+        printLog("Error, wrong mode: Stage1")
         sys.exit(0)
 
-if i_generatedProfiles == 0:
-    print("No valid combinations found. Please check settings.py and your simpermut-export.")
-    sys.exit(1)
 
-if b_simcraft_enabled:
-    class_spec = getClassSpec()
-
-    if s_stage == "":
-        s_stage = settings.default_sim_start_stage
-
-    if s_stage == "stage1":
-        stage1()
-    if s_stage == "stage2":
-        if restart:
-            if input("Do you want to restart stage 2?: (Enter to proceed, q to quit): ") == "q":
-                printLog("Restart aborted by user")
+def stage_restart(player_profile, stage):
+    if stage > 3 or stage < 1:
+        raise ValueError("No stage {} available to restart.".format(stage))
+    logging.info("\nRestarting STAGE{}".format(stage))
+    if not checkResultFiles(settings_subdir[stage - 1], player_profile):
+        raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".
+                           format(stage, settings_subdir[stage - 1]))
+    if settings.skip_questions:
+        mode_choice = str(settings.auto_choose_static_or_dynamic)
+    else:
+        mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
+        mode_choice = int(mode_choice)
+    valid_modes = [1, 2]
+    if mode_choice not in valid_modes:
+        raise RuntimeError("Invalid mode '{}' selected. Valid modes: {}.".format(mode_choice,
+                                                                                 valid_modes))
+    if mode_choice == 1:
+        static_stage(player_profile, stage)
+    elif mode_choice == 2:
+        if stage == 3:
+            if input("Did you skip stage 2? (y,n)") == "y":
+                skip = True
             else:
-                stage2_restart()
-    if s_stage == "stage3":
-        if input("Do you want to restart stage 3?: (Enter to proceed, q to quit): ") == "q":
-            printLog("Restart aborted by user")
+                skip = False
+        new_te = settings_target_error[stage]
+        if not settings.skip_questions:
+            user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
+                                                                                                      new_te))
+            if len(user_te):
+                new_te = float(user_te)
+            logging.info("User selected target_error={} for stage{}.".format(new_te, stage))
+        if stage == 2:
+            dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
+        elif stage == 3:
+            dynamic_stage3(skip, new_te, splitter.user_targeterror, player_profile)
+
+
+def check_interpreter():
+    """Check interpreter for minimum requirements."""
+    # Does not really work in practice, since formatted string literals (3.6) lead to SyntaxError prior to execution of
+    # the program with older interpreters.
+    required_major, required_minor = (3, 6)
+    major, minor, _micro, _releaselevel, _serial = sys.version_info
+    if major > required_major:
+        return
+    elif major == required_major:
+        if minor >= required_minor:
+            return
+    raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
+                       "Python-Version {}.{}.x".format(sys.version,
+                                                       required_major,
+                                                       required_minor))
+
+########################
+#     Program Start    #
+########################
+
+
+def main():
+    global s_stage
+    global b_simcraft_enabled
+    global class_spec
+
+    error_handler = logging.FileHandler(errorFileName)
+    error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
+
+    # Handler to log messages to file
+    log_handler = logging.FileHandler(logFileName)
+    log_handler.setLevel(logging.INFO)
+    log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
+
+    # Handler for loging to stdout
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.INFO)
+    stdout_handler.setFormatter(logging.Formatter("%(message)s"))
+
+    logging.basicConfig(level=logging.DEBUG, handlers=[error_handler,
+                                                       log_handler,
+                                                       stdout_handler])
+
+    # check version of python-interpreter running the script
+    check_interpreter()
+
+    args = handleCommandLine()
+    if args.quiet:
+        stdout_handler.setLevel(logging.WARNING)
+    if args.debug:
+        log_handler.setLevel(logging.DEBUG)
+        stdout_handler.setLevel(logging.DEBUG)
+    logging.debug("Parsed command line arguments: {}".format(args))
+    validateSettings(args)
+
+    player_profile = build_profile(args)
+
+    print("Combinations in progress...")
+    
+    autoDownloadSimc()
+
+    # can always be rerun since it is now deterministic
+    if s_stage == "stage1" or s_stage == "":
+        start = datetime.datetime.now()
+        permutate(args, player_profile)
+        logging.info("Permutating took {}.".format(datetime.datetime.now() - start))
+        outputGenerated = True
+    else:
+        if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
+            permutate(args, player_profile)
+            outputGenerated = True
         else:
-            stage3_restart()
+            outputGenerated = False
 
-if settings.clean_up_after_step3:
-    cleanup()
-logFile.close()
+    if outputGenerated:
+        if i_generatedProfiles == 0:
+            raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
 
-# generate_checksum_of_permutations()
+    if b_simcraft_enabled:
+        if not settings.skip_questions:
+            if i_generatedProfiles > 50000:
+                if input(
+                        "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                        " <----- (Press Enter to continue, q to quit)") == "q":
+                    logging.info("Program exit by user")
+                    sys.exit(0)
+
+        print("Simulation in progress...")
+        if s_stage == "":
+            s_stage = settings.default_sim_start_stage
+
+        if s_stage == "stage1":
+            stage1(player_profile)
+        if s_stage == "stage2":
+            stage_restart(player_profile, 2)
+        if s_stage == "stage3":
+            stage_restart(player_profile, 3)
+
+    if settings.clean_up_after_step3:
+        cleanup()
+    print("Finished.")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+        logging.shutdown()
+    except Exception as e:
+        logging.error("Error: {}".format(e), exc_info=True)
+        sys.exit(1)
