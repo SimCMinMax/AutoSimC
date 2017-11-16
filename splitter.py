@@ -351,133 +351,6 @@ def resim(subdir, player_profile):
         return True
     return False
 
-
-# determine best n dps-simulations and grabs their profiles for further simming
-# count: number of top n dps-simulations
-# source_subdir: directory of .result-files
-# target_subdir: directory to store the resulting .sim-file
-# origin: path to the originally in autosimc generated output-file containing all valid profiles
-def grabBest(count, source_subdir, target_subdir, origin):
-    print("Grabbest:")
-    print("Variables: Top n: " + str(count))
-    print("Variables: source_subdir: " + str(source_subdir))
-    print("Variables: target_subdir: " + str(target_subdir))
-    print("Variables: origin: " + str(origin))
-
-    user_class = ""
-
-    best = {}
-    for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), source_subdir)):
-        for file in files:
-            # print("Grabbest -> file: " + str(file))
-            if file.endswith(".result"):
-                if os.stat(os.path.join(os.getcwd(), source_subdir, file)).st_size > 0:
-                    src = open(os.path.join(os.getcwd(), source_subdir, file), encoding='utf-8', mode="r")
-                    for line in src.readlines():
-                        line = line.lstrip().rstrip()
-                        if not line:
-                            continue
-                        if line.rstrip().startswith("Raid"):
-                            continue
-                        if line.rstrip().startswith("raid_event"):
-                            continue
-                        if line.rstrip().startswith("HPS"):
-                            continue
-                        if line.rstrip().startswith("DPS"):
-                            continue
-                        # here parsing stops, because its useless profile-junk
-                        if line.rstrip().startswith("DPS:"):
-                            break
-                        if line.rstrip().endswith("Raid"):
-                            continue
-                        # just get user_class from player_info, very dirty
-                        if line.rstrip().startswith("Player"):
-                            q, w, e, r, t, z = line.split()
-                            user_class = r
-                            break
-                        # dps, percentage, profilename
-                        a, _b, c = line.lstrip().rstrip().split()
-                        # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
-                        # put dps as key and profilename as value into dictionary
-                        # dps might be equal for 2 profiles, but should very rarely happen
-                        # could lead to a problem with very minor dps due to variance,
-                        # but seeing dps going into millions nowadays equal dps should not pose to be a problem at all
-                        best[a] = c
-                    src.close()
-                else:
-                    print("Error: .result-file in: " + str(source_subdir) + " is empty, exiting")
-                    sys.exit(1)
-
-    # put best dps into a list, descending order
-    sortedlist = []
-    for entry in best.keys():
-        sortedlist.append(int(entry))
-    sortedlist.sort()
-    sortedlist.reverse()
-    # print(str(sortedlist))
-
-    # trim list to desired number
-    while len(sortedlist) > count:
-        sortedlist.pop()
-
-    # print("Sortedlist: "+str(sortedlist))
-    # and finally generate a second list with the corresponding profile-names
-    sortednames = []
-    while len(sortedlist) > 0:
-        sortednames.append(best.get(str(sortedlist.pop())))
-    # print("Sortednames: "+str(sortednames))
-
-    bestprofiles = []
-    # print(str(bestprofiles))
-
-    subfolder = os.path.join(os.getcwd(), target_subdir)
-    purge_subfolder(subfolder)
-    filenumber = 1
-
-    # now parse our "database" and extract the profiles of our top n
-    source = open(origin, "r")
-    lines = source.readlines()
-    lines_iter = iter(lines)
-
-    for line in lines_iter:
-        line = line.lstrip().rstrip()
-        if not line:
-            continue
-
-        currentbestprofile = ""
-
-        if line.startswith(user_class + "="):
-            _classname, profilename = line.split("=")
-            if profilename in sortednames:
-                currentbestprofile += line + "\n"
-                line = next(lines_iter)
-                while not line.startswith(user_class + "="):
-                    try:
-                        currentbestprofile += line
-                        line = next(lines_iter)
-                    except StopIteration:
-                        break
-                bestprofiles.append(currentbestprofile)
-        if target_subdir == settings.subdir2:
-            amount = settings.number_of_instances if settings.multi_sim_enabled else settings.splitting_size
-        else:
-            amount = settings.splitting_size
-        if len(bestprofiles) > amount:
-            with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
-                for line in bestprofiles:
-                    out.write(line)
-                filenumber += 1
-            bestprofiles.clear()
-
-    logging.info("Got {} best profiles.".format(len(bestprofiles)))
-    if len(bestprofiles) > 0:
-        with open(os.path.join(os.getcwd(), target_subdir, "best" + str(filenumber) + ".sim"), "w") as out:
-            for line in bestprofiles:
-                out.write(line)
-
-    source.close()
-
-
 def dump_profiles_to_file(filename, profiles):
     logging.debug("Writing {} profiles to file {}.".format(len(profiles), filename))
     with open(filename, "w") as out:
@@ -500,14 +373,36 @@ def parse_profiles_from_file(fd, user_class):
         yield current_profile
 
 
+def filter_by_length(dps_results, n):
+    """
+    filter dps list to only contain n results
+    dps_results is a pre-sorted list (dps, name) in descending order
+    """
+    return dps_results[:n]
+
+
+def filter_by_target_error(dps_results, target_error):
+    """
+    remove all profiles not within the errorrange of the best player
+    dps_results is a pre-sorted list (dps, name) in descending order
+    """
+    if len(dps_results) > 2:
+        dps_best_player = dps_results[0][0]
+        dps_min = dps_best_player * (1.0 - (settings.default_error_rate_multiplier * target_error) / 100.0)
+        logging.debug("Filtering out all players below dps_min={}".format(dps_min))
+        dps_results = [e for e in dps_results if e[0] >= dps_min]
+    return dps_results
+
+
 # determine best n dps-simulations and grabs their profiles for further simming
 # targeterror: the span which removes all profile-dps not fulfilling it (see settings.py)
 # source_subdir: directory of .result-files
 # target_subdir: directory to store the resulting .sim-file
 # origin: path to the originally in autosimc generated output-file containing all valid profiles
-def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
+def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin):
     print("Grabbest:")
-    print("Variables: targeterror: " + str(targeterror))
+    print("Variables: filter by: " + str(filter_by))
+    print("Variables: filter_criterium: " + str(filter_criterium))
     print("Variables: target_subdir: " + str(target_subdir))
     print("Variables: origin: " + str(origin))
 
@@ -563,12 +458,12 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     for dps, name in best:
         logging.debug("{}: {}".format(dps, name))
 
-    # remove all profiles not within the errorrange
-    if len(best) > 2:
-        dps_best_player = best[0][0]
-        dps_min = dps_best_player * (1.0 - (settings.default_error_rate_multiplier * targeterror) / 100.0)
-        logging.debug("Filtering out all players below dps_min={}".format(dps_min))
-        best = [e for e in best if e[0] >= dps_min]
+    if filter_by == "target_error":
+        best = filter_by_target_error(best, filter_criterium)
+    elif filter_by == "count":
+        best = filter_by_length(best, filter_criterium)
+    else:
+        raise ValueError("Invalid filter")
 
     logging.debug("Filtered dps results len={}".format(len(best)))
     for dps, name in best:

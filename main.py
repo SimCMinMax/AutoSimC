@@ -1147,7 +1147,8 @@ def static_stage(player_profile, stage):
     if stage > 1:
         if not checkResultFiles(settings_subdir[stage - 1], player_profile):
             raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
-        splitter.grabBest(settings_n_stage[stage], settings_subdir[stage - 1], settings_subdir[stage], outputFileName)
+        splitter.grab_best("count", settings_n_stage[stage], settings_subdir[stage - 1],
+                           settings_subdir[stage], outputFileName)
     else:
         # Stage1 splitting
         splitter.split(outputFileName, settings.splitting_size)
@@ -1236,10 +1237,10 @@ def dynamic_stage2(targeterror, targeterrorstage1, player_profile):
     printLog("Entering dynamic mode, stage2")
     checkResultFiles(settings.subdir1, player_profile)
     if settings.default_use_alternate_grabbing_method:
-        splitter.grabBestAlternate(targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
+        splitter.grab_best("target_error", targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
     else:
         # grabbing top 100 files
-        splitter.grabBest(settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
+        splitter.grab_best("count", settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
     # where they are simmed again, now with higher quality
     splitter.sim(settings.subdir2, "target_error=" + str(targeterror), player_profile, 1)
     # if the user chose a target_error which is lower than the default_one for the next step
@@ -1279,14 +1280,14 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
         # again, for a third time, get top 3 profiles and put them into subdir3
         if skipped:
             if settings.default_use_alternate_grabbing_method:
-                splitter.grabBestAlternate(targeterrorstage2, settings.subdir1, settings.subdir3, outputFileName)
+                splitter.grab_best("target_error", targeterrorstage2, settings.subdir1, settings.subdir3, outputFileName)
             else:
-                splitter.grabBest(settings.default_top_n_stage3, settings.subdir1, settings.subdir3, outputFileName)
+                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir1, settings.subdir3, outputFileName)
         else:
             if settings.default_use_alternate_grabbing_method:
-                splitter.grabBestAlternate(targeterrorstage2, settings.subdir2, settings.subdir3, outputFileName)
+                splitter.grab_best("target_error", targeterrorstage2, settings.subdir2, settings.subdir3, outputFileName)
             else:
-                splitter.grabBest(settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
+                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
         splitter.sim(settings.subdir3, "target_error=" + str(targeterror), player_profile, 2)
     else:
