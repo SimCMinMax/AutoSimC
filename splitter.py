@@ -9,6 +9,7 @@ import concurrent.futures
 import collections
 
 from settings import settings
+from tkinter.constants import CURRENT
 
 # change path accordingly to your location
 # don´t forget to add double-backslash for subdirs, as shown below
@@ -176,6 +177,26 @@ def processMultiSimcCommands(commands):
         executor.shutdown(wait=False)
 
 
+
+# chooses settings and multi- or singlemode smartly
+def sim(subdir, simtype, player_profile, command=1):
+    subdir = os.path.join(os.getcwd(), subdir)
+    files = os.listdir(subdir)
+    files = [f for f in files if not f.endswith(".result")]
+    files = [os.path.join(subdir, f) for f in files]
+
+    start = datetime.datetime.now()
+    if settings.multi_sim_enabled:
+        if len(files) > 1:
+            multisim(files, player_profile, simtype, command)
+        else:
+            singlesim(files, player_profile, simtype, command)
+    else:
+        singlesim(files, player_profile, simtype, command)
+    end = datetime.datetime.now()
+    logging.info("Simulation took {}.".format(end-start))
+
+
 def multisim(files_to_sim, player_profile, simtype, command):
     output_time = str(datetime.datetime.now().year) + "-" + str(datetime.datetime.now().month) + "-" + str(
         datetime.datetime.now().day) + "-" + str(datetime.datetime.now().hour) + "-" + str(
@@ -205,26 +226,6 @@ def multisim(files_to_sim, player_profile, simtype, command):
                                       player_profile)
             commands.append(cmd)
     processMultiSimcCommands(commands)
-
-
-# chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, player_profile, command=1):
-    subdir = os.path.join(os.getcwd(), subdir)
-    files = os.listdir(subdir)
-    files = [f for f in files if not f.endswith(".result")]
-    files = [os.path.join(subdir, f) for f in files]
-
-    start = datetime.datetime.now()
-    if settings.multi_sim_enabled:
-        if len(files) > 1:
-            multisim(files, player_profile, simtype, command)
-        else:
-            singlesim(files, player_profile, simtype, command)
-    else:
-        singlesim(files, player_profile, simtype, command)
-    end = datetime.datetime.now()
-    logging.info("Simulation took {}.".format(end-start))
-
 
 # Calls simcraft to simulate all .sim-files in a subdir
 # simtype: 'iterations=n' or 'target_error=n'
@@ -484,6 +485,21 @@ def dump_profiles_to_file(filename, profiles):
             out.write(line)
 
 
+def parse_profiles_from_file(fd, user_class):
+    """Parse a simc file, and yield each player entry (between two class=name lines)"""
+    current_profile = []
+    for line in fd:
+        line = line.rstrip()  # Remove trailing \n
+        if line.startswith(user_class + "="):
+            if len(current_profile):
+                yield current_profile
+                current_profile = []
+        current_profile.append(line)
+    # Add tail
+    if len(current_profile):
+        yield current_profile
+
+
 # determine best n dps-simulations and grabs their profiles for further simming
 # targeterror: the span which removes all profile-dps not fulfilling it (see settings.py)
 # source_subdir: directory of .result-files
@@ -543,7 +559,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
 
     # sort best dps, descending order
     best = list(reversed(sorted(best, key=lambda entry: entry[0])))
-    logging.debug("Result from parsing dps")
+    logging.debug("Result from parsing dps len={}".format(len(best)))
     for dps, name in best:
         logging.debug("{}: {}".format(dps, name))
 
@@ -554,7 +570,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
         logging.debug("Filtering out all players below dps_min={}".format(dps_min))
         best = [e for e in best if e[0] >= dps_min]
 
-    logging.debug("Filtered dps results")
+    logging.debug("Filtered dps results len={}".format(len(best)))
     for dps, name in best:
         logging.debug("{}: {}".format(dps, name))
 
@@ -568,7 +584,7 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     # Determine chunk length we want to split the profiles
     if target_subdir == settings.subdir2:
         if settings.multi_sim_enabled:
-            chunk_length = int(len(sortednames) // settings.number_of_instances)
+            chunk_length = int(len(sortednames) // settings.number_of_instances)+1
     else:
         chunk_length = settings.splitting_size
     if chunk_length < 1:
@@ -578,37 +594,24 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     logging.debug("Chunk length: {}".format(chunk_length))
 
     # now parse our "database" and extract the profiles of our top n
+    logging.debug("Getting sim input from file {}.".format(origin))
     with open(origin, "r") as source:
-        lines_iter = iter(source)
         subfolder = os.path.join(os.getcwd(), target_subdir)
         purge_subfolder(subfolder)
+        for profile in parse_profiles_from_file(source, user_class):
+            _classname, profilename = profile[0].split("=")
+            if profilename in sortednames:
+                profile.append("")  # Add tailing empty line
+                bestprofiles.append("\n".join(profile))
+                num_profiles += 1
+                logging.debug("Added {} to best list.".format(profilename))
+                # If we reached chunk length, dump collected profiles and reset, so we do not store everything in memory
+                if len(bestprofiles) >= chunk_length:
+                    outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
+                    dump_profiles_to_file(outfile, bestprofiles)
+                    bestprofiles.clear()
+                    outfile_count += 1
 
-        for line in lines_iter:
-            line = line.lstrip().rstrip()
-            if not line:
-                continue
-
-            currentbestprofile = ""
-
-            if line.startswith(user_class + "="):
-                _classname, profilename = line.split("=")
-                if profilename in sortednames:
-                    currentbestprofile += line + "\n"
-                    line = next(lines_iter)
-                    while not line.startswith(user_class + "="):
-                        try:
-                            currentbestprofile += line
-                            line = next(lines_iter)
-                        except StopIteration:
-                            break
-                    bestprofiles.append(currentbestprofile)
-                    num_profiles += 1
-                    # If we reached chunk length, dump collected profiles and reset, so we do not store everything in memory
-                    if len(bestprofiles) >= chunk_length:
-                        outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
-                        dump_profiles_to_file(outfile, bestprofiles)
-                        bestprofiles.clear()
-                        outfile_count += 1
     # Write tail
     if len(bestprofiles):
         outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
