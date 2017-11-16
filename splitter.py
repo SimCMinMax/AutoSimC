@@ -6,10 +6,8 @@ import time
 import datetime
 import logging
 import concurrent.futures
-import collections
 
 from settings import settings
-from tkinter.constants import CURRENT
 
 # change path accordingly to your location
 # don´t forget to add double-backslash for subdirs, as shown below
@@ -26,6 +24,28 @@ subdir3 = settings.subdir3
 single_actor_batch = settings.simc_single_actor_batch
 
 user_targeterror = 0.0
+
+
+def parse_profiles_from_file(fd, user_class):
+    """Parse a simc file, and yield each player entry (between two class=name lines)"""
+    current_profile = []
+    for line in fd:
+        line = line.rstrip()  # Remove trailing \n
+        if line.startswith(user_class + "="):
+            if len(current_profile):
+                yield current_profile
+                current_profile = []
+        current_profile.append(line)
+    # Add tail
+    if len(current_profile):
+        yield current_profile
+
+
+def dump_profiles_to_file(filename, profiles):
+    logging.debug("Writing {} profiles to file {}.".format(len(profiles), filename))
+    with open(filename, "w") as out:
+        for line in profiles:
+            out.write(line)
 
 
 # deletes and creates needed folders
@@ -46,64 +66,34 @@ def purge_subfolder(subfolder, retries=3):
         purge_subfolder(subfolder, retries)
 
 
-# splits generated permutation-file into n pieces
-# calculations are therefore done much more memory-efficient; simcraft usually crashes the system if too many profiles
-# have to be simulated at once
-# inputfile: the output of main.py with all permutations in a big file
-# size: after n profiles a new file will be created, incrementally numbered
-#       50 seems to be a good number for this, it takes around 10-20s each, depending on simulation-parameters
-def split(inputfile, size=50):
+def split(inputfile, size, wow_class):
+    """
+    Split a .simc file into n pieces
+    calculations are therefore done much more memory-efficient; simcraft usually crashes the system if too many profiles
+    have to be simulated at once
+    inputfile: the output of main.py with all permutations in a big file
+    size: after size profiles a new file will be created, incrementally numbered
+    """
     if size <= 0:
-        print("Size: " + str(size) + " is below 0")
-    if os.path.isfile(inputfile):
-        source = open(inputfile, "r")
-        # create subfolder for first step, the splitting into n pieces
-        # if exists, delete and recreate
-        subfolder = os.path.join(os.getcwd(), subdir1)
-        purge_subfolder(subfolder)
+        raise ValueError("Invalid split size {} <= 0.".format(size))
 
-        output_file_number = 0
-        profile_max = size
-        profile_count = 0
-
-        tempOutput = ""
-        empty = True
-
-        # true if weapon was detected so a profile-block can be closed
-        # working with strings is fun!
-        weapon_reached = False
-
-        for line in source.readlines():
-            if line != "\n":
-                tempOutput += line
-
-            if line.startswith("main_hand"):
-                weapon_reached = True
-
-            if line == "\n" and weapon_reached:
-                profile_count += 1
-                empty = False
-                weapon_reached = False
-                tempOutput += "\n"
-
-            if profile_count >= profile_max:
-                file = open(os.path.join(subfolder, "sim" + str(output_file_number) + ".sim"), "w")
-                file.write(tempOutput)
-                file.close()
-                tempOutput = ""
-                output_file_number += 1
-                profile_count = 0
-                empty = True
-                weapon_reached = False
-
-        # finish remaining profiles
-        if not empty:
-            file = open(os.path.join(subfolder, "sim" + str(output_file_number) + ".sim"), "w")
-            file.write(tempOutput)
-            file.close()
-    else:
-        print("Inputfile: " + str(inputfile) + " does not exist")
-        sys.exit(1)
+    bestprofiles = []
+    outfile_count = 0
+    subfolder = os.path.join(os.getcwd(), subdir1)
+    with open(inputfile, encoding='utf-8', mode="r") as src:
+        for profile in parse_profiles_from_file(src, wow_class):
+            profile.append("")  # Add tailing empty line
+            bestprofiles.append("\n".join(profile))
+            if len(bestprofiles) >= size:
+                outfile = os.path.join(subfolder, "sim" + str(outfile_count) + ".sim")
+                dump_profiles_to_file(outfile, bestprofiles)
+                bestprofiles.clear()
+                outfile_count += 1
+    # Write tail
+    if len(bestprofiles):
+        outfile = os.path.join(subfolder, "sim" + str(outfile_count) + ".sim")
+        dump_profiles_to_file(outfile, bestprofiles)
+        outfile_count += 1
 
 
 def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
@@ -133,17 +123,17 @@ def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
     return cmd
 
 
-def worker(item, counter, max):
+def worker(item, counter, maximum):
     if settings.multi_sim_disable_console_output:
         FNULL = open(os.devnull, 'w')  # thx @cwok for working this out
 
     print("-----------------------------------------------------------------")
     print(F"Currently processing: {item[2]}")
-    print(F"Processing: {counter+1}/{max} ({round(100 * float(int(counter) / int(max)), 1)}%)")
+    print(F"Processing: {counter+1}/{maximum} ({round(100 * float(int(counter) / int(maximum)), 1)}%)")
     try:
         duration = time.time() - starttime
         avg_calctime_hist = duration / counter
-        remaining_time = (max - counter) * avg_calctime_hist
+        remaining_time = (maximum - counter) * avg_calctime_hist
         if counter % (3 * settings.number_of_instances) == 0:
             print(F"Remaining calculation time (est.): {round(remaining_time, 0)} seconds")
             print(F"Finish time (est.): {time.asctime(time.localtime(time.time() + remaining_time))}")
@@ -166,7 +156,7 @@ def processMultiSimcCommands(commands):
     print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
     try:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
-                                               thread_name_prefix="SimC-Worker")
+                                                         thread_name_prefix="SimC-Worker")
         counter = 0
         for c in commands:
             executor.submit(worker, c, counter, len(commands))
@@ -175,7 +165,6 @@ def processMultiSimcCommands(commands):
     except KeyboardInterrupt:
         logging.info("KeyboardInterrupt in simc executor. Stopping.")
         executor.shutdown(wait=False)
-
 
 
 # chooses settings and multi- or singlemode smartly
@@ -226,6 +215,7 @@ def multisim(files_to_sim, player_profile, simtype, command):
                                       player_profile)
             commands.append(cmd)
     processMultiSimcCommands(commands)
+
 
 # Calls simcraft to simulate all .sim-files in a subdir
 # simtype: 'iterations=n' or 'target_error=n'
@@ -351,27 +341,6 @@ def resim(subdir, player_profile):
         return True
     return False
 
-def dump_profiles_to_file(filename, profiles):
-    logging.debug("Writing {} profiles to file {}.".format(len(profiles), filename))
-    with open(filename, "w") as out:
-        for line in profiles:
-            out.write(line)
-
-
-def parse_profiles_from_file(fd, user_class):
-    """Parse a simc file, and yield each player entry (between two class=name lines)"""
-    current_profile = []
-    for line in fd:
-        line = line.rstrip()  # Remove trailing \n
-        if line.startswith(user_class + "="):
-            if len(current_profile):
-                yield current_profile
-                current_profile = []
-        current_profile.append(line)
-    # Add tail
-    if len(current_profile):
-        yield current_profile
-
 
 def filter_by_length(dps_results, n):
     """
@@ -440,8 +409,8 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin)
                     continue
                 # just get user_class from player_info, very dirty
                 if line.rstrip().startswith("Player"):
-                    q, w, e, r, t, z = line.split()
-                    user_class = r
+                    _player, _profile_name, _race, wow_class, *_tail = line.split()
+                    user_class = wow_class
                     break
                 # dps, percentage, profilename
                 dps, _pct, profile_name = line.lstrip().rstrip().split()

@@ -48,7 +48,8 @@ class settings():
     # default 0; 1 for reduced console-output
     b_quiet = 0
 
-    # split after n profiles
+    # split after n profiles. 50 seems to be a good number for this,
+    # it takes around 10-20s each, depending on simulation-parameters
     splitting_size = 50
 
     # for the -sim option; if you set this to True, you will not need to use -sim stage1

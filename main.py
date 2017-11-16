@@ -1151,7 +1151,7 @@ def static_stage(player_profile, stage):
                            settings_subdir[stage], outputFileName)
     else:
         # Stage1 splitting
-        splitter.split(outputFileName, settings.splitting_size)
+        splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
     splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]), player_profile, stage - 1)
     static_stage(player_profile, stage + 1)
@@ -1208,7 +1208,7 @@ def dynamic_stage1(player_profile, stage=1):
 
     # split into chunks of n (max 100) to not destroy the hdd
     # todo: calculate dynamic amount of n
-    splitter.split(outputFileName, settings.splitting_size)
+    splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
     splitter.sim(settings.subdir1, "target_error=" + str(target_error), player_profile, 1)
 
     # if the user chose a target_error which is lower than the default_one for the next step
