@@ -733,13 +733,7 @@ class Item:
         self.is_legendary = False
         if len(input_string):
             self.parse_input(input_string)
-        for tier in self.tiers:
-            n = "T{}".format(tier)
-            if self.name.startswith(n):
-                setattr(self, "tier_{}".format(tier), True)
-                self.name = self.name[len(n):]
-            else:
-                setattr(self, "tier_{}".format(tier), False)
+
         self._build_output_str()  # Pre-Build output string as good as possible
 
     @property
@@ -754,12 +748,21 @@ class Item:
     def parse_input(self, input_string):
         parts = input_string.split(",")
         self.name = parts[0]
-        splitted_name = self.name.split("--")
-        if len(splitted_name) > 1:
-            self.name = splitted_name[1]
         if self.name.startswith("L"):
             self.is_legendary = True
             self.name = self.name[1:]
+
+        for tier in self.tiers:
+            n = "T{}".format(tier)
+            if self.name.startswith(n):
+                setattr(self, "tier_{}".format(tier), True)
+                self.name = self.name[len(n):]
+            else:
+                setattr(self, "tier_{}".format(tier), False)
+
+        splitted_name = self.name.split("--")
+        if len(splitted_name) > 1:
+            self.name = splitted_name[1]
 
         for s in parts[1:]:
             name, value = s.split("=")
