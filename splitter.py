@@ -214,6 +214,7 @@ def sim(subdir, simtype, player_profile, command=1):
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
 
+    start = datetime.datetime.now()
     if settings.multi_sim_enabled:
         if len(files) > 1:
             multisim(files, player_profile, simtype, command)
@@ -221,6 +222,8 @@ def sim(subdir, simtype, player_profile, command=1):
             singlesim(files, player_profile, simtype, command)
     else:
         singlesim(files, player_profile, simtype, command)
+    end = datetime.datetime.now()
+    logging.info("Simulation took {}.".format(end-start))
 
 
 # Calls simcraft to simulate all .sim-files in a subdir
@@ -565,11 +568,14 @@ def grabBestAlternate(targeterror, source_subdir, target_subdir, origin):
     # Determine chunk length we want to split the profiles
     if target_subdir == settings.subdir2:
         if settings.multi_sim_enabled:
-            chunk_length = int(len(sortednames) / settings.number_of_instances)
+            chunk_length = int(len(sortednames) // settings.number_of_instances)
     else:
         chunk_length = settings.splitting_size
     if chunk_length < 1:
         chunk_length = 1
+    if chunk_length > settings.splitting_size:
+        chunk_length = settings.splitting_size
+    logging.debug("Chunk length: {}".format(chunk_length))
 
     # now parse our "database" and extract the profiles of our top n
     with open(origin, "r") as source:
