@@ -21,6 +21,8 @@ import splitter
 import hashlib
 from builtins import property
 
+__version__ = "0.0.1"
+
 if __name__ == "__main__":
     try:
         filename = "settings.py"
@@ -175,7 +177,8 @@ def str2bool(v):
 def parse_command_line_args():
     """Parse command line arguments using argparse. Also provides --help functionality, and default values for args"""
 
-    parser = argparse.ArgumentParser(description="Python script to create multiple profiles for SimulationCraft to "
+    parser = argparse.ArgumentParser(prog="AutoSimC",
+                                     description="Python script to create multiple profiles for SimulationCraft to "
                                      "find Best-in-Slot and best enchants/gems/talents combinations.",
                                      epilog="Don't hesitate to go on the SimcMinMax Discord "
                                      "(https://discordapp.com/invite/tFR2uvK) "
@@ -269,6 +272,8 @@ def parse_command_line_args():
                         type=str2bool,
                         default="true",
                         help='Assume ring and trinkets are unique-equipped, and only a single item id can be equipped.')
+
+    parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
 
     return parser.parse_args()
 
