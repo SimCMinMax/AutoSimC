@@ -45,7 +45,7 @@ class settings():
 
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
-    b_quiet = 1
+    b_quiet = 0
 
     # split after n profiles
     splitting_size = 50
