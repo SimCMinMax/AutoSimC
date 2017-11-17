@@ -108,9 +108,9 @@ class settings():
     # low, below_normal, normal, above_normal, highest
     simc_priority = "low"
 
-    # number of threads for simc. Default uses as many cores as available on your system.
+    # number of threads for simc. Default uses as many cores as available on your system - 1.
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
-    simc_threads = multiprocessing.cpu_count()
+    simc_threads = max(int(multiprocessing.cpu_count() - 1), 1)
     # True|False
     simc_scale_factors_stage3 = True
     # 0|1
@@ -154,8 +154,8 @@ class settings():
     # how many instances should run simultaneously
     # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
     # otherwise system gets very laggy as no cores are spare for os-routines
-    # Default uses as many cores as available on your system.
-    number_of_instances = multiprocessing.cpu_count()
+    # Default uses as many cores as available on your system - 1
+    number_of_instances = max(int(multiprocessing.cpu_count() - 1), 1)
     # some tests showed that multisimming is faster with many instances, each with 1 thread
     # you can change this behaviour by modifying this variable
     number_of_threads = 1
