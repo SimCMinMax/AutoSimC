@@ -376,39 +376,38 @@ def autoDownloadSimc():
         print("simc_path={}".format(repr(settings.simc_path)))
 
 
+def cleanup_subdir(subdir):
+    if os.path.exists(subdir):
+        if not settings.delete_temp_default and not settings.skip_questions:
+            if input("Do you want to remove subfolder: " + subdir + "? (Press y to confirm): ") != "y":
+                return
+        printLog("Removing: {}".format(subdir))
+        shutil.rmtree(subdir)
+
+
 def cleanup():
     printLog("Cleaning up")
+
+    subdirs = [os.path.join(os.getcwd(), settings.subdir1),
+               os.path.join(os.getcwd(), settings.subdir2),
+               os.path.join(os.getcwd(), settings.subdir3)]
     result_folder = os.path.join(os.getcwd(), settings.result_subfolder)
     if not os.path.exists(result_folder):
         logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
         os.makedirs(result_folder)
 
-    subdir3 = os.path.join(os.getcwd(), settings.subdir3)
+    subdir3 = subdirs[2]
     if os.path.exists(subdir3):
         for _root, _dirs, files in os.walk(subdir3):
             for file in files:
                 if file.endswith(".html"):
-                    printLog("Moving file: " + str(file))
-                    shutil.move(os.path.join(os.getcwd(), settings.subdir3, file),
-                                os.path.join(os.getcwd(), settings.result_subfolder, file))
+                    src = os.path.join(subdir3, file)
+                    dst = os.path.join(result_folder, file)
+                    printLog("Moving file: {} to {}".format(src, dst))
+                    shutil.move(src, dst)
 
-    subdir1 = os.path.join(os.getcwd(), settings.subdir1)
-    if os.path.exists(subdir1):
-        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir1 + "? (Press y to confirm): ") == "y":
-            printLog("Removing: {}".format(subdir1))
-            shutil.rmtree(subdir1)
-
-    subdir2 = os.path.join(os.getcwd(), settings.subdir2)
-    if os.path.exists(subdir2):
-        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir2 + "? (Press y to confirm): ") == "y":
-            shutil.rmtree(subdir2)
-            printLog("Removing: " + subdir2)
-
-    subdir3 = os.path.join(os.getcwd(), settings.subdir3)
-    if os.path.exists(subdir3):
-        if settings.delete_temp_default or input("Do you want to remove subfolder: " + subdir3 + "? (Press y to confirm): ") == "y":
-            shutil.rmtree(subdir3)
-            printLog("Removing: " + subdir3)
+    for subdir in subdirs:
+        cleanup_subdir(subdir)
 
 
 def validateSettings(args):
@@ -479,11 +478,11 @@ def validateSettings(args):
 
 
 def file_checksum(filename):
-    hash_md5 = hashlib.sha3_256()
+    h = hashlib.sha3_256()
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
@@ -493,26 +492,6 @@ def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
     printLog("Number of Gems: " + str(numberOfGems))
     combinations = itertools.combinations_with_replacement(gems_to_use, r=numberOfGems)
     return list(combinations)
-
-
-gemIDsMemoization = {}
-
-
-def getGemsFromItem(item):
-    # Since items aren't object with an itemID property, we do some memoization here
-    if item in gemIDsMemoization:
-        return gemIDsMemoization[item]
-    else:
-        a = item.split(",")
-        gems = []
-        for i in range(len(a)):
-            # look for gem_id-string in items
-            if a[i].startswith("gem_id"):
-                _b, c = a[i].split("=")
-                gems = c.split("/")
-                # up to 3 possible gems
-        gemIDsMemoization[item] = gems
-        return gems
 
 
 # gearlist contains a list of items, as in l_head
@@ -553,7 +532,6 @@ def permutate_talents(talents_list):
 
     product = [itertools.product(*t) for t in all_talent_combinations]
     product = list(itertools.chain(*product))
-    print("talent", product)
 
     # Format each permutation back to a nice talent string.
     permuted_talent_strings = ["".join(s) for s in product]
@@ -593,7 +571,6 @@ class Profile:
 
 
 class TierCheck:
-
     def __init__(self, n, minimum, maximum):
         self.name = "T{}".format(n)
         self.n = n
@@ -604,7 +581,6 @@ class TierCheck:
 
 class PermutationData:
     """Data for each permutation"""
-
     def __init__(self, permutations, slot_names, profile, max_profile_chars):
         self.profile = profile
         self.max_profile_chars = max_profile_chars
@@ -1467,7 +1443,7 @@ def main():
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
     logging.debug("Parsed command line arguments: {}".format(args))
-    
+
     autoDownloadSimc()
     validateSettings(args)
 

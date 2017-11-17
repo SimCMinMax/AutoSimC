@@ -100,7 +100,8 @@ def split(inputfile, size, wow_class):
 def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
     cmd = []
     cmd.append(os.path.normpath(simc_path))
-    cmd.append('ptr=' + str(settings.simc_ptr))
+    if bool(settings.simc_ptr):
+        cmd.append('ptr=' + str(int(settings.simc_ptr)))
     cmd.append(file)
     cmd.append(output)
     cmd.append(sim_type)
@@ -337,11 +338,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin)
     # print(str(bestprofiles))
 
     # Determine chunk length we want to split the profiles
-    if target_subdir == settings.subdir2:
-        if settings.multi_sim_enabled:
-            chunk_length = int(len(sortednames) // settings.number_of_instances)+1
-    else:
-        chunk_length = settings.splitting_size
+    chunk_length = int(len(sortednames) // settings.number_of_instances)+1
     if chunk_length < 1:
         chunk_length = 1
     if chunk_length > settings.splitting_size:

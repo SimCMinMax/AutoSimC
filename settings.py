@@ -113,8 +113,9 @@ class settings():
     simc_threads = max(int(multiprocessing.cpu_count() - 1), 1)
     # True|False
     simc_scale_factors_stage3 = True
-    # 0|1
-    simc_ptr = 0
+
+    # Should ptr mode be used for SimC
+    simc_ptr = False
 
     # [[deprecated]] enable_talent_permutation
     # Use talent character 0 in your input file to permutate a specific talent row
@@ -136,24 +137,23 @@ class settings():
     analyzer_path = "profiles"
     analyzer_filename = "Analysis.json"
 
-    # enables multiple instances of simc, drastically speeding up stage1 (up to factor 5 on ryzen++)
-    # not (yet) used during resimming
-    multi_sim_enabled = True
-    # console output tends to get spammy with mutliple instances running at once; this enables/disables this behaviour
-    # keep in mind that, if enabled, there will be NO output at all, which may be confusing
-    multi_sim_disable_console_output = True
+    # enables multiple instances of simc if > 1, drastically speeding up simulation.
     # how many instances should run simultaneously
     # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
     # otherwise system gets very laggy as no cores are spare for os-routines
     # Default uses as many cores as available on your system - 1
     number_of_instances = max(int(multiprocessing.cpu_count() - 1), 1)
+
+    # console output tends to get spammy with mutliple instances running at once; this enables/disables this behaviour
+    # keep in mind that, if enabled, there will be NO output at all, which may be confusing
+    multi_sim_disable_console_output = True
+
     # some tests showed that multisimming is faster with many instances, each with 1 thread
     # you can change this behaviour by modifying this variable
+    # number_of_instances > 1, it is recommended to leave this option at 1
     number_of_threads = 1
 
-    DEBUG = False
-
-    # skip some inputs, may be expanded in the future
+    # skip interactive user input questions, allowing for full-stage simulation without interruption
     # e.g. "Do you want to resim (yes-no)" will be skipped and automatically started
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
@@ -165,7 +165,7 @@ class settings():
 
     # automation of dialogs
     # 1 or 2
-    auto_choose_static_or_dynamic = 1
+    auto_choose_static_or_dynamic = 2
     # enter the number of the number you would enter when being presented the target_error_table
     # (run once with skip_questions=False to look it up if you dont know)
     auto_dynamic_stage1_target_error_table = 8
