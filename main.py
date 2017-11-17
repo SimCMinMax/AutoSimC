@@ -1093,6 +1093,66 @@ def permutate(args, player_profile):
     i_generatedProfiles = valid_profiles
 
 
+def resim(subdir, player_profile, stage):
+    global user_targeterror
+
+    print("Resimming empty files in " + str(subdir))
+    if settings.skip_questions:
+        mode = str(settings.auto_choose_static_or_dynamic)
+    else:
+        mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
+    if mode == "q":
+        logging.info("User exit")
+        sys.exit(0)
+    elif mode == "1":
+        print(subdir)
+        if subdir == settings.subdir1:
+            iterations = settings.default_iterations_stage1
+        elif subdir == settings.subdir2:
+            iterations = settings.default_iterations_stage2
+        elif subdir == settings.subdir3:
+            iterations = settings.default_iterations_stage3
+        return splitter.sim(subdir, "iterations=" + str(iterations), player_profile, 1)
+    elif mode == "2":
+        if subdir == settings.subdir1:
+            if settings.skip_questions:
+                user_targeterror = settings.auto_dynamic_stage1_target_error_value
+            else:
+                user_targeterror = input("Which target_error?: ")
+        elif subdir == settings.subdir2:
+            if settings.skip_questions:
+                user_targeterror = settings.default_target_error_stage2
+            else:
+                user_targeterror = input("Which target_error?: ")
+        elif subdir == settings.subdir3:
+            if settings.skip_questions:
+                user_targeterror = settings.default_target_error_stage3
+            else:
+                user_targeterror = input("Which target_error?: ")
+        return splitter.sim(subdir, "target_error=" + str(user_targeterror), player_profile, 1)
+    return False
+
+
+def launch_resims(subdir, player_profile, stage, count=2):
+
+    if count > 0:
+        if not settings.skip_questions:
+            q = input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ")
+            if q == "q":
+                printLog("User exit")
+                sys.exit(0)
+
+        printLog(F"Resimming files: Count: {count}")
+        print("Starting resim with {} tries left.".format(count-1))
+        if not resim(subdir, player_profile, stage):
+            return launch_resims(subdir, player_profile, stage, count - 1)
+        print("resim success")
+        return True
+    else:
+        printLog("Maximum number of retries reached, sth. is wrong; exiting")
+        return False
+
+
 def checkResultFiles(subdir, player_profile, count=2):
     subdir = os.path.join(os.getcwd(), subdir)
     printLog("Checking Files in subdirectory: {}".format(subdir))
@@ -1117,23 +1177,8 @@ def checkResultFiles(subdir, player_profile, count=2):
         return False
 
     if empty > 0:
-        printLog("Empty files in: " + str(subdir) + " -> " + str(empty))
-        print("Warning: Empty files in: " + str(subdir) + " -> " + str(empty))
-
-        if not settings.skip_questions:
-            q = input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ")
-            if q == "q":
-                printLog("User exit")
-                sys.exit(0)
-
-        printLog(F"Resimming files: Count: {count}")
-        if count > 0:
-            count -= 1
-            if splitter.resim(subdir, player_profile):
-                return checkResultFiles(subdir, player_profile)
-        else:
-            printLog("Maximum number of retries reached, sth. is wrong; exiting")
-            sys.exit(0)
+        printLog("Found empty files")
+        return False
     else:
         printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
         print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
@@ -1148,7 +1193,10 @@ def static_stage(player_profile, stage):
 
     if stage > 1:
         if not checkResultFiles(settings_subdir[stage - 1], player_profile):
-            raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
+            if not launch_resims(settings_subdir[stage - 1], player_profile, stage - 1):
+                raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
+            else:
+                logging.info("Resimming succeeded.")
         splitter.grab_best("count", settings_n_stage[stage], settings_subdir[stage - 1],
                            settings_subdir[stage], outputFileName)
     else:

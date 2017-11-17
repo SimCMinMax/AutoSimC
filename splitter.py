@@ -147,6 +147,7 @@ def worker(command, counter, maximum, starttime, num_workers):
     r = p.wait()
     if r != 0:
         logging.error("Simulation #{} returned error code {}.".format(counter, r))
+    return r
 
 
 def launch_simc_commands(commands):
@@ -161,26 +162,32 @@ def launch_simc_commands(commands):
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers,
                                                          thread_name_prefix="SimC-Worker")
         counter = 0
+        results = []
         for command in commands:
-            executor.submit(worker, command, counter, len(commands), starttime, num_workers)
+            results.append(executor.submit(worker, command, counter, len(commands), starttime, num_workers))
             counter += 1
+
+        # Check if we got any simulations with error code != 0. futures.as_completed gives us the results as soon as a
+        # simulation is finished.
+        for future in concurrent.futures.as_completed(results):
+            r = int(future.result())
+            if r != 0:
+                logging.error("Invalid return code from SimC: {}".format(r))
+                # Hacky way to shut down all remaining sims, apparently just calling shutdown(wait=False0 on the
+                # executor does not have the same effect.
+                for f in results:
+                    f.cancel()
+                executor.shutdown(wait=False)
+                return False
         executor.shutdown()
+        return True
     except KeyboardInterrupt:
         logging.info("KeyboardInterrupt in simc executor. Stopping.")
+        for f in results:
+            f.cancel()
         executor.shutdown(wait=False)
-
-
-# chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, player_profile, command=1):
-    subdir = os.path.join(os.getcwd(), subdir)
-    files = os.listdir(subdir)
-    files = [f for f in files if not f.endswith(".result")]
-    files = [os.path.join(subdir, f) for f in files]
-
-    start = datetime.datetime.now()
-    start_multi_sim(files, player_profile, simtype, command)
-    end = datetime.datetime.now()
-    logging.info("Simulation took {}.".format(end-start))
+        raise
+    return False
 
 
 def start_multi_sim(files_to_sim, player_profile, simtype, command):
@@ -209,84 +216,21 @@ def start_multi_sim(files_to_sim, player_profile, simtype, command):
                                       simtype, True, True,
                                       player_profile)
             commands.append(cmd)
-    launch_simc_commands(commands)
+    return launch_simc_commands(commands)
 
 
-def resim(subdir, player_profile):
-    global user_targeterror
+# chooses settings and multi- or singlemode smartly
+def sim(subdir, simtype, player_profile, command=1):
+    subdir = os.path.join(os.getcwd(), subdir)
+    files = os.listdir(subdir)
+    files = [f for f in files if not f.endswith(".result")]
+    files = [os.path.join(subdir, f) for f in files]
 
-    print("Resimming empty files in " + str(subdir))
-    if settings.skip_questions:
-        mode = str(settings.auto_choose_static_or_dynamic)
-    else:
-        mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
-    if mode == "q":
-        sys.exit(0)
-    elif mode == "1":
-        if subdir == settings.subdir1:
-            iterations = settings.default_iterations_stage1
-        elif subdir == settings.subdir2:
-            iterations = settings.default_iterations_stage2
-        elif subdir == settings.subdir3:
-            iterations = settings.default_iterations_stage3
-        commands = []
-        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-            for file in files:
-                if file.endswith(".sim"):
-                    name = file[0:file.find(".")]
-                    if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
-                            os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
-                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
-                                              'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "iterations=" + str(iterations), False, settings.multi_sim_enabled,
-                                              player_profile)
-                        if not settings.multi_sim_disable_console_output:
-                            print("Cmd: " + str(cmd))
-                        if settings.multi_sim_enabled:
-                            commands.append(cmd)
-                        else:
-                            subprocess.call(cmd)
-        if settings.multi_sim_enabled:
-            launch_simc_commands(commands)
-        return True
-    elif mode == "2":
-        if subdir == settings.subdir1:
-            if settings.skip_questions:
-                user_targeterror = settings.auto_dynamic_stage1_target_error_value
-            else:
-                user_targeterror = input("Which target_error?: ")
-        elif subdir == settings.subdir2:
-            if settings.skip_questions:
-                user_targeterror = settings.default_target_error_stage2
-            else:
-                user_targeterror = input("Which target_error?: ")
-        elif subdir == settings.subdir3:
-            if settings.skip_questions:
-                user_targeterror = settings.default_target_error_stage3
-            else:
-                user_targeterror = input("Which target_error?: ")
-        commands = []
-        for _root, _dirs, files in os.walk(os.path.join(os.getcwd(), subdir)):
-            for file in files:
-                if file.endswith(".sim"):
-                    name = file[0:file.find(".")]
-                    if (not os.path.exists(os.path.join(os.getcwd(), subdir, name + ".result"))) or os.stat(
-                            os.path.join(os.getcwd(), subdir, name + ".result")).st_size <= 0:
-                        cmd = generateCommand(os.path.join(os.getcwd(), subdir, name + ".sim"),
-                                              'output=' + os.path.join(os.getcwd(), subdir, name) + '.result',
-                                              "target_error=" + str(user_targeterror), False,
-                                              settings.multi_sim_enabled,
-                                              player_profile)
-                        if not settings.multi_sim_disable_console_output:
-                            print("Cmd: " + str(cmd))
-                        if settings.multi_sim_enabled:
-                            commands.append(cmd)
-                        else:
-                            subprocess.call(cmd)
-        if settings.multi_sim_enabled:
-            launch_simc_commands(commands)
-        return True
-    return False
+    start = datetime.datetime.now()
+    result = start_multi_sim(files, player_profile, simtype, command)
+    end = datetime.datetime.now()
+    logging.info("Simulation took {}.".format(end-start))
+    return result
 
 
 def filter_by_length(dps_results, n):
