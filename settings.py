@@ -1,3 +1,6 @@
+import multiprocessing
+
+
 class settings():
     # ----------------------------------------------------------------------
     # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
@@ -61,7 +64,7 @@ class settings():
     subdir1 = "temp_step1"
     subdir2 = "temp_step2"
     subdir3 = "temp_step3"
-    # Automatic delete of the temp folders 
+    # Automatic delete of the temp folders
     delete_temp_default = False
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
@@ -77,8 +80,8 @@ class settings():
     # for dynamic mode
     # pls override this, especially stage2, if you think it is too erroneus, it depends on the chosen class/spec
     # the top100 will be simulated in stage2 and top3 in stage 3; stage1 can be chosen dynamically
-    # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become obsolete
-    # this case might not get fully supported because of the indivduality of these problems
+    # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become
+    # obsolete this case might not get fully supported because of the indivduality of these problems
     default_top_n_stage2 = 100
     default_target_error_stage2 = "0.2"
     default_top_n_stage3 = 1
@@ -89,7 +92,8 @@ class settings():
     # instead it uses the following algorithm:
     # 1. create the list of profile-dps as usual, descending order
     # 2. if iterates the list and removes all profiles which do not fulfil (topdps-target_error) > profiledps
-    # e.g. target_error chosen in stage1 = 0.5, topdps = 1.000.000 -> it includes all profiles for stage2 with dps > 995.000
+    # e.g. target_error chosen in stage1 = 0.5, topdps = 1.000.000 -> it includes all profiles for stage2
+    # with dps > 995.000
     # 3. use the same procedure for stage3
     # set this to True|False if you want to use this method
     default_use_alternate_grabbing_method = True
@@ -103,9 +107,10 @@ class settings():
     # enter desires priority
     # low, below_normal, normal, above_normal, highest
     simc_priority = "low"
-    # number of threads for simc
+
+    # number of threads for simc. Default uses as many cores as available on your system.
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
-    simc_threads = 4
+    simc_threads = multiprocessing.cpu_count()
     # True|False
     simc_scale_factors_stage3 = True
     # 0|1
@@ -124,7 +129,8 @@ class settings():
                      False]
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
-    # this might also output slightly different results because of single_actor_batch_now simming the input as whole raid instead of single profiles
+    # this might also output slightly different results because of single_actor_batch_now simming the input as whole
+    # raid instead of single profiles
     simc_safe_mode = False
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
@@ -148,14 +154,13 @@ class settings():
     # how many instances should run simultaneously
     # if you have e.g. a AMD Ryzen Threadripper (16 Cores, 32 Threads), you should use Cores-1 = 15 number of instances
     # otherwise system gets very laggy as no cores are spare for os-routines
-    number_of_instances = 3
+    # Default uses as many cores as available on your system.
+    number_of_instances = multiprocessing.cpu_count()
     # some tests showed that multisimming is faster with many instances, each with 1 thread
     # you can change this behaviour by modifying this variable
     number_of_threads = 1
-    
+
     DEBUG = False
-
-
 
     # skip some inputs, may be expanded in the future
     # e.g. "Do you want to resim (yes-no)" will be skipped and automatically started
@@ -166,7 +171,7 @@ class settings():
     #               YOU HAVE TO KNOW WHAT YOU DO!
     # ----------------------------------------------------------------------
     skip_questions = False
-    
+
     # automation of dialogs
     # 1 or 2
     auto_choose_static_or_dynamic = 1
@@ -179,19 +184,19 @@ class settings():
     # because target_error for dynamic mode has to be entered manually normally, you can set it here
     # most probably you will enter here the value represented by auto_dynamic_stage1_target_error_table
     auto_dynamic_stage1_target_error_value = 0.9
-    
+
     # ----------------------------------------------------------------------
     #       ALL OPTIONS BELOW THIS ARE USED FOR THE PROFILE GENERATOR
     #                   THEY DON'T IMPACT AUTOSIMC
     # ----------------------------------------------------------------------
-    #Profil generator settings
+    # Profile generator settings
     # Tier to generate
     tier = 21
     # Apply the stat filter to the tier items. If False, all tier items will be added
     apply_stat_filter_to_tier = False
     # filter type (1 : all filter stats have to be present in the item, 2 : one of the stat has to be present)
     filter_type = 2
-    # Profile used for the profile bas (talents, artifact, ...). 
+    # Profile used for the profile bas (talents, artifact, ...).
     # If Empty, it will use the one from autosimc (Use double backslash, like simc path)
     default_profile_path = ".\\profiles"
     # Allow the check of previous tier if selected tier is missing for the spec

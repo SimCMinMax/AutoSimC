@@ -124,12 +124,9 @@ def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
     return cmd
 
 
-def worker(item, counter, maximum):
-    if settings.multi_sim_disable_console_output:
-        FNULL = open(os.devnull, 'w')  # thx @cwok for working this out
-
+def worker(command, counter, maximum):
     print("-----------------------------------------------------------------")
-    print(F"Currently processing: {item[2]}")
+    print(F"Currently processing: {command[2]}")
     print(F"Processing: {counter+1}/{maximum} ({round(100 * float(int(counter) / int(maximum)), 1)}%)")
     try:
         duration = time.time() - starttime
@@ -142,9 +139,10 @@ def worker(item, counter, maximum):
         pass
 
     if settings.multi_sim_disable_console_output:
-        p = subprocess.Popen(item, stdout=FNULL, stderr=FNULL)
+        FNULL = open(os.devnull, 'w')  # thx @cwok for working this out
+        p = subprocess.Popen(command, stdout=FNULL, stderr=FNULL)
     else:
-        p = subprocess.Popen(item)
+        p = subprocess.Popen(command)
     p.wait()
 
 
@@ -153,14 +151,15 @@ def processMultiSimcCommands(commands):
     starttime = time.time()
 
     print("-----------------------------------------------------------------")
-    print("Automated Simulation within AutoSimC.")
-    print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
+    print("Starting multi-process simulation.")
+    print("Number of work items: {}.".format(len(commands)))
+    print("Number of worker instances: {}.".format(settings.number_of_instances))
     try:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
                                                          thread_name_prefix="SimC-Worker")
         counter = 0
-        for c in commands:
-            executor.submit(worker, c, counter, len(commands))
+        for command in commands:
+            executor.submit(worker, command, counter, len(commands))
             counter += 1
         executor.shutdown()
     except KeyboardInterrupt:
