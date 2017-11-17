@@ -124,42 +124,45 @@ def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
     return cmd
 
 
-def worker(command, counter, maximum):
+def worker(command, counter, maximum, starttime, num_workers):
     print("-----------------------------------------------------------------")
     print(F"Currently processing: {command[2]}")
     print(F"Processing: {counter+1}/{maximum} ({round(100 * float(int(counter) / int(maximum)), 1)}%)")
     try:
-        duration = time.time() - starttime
-        avg_calctime_hist = duration / counter
-        remaining_time = (maximum - counter) * avg_calctime_hist
-        if counter % (3 * settings.number_of_instances) == 0:
-            print(F"Remaining calculation time (est.): {round(remaining_time, 0)} seconds")
-            print(F"Finish time (est.): {time.asctime(time.localtime(time.time() + remaining_time))}")
-    except Exception as _e:
-        pass
+        if counter > 0 and counter % num_workers == 0:
+            duration = datetime.datetime.now() - starttime
+            avg_calctime_hist = duration / counter
+            remaining_time = (maximum - counter) * avg_calctime_hist
+            finish_time = datetime.datetime.now() + remaining_time
+            print(F"Remaining calculation time (est.): {remaining_time}.")
+            print(F"Finish time (est.): {finish_time}")
+    except Exception:
+        logging.debug("Error while calculating progress time.", exc_info=True)
 
-    if settings.multi_sim_disable_console_output:
+    if settings.multi_sim_disable_console_output and maximum > 1:
         FNULL = open(os.devnull, 'w')  # thx @cwok for working this out
         p = subprocess.Popen(command, stdout=FNULL, stderr=FNULL)
     else:
         p = subprocess.Popen(command)
-    p.wait()
+    r = p.wait()
+    if r != 0:
+        logging.error("Simulation #{} returned error code {}.".format(counter, r))
 
 
-def processMultiSimcCommands(commands):
-    global starttime
-    starttime = time.time()
+def launch_simc_commands(commands):
+    starttime = datetime.datetime.now()
 
     print("-----------------------------------------------------------------")
     print("Starting multi-process simulation.")
     print("Number of work items: {}.".format(len(commands)))
     print("Number of worker instances: {}.".format(settings.number_of_instances))
     try:
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.number_of_instances,
+        num_workers = settings.number_of_instances
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers,
                                                          thread_name_prefix="SimC-Worker")
         counter = 0
         for command in commands:
-            executor.submit(worker, command, counter, len(commands))
+            executor.submit(worker, command, counter, len(commands), starttime, num_workers)
             counter += 1
         executor.shutdown()
     except KeyboardInterrupt:
@@ -175,18 +178,12 @@ def sim(subdir, simtype, player_profile, command=1):
     files = [os.path.join(subdir, f) for f in files]
 
     start = datetime.datetime.now()
-    if settings.multi_sim_enabled:
-        if len(files) > 1:
-            multisim(files, player_profile, simtype, command)
-        else:
-            singlesim(files, player_profile, simtype, command)
-    else:
-        singlesim(files, player_profile, simtype, command)
+    start_multi_sim(files, player_profile, simtype, command)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end-start))
 
 
-def multisim(files_to_sim, player_profile, simtype, command):
+def start_multi_sim(files_to_sim, player_profile, simtype, command):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
 
     # some minor progress-bar-initialization
@@ -212,53 +209,7 @@ def multisim(files_to_sim, player_profile, simtype, command):
                                       simtype, True, True,
                                       player_profile)
             commands.append(cmd)
-    processMultiSimcCommands(commands)
-
-
-# Calls simcraft to simulate all .sim-files in a subdir
-# simtype: 'iterations=n' or 'target_error=n'
-# command: 1 for stage1 and 2, 2 for stage3 (uses html= instead of output=)
-def singlesim(files_to_sim, player_profile, simtype, command=1):
-    output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
-    starttime = time.time()
-
-    # some minor progress-bar-initialization
-    amount_of_generated_splits = 0
-    for file in files_to_sim:
-        if file.endswith(".sim"):
-            amount_of_generated_splits += 1
-
-    files_processed = 0
-    for file in files_to_sim:
-        if not file.endswith(".sim"):
-            continue
-        name = file[0:file.find(".")]
-        if command <= 1:
-            cmd = generateCommand(file,
-                                  'output=' + file + '.result',
-                                  simtype, False, False,
-                                  player_profile)
-        if command == 2:
-            cmd = generateCommand(file,
-                                  'html=' + name + "-" + str(output_time) + '.html',
-                                  simtype, True, False,
-                                  player_profile)
-        print(cmd)
-        print("-----------------------------------------------------------------")
-        print("Automated Simulation within AutoSimC.")
-        print("Currently processing: " + str(name))
-        print("Processed: " + str(files_processed) + "/" + str(amount_of_generated_splits) + " (" + str(
-            round(100 * float(int(files_processed) / int(amount_of_generated_splits)), 1)) + "%)")
-        if files_processed > 0:
-            duration = time.time() - starttime
-            avg_calctime_hist = duration / files_processed
-            remaining_time = (amount_of_generated_splits - files_processed) * avg_calctime_hist
-            print("Remaining calculation time (est.): " + str(round(remaining_time, 0)) + " seconds")
-            print("Finish time for Step 1(est.): " + time.asctime(time.localtime(time.time() + remaining_time)))
-            print("Step 1 is the most time consuming, Step 2 and 3 will take ~5-20 minutes combined")
-        print("-----------------------------------------------------------------")
-        subprocess.call(cmd)
-        files_processed += 1
+    launch_simc_commands(commands)
 
 
 def resim(subdir, player_profile):
@@ -296,7 +247,7 @@ def resim(subdir, player_profile):
                         else:
                             subprocess.call(cmd)
         if settings.multi_sim_enabled:
-            processMultiSimcCommands(commands)
+            launch_simc_commands(commands)
         return True
     elif mode == "2":
         if subdir == settings.subdir1:
@@ -333,7 +284,7 @@ def resim(subdir, player_profile):
                         else:
                             subprocess.call(cmd)
         if settings.multi_sim_enabled:
-            processMultiSimcCommands(commands)
+            launch_simc_commands(commands)
         return True
     return False
 

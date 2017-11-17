@@ -1130,7 +1130,7 @@ def checkResultFiles(subdir, player_profile, count=2):
         if count > 0:
             count -= 1
             if splitter.resim(subdir, player_profile):
-                return checkResultFiles(subdir)
+                return checkResultFiles(subdir, player_profile)
         else:
             printLog("Maximum number of retries reached, sth. is wrong; exiting")
             sys.exit(0)
