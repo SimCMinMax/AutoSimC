@@ -43,6 +43,8 @@ To specify Tier/Legendary set and item names, use the following syntax:
     
 You can also use SimPermut to generate the string directly with the gear you have equipped and in your bag (See below).
 
+Talent permutation: Just replace the talent row your want to permutate (talents 1, 2 and 3) with a 0 in your talent= string
+
 ## Launch.bat
 usage :
 

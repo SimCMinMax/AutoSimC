@@ -116,17 +116,8 @@ class settings():
     # 0|1
     simc_ptr = 0
 
-    # set these to true if you want to permutate talents in the corresponding rows
-    # beware: each additional row increases amount of permutations by 3, so all rows enabled => multiplikator of 2187
-    enable_talent_permutation = False
-    # here you can finetune the rows
-    permutate_row = [False,
-                     False,
-                     False,
-                     False,
-                     False,
-                     False,
-                     False]
+    # [[deprecated]] enable_talent_permutation
+    # Use talent character 0 in your input file to permutate a specific talent row
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole

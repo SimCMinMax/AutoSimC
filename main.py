@@ -15,15 +15,14 @@ import itertools
 import collections
 import copy
 import subprocess
-
-from settings import settings
-
-import specdata
-import splitter
 import hashlib
 from urllib.request import urlopen, urlretrieve
 from re import search, match
 import platform
+
+from settings import settings
+import specdata
+import splitter
 
 __version__ = "0.0.1"
 
@@ -535,23 +534,30 @@ def permutate_gems_for_slot(splitted_gems, slot_name, slot_gearlist):
     logging.debug("Final slot list: {}".format(slot_gearlist))
 
 
-def permutate_talents(enabled, talents):
-    # First create a list where each entry represents all the talent permutations in that row.
-    talent_combinations = []
-    for i, talent in enumerate(talents[0]):
-        if enabled and settings.permutate_row[i]:
-            # We permutate the talent row, adding ['1', '2', '3'] to that row
-            talent_combinations.append([str(x) for x in range(1, 4)])
-        else:
-            # Do not permutate the talent row, just add the talent from the profile
-            talent_combinations.append([talent])
-    logging.debug("Talent combination input: {}".format(talent_combinations))
+def permutate_talents(talents_list):
+    talents_list = talents_list.split('|')
+    all_talent_combinations = []  # List for each talents input
+    for talents in talents_list:
+        current_talents = []
+        for talent in talents:
+            if talent == "0":
+                # We permutate the talent row, adding ['1', '2', '3'] to that row
+                current_talents.append([str(x) for x in range(1, 4)])
+            else:
+                # Do not permutate the talent row, just add the talent from the profile
+                current_talents.append([talent])
+        all_talent_combinations.append(current_talents)
+        logging.debug("Talent combination input: {}".format(current_talents))
 
     # Use some itertools magic to unpack the product of all talent combinations
-    product = itertools.product(*talent_combinations)
+
+    product = [itertools.product(*t) for t in all_talent_combinations]
+    product = list(itertools.chain(*product))
+    print("talent", product)
 
     # Format each permutation back to a nice talent string.
     permuted_talent_strings = ["".join(s) for s in product]
+    permuted_talent_strings = stable_unique(permuted_talent_strings)
     logging.debug("Talent combinations: {}".format(permuted_talent_strings))
     return permuted_talent_strings
 
@@ -957,8 +963,8 @@ def permutate(args, player_profile):
     normal_permutation_options = collections.OrderedDict({})
 
     # Add talents to permutations
-    l_talents = player_profile.config['Profile'].get("talents", "").split('|')
-    normal_permutation_options["talents"] = permutate_talents(settings.enable_talent_permutation, l_talents)
+    l_talents = player_profile.config['Profile'].get("talents", "")
+    normal_permutation_options["talents"] = permutate_talents(l_talents)
 
     # add gem-permutations to gear
     if args.gems:

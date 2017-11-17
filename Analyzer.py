@@ -1,11 +1,12 @@
-import splitter
 import os
 import json
 import subprocess
 import sys
 import hashlib
-from settings import settings
+
 from marshmallow import Schema, fields
+
+from settings import settings
 
 path = settings.analyzer_path
 combined_path = os.path.join(os.getcwd(), path)
