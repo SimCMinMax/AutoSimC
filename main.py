@@ -102,8 +102,22 @@ def printLog(stringToPrint):
     logging.info(stringToPrint)
 
 
-# Add legendary to the right tab
+def stable_unique(seq):
+    """
+    Filter sequence to only contain unique elements, in a stable order
+    This is a replacement for x = list(set(x)), which does not lead to
+    deterministic or 'stable' output.
+    Credit to https://stackoverflow.com/a/480227
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
 def add_legendary(legendary_split, gear_list):
+    """
+    Parse --legendaries arguments, create Items and add them to gear list for permutation.
+    """
     logging.info("Adding legendary: {}".format(legendary_split))
     try:
         slot, item_id, *tail = legendary_split
@@ -131,28 +145,26 @@ def add_legendary(legendary_split, gear_list):
         raise Exception("Could not add legendary: {}".format(e)) from e
 
 
-def build_gem_list(gems):
-    splitted_gems = gems.split(",")
-    for gem in splitted_gems:
-        if gem not in gem_ids.keys():
-            raise ValueError("Unknown gem '{}' to sim, please check your input. Valid gems: {}".
-                             format(gem, gem_ids.keys()))
-    # Convert parsed gems to list of gem ids
-    gems = [gem_ids[gem] for gem in splitted_gems]
+def build_gem_list(gem_lists):
+    """Build list of unique gem ids from --gems argument"""
+    sorted_gem_list = []
+    for gems in gem_lists:
+        splitted_gems = gems.split(",")
+        for gem in splitted_gems:
+            if gem not in gem_ids.keys():
+                raise ValueError("Unknown gem '{}' to sim, please check your input. Valid gems: {}".
+                                 format(gem, gem_ids.keys()))
+        # Convert parsed gems to list of gem ids
+        gems = [gem_ids[gem] for gem in splitted_gems]
 
-    # Unique by gem id, so that if user specifies eg. 200haste,haste there will only be 1 gem added.
-    gems = list(set(gems))
-    return gems
-
-
-def cleanItem(item_string):
-    if "--" in item_string:
-        item_string = item_string.split("--")[1]
-
-    return item_string
+        # Unique by gem id, so that if user specifies eg. 200haste,haste there will only be 1 gem added.
+        gems = stable_unique(gems)
+        sorted_gem_list.append(*gems)
+    logging.debug("Parsed gem list to permutate: {}".format(sorted_gem_list))
+    return sorted_gem_list
 
 
-# Check if permutation is valid
+# Antorus trinket item ids
 antorusTrinkets = {154172, 154173, 154174, 154175, 154176, 154177}
 
 
@@ -187,7 +199,7 @@ def parse_command_line_args():
                         required=False,
                         nargs=1,
                         default=[settings.default_sim_start_stage],
-                        choices=['permutation_only', 'all', 'stage1', 'stage2', 'stage3'],
+                        choices=['permutate_only', 'all', 'stage1', 'stage2', 'stage3'],
                         help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
                         "Might take a long time, depending on number of permutations. "
                         "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
@@ -218,6 +230,7 @@ def parse_command_line_args():
 
     parser.add_argument('-gems', '--gems',
                         required=False,
+                        nargs="*",
                         help='Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
                         'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
                         'greens are not supported) in addition to the ones you have currently equipped.\n'
@@ -231,7 +244,9 @@ def parse_command_line_args():
                         'Simpermut usually creates this for you.\n'
                         '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
                         'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
-                        'when enabling this.'.format(list(gem_ids.keys())))
+                        'when enabling this.'
+                        '- additonally you can specify a empty list of gems, which will permutate the existing gems'
+                        'in your input gear.'.format(list(gem_ids.keys())))
 
     parser.add_argument('-l', '--legendaries',
                         required=False,
@@ -265,11 +280,10 @@ def parse_command_line_args():
 
 
 # Manage command line parameters
-# todo: include logic to split into smaller/larger files (default 50)
 def handleCommandLine():
     args = parse_command_line_args()
 
-    # Sim stage is either None or ['stage1'], ['stage2'], ...
+    # Sim stage is always a list with 1 element, eg. ["all"], ['stage1'], ...
     args.sim = args.sim[0]
     if args.sim == "permutate_only":
         args.sim = None
@@ -281,8 +295,10 @@ def handleCommandLine():
     return args
 
 
-# returns target_error, iterations, elapsed_time_seconds for a given class_spec
 def get_analyzer_data(class_spec):
+    """
+    Get precomputed analysis data (target_error, iterations, elapsed_time_seconds) for a given class_spec
+    """
     result = []
     filename = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
     with open(filename, "r") as f:
@@ -341,11 +357,11 @@ def autoDownloadSimc():
                 cmd = seven_zip_executable + ' x "'+filepath+'" -aoa -o"' + download_dir + '"'
                 logging.debug("Running unpack command '{}'".format(cmd))
                 subprocess.call(cmd)
-                
+
                 # keep the latest 7z to remember current version, but clean up any other ones
                 files = glob.glob(download_dir + '/simc*win64*7z')
                 for f in files:
-                    if not os.path.basename(f)==filename:
+                    if not os.path.basename(f) == filename:
                         print("Removing old simc:", os.path.basename(f))
                         os.remove(f)
                 break
@@ -377,12 +393,13 @@ def cleanup():
         logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
         os.makedirs(result_folder)
 
-    subdir3 = subdirs[2]
-    if os.path.exists(subdir3):
-        for _root, _dirs, files in os.walk(subdir3):
+    # Copy html files from last subdir to results folder
+    subdir_last = subdirs[-1]
+    if os.path.exists(subdir_last):
+        for _root, _dirs, files in os.walk(subdir_last):
             for file in files:
                 if file.endswith(".html"):
-                    src = os.path.join(subdir3, file)
+                    src = os.path.join(subdir_last, file)
                     dst = os.path.join(result_folder, file)
                     printLog("Moving file: {} to {}".format(src, dst))
                     shutil.move(src, dst)
@@ -392,7 +409,8 @@ def cleanup():
 
 
 def validateSettings(args):
-    # Check simc executable availability. Maybe move to somewhere else.
+    """Check input arguments and settings.py options"""
+    # Check simc executable availability.
     if args.sim:
         if not os.path.exists(settings.simc_path):
             raise ValueError("Error: Wrong path to simc executable: {}".format(settings.simc_path))
@@ -464,26 +482,31 @@ def file_checksum(filename):
     return h.hexdigest()
 
 
-def get_Possible_Gem_Combinations(gems_to_use, numberOfGems):
-    if numberOfGems <= 0:
+def get_gem_combinations(gems_to_use, num_gem_slots):
+    if num_gem_slots <= 0:
         return []
     printLog("Creating Gem Combinations")
-    printLog("Number of Gems: " + str(numberOfGems))
-    combinations = itertools.combinations_with_replacement(gems_to_use, r=numberOfGems)
+    printLog("Number of Gems: " + str(num_gem_slots))
+    combinations = itertools.combinations_with_replacement(gems_to_use, r=num_gem_slots)
     return list(combinations)
 
 
-# gearlist contains a list of items, as in l_head
 def permutate_gems_for_slot(splitted_gems, slot_name, slot_gearlist):
     logging.debug("Permutating Gems for slot {}".format(slot_name))
     for item in slot_gearlist.copy():
         logging.debug("Permutating slot_item: {}".format(item))
-        num_gems = len(item.gem_ids)
-        if num_gems == 0:
+        num_gem_slots = len(item.gem_ids)
+        if num_gem_slots == 0:
             logging.debug("No gems to permutate")
             continue
 
-        new_gems = get_Possible_Gem_Combinations(splitted_gems, num_gems)
+        # Combine existing gems of the item with the gems supplied by --gems
+        combined_gem_list = [*item.gem_ids, *splitted_gems]
+        combined_gem_list = stable_unique(combined_gem_list)
+        logging.debug("Combined gem list for item '{}': {}".format(item.slot,
+                                                                   combined_gem_list))
+
+        new_gems = get_gem_combinations(combined_gem_list, num_gem_slots)
         logging.debug("New Gems: {}".format(new_gems))
         for gems in new_gems:
             new_item = copy.deepcopy(item)
@@ -508,7 +531,6 @@ def permutate_talents(talents_list):
         logging.debug("Talent combination input: {}".format(current_talents))
 
     # Use some itertools magic to unpack the product of all talent combinations
-
     product = [itertools.product(*t) for t in all_talent_combinations]
     product = list(itertools.chain(*product))
 
@@ -672,7 +694,7 @@ def build_profile(args):
     config = configparser.ConfigParser()
 
     # use read_file to get a error when input file is not available
-    with open(args.inputfile, encoding='utf-8-sig') as f:
+    with open(args.inputfile, encoding='utf-8') as f:
         config.read_file(f)
 
     profile = config['Profile']
@@ -845,29 +867,18 @@ def product(*iterables):
     Custom product function as a generator, instead of itertools.product
     This uses way less memory than itertools.product, because it is a generator only yielding a single item at a time.
     requirement for this is that each iterable can be restarted.
-    Thanks to https://stackoverflow.com/questions/12093364/cartesian-product-of-large-iterators-itertools/12094519#12094519
+    Thanks to https://stackoverflow.com/a/12094519
     """
     if len(iterables) == 0:
         yield ()
     else:
         iterables = iterables
         it = iterables[0]
-        for item in it() if callable(it) else iter(it):
+        for item in iter(it):
             for items in product(*iterables[1:]):
                 yield (item,) + items
 
 
-def stable_unique(seq):
-    """
-    Filter sequence to only contain unique elements, in a stable order
-    Credit to https://stackoverflow.com/a/480227
-    """
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
-
-
-# todo: add checks for missing headers, prio low
 def permutate(args, player_profile):
     # Items to parse. First entry is the "correct" name
     gear_slots = [("head",),
@@ -922,7 +933,7 @@ def permutate(args, player_profile):
     normal_permutation_options["talents"] = permutate_talents(l_talents)
 
     # add gem-permutations to gear
-    if args.gems:
+    if args.gems is not None:
         splitted_gems = build_gem_list(args.gems)
         for name, gear in parsed_gear.items():
             permutate_gems_for_slot(splitted_gems, name, gear)
@@ -1093,7 +1104,6 @@ def resim(subdir, player_profile, stage):
 
 
 def launch_resims(subdir, player_profile, stage, count=2):
-
     if count > 0:
         if not settings.skip_questions:
             q = input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ")
