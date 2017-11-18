@@ -47,10 +47,7 @@ t21max = int(settings.default_equip_t21_max)
 
 logFileName = settings.logFileName
 errorFileName = settings.errorFileName
-# quiet_mode for faster output; console is very slow
-i_generatedProfiles = 0
 
-b_simcraft_enabled = settings.default_sim_enabled
 s_stage = ""
 
 iterations_firstpart = settings.default_iterations_stage1
@@ -158,20 +155,6 @@ def cleanItem(item_string):
 # Check if permutation is valid
 antorusTrinkets = {154172, 154173, 154174, 154175, 154176, 154177}
 
-itemIDsMemoization = {}
-
-
-def getIdFromItem(item):
-    # Since items aren't object with an itemID property, we do some memoization here
-    if item in itemIDsMemoization:
-        return itemIDsMemoization[item]
-    else:
-        splits = item.split(",")
-        for s in splits:
-            if s.startswith("id="):
-                itemIDsMemoization[item] = s[3:]
-                return itemIDsMemoization[item]
-
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -202,9 +185,9 @@ def parse_command_line_args():
 
     parser.add_argument('-sim',
                         required=False,
-                        nargs="*",
-                        default=[settings.default_sim_start_stage] if settings.default_sim_enabled else None,
-                        choices=['stage1', 'stage2', 'stage3'],
+                        nargs=1,
+                        default=[settings.default_sim_start_stage],
+                        choices=['permutation_only', 'all', 'stage1', 'stage2', 'stage3'],
                         help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
                         "Might take a long time, depending on number of permutations. "
                         "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
@@ -286,18 +269,14 @@ def parse_command_line_args():
 def handleCommandLine():
     args = parse_command_line_args()
 
+    # Sim stage is either None or ['stage1'], ['stage2'], ...
+    args.sim = args.sim[0]
+    if args.sim == "permutate_only":
+        args.sim = None
+
     # For now, just write command line arguments into globals
     global outputFileName
-    global b_simcraft_enabled
-    global s_stage
     outputFileName = args.outputfile
-
-    # Sim Argument is either None when not specified, a empty list [] when specified without an argument,
-    # or a list with one
-    # argument, eg. ["stage1"]
-    b_simcraft_enabled = (args.sim is not None)
-    if args.sim is not None and len(args.sim) > 0:
-        s_stage = args.sim[0]
 
     return args
 
@@ -328,6 +307,8 @@ def autoDownloadSimc():
                 return
     except AttributeError:
         return
+
+    logging.info("Starting auto download check of SimulationCraft.")
 
     # Application root path, and destination path
     rootpath = os.path.dirname(os.path.realpath(__file__))
@@ -412,13 +393,22 @@ def cleanup():
 
 def validateSettings(args):
     # Check simc executable availability. Maybe move to somewhere else.
-    if b_simcraft_enabled:
+    if args.sim:
         if not os.path.exists(settings.simc_path):
-            printLog("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-            print("Error: Wrong path to simc.exe: " + str(settings.simc_path))
-            sys.exit(1)
+            raise ValueError("Error: Wrong path to simc executable: {}".format(settings.simc_path))
         else:
-            printLog("Path to simc.exe valid, proceeding...")
+            logging.debug("Simc executable exists at '{}', proceeding...".format(settings.simc_path))
+        if os.name == "nt":
+            if not settings.simc_path.endswith("simc.exe"):
+                raise RuntimeError("Simc executable must end with 'simc.exe', and '{}' does not."
+                                   "Please check your settings.py simc_path options.".format(settings.simc_path))
+
+        analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
+        if os.path.exists(analyzer_path):
+            logging.info("Analyzer-file found at '{}'.".format(analyzer_path))
+        else:
+            raise RuntimeError("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.".
+                               format(analyzer_path))
 
     # validate amount of legendaries
     if args.legendary_min > args.legendary_max:
@@ -460,17 +450,6 @@ def validateSettings(args):
     if settings.simc_safe_mode:
         printLog("Using Safe Mode")
         settings.simc_threads = 1
-    if b_simcraft_enabled:
-        if os.name == "nt":
-            if not settings.simc_path.endswith("simc.exe"):
-                raise RuntimeError("simc.exe wrong or missing in settings.py path-variable, please edit it")
-
-        analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
-        if os.path.exists(analyzer_path):
-            logging.info("Analyzer-file found at '{}'.".format(analyzer_path))
-        else:
-            raise RuntimeError("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.".
-                               format(analyzer_path))
 
     if settings.default_error_rate_multiplier <= 0:
         raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
@@ -1071,8 +1050,7 @@ def permutate(args, player_profile):
     outfile_checksum = file_checksum(args.outputfile)
     logging.info("Output file checksum: {}".format(outfile_checksum))
 
-    global i_generatedProfiles
-    i_generatedProfiles = valid_profiles
+    return valid_profiles
 
 
 def resim(subdir, player_profile, stage):
@@ -1087,7 +1065,6 @@ def resim(subdir, player_profile, stage):
         logging.info("User exit")
         sys.exit(0)
     elif mode == "1":
-        print(subdir)
         if subdir == settings.subdir1:
             iterations = settings.default_iterations_stage1
         elif subdir == settings.subdir2:
@@ -1189,17 +1166,16 @@ def static_stage(player_profile, stage):
     static_stage(player_profile, stage + 1)
 
 
-def dynamic_stage1(player_profile, stage=1):
+def dynamic_stage1(player_profile, num_generated_profiles, stage=1):
     printLog("Entering dynamic mode, STAGE {}".format(stage))
     result_data = get_analyzer_data(player_profile.class_spec)
     print("Listing options:")
     print("Estimated calculation times based on your data:")
     print("Class/Spec: " + str(player_profile.class_spec))
-    print("Number of permutations to simulate: " + str(i_generatedProfiles))
+    print("Number of permutations to simulate: " + str(num_generated_profiles))
     for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
         elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
-        estimated_time = elapsed_time * i_generatedProfiles
-        estimated_time = chop_microseconds(estimated_time)
+        estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
 
         print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
               format(i,
@@ -1219,13 +1195,12 @@ def dynamic_stage1(player_profile, stage=1):
     if calc_choice >= len(result_data) or calc_choice < 0:
         raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
                                                                                     len(result_data) - 1))
-    printLog("Sim: Number of permutations: " + str(i_generatedProfiles))
+    printLog("Sim: Number of permutations: " + str(num_generated_profiles))
     printLog("Sim: Chosen calculation: {}".format(calc_choice))
 
     target_error, _iterations, elapsed_time_seconds = result_data[calc_choice]
     elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
-    estimated_time = elapsed_time * i_generatedProfiles
-    estimated_time = chop_microseconds(estimated_time)
+    estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
 
     logger.info("Selected: ({:2n}): Target Error: {:.3f}%: Time/Profile: {:5.2f} sec => Est. calc. time: {}".
                 format(i,
@@ -1233,7 +1208,7 @@ def dynamic_stage1(player_profile, stage=1):
                        elapsed_time.total_seconds(),
                        estimated_time))
     if not settings.skip_questions:
-        if estimated_time.total_seconds() > 43200:  # 12h
+        if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
             if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".format(estimated_time)) == "q":
                 printLog("Quitting application")
                 sys.exit(0)
@@ -1326,7 +1301,7 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
         printLog("No valid .result-files found for stage3!")
 
 
-def stage1(player_profile):
+def stage1(player_profile, num_generated_profiles):
     printLog("Entering Stage1")
     print("You have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
@@ -1345,7 +1320,7 @@ def stage1(player_profile):
     if sim_mode == "1":
         static_stage(player_profile, 1)
     elif sim_mode == "2":
-        dynamic_stage1(player_profile)
+        dynamic_stage1(player_profile, num_generated_profiles)
     else:
         print("Error, wrong mode: Stage1")
         printLog("Error, wrong mode: Stage1")
@@ -1411,8 +1386,6 @@ def check_interpreter():
 
 
 def main():
-    global s_stage
-    global b_simcraft_enabled
     global class_spec
 
     error_handler = logging.FileHandler(errorFileName)
@@ -1444,7 +1417,8 @@ def main():
         stdout_handler.setLevel(logging.DEBUG)
     logging.debug("Parsed command line arguments: {}".format(args))
 
-    autoDownloadSimc()
+    if args.sim:
+        autoDownloadSimc()
     validateSettings(args)
 
     player_profile = build_profile(args)
@@ -1452,25 +1426,26 @@ def main():
     print("Combinations in progress...")
 
     # can always be rerun since it is now deterministic
-    if s_stage == "stage1" or s_stage == "":
+    if args.sim == "all" or args.sim is None:
         start = datetime.datetime.now()
-        permutate(args, player_profile)
+        num_generated_profiles = permutate(args, player_profile)
         logging.info("Permutating took {}.".format(datetime.datetime.now() - start))
         outputGenerated = True
     else:
         if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
-            permutate(args, player_profile)
+            num_generated_profiles = permutate(args, player_profile)
             outputGenerated = True
         else:
             outputGenerated = False
+            num_generated_profiles = None
 
     if outputGenerated:
-        if i_generatedProfiles == 0:
+        if num_generated_profiles == 0:
             raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
 
-    if b_simcraft_enabled:
+    if args.sim:
         if not settings.skip_questions:
-            if i_generatedProfiles > 50000:
+            if num_generated_profiles and num_generated_profiles > 50000:
                 if input(
                         "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
                         " <----- (Press Enter to continue, q to quit)") == "q":
@@ -1478,14 +1453,12 @@ def main():
                     sys.exit(0)
 
         print("Simulation in progress...")
-        if s_stage == "":
-            s_stage = settings.default_sim_start_stage
 
-        if s_stage == "stage1":
-            stage1(player_profile)
-        if s_stage == "stage2":
+        if args.sim == "stage1" or args.sim == "all":
+            stage1(player_profile, num_generated_profiles)
+        if args.sim == "stage2":
             stage_restart(player_profile, 2)
-        if s_stage == "stage3":
+        if args.sim == "stage3":
             stage_restart(player_profile, 3)
 
     if settings.clean_up_after_step3:

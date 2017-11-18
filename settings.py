@@ -55,9 +55,8 @@ class settings():
     # it takes around 10-20s each, depending on simulation-parameters
     splitting_size = 50
 
-    # for the -sim option; if you set this to True, you will not need to use -sim stage1
-    default_sim_enabled = True
-    default_sim_start_stage = "stage1"
+    # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3" 
+    default_sim_start_stage = "all"
 
     # these folders will be created during calculation
     # stage 1,2,3 correspond accordingly
