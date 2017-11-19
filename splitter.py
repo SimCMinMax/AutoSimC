@@ -97,15 +97,16 @@ def split(inputfile, size, wow_class):
         outfile_count += 1
 
 
-def generateCommand(file, output, sim_type, stage3, multisim, player_profile):
+def generateCommand(file, outputs, sim_type, stage3, player_profile, num_files_to_sim):
     cmd = []
     cmd.append(os.path.normpath(simc_path))
     if bool(settings.simc_ptr):
         cmd.append('ptr=' + str(int(settings.simc_ptr)))
     cmd.append(file)
-    cmd.append(output)
+    for output in outputs:
+        cmd.append(output)
     cmd.append(sim_type)
-    if multisim:
+    if num_files_to_sim > 1:
         cmd.append('threads=' + str(settings.number_of_threads))
     else:
         cmd.append('threads=' + str(settings.simc_threads))
@@ -158,6 +159,7 @@ def launch_simc_commands(commands):
     print("Starting multi-process simulation.")
     print("Number of work items: {}.".format(len(commands)))
     print("Number of worker instances: {}.".format(settings.number_of_instances))
+    logging.debug("Starting simc with commands={}".format(commands))
     try:
         num_workers = settings.number_of_instances
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers,
@@ -199,6 +201,8 @@ def start_multi_sim(files_to_sim, player_profile, simtype, command):
     for file in files_to_sim:
         if file.endswith(".sim"):
             amount_of_generated_splits += 1
+    
+    num_files_to_sim = len(files_to_sim)
 
     commands = []
     for file in files_to_sim:
@@ -206,16 +210,18 @@ def start_multi_sim(files_to_sim, player_profile, simtype, command):
             name = file[0:file.find(".")]
             if command <= 1:
                 cmd = generateCommand(file,
-                                      'output=' + file + '.result',
+                                      ['output=' + file + '.result'],
                                       simtype,
                                       False,
-                                      True,
-                                      player_profile)
+                                      player_profile,
+                                      num_files_to_sim)
             if command == 2:
                 cmd = generateCommand(file,
-                                      'html=' + name + "-" + str(output_time) + '.html',
-                                      simtype, True, True,
-                                      player_profile)
+                                      ['output=' + file + '.result',
+                                       'html=' + name + "-" + str(output_time) + '.html'],
+                                      simtype, True,
+                                      player_profile,
+                                      num_files_to_sim)
             commands.append(cmd)
     return launch_simc_commands(commands)
 
@@ -260,7 +266,7 @@ def filter_by_target_error(dps_results, target_error):
 # source_subdir: directory of .result-files
 # target_subdir: directory to store the resulting .sim-file
 # origin: path to the originally in autosimc generated output-file containing all valid profiles
-def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin):
+def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin, split_optimally=True):
     print("Grabbest:")
     print("Variables: filter by: " + str(filter_by))
     print("Variables: filter_criterium: " + str(filter_criterium))
@@ -338,11 +344,14 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin)
     # print(str(bestprofiles))
 
     # Determine chunk length we want to split the profiles
-    chunk_length = int(len(sortednames) // settings.number_of_instances)+1
+    if split_optimally:
+        chunk_length = int(len(sortednames) // settings.number_of_instances)+1
+    else:
+        chunk_length = int(settings.splitting_size)
     if chunk_length < 1:
         chunk_length = 1
-    if chunk_length > settings.splitting_size:
-        chunk_length = settings.splitting_size
+    if chunk_length > int(settings.splitting_size):
+        chunk_length = int(settings.splitting_size)
     logging.debug("Chunk length: {}".format(chunk_length))
 
     # now parse our "database" and extract the profiles of our top n

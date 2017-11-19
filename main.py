@@ -159,7 +159,7 @@ def build_gem_list(gem_lists):
 
         # Unique by gem id, so that if user specifies eg. 200haste,haste there will only be 1 gem added.
         gems = stable_unique(gems)
-        sorted_gem_list.append(*gems)
+        sorted_gem_list += gems
     logging.debug("Parsed gem list to permutate: {}".format(sorted_gem_list))
     return sorted_gem_list
 
@@ -1166,6 +1166,7 @@ def static_stage(player_profile, stage):
                 raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
             else:
                 logging.info("Resimming succeeded.")
+        split_optimally = False if stage == 3 else True
         splitter.grab_best("count", settings_n_stage[stage], settings_subdir[stage - 1],
                            settings_subdir[stage], outputFileName)
     else:
@@ -1297,14 +1298,18 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
         # again, for a third time, get top 3 profiles and put them into subdir3
         if skipped:
             if settings.default_use_alternate_grabbing_method:
-                splitter.grab_best("target_error", targeterrorstage2, settings.subdir1, settings.subdir3, outputFileName)
+                splitter.grab_best("target_error", targeterrorstage2, settings.subdir1,
+                                   settings.subdir3, outputFileName, split_optimally=False)
             else:
-                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir1, settings.subdir3, outputFileName)
+                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir1,
+                                   settings.subdir3, outputFileName, split_optimally=False)
         else:
             if settings.default_use_alternate_grabbing_method:
-                splitter.grab_best("target_error", targeterrorstage2, settings.subdir2, settings.subdir3, outputFileName)
+                splitter.grab_best("target_error", targeterrorstage2, settings.subdir2,
+                                   settings.subdir3, outputFileName, split_optimally=False)
             else:
-                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir2, settings.subdir3, outputFileName)
+                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir2,
+                                   settings.subdir3, outputFileName, split_optimally=False)
         # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
         splitter.sim(settings.subdir3, "target_error=" + str(targeterror), player_profile, 2)
     else:
@@ -1371,7 +1376,7 @@ def stage_restart(player_profile, stage):
         if stage == 2:
             dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
         elif stage == 3:
-            dynamic_stage3(skip, new_te, splitter.user_targeterror, player_profile)
+            dynamic_stage3(skip, new_te, float(settings.default_target_error_stage2), player_profile)
 
 
 def check_interpreter():
