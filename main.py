@@ -1044,7 +1044,7 @@ def permutate(args, player_profile):
                     data.write_to_file(output_file, valid_profiles)
                     valid_profiles += 1
             elif args.debug:
-                if data.not_usable not in unusable_histogram:
+                if is_unusable_before_talents not in unusable_histogram:
                     unusable_histogram[is_unusable_before_talents] = 0
                 unusable_histogram[is_unusable_before_talents] += len(talent_permutations)
             processed += len(talent_permutations)
