@@ -7,6 +7,7 @@ import datetime
 import logging
 import concurrent.futures
 import re
+import math
 
 from settings import settings
 
@@ -254,12 +255,18 @@ def filter_by_target_error(dps_results, target_error):
     remove all profiles not within the errorrange of the best player
     dps_results is a pre-sorted list (dps, name) in descending order
     """
+    output = dps_results
     if len(dps_results) > 2:
+        output = []
         dps_best_player = dps_results[0]["dps"]
-        dps_min = dps_best_player - (settings.default_error_rate_multiplier * dps_results[0]["dps_error"])
-        logging.debug("Filtering out all players below dps_min={}".format(dps_min))
-        dps_results = [e for e in dps_results if e["dps"] >= dps_min]
-    return dps_results
+        dps_error_best_player = dps_results[0]["dps_error"]
+        for entry in dps_results:
+            dps = entry["dps"]
+            err = entry["dps_error"]
+            # if dps difference is less than sqrt(err_best**2+err**2) * error_mult, keep result
+            if dps_best_player - dps < math.sqrt(err**2 + dps_error_best_player**2) * settings.default_error_rate_multiplier:
+                output.append(entry)
+    return output
 
 
 # determine best n dps-simulations and grabs their profiles for further simming
