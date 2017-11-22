@@ -589,10 +589,11 @@ class PermutationData:
 
         # Build this dict to get correct slot names for finger1/2. Do not use item.slot in here
         self.items = {slot_names[i]: item for i, item in enumerate(permutations) if type(item) is Item}
-        self.talents = permutations[slot_names.index("talents")]
 
         self.count_leg_and_tier()
-        self.not_usable = self.check_usable()
+
+    def update_talents(self, talents):
+        self.talents = talents
 
     def count_leg_and_tier(self):
         self.legendaries = []
@@ -610,7 +611,7 @@ class PermutationData:
             elif item.tier_21:
                 self.t21 += 1
 
-    def check_usable(self):
+    def check_usable_before_talents(self):
         """Check if profile is un-usable. Return None if ok, otherwise return reason"""
         if len(self.legendaries) < self.profile.args.legendary_min:
             return "too few legendaries {} < {}".format(len(self.legendaries), self.profile.args.legendary_min)
@@ -930,7 +931,7 @@ def permutate(args, player_profile):
 
     # Add talents to permutations
     l_talents = player_profile.config['Profile'].get("talents", "")
-    normal_permutation_options["talents"] = permutate_talents(l_talents)
+    talent_permutations = permutate_talents(l_talents)
 
     # add gem-permutations to gear
     if args.gems is not None:
@@ -1002,7 +1003,7 @@ def permutate(args, player_profile):
         logging.debug(p)
 
     # Set up the combined permutation list with normal + special permutations
-    all_permutation_options = [normal_permutations, *[opt for _name, _entries, opt in special_permutations.values()]]
+    all_permutation_options = [normal_permutations, special_permutations["finger"][2], special_permutations["trinket"][2]]
 
     all_permutations = product(*all_permutation_options)
     special_names = [list(entries.keys()) for _name, entries, _opt in special_permutations.values()]
@@ -1020,6 +1021,8 @@ def permutate(args, player_profile):
     for name, _entries, opt in special_permutations.values():
         max_num_profiles *= len(opt)
         permutations_product[name] = len(opt)
+    max_num_profiles *= len(talent_permutations)
+    permutations_product["talents"] = len(talent_permutations)
     logging.info("Max number of profiles: {}".format(max_num_profiles))
     logging.info("Number of permutations: {}".format(permutations_product))
     max_profile_chars = len(str(max_num_profiles))  # String length of max_num_profiles
@@ -1032,14 +1035,19 @@ def permutate(args, player_profile):
     with open(args.outputfile, 'w') as output_file:
         for perm in all_permutations:
             data = PermutationData(perm, all_permutation_names, player_profile, max_profile_chars)
-            if not data.not_usable:
-                data.write_to_file(output_file, valid_profiles)
-                valid_profiles += 1
+            is_unusable_before_talents = data.check_usable_before_talents()
+            if not is_unusable_before_talents:
+                # Permutate talents after is usable check, since it is independent of the talents
+                for t in talent_permutations:
+                    data.update_talents(t)
+                    # Additional talent usable check could be inserted here.
+                    data.write_to_file(output_file, valid_profiles)
+                    valid_profiles += 1
             elif args.debug:
                 if data.not_usable not in unusable_histogram:
-                    unusable_histogram[data.not_usable] = 0
-                unusable_histogram[data.not_usable] += 1
-            processed += 1
+                    unusable_histogram[is_unusable_before_talents] = 0
+                unusable_histogram[is_unusable_before_talents] += len(talent_permutations)
+            processed += len(talent_permutations)
             print_permutation_progress(processed, max_num_profiles, start_time, max_profile_chars)
 
     result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
