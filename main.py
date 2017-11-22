@@ -1122,36 +1122,31 @@ def launch_resims(subdir, player_profile, stage, count=2):
         return False
 
 
-def checkResultFiles(subdir, player_profile, count=2):
+def checkResultFiles(subdir):
     subdir = os.path.join(os.getcwd(), subdir)
     printLog("Checking Files in subdirectory: {}".format(subdir))
-    if os.path.exists(subdir):
-        empty = 0
-        checkedFiles = 0
-        for _root, _dirs, files in os.walk(subdir):
-            for file in files:
-                checkedFiles += 1
-                if file.endswith(".result"):
-                    filename = os.path.join(subdir, file)
-                    if os.stat(filename).st_size <= 0:
-                        printLog("File is empty: {}".format(file))
-                        empty += 1
-    else:
+
+    if not os.path.exists(subdir):
         printLog("Error: Subdir does not exist: {}".format(subdir))
         return False
 
-    if checkedFiles == 0:
+    files = os.listdir(subdir)
+    if len(files) == 0:
         printLog("No files in: " + str(subdir))
         print("No files in: " + str(subdir) + ", exiting")
         return False
 
-    if empty > 0:
-        printLog("Found empty files")
-        return False
-    else:
-        printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
-        print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
-        return True
+    files = [f for f in files if not f.endswith(".result")]
+    files = [os.path.join(subdir, f) for f in files]
+    for file in files:
+        if os.stat(filename).st_size <= 0:
+            printLog("Result file is empty: {}".format(file))
+            return False
+
+    logging.debug("{} valid result files found in {}.".format(len(files), subdir))
+    printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
+    print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
+    return True
 
 
 def static_stage(player_profile, stage):
@@ -1161,7 +1156,7 @@ def static_stage(player_profile, stage):
     printLog("\nEntering static mode, STAGE {}.\n".format(stage))
 
     if stage > 1:
-        if not checkResultFiles(settings_subdir[stage - 1], player_profile):
+        if not checkResultFiles(settings_subdir[stage - 1]):
             if not launch_resims(settings_subdir[stage - 1], player_profile, stage - 1):
                 raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
             else:
@@ -1253,7 +1248,7 @@ def dynamic_stage1(player_profile, num_generated_profiles, stage=1):
 
 def dynamic_stage2(targeterror, targeterrorstage1, player_profile):
     printLog("Entering dynamic mode, stage2")
-    checkResultFiles(settings.subdir1, player_profile)
+    checkResultFiles(settings.subdir1)
     if settings.default_use_alternate_grabbing_method:
         splitter.grab_best("target_error", targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
     else:
@@ -1290,9 +1285,9 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
     printLog("Entering dynamic mode, stage3")
     ok = False
     if skipped:
-        ok = checkResultFiles(settings.subdir1, player_profile)
+        ok = checkResultFiles(settings.subdir1)
     else:
-        ok = checkResultFiles(settings.subdir2, player_profile)
+        ok = checkResultFiles(settings.subdir2)
     if ok:
         printLog(".result-files ok, proceeding")
         # again, for a third time, get top 3 profiles and put them into subdir3
@@ -1346,7 +1341,7 @@ def stage_restart(player_profile, stage):
     if stage > 3 or stage < 1:
         raise ValueError("No stage {} available to restart.".format(stage))
     logging.info("\nRestarting STAGE{}".format(stage))
-    if not checkResultFiles(settings_subdir[stage - 1], player_profile):
+    if not checkResultFiles(settings_subdir[stage - 1]):
         raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".
                            format(stage, settings_subdir[stage - 1]))
     if settings.skip_questions:
