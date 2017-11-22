@@ -6,6 +6,7 @@ import time
 import datetime
 import logging
 import concurrent.futures
+import re
 
 from settings import settings
 
@@ -254,10 +255,10 @@ def filter_by_target_error(dps_results, target_error):
     dps_results is a pre-sorted list (dps, name) in descending order
     """
     if len(dps_results) > 2:
-        dps_best_player = dps_results[0][0]
-        dps_min = dps_best_player * (1.0 - (settings.default_error_rate_multiplier * target_error) / 100.0)
+        dps_best_player = dps_results[0]["dps"]
+        dps_min = dps_best_player - (settings.default_error_rate_multiplier * dps_results[0]["dps_error"])
         logging.debug("Filtering out all players below dps_min={}".format(dps_min))
-        dps_results = [e for e in dps_results if e[0] >= dps_min]
+        dps_results = [e for e in dps_results if e["dps"] >= dps_min]
     return dps_results
 
 
@@ -283,47 +284,38 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     files = [os.path.join(source_subdir, f) for f in files]
     logging.debug("Grabbing files: {}".format(files))
 
+    start = datetime.datetime.now()
+    dps_regex = re.compile("  DPS: (\d+\.\d+)  DPS-Error=(\d+\.\d+)/(\d+\.\d+)%")
     for file in files:
         if os.stat(file).st_size <= 0:
             raise RuntimeError("Error: .result-file in: " + str(source_subdir) + " is empty, exiting")
 
         with open(file, encoding='utf-8', mode="r") as src:
-            for line in src.readlines():
-                line = line.lstrip().rstrip()
-                if not line:
-                    continue
-                if line.rstrip().startswith("Raid"):
-                    continue
-                if line.rstrip().startswith("raid_event"):
-                    continue
-                if line.rstrip().startswith("HPS"):
-                    continue
-                if line.rstrip().startswith("DPS"):
-                    continue
-                # here parsing stops, because its useless profile-junk
-                if line.rstrip().startswith("DPS:"):
-                    break
-                if line.rstrip().endswith("Raid"):
-                    continue
-                # just get user_class from player_info, very dirty
-                if line.rstrip().startswith("Player"):
-                    _player, _profile_name, _race, wow_class, *_tail = line.split()
+            current_player = {}
+            for line in src:
+                if line.startswith("Player: "):
+                    _player, profile_name, _race, wow_class, *_tail = line.split()
                     user_class = wow_class
-                    break
-                # dps, percentage, profilename
-                dps, _pct, profile_name = line.lstrip().rstrip().split()
-                # print("Splitted_lines = a: "+str(a)+" b: "+str(b)+" c: "+str(c))
-                # put dps as key and profilename as value into dictionary
-                # dps might be equal for 2 profiles, but should very rarely happen
-                # could lead to a problem with very minor dps due to variance,
-                # but seeing dps going into millions nowadays equal dps should not pose to be a problem at all
-                best.append((float(dps), profile_name))
+                    current_player["name"] = profile_name
+                if line.startswith("  DPS: "):
+                    match = dps_regex.search(line)
+                    if not match:
+                        raise ValueError("Invalid SimC result file. DPS information could not be parsed.")
+                    dps, dps_error, dps_error_pct = match.groups()
+                    if "name" not in current_player:
+                        # DPS entry does not belong to "Player". (eg. "Target")
+                        continue
+                    current_player["dps"] = float(dps)
+                    current_player["dps_error"] = float(dps_error)
+                    current_player["dps_error_pct"] = dps_error_pct
+                    best.append(current_player)
+                    current_player = {}
+
+    logging.debug("Parsing input files for dps took: {}".format(datetime.datetime.now() - start))
 
     # sort best dps, descending order
-    best = list(reversed(sorted(best, key=lambda entry: entry[0])))
+    best = list(reversed(sorted(best, key=lambda entry: entry["dps"])))
     logging.debug("Result from parsing dps len={}".format(len(best)))
-    for dps, name in best:
-        logging.debug("{}: {}".format(dps, name))
 
     if filter_by == "target_error":
         best = filter_by_target_error(best, filter_criterium)
@@ -333,10 +325,11 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
         raise ValueError("Invalid filter")
 
     logging.debug("Filtered dps results len={}".format(len(best)))
-    for dps, name in best:
-        logging.debug("{}: {}".format(dps, name))
+    for entry in best:
+        logging.debug("{}".format(entry))
 
-    sortednames = [name for _dps, name in best]
+    sortednames = [entry["name"] for entry in best]
+    print(sortednames)
 
     bestprofiles = []
     outfile_count = 0
