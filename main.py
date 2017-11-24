@@ -941,6 +941,16 @@ def permutate(args, player_profile):
     l_talents = player_profile.config['Profile'].get("talents", "")
     talent_permutations = permutate_talents(l_talents)
 
+    # Calculate max number of gem slots in equip. Will be used if we do gem permutations.
+    if args.gems is not None:
+        max_gem_slots = 0
+        for slot, items in parsed_gear.items():
+            max_gem_on_item_slot = 0
+            for item in items:
+                if len(item.gem_ids) > max_gem_on_item_slot:
+                    max_gem_on_item_slot = len(item.gem_ids)
+            max_gem_slots += max_gem_on_item_slot
+
     # Add 'normal' gear to normal permutations, excluding trinket/rings
     gear_normal = {k: v for k, v in parsed_gear.items() if (not k == "finger" and not k == "trinket")}
     normal_permutation_options.update(gear_normal)
@@ -1023,8 +1033,13 @@ def permutate(args, player_profile):
         max_nperm *= len(opt)
         permutations_product[name] = len(opt)
     max_nperm *= len(talent_permutations)
+    if args.gems is not None:
+        max_num_gems = max_gem_slots + len(splitted_gems)
+        gem_perms = len(list(itertools.combinations_with_replacement(range(max_gem_slots), max_num_gems)))
+        max_nperm *= gem_perms
+        permutations_product["gems"] = gem_perms
     permutations_product["talents"] = len(talent_permutations)
-    logging.info("Max number of normal permutations (excluding gems): {}".format(max_nperm))
+    logging.info("Max number of normal permutations: {}".format(max_nperm))
     logging.info("Number of permutations: {}".format(permutations_product))
     max_profile_chars = len(str(max_nperm))  # String length of max_nperm
 
