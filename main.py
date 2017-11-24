@@ -222,12 +222,6 @@ def parse_command_line_args():
                         "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
                         )
 
-    parser.add_argument('-quiet', '--quiet',
-                        action='store_true',
-                        default=settings.b_quiet,
-                        help='Option for disabling Console-output. Generates the outputfile much faster for '
-                        'large permuation-size')
-
     parser.add_argument('-gems', '--gems',
                         required=False,
                         nargs="*",
@@ -1073,7 +1067,6 @@ def permutate(args, player_profile):
         format(valid_profiles,
                processed,
                100.0 * valid_profiles / max_nperm if max_nperm else 0.0)
-    print(result)
     logging.info(result)
 
     # Not usable histogram debug output
@@ -1446,8 +1439,6 @@ def main():
     check_interpreter()
 
     args = handleCommandLine()
-    if args.quiet:
-        stdout_handler.setLevel(logging.WARNING)
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
@@ -1477,7 +1468,8 @@ def main():
 
     if outputGenerated:
         if num_generated_profiles == 0:
-            raise ValueError("No valid combinations found. Please check settings.py and your simpermut-export.")
+            raise ValueError("No valid profile combinations found."
+                             " Please run again with --debug and check your input.txt and settings.py.")
 
     if args.sim:
         if not settings.skip_questions:
