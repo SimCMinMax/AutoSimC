@@ -514,25 +514,31 @@ def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
 
-def print_permutation_progress(valid_profiles, current, maximum, start_time, max_profile_chars):
+def print_permutation_progress(valid_profiles, current, maximum, start_time, max_profile_chars, progress, max_progress):
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
-    if current % 5000 == 0 or current == maximum:
+    if progress % int(50000 / (maximum / max_progress)) == 0 or progress == max_progress:
         pct = 100.0 * current / maximum
         elapsed = datetime.datetime.now() - start_time
-        bandwith = valid_profiles / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
+        bandwith = current / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
+        bandwith_valid = valid_profiles / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
         elapsed = chop_microseconds(elapsed)
         remaining_time = elapsed * (100.0 / pct - 1.0) if current else "nan"
+        if current > maximum:
+            remaining_time = datetime.timedelta(seconds=0)
         if type(remaining_time) is datetime.timedelta:
             remaining_time = chop_microseconds(remaining_time)
-        logging.info("Processed {}/{} ({:5.2f}%) valid_profiles {} elapsed_time {} remaining {} bandwith(valid) {:.0f}k/s".
+        valid_pct = 100.0 * valid_profiles / current if current else 0.0
+        logging.info("Processed {}/{} ({:5.2f}%) valid {} ({:5.2f}%) elapsed_time {} remaining {} bw {:.0f}k/s bw(valid) {:.0f}k/s".
                      format(str(current).rjust(max_profile_chars),
                             maximum,
                             pct,
                             valid_profiles,
+                            valid_pct,
                             elapsed,
                             remaining_time,
-                            bandwith))
+                            bandwith,
+                            bandwith_valid))
 
 
 class Profile:
@@ -944,7 +950,7 @@ def permutate(args, player_profile):
     # Calculate max number of gem slots in equip. Will be used if we do gem permutations.
     if args.gems is not None:
         max_gem_slots = 0
-        for slot, items in parsed_gear.items():
+        for _slot, items in parsed_gear.items():
             max_gem_on_item_slot = 0
             for item in items:
                 if len(item.gem_ids) > max_gem_on_item_slot:
@@ -1033,6 +1039,7 @@ def permutate(args, player_profile):
         max_nperm *= len(opt)
         permutations_product[name] = len(opt)
     max_nperm *= len(talent_permutations)
+    gem_perms = 1 
     if args.gems is not None:
         max_num_gems = max_gem_slots + len(splitted_gems)
         gem_perms = len(list(itertools.combinations_with_replacement(range(max_gem_slots), max_num_gems)))
@@ -1045,6 +1052,8 @@ def permutate(args, player_profile):
 
     # Start the permutation!
     processed = 0
+    progress = 0  # Separate progress variable not counting gem and talent combinations
+    max_progress = max_nperm / gem_perms / len(talent_permutations)
     valid_profiles = 0
     start_time = datetime.datetime.now()
     unusable_histogram = {}  # Record not usable reasons
@@ -1060,23 +1069,27 @@ def permutate(args, player_profile):
                     if not is_unusable_before_talents:
                         # add gem-permutations to gear
                         if args.gems is not None:
-                            item_list_gem_permutations = data.permutate_gems(items, splitted_gems)
+                            gem_permutations = data.permutate_gems(items, splitted_gems)
                         else:
-                            item_list_gem_permutations = (items,)
-                        for items in item_list_gem_permutations:
-                            data.items = items
+                            gem_permutations = (items,)
+                        for gem_permutation in gem_permutations:
+                            data.items = gem_permutation
                             # Permutate talents after is usable check, since it is independent of the talents
                             for t in talent_permutations:
                                 data.update_talents(t)
                                 # Additional talent usable check could be inserted here.
                                 data.write_to_file(output_file, valid_profiles)
                                 valid_profiles += 1
-                    elif args.debug:
-                        if is_unusable_before_talents not in unusable_histogram:
-                            unusable_histogram[is_unusable_before_talents] = 0
-                        unusable_histogram[is_unusable_before_talents] += len(talent_permutations)
-                    processed += len(talent_permutations)
-                    print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars)
+                                processed += 1
+                    else:
+                        processed += len(talent_permutations) * gem_perms
+                        if args.debug:
+                            if is_unusable_before_talents not in unusable_histogram:
+                                unusable_histogram[is_unusable_before_talents] = 0
+                            unusable_histogram[is_unusable_before_talents] += len(talent_permutations) * gem_perms
+                    progress += 1
+                    print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
+                                               progress, max_progress)
 
     result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
         format(valid_profiles,
