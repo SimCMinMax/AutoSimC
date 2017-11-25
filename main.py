@@ -780,6 +780,7 @@ class Item:
         self._gem_ids = []
         self.relic_ids = []
         self.tier_set = {}
+        self.extra_options = {}
         self.is_legendary = False
         if self.name.startswith("L"):
             self.is_legendary = True
@@ -836,6 +837,7 @@ class Item:
 
         for s in parts[1:]:
             name, value = s.split("=")
+            name = name.lower()
             if name == "id":
                 self.item_id = int(value)
             elif name == "bonus_id":
@@ -846,6 +848,10 @@ class Item:
                 self.gem_ids = [int(v) for v in value.split("/")]
             elif name == "relic_id":
                 self.relic_ids = [v for v in value.split("/")]
+            else:
+                if name not in self.extra_options:
+                    self.extra_options[name] = []
+                self.extra_options[name].append(value)
 
     def _build_output_str(self):
         self.output_str = "{}={},id={}".\
@@ -860,6 +866,9 @@ class Item:
             self.output_str += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
         if len(self.relic_ids):
             self.output_str += ",relic_id=" + "/".join([str(v) for v in self.relic_ids])
+        for name, values in self.extra_options.items():
+            for value in values:
+                self.output_str += ",{}={}".format(name, value) 
 
     def __str__(self):
         return "Item({})".format(self.output_str)
