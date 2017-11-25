@@ -848,8 +848,9 @@ class Item:
                 self.relic_ids = [v for v in value.split("/")]
 
     def _build_output_str(self):
-        self.output_str = "={},id={}".\
-            format(self.name,
+        self.output_str = "{}={},id={}".\
+            format(self.slot,
+                   self.name,
                    self.item_id)
         if len(self.bonus_ids):
             self.output_str += ",bonus_id=" + "/".join([str(v) for v in self.bonus_ids])
