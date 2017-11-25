@@ -310,6 +310,8 @@ def get_analyzer_data(class_spec):
 
 
 def autoDownloadSimc():
+    if not settings.auto_download_simc:
+        return
     try:
         if settings.auto_download_simc:
             if platform.system() != "Windows" or not platform.machine().endswith('64'):
@@ -407,7 +409,7 @@ def validateSettings(args):
     # Check simc executable availability.
     if args.sim:
         if not os.path.exists(settings.simc_path):
-            raise ValueError("Error: Wrong path to simc executable: {}".format(settings.simc_path))
+            raise FileNotFoundError("Simc executable at '{}' does not exist.".format(settings.simc_path))
         else:
             logging.debug("Simc executable exists at '{}', proceeding...".format(settings.simc_path))
         if os.name == "nt":
