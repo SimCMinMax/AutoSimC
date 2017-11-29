@@ -267,6 +267,11 @@ def parse_command_line_args():
     parser.add_argument('--debug',
                         action='store_true',
                         help='Write debug information to log file.')
+    
+    # TODO Handle quiet argument in the code
+    parser.add_argument('-quiet',
+                        action='store_true',
+                        help='Run quietly. /!\ Not implemented yet')
 
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
 
