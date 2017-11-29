@@ -350,6 +350,9 @@ def autoDownloadSimc():
         seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
         for seven_zip_executable in seven_zip_executables:
             try:
+                if not os.path.exists(seven_zip_executable):
+                    logging.info("7Zip exetuable at '{}' does not exist.".format(seven_zip_executable))
+                    continue
                 cmd = seven_zip_executable + ' x "'+filepath+'" -aoa -o"' + download_dir + '"'
                 logging.debug("Running unpack command '{}'".format(cmd))
                 subprocess.call(cmd)
@@ -364,7 +367,9 @@ def autoDownloadSimc():
             except Exception as e:
                 print("Exception when unpacking: {}".format(e))
         else:
-            raise RuntimeError("Could not unpack SimC.")
+            raise RuntimeError("Could not unpack the auto downloaded SimulationCraft executable."
+                               "Please note that you need 7Zip installed at one of the following locations: {}.".
+                               format(seven_zip_executables))
     else:
         print("simc_path={}".format(repr(settings.simc_path)))
 
