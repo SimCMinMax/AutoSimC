@@ -11,7 +11,9 @@ You must have python (>3.6.1) installed on you computer for this to work.
 - Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
 - Download the project and extract it.
 - Open input.txt and enter parameters depending on your character (see below for more informations). Save and close.
+- Edit settings.py to set simc path
 - Edit settings.py for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
+- If you don't have 7zip, don't forget to disable auto download in settings.py
 - Launch launch.bat (see below for more parameters)
 - The .simc file is generated and ready to be used with Simc.
 - If you are using Simc GUI, open the .simc file with notepad and copy/paste the text in simc
@@ -171,3 +173,4 @@ Bickus (All the fancy things)
 
 Aadder (How-To)
 
+Serge (Lot of rework)
