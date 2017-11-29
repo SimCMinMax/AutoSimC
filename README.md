@@ -95,9 +95,6 @@ usage :
                 problems or instabilities, edit settings.py and change
                 the corresponding parameters or even disable it.
                 (default: ['stage1'])
-      -quiet, --quiet       Option for disabling Console-output. Generates the
-                outputfile much faster for large permuation-size
-                (default: 0)
       -gems GEMS, --gems GEMS
                 Enables permutation of gem-combinations in your gear.
                 With e.g. gems crit,haste,int you can add all
