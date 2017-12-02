@@ -8,7 +8,7 @@ IF ERRORLEVEL 1 (
     ECHO --If you get the message: "cant open file "main.py" [Errno2].."
     ECHO --Please add Python-Path to your Systemvariables-Path-Variable
     Echo --https://i.imgur.com/KM132c7.png
-   python.exe main.py -i input.txt -o out.simc -sim stage1
+   python.exe main.py -i input.txt -o out.simc -sim all
    pause
 )
 
