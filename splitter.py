@@ -166,8 +166,7 @@ def launch_simc_commands(commands):
     logging.debug("Starting simc with commands={}".format(commands))
     try:
         num_workers = settings.number_of_instances
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers,
-                                                         thread_name_prefix="SimC-Worker")
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         counter = 0
         results = []
         for command in commands:
