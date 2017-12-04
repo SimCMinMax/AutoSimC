@@ -96,8 +96,11 @@ class settings():
     # 3. use the same procedure for stage3
     # set this to True|False if you want to use this method
     default_use_alternate_grabbing_method = True
+
+    # Error Rate Multiplier / Confidence Range
     # change this to widen/narrow the interval of profiles taken into account for the next stage
-    default_error_rate_multiplier = 2
+    # use 1.96 for 95% confidence or 2.58 for 99% confidence
+    default_error_rate_multiplier = 1.96
 
     # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
     # https://github.com/simulationcraft/simc/wiki/RaidEvents

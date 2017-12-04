@@ -36,26 +36,31 @@ if __name__ == "__main__":
         sys.exit(1)
 
 # Var init with default value
-c_profileid = 0
-c_profilemaxid = 0
 t19min = int(settings.default_equip_t19_min)
 t19max = int(settings.default_equip_t19_max)
 t20min = int(settings.default_equip_t20_min)
 t20max = int(settings.default_equip_t20_max)
 t21min = int(settings.default_equip_t21_min)
 t21max = int(settings.default_equip_t21_max)
-
-logFileName = settings.logFileName
-errorFileName = settings.errorFileName
-
-s_stage = ""
-
-iterations_firstpart = settings.default_iterations_stage1
-iterations_secondpart = settings.default_iterations_stage2
-iterations_thirdpart = settings.default_iterations_stage3
-
 target_error_secondpart = settings.default_target_error_stage2
 target_error_thirdpart = settings.default_target_error_stage3
+
+settings_subdir = {1: settings.subdir1,
+                   2: settings.subdir2,
+                   3: settings.subdir3
+                   }
+settings_iterations = {1: int(settings.default_iterations_stage1),
+                       2: int(settings.default_iterations_stage2),
+                       3: int(settings.default_iterations_stage3)
+                       }
+settings_n_stage = {2: settings.default_top_n_stage2,
+                    3: settings.default_top_n_stage3
+                    }
+
+settings_target_error = {2: settings.default_target_error_stage2,
+                         3: settings.default_target_error_stage3
+                         }
+
 
 gem_ids = {"150haste":  130220,
            "200haste":  151583,
@@ -76,22 +81,6 @@ gem_ids = {"150haste":  130220,
            "200int":    130248,
            "int":       130248,
            }
-
-settings_subdir = {1: settings.subdir1,
-                   2: settings.subdir2,
-                   3: settings.subdir3
-                   }
-settings_iterations = {1: int(settings.default_iterations_stage1),
-                       2: int(settings.default_iterations_stage2),
-                       3: int(settings.default_iterations_stage3)
-                       }
-settings_n_stage = {2: settings.default_top_n_stage2,
-                    3: settings.default_top_n_stage3
-                    }
-
-settings_target_error = {2: settings.default_target_error_stage2,
-                         3: settings.default_target_error_stage3
-                         }
 
 # Global logger instance
 logger = logging.getLogger()
@@ -267,7 +256,7 @@ def parse_command_line_args():
     parser.add_argument('--debug',
                         action='store_true',
                         help='Write debug information to log file.')
-    
+
     # TODO Handle quiet argument in the code
     parser.add_argument('-quiet',
                         action='store_true',
@@ -1197,25 +1186,23 @@ def checkResultFiles(subdir):
     printLog("Checking Files in subdirectory: {}".format(subdir))
 
     if not os.path.exists(subdir):
-        printLog("Error: Subdir does not exist: {}".format(subdir))
+        logging.error("Subdir does not exist: {}".format(subdir))
         return False
 
     files = os.listdir(subdir)
     if len(files) == 0:
-        printLog("No files in: " + str(subdir))
-        print("No files in: " + str(subdir) + ", exiting")
+        logging.error("No files in: " + str(subdir))
         return False
 
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
     for file in files:
         if os.stat(filename).st_size <= 0:
-            printLog("Result file is empty: {}".format(file))
+            logging.error("Result file is empty: {}".format(file))
             return False
 
     logging.debug("{} valid result files found in {}.".format(len(files), subdir))
     printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
-    print("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
     return True
 
 
@@ -1383,8 +1370,8 @@ def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
 def stage1(player_profile, num_generated_profiles):
     printLog("Entering Stage1")
     print("You have to choose one of the following modes for calculation:")
-    print("1) Static mode uses a fixed amount, but less accurate calculations per profile (" + str(
-        iterations_firstpart) + "," + str(iterations_secondpart) + "," + str(iterations_thirdpart) + ")")
+    print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
+          format(settings_iterations))
     print("   It is however faster if simulating huge amounts of profiles")
     print(
         "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
@@ -1467,12 +1454,12 @@ def check_interpreter():
 def main():
     global class_spec
 
-    error_handler = logging.FileHandler(errorFileName)
+    error_handler = logging.FileHandler(settings.errorFileName)
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
     # Handler to log messages to file
-    log_handler = logging.FileHandler(logFileName)
+    log_handler = logging.FileHandler(settings.logFileName)
     log_handler.setLevel(logging.INFO)
     log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
