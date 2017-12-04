@@ -1218,8 +1218,13 @@ def static_stage(player_profile, stage):
                 raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
             else:
                 logging.info("Resimming succeeded.")
-        splitter.grab_best("count", settings_n_stage[stage], settings_subdir[stage - 1],
-                           settings_subdir[stage], outputFileName)
+        if settings.default_use_alternate_grabbing_method:
+            splitter.grab_best("target_error", None, settings_subdir[stage - 1],
+                               settings_subdir[stage], outputFileName)
+        else:
+            # grabbing top 100 files
+            splitter.grab_best("count", settings_n_stage[stage], settings_subdir[stage - 1],
+                               settings_subdir[stage], outputFileName)
     else:
         # Stage1 splitting
         splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
