@@ -470,7 +470,7 @@ def validateSettings(args):
 
 
 def file_checksum(filename):
-    h = hashlib.sha3_256()
+    h = hashlib.sha256()
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             h.update(chunk)
@@ -1170,7 +1170,7 @@ def launch_resims(subdir, player_profile, stage, count=2):
                 printLog("User exit")
                 sys.exit(0)
 
-        printLog(F"Resimming files: Count: {count}")
+        printLog("Resimming files: Count: {}".format(count))
         print("Starting resim with {} tries left.".format(count-1))
         if not resim(subdir, player_profile, stage):
             return launch_resims(subdir, player_profile, stage, count - 1)
@@ -1434,7 +1434,7 @@ def check_interpreter():
     """Check interpreter for minimum requirements."""
     # Does not really work in practice, since formatted string literals (3.6) lead to SyntaxError prior to execution of
     # the program with older interpreters.
-    required_major, required_minor = (3, 6)
+    required_major, required_minor = (3, 4)
     major, minor, _micro, _releaselevel, _serial = sys.version_info
     if major > required_major:
         return

@@ -130,16 +130,18 @@ def generateCommand(file, outputs, sim_type, stage3, player_profile, num_files_t
 
 def worker(command, counter, maximum, starttime, num_workers):
     print("-----------------------------------------------------------------")
-    print(F"Currently processing: {command[2]}")
-    print(F"Processing: {counter+1}/{maximum} ({round(100 * float(int(counter) / int(maximum)), 1)}%)")
+    print("Currently processing: {}".format(command[2]))
+    print("Processing: {}/{} ({}%)".format(counter+1,
+                                           maximum,
+                                           round(100 * float(int(counter) / int(maximum)), 1)))
     try:
         if counter > 0 and counter % num_workers == 0:
             duration = datetime.datetime.now() - starttime
             avg_calctime_hist = duration / counter
             remaining_time = (maximum - counter) * avg_calctime_hist
             finish_time = datetime.datetime.now() + remaining_time
-            print(F"Remaining calculation time (est.): {remaining_time}.")
-            print(F"Finish time (est.): {finish_time}")
+            print("Remaining calculation time (est.): {}.".format(remaining_time))
+            print("Finish time (est.): {}".format(finish_time))
     except Exception:
         logging.debug("Error while calculating progress time.", exc_info=True)
 
