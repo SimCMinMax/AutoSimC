@@ -141,6 +141,8 @@ def parse_json_output():
 
 # parses
 def generate_json_analysis():
+    global raw_data
+    raw_data = sorted(raw_data, key=lambda d: d["target_error"])
     for data in raw_data:
         v = Variant(data["version"], data["git_revision"], data["target_error"], data["fight_style"])
 
