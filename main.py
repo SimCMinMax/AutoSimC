@@ -517,7 +517,8 @@ def chop_microseconds(delta):
 def print_permutation_progress(valid_profiles, current, maximum, start_time, max_profile_chars, progress, max_progress):
     # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
     # computation very much
-    if progress % int(50000 / (maximum / max_progress)) == 0 or progress == max_progress:
+    print_every_n = max(int(50000 / (maximum / max_progress)), 1)
+    if progress % print_every_n == 0 or progress == max_progress:
         pct = 100.0 * current / maximum
         elapsed = datetime.datetime.now() - start_time
         bandwith = current / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
