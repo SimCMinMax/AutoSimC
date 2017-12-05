@@ -7,18 +7,22 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 
 ## How does it work ?
+AutoSimC works in two parts:
+1. Generating Permutations: Given a input.txt file and certain settings, a output .simc file is generated containing all possible permutations specified. This output file can then be run with SimulationCraft.
+2. Simulating the generated profiles in a multi-stage process: To narrow the large amount of generated profiles into a small set of best performing profiles, a multi-stage simulation process is performed, in which each stage simulates the given profiles with increased accuracy to narrow the number of profiles in each stage, resulting in only a handful of final profiles with the best DPS.
+
 You must have python (>=3.4) installed on you computer for this to work.
 - Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
 - Download the project and extract it.
-- Open input.txt and enter parameters depending on your character (see below for more informations). Save and close.
-- Either install 7zip for AutoDownload of simc, or edit settings.py to disable auto download and set simc path
-- Edit settings.py for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
-- Launch launch.bat (see below for more parameters) or call main.py directly
+- Open [input.txt](#inputtxt) and enter parameters depending on your character.
+- Either install 7zip for auto download of nightly SimulationCraft, or edit settings.py to set auto_download_simc=False and set the simc_path.
+- Edit [settings.py](settingspy) for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
+- Run launch.bat or run 'python main.py' directly. See [below](#command-line-interface) for detailed options.
 - You can use the -sim option to simulate directly with AutoSimC. Or you can feed to generated output .simc file into
   SimulationCraft yourself.
 - You can also follow this how-to set it up [https://goo.gl/5d7BAM]
 
-## Launch.bat
+## Command Line Interface
 usage :
 
       python main.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
