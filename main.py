@@ -57,10 +57,9 @@ settings_n_stage = {2: settings.default_top_n_stage2,
                     3: settings.default_top_n_stage3
                     }
 
-settings_target_error = {2: settings.default_target_error_stage2,
-                         3: settings.default_target_error_stage3
+settings_target_error = {2: float(settings.default_target_error_stage2),
+                         3: float(settings.default_target_error_stage3)
                          }
-
 
 gem_ids = {"150haste":  130220,
            "200haste":  151583,
@@ -338,7 +337,7 @@ def autoDownloadSimc():
         logging.debug("Latest simc version already downloaded at {}.".format(filename))
 
     # Unpack downloaded build and set simc_path
-    settings.simc_path = os.path.join(download_dir, filename[:filename.find("win64")+len("win64")], "simc.exe")
+    settings.simc_path = os.path.join(download_dir, filename[:filename.find("win64") + len("win64")], "simc.exe")
     splitter.simc_path = settings.simc_path
     if not os.path.exists(settings.simc_path):
         seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
@@ -347,7 +346,7 @@ def autoDownloadSimc():
                 if not os.path.exists(seven_zip_executable):
                     logging.info("7Zip exetuable at '{}' does not exist.".format(seven_zip_executable))
                     continue
-                cmd = seven_zip_executable + ' x "'+filepath+'" -aoa -o"' + download_dir + '"'
+                cmd = seven_zip_executable + ' x "' + filepath + '" -aoa -o"' + download_dir + '"'
                 logging.debug("Running unpack command '{}'".format(cmd))
                 subprocess.call(cmd)
 
@@ -548,6 +547,7 @@ class Profile:
 
 
 class TierCheck:
+
     def __init__(self, n, minimum, maximum):
         self.name = "T{}".format(n)
         self.n = n
@@ -558,6 +558,7 @@ class TierCheck:
 
 class PermutationData:
     """Data for each permutation"""
+
     def __init__(self, items, profile, max_profile_chars):
         self.profile = profile
         self.max_profile_chars = max_profile_chars
@@ -570,23 +571,23 @@ class PermutationData:
             gems_on_gear += gear.gem_ids
             gear_with_gems[slot] = len(gear.gem_ids)
 
-        #logging.debug("gems on gear: {}".format(gems_on_gear))
+        # logging.debug("gems on gear: {}".format(gems_on_gear))
         if len(gems_on_gear) == 0:
             return
 
         # Combine existing gems of the item with the gems supplied by --gems
         combined_gem_list = [*gems_on_gear, *gem_list]
         combined_gem_list = stable_unique(combined_gem_list)
-        #logging.debug("Combined gem list: {}".format(combined_gem_list))
+        # logging.debug("Combined gem list: {}".format(combined_gem_list))
         new_gems = get_gem_combinations(combined_gem_list, len(gems_on_gear))
-        #logging.debug("New Gems: {}".format(new_gems))
+        # logging.debug("New Gems: {}".format(new_gems))
         new_combinations = []
         for gems in new_gems:
             new_items = copy.deepcopy(items)
             gems_used = 0
             for i, (slot, num_gem_slots) in enumerate(gear_with_gems.items()):
                 copied_item = copy.deepcopy(new_items[slot])
-                copied_item.gem_ids = gems[gems_used:gems_used+num_gem_slots]
+                copied_item.gem_ids = gems[gems_used:gems_used + num_gem_slots]
                 new_items[slot] = copied_item
                 gems_used += num_gem_slots
             new_combinations.append(new_items)
@@ -1171,7 +1172,7 @@ def launch_resims(subdir, player_profile, stage, count=2):
                 sys.exit(0)
 
         printLog("Resimming files: Count: {}".format(count))
-        print("Starting resim with {} tries left.".format(count-1))
+        print("Starting resim with {} tries left.".format(count - 1))
         if not resim(subdir, player_profile, stage):
             return launch_resims(subdir, player_profile, stage, count - 1)
         print("resim success")
@@ -1233,147 +1234,92 @@ def static_stage(player_profile, stage):
     static_stage(player_profile, stage + 1)
 
 
-def dynamic_stage1(player_profile, num_generated_profiles, stage=1):
+def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
+    if stage > 3:
+        return
     printLog("Entering dynamic mode, STAGE {}".format(stage))
-    result_data = get_analyzer_data(player_profile.class_spec)
-    print("Listing options:")
-    print("Estimated calculation times based on your data:")
-    print("Class/Spec: " + str(player_profile.class_spec))
-    print("Number of permutations to simulate: " + str(num_generated_profiles))
-    for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
+
+    if stage == 1:
+        result_data = get_analyzer_data(player_profile.class_spec)
+        print("Listing options:")
+        print("Estimated calculation times based on your data:")
+        print("Class/Spec: " + str(player_profile.class_spec))
+        print("Number of permutations to simulate: " + str(num_generated_profiles))
+        for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
+            elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+            estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
+
+            print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                  format(i,
+                         target_error,
+                         elapsed_time.total_seconds(),
+                         estimated_time)
+                  )
+        if settings.skip_questions:
+            calc_choice = settings.auto_dynamic_stage1_target_error_table
+        else:
+            calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
+            if calc_choice == "q":
+                printLog("Quitting application")
+                sys.exit(0)
+        calc_choice = int(calc_choice)
+        if calc_choice >= len(result_data) or calc_choice < 0:
+            raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
+                                                                                        len(result_data) - 1))
+        printLog("Sim: Number of permutations: " + str(num_generated_profiles))
+        printLog("Sim: Chosen calculation: {}".format(calc_choice))
+
+        target_error, _iterations, elapsed_time_seconds = result_data[calc_choice]
         elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
         estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
 
-        print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
-              format(i,
-                     target_error,
-                     elapsed_time.total_seconds(),
-                     estimated_time)
-              )
-
-    if settings.skip_questions:
-        calc_choice = settings.auto_dynamic_stage1_target_error_table
+        logger.info("Selected: ({:2n}): Target Error: {:.3f}%: Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                    format(i,
+                           target_error,
+                           elapsed_time.total_seconds(),
+                           estimated_time))
+        if not settings.skip_questions:
+            if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
+                if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".
+                         format(estimated_time)) == "q":
+                    printLog("Quitting application")
+                    sys.exit(0)
     else:
-        calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
-        if calc_choice == "q":
-            printLog("Quitting application")
-            sys.exit(0)
-    calc_choice = int(calc_choice)
-    if calc_choice >= len(result_data) or calc_choice < 0:
-        raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
-                                                                                    len(result_data) - 1))
-    printLog("Sim: Number of permutations: " + str(num_generated_profiles))
-    printLog("Sim: Chosen calculation: {}".format(calc_choice))
-
-    target_error, _iterations, elapsed_time_seconds = result_data[calc_choice]
-    elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
-    estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-
-    logger.info("Selected: ({:2n}): Target Error: {:.3f}%: Time/Profile: {:5.2f} sec => Est. calc. time: {}".
-                format(i,
-                       target_error,
-                       elapsed_time.total_seconds(),
-                       estimated_time))
-    if not settings.skip_questions:
-        if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
-            if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".format(estimated_time)) == "q":
+        # if the user chose a target_error which is lower than the default_one for the next step
+        # he is given an option to either skip stage 2 or adjust the target_error
+        target_error = float(settings_target_error[stage])
+        if previous_target_error is not None and previous_target_error <= target_error:
+            print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
+                  format(stage - 1, previous_target_error, stage, target_error))
+            new_value = input(
+                "Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
+                " for the current stage (n)?: ")
+            printLog("User chose: " + str(new_value))
+            if new_value == "q":
                 printLog("Quitting application")
                 sys.exit(0)
+            if new_value == "n":
+                target_error = float(input("Enter new target_error (Format: 0.3): "))
+                printLog("User entered target_error_secondpart: " + str(target_error))
 
-    # split into chunks of n (max 100) to not destroy the hdd
-    # todo: calculate dynamic amount of n
-    splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
-    splitter.sim(settings.subdir1, "target_error=" + str(target_error), player_profile, 1)
-
-    # if the user chose a target_error which is lower than the default_one for the next step
-    # he is given an option to either skip stage 2 or adjust the target_error
-    stage_next_target_error = float(settings.default_target_error_stage2)
-    if target_error <= stage_next_target_error:
-        print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
-              format(stage, target_error, stage+1, stage_next_target_error))
-        new_value = input(
-            "Do you want to continue anyway (y), quit (q), skip to stage3 (s) or enter a new target_error"
-            " for stage2 (n)?: ")
-        printLog("User chose: " + str(new_value))
-        if new_value == "q":
-            printLog("Quitting application")
-            sys.exit(0)
-        if new_value == "n":
-            stage_next_target_error = float(input("Enter new target_error (Format: 0.3): "))
-            printLog("User entered target_error_secondpart: " + str(stage_next_target_error))
-        if new_value == "s":
-            dynamic_stage3(True, settings.default_target_error_stage3, target_error, player_profile)
-            return
-    dynamic_stage2(stage_next_target_error, target_error, player_profile)
-
-
-def dynamic_stage2(targeterror, targeterrorstage1, player_profile):
-    printLog("Entering dynamic mode, stage2")
-    checkResultFiles(settings.subdir1)
-    if settings.default_use_alternate_grabbing_method:
-        splitter.grab_best("target_error", targeterrorstage1, settings.subdir1, settings.subdir2, outputFileName)
+    if stage == 1:
+        splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
     else:
-        # grabbing top 100 files
-        splitter.grab_best("count", settings.default_top_n_stage2, settings.subdir1, settings.subdir2, outputFileName)
-    # where they are simmed again, now with higher quality
-    splitter.sim(settings.subdir2, "target_error=" + str(targeterror), player_profile, 1)
-    # if the user chose a target_error which is lower than the default_one for the next step
-    # he is given an option to either skip stage 2 or adjust the target_error
-    if float(target_error_secondpart) <= float(settings.default_target_error_stage3):
-        printLog("Target_Error chosen in stage 2: " + str(
-            targeterror) + " <= Default_Target_Error stage 3: " + str(
-            settings.default_target_error_stage3))
-        print("Warning!\n")
-        printLog("Target_Error chosen in stage 2: " + str(
-            targeterror) + " <= Default_Target_Error stage 3: " + str(
-            settings.default_target_error_stage3))
-        new_value = input(
-            "Do you want to continue (y), quit (q) or enter a new target_error for stage3 (n)?: ")
-        printLog("User chose: " + str(new_value))
-        if new_value == "q":
-            sys.exit(0)
-        if new_value == "n":
-            target_error_thirdpart = input("Enter new target_error (Format: 0.3): ")
-            printLog("User entered target_error_thirdpart: " + str(target_error_thirdpart))
-            dynamic_stage3(False, target_error_thirdpart, targeterror, player_profile)
-        if new_value == "y":
-            dynamic_stage3(False, settings.default_target_error_stage3, targeterror, player_profile)
-    else:
-        dynamic_stage3(False, settings.default_target_error_stage3, targeterror, player_profile)
-
-
-def dynamic_stage3(skipped, targeterror, targeterrorstage2, player_profile):
-    printLog("Entering dynamic mode, stage3")
-    ok = False
-    if skipped:
-        ok = checkResultFiles(settings.subdir1)
-    else:
-        ok = checkResultFiles(settings.subdir2)
-    if ok:
-        printLog(".result-files ok, proceeding")
-        # again, for a third time, get top 3 profiles and put them into subdir3
-        if skipped:
-            if settings.default_use_alternate_grabbing_method:
-                splitter.grab_best("target_error", targeterrorstage2, settings.subdir1,
-                                   settings.subdir3, outputFileName, split_optimally=False)
-            else:
-                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir1,
-                                   settings.subdir3, outputFileName, split_optimally=False)
+        checkResultFiles(settings_subdir[stage - 1])
+        if settings.default_use_alternate_grabbing_method:
+            filter_by = "target_error"
+            filter_criterium = None
         else:
-            if settings.default_use_alternate_grabbing_method:
-                splitter.grab_best("target_error", targeterrorstage2, settings.subdir2,
-                                   settings.subdir3, outputFileName, split_optimally=False)
-            else:
-                splitter.grab_best("count", settings.default_top_n_stage3, settings.subdir2,
-                                   settings.subdir3, outputFileName, split_optimally=False)
-        # sim them finally with all options enabled; html-output remains in subdir3, check cleanup for moving to results
-        splitter.sim(settings.subdir3, "target_error=" + str(targeterror), player_profile, 2)
-    else:
-        printLog("No valid .result-files found for stage3!")
+            filter_by = "count"
+            filter_criterium = settings_n_stage[stage]
+        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
+                                                    settings_subdir[stage], outputFileName)
+    splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile, stage - 1)
+    dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 
-def stage1(player_profile, num_generated_profiles):
-    printLog("Entering Stage1")
+def start_stage(player_profile, num_generated_profiles, stage):
+    printLog("Entering Stage {}".format(stage))
     print("You have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
           format(settings_iterations))
@@ -1385,30 +1331,9 @@ def stage1(player_profile, num_generated_profiles):
             target_error_secondpart) + " and " + str(
             target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
     if settings.skip_questions:
-        sim_mode = str(settings.auto_choose_static_or_dynamic)
-    else:
-        sim_mode = input("Please choose your mode (Enter to exit): ")
-    if sim_mode == "1":
-        static_stage(player_profile, 1)
-    elif sim_mode == "2":
-        dynamic_stage1(player_profile, num_generated_profiles)
-    else:
-        print("Error, wrong mode: Stage1")
-        printLog("Error, wrong mode: Stage1")
-        sys.exit(0)
-
-
-def stage_restart(player_profile, stage):
-    if stage > 3 or stage < 1:
-        raise ValueError("No stage {} available to restart.".format(stage))
-    logging.info("\nRestarting STAGE{}".format(stage))
-    if not checkResultFiles(settings_subdir[stage - 1]):
-        raise RuntimeError("Error restarting stage {}. Some result-files are empty in {}".
-                           format(stage, settings_subdir[stage - 1]))
-    if settings.skip_questions:
         mode_choice = str(settings.auto_choose_static_or_dynamic)
     else:
-        mode_choice = input("What mode did you use: Static (1) or dynamic (2): ")
+        mode_choice = input("Please choose your mode (Enter to exit): ")
         mode_choice = int(mode_choice)
     valid_modes = [1, 2]
     if mode_choice not in valid_modes:
@@ -1417,22 +1342,9 @@ def stage_restart(player_profile, stage):
     if mode_choice == 1:
         static_stage(player_profile, stage)
     elif mode_choice == 2:
-        if stage == 3:
-            if input("Did you skip stage 2? (y,n)") == "y":
-                skip = True
-            else:
-                skip = False
-        new_te = settings_target_error[stage]
-        if not settings.skip_questions:
-            user_te = input("Specify target error for stage{}: (Press enter for default: {}):".format(stage,
-                                                                                                      new_te))
-            if len(user_te):
-                new_te = float(user_te)
-            logging.info("User selected target_error={} for stage{}.".format(new_te, stage))
-        if stage == 2:
-            dynamic_stage2(new_te, splitter.user_targeterror, player_profile)
-        elif stage == 3:
-            dynamic_stage3(skip, new_te, float(settings.default_target_error_stage2), player_profile)
+        dynamic_stage(player_profile, num_generated_profiles, None, stage)
+    else:
+        assert(False)
 
 
 def check_interpreter():
@@ -1495,41 +1407,37 @@ def main():
     print("Combinations in progress...")
 
     # can always be rerun since it is now deterministic
+    outputGenerated = False
     if args.sim == "all" or args.sim is None:
         start = datetime.datetime.now()
         num_generated_profiles = permutate(args, player_profile)
         logging.info("Permutating took {}.".format(datetime.datetime.now() - start))
         outputGenerated = True
-    else:
+    elif args.sim == "stage1":
         if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
             num_generated_profiles = permutate(args, player_profile)
             outputGenerated = True
-        else:
-            outputGenerated = False
-            num_generated_profiles = None
 
     if outputGenerated:
         if num_generated_profiles == 0:
             raise ValueError("No valid profile combinations found."
                              " Please run again with --debug and check your input.txt and settings.py.")
+        if args.sim:
+            if not settings.skip_questions:
+                if num_generated_profiles and num_generated_profiles > 50000:
+                    if input(
+                            "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                            " <----- (Press Enter to continue, q to quit)") == "q":
+                        logging.info("Program exit by user")
+                        sys.exit(0)
 
     if args.sim:
-        if not settings.skip_questions:
-            if num_generated_profiles and num_generated_profiles > 50000:
-                if input(
-                        "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
-                        " <----- (Press Enter to continue, q to quit)") == "q":
-                    logging.info("Program exit by user")
-                    sys.exit(0)
-
-        print("Simulation in progress...")
-
         if args.sim == "stage1" or args.sim == "all":
-            stage1(player_profile, num_generated_profiles)
+            start_stage(player_profile, num_generated_profiles, 1)
         if args.sim == "stage2":
-            stage_restart(player_profile, 2)
+            start_stage(player_profile, None, 2)
         if args.sim == "stage3":
-            stage_restart(player_profile, 3)
+            start_stage(player_profile, None, 3)
 
     if settings.clean_up_after_step3:
         cleanup()
@@ -1537,8 +1445,14 @@ def main():
 
 
 if __name__ == "__main__":
+
+
     try:
+
+
         main()
+
+
         logging.shutdown()
     except Exception as e:
         logging.error("Error: {}".format(e), exc_info=True)

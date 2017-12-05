@@ -381,3 +381,4 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
         outfile_count += 1
 
     logging.info("Got {} best profiles written to {} files..".format(num_profiles, outfile_count))
+    return num_profiles
