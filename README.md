@@ -7,45 +7,16 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 
 ## How does it work ?
-You must have python (>3.6.1) installed on you computer for this to work.
+You must have python (>=3.4) installed on you computer for this to work.
 - Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
 - Download the project and extract it.
 - Open input.txt and enter parameters depending on your character (see below for more informations). Save and close.
-- Edit settings.py to set simc path
+- Either install 7zip for AutoDownload of simc, or edit settings.py to disable auto download and set simc path
 - Edit settings.py for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
-- If you don't have 7zip, don't forget to disable auto download in settings.py
-- Launch launch.bat (see below for more parameters)
-- The .simc file is generated and ready to be used with Simc.
-- If you are using Simc GUI, open the .simc file with notepad and copy/paste the text in simc
-- You can use the -sim-option to simulate it without using the Simcraft-Gui
+- Launch launch.bat (see below for more parameters) or call main.py directly
+- You can use the -sim option to simulate directly with AutoSimC. Or you can feed to generated output .simc file into
+  SimulationCraft yourself.
 - You can also follow this how-to set it up [https://goo.gl/5d7BAM]
-
-## Input.txt
-[This might not work fully with the current [-sim]-option]
-
-You have to fill variables as it is on SimulationCraft.
-
-If you want to add rotations, stance or others advanced SimulationCraft feature, add them with the "other=" field :
-Example :
-
-    other=initial_chi=4 for Monks
-You MUST add "\n" between each lines to make a line break.
-Example :
-
-    other=initial_chi=4\nactions+=/stance,choose=fierce_tiger
-
-For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
-Example : 
-
-    neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
-
-To specify Tier/Legendary set and item names, use the following syntax:
-
-    neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
-    
-You can also use SimPermut to generate the string directly with the gear you have equipped and in your bag (See below).
-
-Talent permutation: Just replace the talent row your want to permutate (talents 1, 2 and 3) with a 0 in your talent= string
 
 ## Launch.bat
 usage :
@@ -139,11 +110,35 @@ usage :
 
 
 
+## Input.txt
+You have to fill variables as it is on SimulationCraft.
+
+If you want to add rotations, stance or others advanced SimulationCraft feature, add them with the "other=" field :
+Example :
+
+    other=initial_chi=4 for Monks
+You MUST add "\n" between each lines to make a line break.
+Example :
+
+    other=initial_chi=4\nactions+=/stance,choose=fierce_tiger
+
+For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
+Example : 
+
+    neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
+
+To specify Tier/Legendary set and item names, use the following syntax:
+
+    neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
+    
+You can also use SimPermut to generate the string directly with the gear you have equipped and in your bag (See below).
+
+Talent permutation: Just replace the talent row your want to permutate (talents 1, 2 and 3) with a 0 in your talent= string
+
 ## settings.py
 You can/have to finetune your settings in the settings.py file:
-- enable permutation of talents
-- set amount of tier-items and legendaries
-- default number of iterations for each step
+- set min/max amount of tier-items and legendaries
+- default number of iterations or target_error for each stage
 - change type of fight (patchwerk, LightMovement etc.)
 - and several more
 
@@ -158,11 +153,7 @@ SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to ext
 Just copy the text you get in SimPermut and paste it in your input.txt file (erase what was already in it) and launch the script as described above.
 
 ## Known issues and developement plan
-- Better management of command line
 - Bugfixing and expanding simulation-options
-
-[-Relic comparison]
-
 
 ## Credits
 Aethys
