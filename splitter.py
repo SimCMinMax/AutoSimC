@@ -78,7 +78,9 @@ def split(inputfile, size, wow_class):
     """
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
-
+    logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
+    
+    num_profiles = 0
     bestprofiles = []
     outfile_count = 0
     subfolder = os.path.join(os.getcwd(), subdir1)
@@ -90,6 +92,7 @@ def split(inputfile, size, wow_class):
             if len(bestprofiles) >= size:
                 outfile = os.path.join(subfolder, "sim" + str(outfile_count) + ".sim")
                 dump_profiles_to_file(outfile, bestprofiles)
+                num_profiles += len(bestprofiles)
                 bestprofiles.clear()
                 outfile_count += 1
     # Write tail
@@ -97,6 +100,8 @@ def split(inputfile, size, wow_class):
         outfile = os.path.join(subfolder, "sim" + str(outfile_count) + ".sim")
         dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
+        num_profiles += len(bestprofiles)
+    return num_profiles
 
 
 def generateCommand(file, outputs, sim_type, stage3, player_profile, num_files_to_sim):

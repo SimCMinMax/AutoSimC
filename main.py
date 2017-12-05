@@ -1237,14 +1237,27 @@ def static_stage(player_profile, stage):
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
     if stage > 3:
         return
-    printLog("Entering dynamic mode, STAGE {}".format(stage))
+    printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
+
+    if stage == 1:
+        num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
+    else:
+        checkResultFiles(settings_subdir[stage - 1])
+        if settings.default_use_alternate_grabbing_method:
+            filter_by = "target_error"
+            filter_criterium = None
+        else:
+            filter_by = "count"
+            filter_criterium = settings_n_stage[stage]
+        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
+                                                    settings_subdir[stage], outputFileName)
+
+    if num_generated_profiles:
+        logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
 
     if stage == 1:
         result_data = get_analyzer_data(player_profile.class_spec)
-        print("Listing options:")
         print("Estimated calculation times based on your data:")
-        print("Class/Spec: " + str(player_profile.class_spec))
-        print("Number of permutations to simulate: " + str(num_generated_profiles))
         for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
             elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
             estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
@@ -1269,21 +1282,8 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         printLog("Sim: Number of permutations: " + str(num_generated_profiles))
         printLog("Sim: Chosen calculation: {}".format(calc_choice))
 
-        target_error, _iterations, elapsed_time_seconds = result_data[calc_choice]
-        elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
-        estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
+        target_error, _iterations, _elapsed_time_seconds = result_data[calc_choice]
 
-        logger.info("Selected: ({:2n}): Target Error: {:.3f}%: Time/Profile: {:5.2f} sec => Est. calc. time: {}".
-                    format(i,
-                           target_error,
-                           elapsed_time.total_seconds(),
-                           estimated_time))
-        if not settings.skip_questions:
-            if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
-                if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".
-                         format(estimated_time)) == "q":
-                    printLog("Quitting application")
-                    sys.exit(0)
     else:
         # if the user chose a target_error which is lower than the default_one for the next step
         # he is given an option to either skip stage 2 or adjust the target_error
@@ -1302,18 +1302,29 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                 target_error = float(input("Enter new target_error (Format: 0.3): "))
                 printLog("User entered target_error_secondpart: " + str(target_error))
 
-    if stage == 1:
-        splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
+    # Use number of profiles we are going to sim to calculate some time estimate
+    if num_generated_profiles:
+        result_data = get_analyzer_data(player_profile.class_spec)
+        for i, (te, _iterations, elapsed_time_seconds) in enumerate(result_data):
+            if target_error <= te:
+                elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+                estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
+                logging.info("Chosen Target Error: {:.3f}% ~= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                      format(target_error,
+                             te,
+                             elapsed_time.total_seconds(),
+                             estimated_time)
+                      )
+                if not settings.skip_questions:
+                    if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
+                        if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".
+                                 format(estimated_time)) == "q":
+                            printLog("Quitting application")
+                            sys.exit(0)
+                break
     else:
-        checkResultFiles(settings_subdir[stage - 1])
-        if settings.default_use_alternate_grabbing_method:
-            filter_by = "target_error"
-            filter_criterium = None
-        else:
-            filter_by = "count"
-            filter_criterium = settings_n_stage[stage]
-        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
-                                                    settings_subdir[stage], outputFileName)
+        logging.warning("Could not provide any estimated calculation time.")
+
     splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile, stage - 1)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
@@ -1408,6 +1419,7 @@ def main():
 
     # can always be rerun since it is now deterministic
     outputGenerated = False
+    num_generated_profiles = None
     if args.sim == "all" or args.sim is None:
         start = datetime.datetime.now()
         num_generated_profiles = permutate(args, player_profile)
