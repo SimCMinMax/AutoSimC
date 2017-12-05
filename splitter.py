@@ -201,7 +201,7 @@ def launch_simc_commands(commands):
     return False
 
 
-def start_multi_sim(files_to_sim, player_profile, simtype, command):
+def start_multi_sim(files_to_sim, player_profile, simtype, stage, num_profiles):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
 
     # some minor progress-bar-initialization
@@ -209,40 +209,36 @@ def start_multi_sim(files_to_sim, player_profile, simtype, command):
     for file in files_to_sim:
         if file.endswith(".sim"):
             amount_of_generated_splits += 1
-    
+
     num_files_to_sim = len(files_to_sim)
 
     commands = []
     for file in files_to_sim:
         if file.endswith(".sim"):
             name = file[0:file.find(".")]
-            if command <= 1:
-                cmd = generateCommand(file,
-                                      ['output=' + file + '.result'],
-                                      simtype,
-                                      False,
-                                      player_profile,
-                                      num_files_to_sim)
-            if command == 2:
-                cmd = generateCommand(file,
-                                      ['output=' + file + '.result',
-                                       'html=' + name + "-" + str(output_time) + '.html'],
-                                      simtype, True,
-                                      player_profile,
-                                      num_files_to_sim)
+            outputs = ['output=' + file + '.result']
+            if num_files_to_sim == 1 or stage >= 3:
+                outputs.append('html=' + name + "-" + str(output_time) + '.html')
+            stage3 = (stage == 3)
+            cmd = generateCommand(file,
+                                  outputs,
+                                  simtype,
+                                  stage3,
+                                  player_profile,
+                                  num_files_to_sim)
             commands.append(cmd)
     return launch_simc_commands(commands)
 
 
 # chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, player_profile, command=1):
+def sim(subdir, simtype, player_profile, stage, num_profiles):
     subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
 
     start = datetime.datetime.now()
-    result = start_multi_sim(files, player_profile, simtype, command)
+    result = start_multi_sim(files, player_profile, simtype, stage, num_profiles)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end-start))
     return result
@@ -301,7 +297,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     dps_regex = re.compile("  DPS: (\d+\.\d+)  DPS-Error=(\d+\.\d+)/(\d+\.\d+)%")
     for file in files:
         if os.stat(file).st_size <= 0:
-            raise RuntimeError("Error: .result-file in: " + str(source_subdir) + " is empty, exiting")
+            raise RuntimeError("Error: result file '{}' is empty, exiting.".format(file))
 
         with open(file, encoding='utf-8', mode="r") as src:
             current_player = {}

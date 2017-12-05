@@ -1124,87 +1124,25 @@ def permutate(args, player_profile):
     return valid_profiles
 
 
-def resim(subdir, player_profile, stage):
-    global user_targeterror
-
-    print("Resimming empty files in " + str(subdir))
-    if settings.skip_questions:
-        mode = str(settings.auto_choose_static_or_dynamic)
-    else:
-        mode = input("Static (1) or dynamic mode (2)? (q to quit): ")
-    if mode == "q":
-        logging.info("User exit")
-        sys.exit(0)
-    elif mode == "1":
-        if subdir == settings.subdir1:
-            iterations = settings.default_iterations_stage1
-        elif subdir == settings.subdir2:
-            iterations = settings.default_iterations_stage2
-        elif subdir == settings.subdir3:
-            iterations = settings.default_iterations_stage3
-        return splitter.sim(subdir, "iterations=" + str(iterations), player_profile, 1)
-    elif mode == "2":
-        if subdir == settings.subdir1:
-            if settings.skip_questions:
-                user_targeterror = settings.auto_dynamic_stage1_target_error_value
-            else:
-                user_targeterror = input("Which target_error?: ")
-        elif subdir == settings.subdir2:
-            if settings.skip_questions:
-                user_targeterror = settings.default_target_error_stage2
-            else:
-                user_targeterror = input("Which target_error?: ")
-        elif subdir == settings.subdir3:
-            if settings.skip_questions:
-                user_targeterror = settings.default_target_error_stage3
-            else:
-                user_targeterror = input("Which target_error?: ")
-        return splitter.sim(subdir, "target_error=" + str(user_targeterror), player_profile, 1)
-    return False
-
-
-def launch_resims(subdir, player_profile, stage, count=2):
-    if count > 0:
-        if not settings.skip_questions:
-            q = input("Do you want to resim the empty files? Warning: May not succeed! (Press q to quit): ")
-            if q == "q":
-                printLog("User exit")
-                sys.exit(0)
-
-        printLog("Resimming files: Count: {}".format(count))
-        print("Starting resim with {} tries left.".format(count - 1))
-        if not resim(subdir, player_profile, stage):
-            return launch_resims(subdir, player_profile, stage, count - 1)
-        print("resim success")
-        return True
-    else:
-        printLog("Maximum number of retries reached, sth. is wrong; exiting")
-        return False
-
-
 def checkResultFiles(subdir):
     subdir = os.path.join(os.getcwd(), subdir)
     printLog("Checking Files in subdirectory: {}".format(subdir))
 
     if not os.path.exists(subdir):
-        logging.error("Subdir does not exist: {}".format(subdir))
-        return False
+        raise FileNotFoundError("Subdir '{}' does not exist.".format(subdir))
 
     files = os.listdir(subdir)
     if len(files) == 0:
-        logging.error("No files in: " + str(subdir))
-        return False
+        raise FileNotFoundError("No files in: " + str(subdir))
 
-    files = [f for f in files if not f.endswith(".result")]
+    files = [f for f in files if f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
     for file in files:
-        if os.stat(filename).st_size <= 0:
-            logging.error("Result file is empty: {}".format(file))
-            return False
+        if os.stat(file).st_size <= 0:
+            raise RuntimeError("Result file '{}' is empty.".format(file))
 
     logging.debug("{} valid result files found in {}.".format(len(files), subdir))
-    printLog("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
-    return True
+    logging.info("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
 
 
 def static_stage(player_profile, stage):
@@ -1214,23 +1152,25 @@ def static_stage(player_profile, stage):
     printLog("\nEntering static mode, STAGE {}.\n".format(stage))
 
     if stage > 1:
-        if not checkResultFiles(settings_subdir[stage - 1]):
-            if not launch_resims(settings_subdir[stage - 1], player_profile, stage - 1):
-                raise RuntimeError("Error, some result-files are empty in {}".format(settings_subdir[stage - 1]))
-            else:
-                logging.info("Resimming succeeded.")
+        try:
+            checkResultFiles(settings_subdir[stage - 1])
+        except Exception as e:
+            raise RuntimeError("Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".
+                               format(settings_subdir[stage - 1], e)) from e
         if settings.default_use_alternate_grabbing_method:
-            splitter.grab_best("target_error", None, settings_subdir[stage - 1],
-                               settings_subdir[stage], outputFileName)
+            filter_by = "target_error"
+            filter_criterium = None
         else:
-            # grabbing top 100 files
-            splitter.grab_best("count", settings_n_stage[stage], settings_subdir[stage - 1],
-                               settings_subdir[stage], outputFileName)
+            filter_by = "count"
+            filter_criterium = settings_n_stage[stage]
+        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
+                                                    settings_subdir[stage], outputFileName)
     else:
         # Stage1 splitting
-        splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
+        num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
     # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
-    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]), player_profile, stage - 1)
+    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]),
+                 player_profile, stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
 
 
@@ -1242,7 +1182,10 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     if stage == 1:
         num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
     else:
-        checkResultFiles(settings_subdir[stage - 1])
+        try:
+            checkResultFiles(settings_subdir[stage - 1])
+        except Exception as e:
+            raise RuntimeError("Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".format(settings_subdir[stage - 1], e)) from e
         if settings.default_use_alternate_grabbing_method:
             filter_by = "target_error"
             filter_criterium = None
@@ -1325,7 +1268,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         else:
             logging.warning("Could not provide any estimated calculation time.")
 
-    splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile, stage - 1)
+    splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile, stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 
