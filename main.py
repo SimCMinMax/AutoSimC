@@ -16,8 +16,8 @@ import collections
 import copy
 import subprocess
 import hashlib
+import re
 from urllib.request import urlopen, urlretrieve
-from re import search, match
 import platform
 
 from settings import settings
@@ -323,7 +323,7 @@ def autoDownloadSimc():
 
     # Get filename of latest build of simc
     html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
-    filename = search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     print("Latest simc:", filename)
 
     # Download latest build of simc
@@ -1125,6 +1125,7 @@ def permutate(args, player_profile):
 
 
 def checkResultFiles(subdir):
+    """Check the SimC result files of a previous stage for validity."""
     subdir = os.path.join(os.getcwd(), subdir)
     printLog("Checking Files in subdirectory: {}".format(subdir))
 
@@ -1149,7 +1150,7 @@ def static_stage(player_profile, stage):
     if stage > 3:
         return
 
-    printLog("\nEntering static mode, STAGE {}.\n".format(stage))
+    printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
 
     if stage > 1:
         try:
@@ -1166,9 +1167,8 @@ def static_stage(player_profile, stage):
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
                                                     settings_subdir[stage], outputFileName)
     else:
-        # Stage1 splitting
         num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
-    # sim these with few iterations, can still take hours with huge permutation-sets; fewer than 100 is not advised
+
     splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]),
                  player_profile, stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
@@ -1179,6 +1179,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         return
     printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
 
+    # Parse output/result files from previous stage and get number of profiles to simulate
     if stage == 1:
         num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
     else:
@@ -1198,6 +1199,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     if num_generated_profiles:
         logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
 
+    # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
     print("Estimated calculation times for stage {} based on your data:".format(stage))
     for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
@@ -1228,8 +1230,8 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         target_error, _iterations, _elapsed_time_seconds = result_data[calc_choice]
 
     else:
-        # if the user chose a target_error which is lower than the default_one for the next step
-        # he is given an option to either skip stage 2 or adjust the target_error
+        # if the user chose a target_error which is higher than one chosen in the previous stage
+        # he is given an option to adjust it.
         target_error = float(settings_target_error[stage])
         if previous_target_error is not None and previous_target_error <= target_error:
             print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
@@ -1268,12 +1270,13 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         else:
             logging.warning("Could not provide any estimated calculation time.")
 
-    splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile, stage, num_generated_profiles)
+    splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile,
+                 stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 
 def start_stage(player_profile, num_generated_profiles, stage):
-    printLog("Entering Stage {}".format(stage))
+    logging.info("Starting at stage {}".format(stage))
     print("You have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
           format(settings_iterations))
@@ -1289,7 +1292,7 @@ def start_stage(player_profile, num_generated_profiles, stage):
     else:
         mode_choice = input("Please choose your mode (Enter to exit): ")
         mode_choice = int(mode_choice)
-    valid_modes = [1, 2]
+    valid_modes = (1, 2)
     if mode_choice not in valid_modes:
         raise RuntimeError("Invalid mode '{}' selected. Valid modes: {}.".format(mode_choice,
                                                                                  valid_modes))
