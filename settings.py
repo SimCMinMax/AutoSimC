@@ -110,9 +110,9 @@ class settings():
     # low, below_normal, normal, above_normal, highest
     simc_priority = "low"
 
-    # number of threads for simc. Default uses as many cores as available on your system - 1.
+    # number of threads for simc. Default uses as many cores as available on your system.
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
-    simc_threads = max(int(multiprocessing.cpu_count() - 1), 1)
+    simc_threads = max(int(multiprocessing.cpu_count()), 1)
     # True|False
     simc_scale_factors_stage3 = True
 
