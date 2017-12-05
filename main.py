@@ -1255,19 +1255,19 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     if num_generated_profiles:
         logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
 
-    if stage == 1:
-        result_data = get_analyzer_data(player_profile.class_spec)
-        print("Estimated calculation times based on your data:")
-        for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
-            elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
-            estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
+    result_data = get_analyzer_data(player_profile.class_spec)
+    print("Estimated calculation times for stage {} based on your data:".format(stage))
+    for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
+        elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
+        estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
+        print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+              format(i,
+                     target_error,
+                     elapsed_time.total_seconds(),
+                     estimated_time)
+              )
 
-            print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
-                  format(i,
-                         target_error,
-                         elapsed_time.total_seconds(),
-                         estimated_time)
-                  )
+    if stage == 1:
         if settings.skip_questions:
             calc_choice = settings.auto_dynamic_stage1_target_error_table
         else:
@@ -1309,7 +1309,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
             if target_error <= te:
                 elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
                 estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-                logging.info("Chosen Target Error: {:.3f}% ~= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                logging.info("Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
                       format(target_error,
                              te,
                              elapsed_time.total_seconds(),
@@ -1322,8 +1322,8 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                             printLog("Quitting application")
                             sys.exit(0)
                 break
-    else:
-        logging.warning("Could not provide any estimated calculation time.")
+        else:
+            logging.warning("Could not provide any estimated calculation time.")
 
     splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile, stage - 1)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
