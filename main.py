@@ -586,7 +586,7 @@ class PermutationData:
         for gems in new_gems:
             new_items = copy.deepcopy(items)
             gems_used = 0
-            for i, (slot, num_gem_slots) in enumerate(gear_with_gems.items()):
+            for _i, (slot, num_gem_slots) in enumerate(gear_with_gems.items()):
                 copied_item = copy.deepcopy(new_items[slot])
                 copied_item.gem_ids = gems[gems_used:gems_used + num_gem_slots]
                 new_items[slot] = copied_item
@@ -871,7 +871,7 @@ class Item:
             self.output_str += ",relic_id=" + "/".join([str(v) for v in self.relic_ids])
         for name, values in self.extra_options.items():
             for value in values:
-                self.output_str += ",{}={}".format(name, value) 
+                self.output_str += ",{}={}".format(name, value)
 
     def __str__(self):
         return "Item({})".format(self.output_str)
@@ -1052,7 +1052,7 @@ def permutate(args, player_profile):
         max_nperm *= len(opt)
         permutations_product[name] = len(opt)
     max_nperm *= len(talent_permutations)
-    gem_perms = 1 
+    gem_perms = 1
     if args.gems is not None:
         max_num_gems = max_gem_slots + len(splitted_gems)
         gem_perms = len(list(itertools.combinations_with_replacement(range(max_gem_slots), max_num_gems)))
@@ -1070,7 +1070,6 @@ def permutate(args, player_profile):
     valid_profiles = 0
     start_time = datetime.datetime.now()
     unusable_histogram = {}  # Record not usable reasons
-    need_to_print_progress = False
     with open(args.outputfile, 'w') as output_file:
         for perm_normal in normal_permutations:
             for perm_finger in special_permutations["finger"][2]:
@@ -1147,18 +1146,17 @@ def checkResultFiles(subdir):
     logging.info("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
 
 
-def static_stage(player_profile, stage):
-    if stage > 3:
-        return
-
-    printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
-
-    if stage > 1:
+def grab_profiles(player_profile, stage):
+    """Parse output/result files from previous stage and get number of profiles to simulate"""
+    if stage == 1:
+        num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
+    else:
         try:
             checkResultFiles(settings_subdir[stage - 1])
         except Exception as e:
-            raise RuntimeError("Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".
-                               format(settings_subdir[stage - 1], e)) from e
+            msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".\
+                format(settings_subdir[stage - 1], e)
+            raise RuntimeError(msg) from e
         if settings.default_use_alternate_grabbing_method:
             filter_by = "target_error"
             filter_criterium = None
@@ -1167,9 +1165,17 @@ def static_stage(player_profile, stage):
             filter_criterium = settings_n_stage[stage]
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
                                                     settings_subdir[stage], outputFileName)
-    else:
-        num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
+    if num_generated_profiles:
+        logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
+    return num_generated_profiles
 
+
+def static_stage(player_profile, stage):
+    if stage > 3:
+        return
+
+    printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
+    num_generated_profiles = grab_profiles(player_profile, stage)
     splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]),
                  player_profile, stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
@@ -1180,25 +1186,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         return
     printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
 
-    # Parse output/result files from previous stage and get number of profiles to simulate
-    if stage == 1:
-        num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
-    else:
-        try:
-            checkResultFiles(settings_subdir[stage - 1])
-        except Exception as e:
-            raise RuntimeError("Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".format(settings_subdir[stage - 1], e)) from e
-        if settings.default_use_alternate_grabbing_method:
-            filter_by = "target_error"
-            filter_criterium = None
-        else:
-            filter_by = "count"
-            filter_criterium = settings_n_stage[stage]
-        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
-                                                    settings_subdir[stage], outputFileName)
-
-    if num_generated_profiles:
-        logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
+    num_generated_profiles = grab_profiles(player_profile, stage)
 
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
@@ -1213,6 +1201,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                      estimated_time)
               )
 
+    # Get/check target_error from user
     if stage == 1:
         if settings.skip_questions:
             calc_choice = settings.auto_dynamic_stage1_target_error_table
@@ -1248,7 +1237,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                 target_error = float(input("Enter new target_error (Format: 0.3): "))
                 printLog("User entered target_error_secondpart: " + str(target_error))
 
-    # Use number of profiles we are going to sim to calculate some time estimate
+    # Show estimated sim time based on users chosen target_error
     if num_generated_profiles:
         result_data = get_analyzer_data(player_profile.class_spec)
         for i, (te, _iterations, elapsed_time_seconds) in enumerate(result_data):
@@ -1260,7 +1249,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                              te,
                              elapsed_time.total_seconds(),
                              estimated_time)
-                      )
+                             )
                 if not settings.skip_questions:
                     if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
                         if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".
@@ -1404,14 +1393,8 @@ def main():
 
 
 if __name__ == "__main__":
-
-
     try:
-
-
         main()
-
-
         logging.shutdown()
     except Exception as e:
         logging.error("Error: {}".format(e), exc_info=True)

@@ -79,7 +79,7 @@ def split(inputfile, size, wow_class):
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
     logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
-    
+
     num_profiles = 0
     bestprofiles = []
     outfile_count = 0
@@ -136,7 +136,7 @@ def generateCommand(file, outputs, sim_type, stage3, player_profile, num_files_t
 def worker(command, counter, maximum, starttime, num_workers):
     print("-----------------------------------------------------------------")
     print("Currently processing: {}".format(command[2]))
-    print("Processing: {}/{} ({}%)".format(counter+1,
+    print("Processing: {}/{} ({}%)".format(counter + 1,
                                            maximum,
                                            round(100 * float(int(counter) / int(maximum)), 1)))
     try:
@@ -240,7 +240,7 @@ def sim(subdir, simtype, player_profile, stage, num_profiles):
     start = datetime.datetime.now()
     result = start_multi_sim(files, player_profile, simtype, stage, num_profiles)
     end = datetime.datetime.now()
-    logging.info("Simulation took {}.".format(end-start))
+    logging.info("Simulation took {}.".format(end - start))
     return result
 
 
@@ -266,7 +266,7 @@ def filter_by_target_error(dps_results, target_error):
             dps = entry["dps"]
             err = entry["dps_error"]
             # if dps difference is less than sqrt(err_best**2+err**2) * error_mult, keep result
-            if dps_best_player - dps < math.sqrt(err**2 + dps_error_best_player**2) * settings.default_error_rate_multiplier:
+            if dps_best_player - dps < math.sqrt(err ** 2 + dps_error_best_player ** 2) * settings.default_error_rate_multiplier:
                 output.append(entry)
     return output
 
@@ -347,7 +347,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
 
     # Determine chunk length we want to split the profiles
     if split_optimally:
-        chunk_length = int(len(sortednames) // settings.number_of_instances)+1
+        chunk_length = int(len(sortednames) // settings.number_of_instances) + 1
     else:
         chunk_length = int(settings.splitting_size)
     if chunk_length < 1:
