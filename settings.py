@@ -53,6 +53,8 @@ class settings():
 
     # split after n profiles. 50 seems to be a good number for this,
     # it takes around 10-20s each, depending on simulation-parameters
+    # Splitting into too small sets will generate a lot of temporary files on disk and slow things down
+    # Too large split size will require more memory for SimulationCraft and slows down the simulation.
     splitting_size = 50
 
     # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3" 
@@ -92,8 +94,11 @@ class settings():
     # the top100 will be simulated in stage2 and top3 in stage 3; stage1 can be chosen dynamically
     # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become
     # obsolete this case might not get fully supported because of the indivduality of these problems
-    default_target_error = {1: 5,
-                            2: 0.5,
+    #
+    # If you leave a stage empty, you will be asked to input a target_error during runtime
+    # Remove all entries if you want to be asked at each stage
+    default_target_error = {1: 1.0,
+                            2: 0.2,
                             3: 0.05,
                             4: 0.05}
 

@@ -75,6 +75,7 @@ def split(inputfile, destination_folder, size, wow_class):
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
     logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
+    print("This may take a while...")
     logging.debug("wow_class={}".format(wow_class))
 
     num_profiles = 0

@@ -462,15 +462,6 @@ def validateSettings(args):
             raise ValueError("Cannot convert iteration data '{}' for stage {} in settings.py 'default_iterations' to int.".
                              format(settings.default_iterations[stage], stage)) from e
 
-    for stage in range(2, settings.num_stages + 1):
-        if stage not in settings.default_target_error:
-            raise ValueError("No default target_error data for stage {} in settings.py 'default_target_error'".format(stage))
-        try:
-            settings.default_target_error[stage] = float(settings.default_target_error[stage])
-        except ValueError as e:
-            raise ValueError("Cannot convert target_error data '{}' for stage {} in settings.py 'default_target_error' to float.".
-                             format(settings.default_target_error[stage], stage)) from e
-
     for stage in range(1, settings.num_stages):
         stage = -stage
         if stage not in settings.default_top_n:
@@ -1215,20 +1206,26 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
     print("Estimated calculation times for stage {} based on your data:".format(stage))
-    for i, (target_error, _iterations, elapsed_time_seconds) in enumerate(result_data):
+    for i, (target_error, iterations, elapsed_time_seconds) in enumerate(result_data):
         elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
         estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-        print("({:2n}): Target Error: {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+        print("({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) ".
               format(i,
                      target_error,
+                     estimated_time,
                      elapsed_time.total_seconds(),
-                     estimated_time)
+                     iterations)
               )
 
-    # Get/check target_error from user
-    if stage == 1:
+    try:
+        target_error = float(settings.default_target_error[stage])
+    except Exception:
+        target_error = None
+
+    # If we do not have a target_error in settings, get target_error from user input
+    if target_error is None:
         if settings.skip_questions:
-            calc_choice = settings.auto_dynamic_stage1_target_error_table
+            raise ValueError("Cannot run dynamic mode and skip questions without default target_error set for stage {}.".format(stage))
         else:
             calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
             if calc_choice == "q":
@@ -1243,23 +1240,22 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 
         target_error, _iterations, _elapsed_time_seconds = result_data[calc_choice]
 
-    else:
-        # if the user chose a target_error which is higher than one chosen in the previous stage
-        # he is given an option to adjust it.
-        target_error = float(settings.default_target_error[stage])
-        if previous_target_error is not None and previous_target_error <= target_error:
-            print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
-                  format(stage - 1, previous_target_error, stage, target_error))
-            new_value = input(
-                "Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
-                " for the current stage (n)?: ")
-            printLog("User chose: " + str(new_value))
-            if new_value == "q":
-                printLog("Quitting application")
-                sys.exit(0)
-            if new_value == "n":
-                target_error = float(input("Enter new target_error (Format: 0.3): "))
-                printLog("User entered target_error_secondpart: " + str(target_error))
+    # if the user chose a target_error which is higher than one chosen in the previous stage
+    # he is given an option to adjust it.
+    target_error = float(settings.default_target_error[stage])
+    if previous_target_error is not None and previous_target_error <= target_error:
+        print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
+              format(stage - 1, previous_target_error, stage, target_error))
+        new_value = input(
+            "Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
+            " for the current stage (n)?: ")
+        printLog("User chose: " + str(new_value))
+        if new_value == "q":
+            printLog("Quitting application")
+            sys.exit(0)
+        if new_value == "n":
+            target_error = float(input("Enter new target_error (Format: 0.3): "))
+            printLog("User entered target_error_secondpart: " + str(target_error))
 
     # Show estimated sim time based on users chosen target_error
     if num_generated_profiles:
@@ -1303,7 +1299,7 @@ def start_stage(player_profile, num_generated_profiles, stage):
     print(
         "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}".format(settings.default_target_error))
     if settings.skip_questions:
-        mode_choice = str(settings.auto_choose_static_or_dynamic)
+        mode_choice = int(settings.auto_choose_static_or_dynamic)
     else:
         mode_choice = input("Please choose your mode (Enter to exit): ")
         if not len(mode_choice):

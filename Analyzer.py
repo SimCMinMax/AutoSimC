@@ -15,6 +15,7 @@ simc_path = settings.simc_path
 raw_data = []
 analyzed_data = []
 analysis_filename = "Analysis.json"
+num_profiles_per_sim = 1
 
 
 class Variant():
@@ -96,11 +97,13 @@ def sim_profiles(target_error):
             if file.endswith(".simc"):
                 name = file[0:file.find(".")]
                 if not os.path.exists(os.path.join(combined_path, name + '-mode' + str(target_error) + '.result')):
-                    cmd = [simc_path, os.path.join(combined_path, file),
+                    profiles_to_sim = [os.path.join(combined_path, file) for _ in range(num_profiles_per_sim)]
+                    cmd = [simc_path, *profiles_to_sim,
                            'json2=' + os.path.join(combined_path, '_' + str(name)) + '-mode' + str(
                                target_error) + '.result',
                            'target_error=' + str(target_error),
-                           'process_priority=low', 'output=nul', 'single_actor_batch=1']
+                           'process_priority=low', 'output=nul', 'single_actor_batch=1',
+                           'analyze_error_interval=10']
                     subprocess.call(cmd)
 
 
@@ -161,7 +164,7 @@ def generate_json_analysis():
                     if p not in variant.playerdata:
                         variant.playerdata.append(p)
 
-            s = SpecData(data["playerdata"][i]["race"], data["playerdata"][i]["elapsed_time_seconds"],
+            s = SpecData(data["playerdata"][i]["race"], data["playerdata"][i]["elapsed_time_seconds"]/num_profiles_per_sim,
                          data["playerdata"][i]["iterations"], p.hash_me())
 
             for variant in analyzed_data:
@@ -177,24 +180,14 @@ def main():
                 if file.endswith(".result"):
                     os.remove(os.path.join(combined_path, file))
 
-    sim_profiles(10)
-    sim_profiles(9)
-    sim_profiles(8)
-    sim_profiles(7)
-    sim_profiles(6)
-    sim_profiles(5)
-    sim_profiles(4)
-    sim_profiles(3)
     sim_profiles(2)
     sim_profiles(1)
-    sim_profiles(0.9)
-    sim_profiles(0.8)
     sim_profiles(0.7)
-    sim_profiles(0.6)
     sim_profiles(0.5)
     sim_profiles(0.4)
     sim_profiles(0.3)
     sim_profiles(0.2)
+    sim_profiles(0.15)
     sim_profiles(0.1)
     sim_profiles(0.075)
     sim_profiles(0.05)
