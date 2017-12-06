@@ -1191,7 +1191,7 @@ def static_stage(player_profile, stage):
 
     printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
     num_generated_profiles = grab_profiles(player_profile, stage)
-    splitter.sim(get_subdir(stage), "iterations={}".format(settings.default_iterations[stage]),
+    splitter.sim(get_subdir(stage), "iterations", settings.default_iterations[stage],
                  player_profile, stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
 
@@ -1279,7 +1279,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         else:
             logging.warning("Could not provide any estimated calculation time.")
 
-    splitter.sim(get_subdir(stage), "target_error=" + str(target_error), player_profile,
+    splitter.sim(get_subdir(stage), "target_error", target_error, player_profile,
                  stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
@@ -1302,7 +1302,7 @@ def start_stage(player_profile, num_generated_profiles, stage):
     else:
         mode_choice = input("Please choose your mode (Enter to exit): ")
         if not len(mode_choice):
-            logging.info("User exist.")
+            logging.info("User exit.")
             sys.exit(0)
         mode_choice = int(mode_choice)
     valid_modes = (1, 2)

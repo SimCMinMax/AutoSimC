@@ -101,7 +101,7 @@ def split(inputfile, destination_folder, size, wow_class):
     return num_profiles
 
 
-def generateCommand(file, outputs, sim_type, is_last_stage, player_profile, num_files_to_sim):
+def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
     cmd = []
     cmd.append(os.path.normpath(simc_path))
     if bool(settings.simc_ptr):
@@ -109,7 +109,7 @@ def generateCommand(file, outputs, sim_type, is_last_stage, player_profile, num_
     cmd.append(file)
     for output in outputs:
         cmd.append(output)
-    cmd.append(sim_type)
+    cmd.append("{}={}".format(sim_type, simtype_value))
     if num_files_to_sim > 1:
         cmd.append('threads=' + str(settings.number_of_threads))
     else:
@@ -118,6 +118,13 @@ def generateCommand(file, outputs, sim_type, is_last_stage, player_profile, num_
     cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
     cmd.append('process_priority=' + str(settings.simc_priority))
     cmd.append('single_actor_batch=' + str(single_actor_batch))
+
+    # For simulations with a high target_error, we want to get a faster execution (eg. only 47 iterations)
+    # instead of the default minimum of ~100 iterations. This options tells SimC to more often check target_error
+    # condition while simulating.
+    if sim_type is "target_error" and simtype_value > 0.1:
+        cmd.append('analyze_error_interval=10')
+
     if is_last_stage:
         if settings.simc_scale_factors_stage3:
             cmd.append('calculate_scale_factors=1')
@@ -198,7 +205,7 @@ def launch_simc_commands(commands):
     return False
 
 
-def start_multi_sim(files_to_sim, player_profile, simtype, stage, num_profiles):
+def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage, num_profiles):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
 
     # some minor progress-bar-initialization
@@ -220,6 +227,7 @@ def start_multi_sim(files_to_sim, player_profile, simtype, stage, num_profiles):
             cmd = generateCommand(file,
                                   outputs,
                                   simtype,
+                                  simtype_value,
                                   is_last_stage,
                                   player_profile,
                                   num_files_to_sim)
@@ -228,14 +236,14 @@ def start_multi_sim(files_to_sim, player_profile, simtype, stage, num_profiles):
 
 
 # chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, player_profile, stage, num_profiles):
+def sim(subdir, simtype, simtype_value, player_profile, stage, num_profiles):
     subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
 
     start = datetime.datetime.now()
-    result = start_multi_sim(files, player_profile, simtype, stage, num_profiles)
+    result = start_multi_sim(files, player_profile, simtype, simtype_value, stage, num_profiles)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end - start))
     return result
