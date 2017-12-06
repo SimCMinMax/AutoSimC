@@ -42,24 +42,6 @@ t20min = int(settings.default_equip_t20_min)
 t20max = int(settings.default_equip_t20_max)
 t21min = int(settings.default_equip_t21_min)
 t21max = int(settings.default_equip_t21_max)
-target_error_secondpart = settings.default_target_error_stage2
-target_error_thirdpart = settings.default_target_error_stage3
-
-settings_subdir = {1: settings.subdir1,
-                   2: settings.subdir2,
-                   3: settings.subdir3
-                   }
-settings_iterations = {1: int(settings.default_iterations_stage1),
-                       2: int(settings.default_iterations_stage2),
-                       3: int(settings.default_iterations_stage3)
-                       }
-settings_n_stage = {2: settings.default_top_n_stage2,
-                    3: settings.default_top_n_stage3
-                    }
-
-settings_target_error = {2: float(settings.default_target_error_stage2),
-                         3: float(settings.default_target_error_stage3)
-                         }
 
 gem_ids = {"150haste":  130220,
            "200haste":  151583,
@@ -376,28 +358,31 @@ def cleanup_subdir(subdir):
         shutil.rmtree(subdir)
 
 
-def cleanup():
-    printLog("Cleaning up")
-
-    subdirs = [os.path.join(os.getcwd(), settings.subdir1),
-               os.path.join(os.getcwd(), settings.subdir2),
-               os.path.join(os.getcwd(), settings.subdir3)]
+def copy_result_file(last_subdir):
     result_folder = os.path.join(os.getcwd(), settings.result_subfolder)
     if not os.path.exists(result_folder):
         logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
         os.makedirs(result_folder)
 
     # Copy html files from last subdir to results folder
-    subdir_last = subdirs[-1]
-    if os.path.exists(subdir_last):
-        for _root, _dirs, files in os.walk(subdir_last):
+    found_html = False
+    if os.path.exists(last_subdir):
+        for _root, _dirs, files in os.walk(last_subdir):
             for file in files:
                 if file.endswith(".html"):
-                    src = os.path.join(subdir_last, file)
+                    src = os.path.join(last_subdir, file)
                     dst = os.path.join(result_folder, file)
                     printLog("Moving file: {} to {}".format(src, dst))
                     shutil.move(src, dst)
+                    found_html = True
+    if not found_html:
+        logging.warning("Could not copy html result file, since there was no file found in '{}'.".format(last_subdir))
 
+
+def cleanup():
+    printLog("Cleaning up")
+    subdirs = [get_subdir(stage) for stage in range(1, settings.num_stages + 1)]
+    copy_result_file(subdirs[-1])
     for subdir in subdirs:
         cleanup_subdir(subdir)
 
@@ -466,6 +451,35 @@ def validateSettings(args):
     if settings.default_error_rate_multiplier <= 0:
         raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
                          format(settings.default_error_rate_multiplier))
+
+    # Validate num dynamic number of stages settings.
+    for stage in range(1, settings.num_stages + 1):
+        if stage not in settings.default_iterations:
+            raise ValueError("No default iteration data for stage {} in settings.py 'default_iterations'".format(stage))
+        try:
+            settings.default_iterations[stage] = int(settings.default_iterations[stage])
+        except ValueError as e:
+            raise ValueError("Cannot convert iteration data '{}' for stage {} in settings.py 'default_iterations' to int.".
+                             format(settings.default_iterations[stage], stage)) from e
+
+    for stage in range(2, settings.num_stages + 1):
+        if stage not in settings.default_target_error:
+            raise ValueError("No default target_error data for stage {} in settings.py 'default_target_error'".format(stage))
+        try:
+            settings.default_target_error[stage] = float(settings.default_target_error[stage])
+        except ValueError as e:
+            raise ValueError("Cannot convert target_error data '{}' for stage {} in settings.py 'default_target_error' to float.".
+                             format(settings.default_target_error[stage], stage)) from e
+
+    for stage in range(1, settings.num_stages):
+        stage = -stage
+        if stage not in settings.default_top_n:
+            raise ValueError("No default top_n data for stage {} in settings.py 'default_top_n'".format(stage))
+        try:
+            settings.default_top_n[stage] = int(settings.default_top_n[stage])
+        except ValueError as e:
+            raise ValueError("Cannot convert top_n data '{}' for stage {} in settings.py 'default_top_n' to int.".
+                             format(settings.default_top_n[stage], stage)) from e
 
 
 def file_checksum(filename):
@@ -1146,43 +1160,53 @@ def checkResultFiles(subdir):
     logging.info("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
 
 
+def get_subdir(stage):
+    subdir = "stage_{:n}".format(stage)
+    subdir = os.path.join(settings.temporary_folder_basepath, subdir)
+    subdir = os.path.abspath(subdir)
+    return subdir
+
+
 def grab_profiles(player_profile, stage):
     """Parse output/result files from previous stage and get number of profiles to simulate"""
+    subdir_previous_stage = get_subdir(stage - 1)
     if stage == 1:
-        num_generated_profiles = splitter.split(outputFileName, settings.splitting_size, player_profile.wow_class)
+        num_generated_profiles = splitter.split(outputFileName, get_subdir(stage),
+                                                settings.splitting_size, player_profile.wow_class)
     else:
         try:
-            checkResultFiles(settings_subdir[stage - 1])
+            checkResultFiles(subdir_previous_stage)
         except Exception as e:
             msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".\
-                format(settings_subdir[stage - 1], e)
+                format(subdir_previous_stage, e)
             raise RuntimeError(msg) from e
         if settings.default_use_alternate_grabbing_method:
             filter_by = "target_error"
             filter_criterium = None
         else:
             filter_by = "count"
-            filter_criterium = settings_n_stage[stage]
-        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, settings_subdir[stage - 1],
-                                                    settings_subdir[stage], outputFileName)
+            filter_criterium = settings.default_top_n[stage - settings.num_stages - 1]
+        is_last_stage = (stage == settings.num_stages)
+        num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, subdir_previous_stage,
+                                                    get_subdir(stage), outputFileName, not is_last_stage)
     if num_generated_profiles:
         logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
     return num_generated_profiles
 
 
 def static_stage(player_profile, stage):
-    if stage > 3:
+    if stage > settings.num_stages:
         return
 
     printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
     num_generated_profiles = grab_profiles(player_profile, stage)
-    splitter.sim(settings_subdir[stage], "iterations={}".format(settings_iterations[stage]),
+    splitter.sim(get_subdir(stage), "iterations={}".format(settings.default_iterations[stage]),
                  player_profile, stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
 
 
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
-    if stage > 3:
+    if stage > settings.num_stages:
         return
     printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
 
@@ -1222,7 +1246,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     else:
         # if the user chose a target_error which is higher than one chosen in the previous stage
         # he is given an option to adjust it.
-        target_error = float(settings_target_error[stage])
+        target_error = float(settings.default_target_error[stage])
         if previous_target_error is not None and previous_target_error <= target_error:
             print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
                   format(stage - 1, previous_target_error, stage, target_error))
@@ -1260,27 +1284,31 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         else:
             logging.warning("Could not provide any estimated calculation time.")
 
-    splitter.sim(settings_subdir[stage], "target_error=" + str(target_error), player_profile,
+    splitter.sim(get_subdir(stage), "target_error=" + str(target_error), player_profile,
                  stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 
 def start_stage(player_profile, num_generated_profiles, stage):
     logging.info("Starting at stage {}".format(stage))
+    grabbing_method = "alternate" if settings.default_use_alternate_grabbing_method else "by_count ({})".\
+        format(settings.default_top_n)
+    logging.info("You selected grabbing method '{}'.".format(grabbing_method))
     print("You have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
-          format(settings_iterations))
+          format(settings.default_iterations))
     print("   It is however faster if simulating huge amounts of profiles")
     print(
         "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
     print(
-        "   It uses the chosen target_error for the first part; in stage2 error lowers to " + str(
-            target_error_secondpart) + " and " + str(
-            target_error_thirdpart) + " for the final top " + str(settings.default_top_n_stage3))
+        "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}".format(settings.default_target_error))
     if settings.skip_questions:
         mode_choice = str(settings.auto_choose_static_or_dynamic)
     else:
         mode_choice = input("Please choose your mode (Enter to exit): ")
+        if not len(mode_choice):
+            logging.info("User exist.")
+            sys.exit(0)
         mode_choice = int(mode_choice)
     valid_modes = (1, 2)
     if mode_choice not in valid_modes:
@@ -1387,14 +1415,20 @@ def main():
         if args.sim == "stage3":
             start_stage(player_profile, None, 3)
 
-    if settings.clean_up_after_step3:
+    if settings.clean_up:
         cleanup()
     print("Finished.")
 
 
 if __name__ == "__main__":
+
+
     try:
+
+
         main()
+
+
         logging.shutdown()
     except Exception as e:
         logging.error("Error: {}".format(e), exc_info=True)

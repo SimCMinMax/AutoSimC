@@ -19,10 +19,6 @@ except AttributeError:
     # set path after downloading nightly
     pass
 
-subdir1 = settings.subdir1
-subdir2 = settings.subdir2
-subdir3 = settings.subdir3
-
 single_actor_batch = settings.simc_single_actor_batch
 
 user_targeterror = 0.0
@@ -68,7 +64,7 @@ def purge_subfolder(subfolder, retries=3):
         purge_subfolder(subfolder, retries)
 
 
-def split(inputfile, size, wow_class):
+def split(inputfile, destination_folder, size, wow_class):
     """
     Split a .simc file into n pieces
     calculations are therefore done much more memory-efficient; simcraft usually crashes the system if too many profiles
@@ -79,32 +75,32 @@ def split(inputfile, size, wow_class):
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
     logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
+    logging.debug("wow_class={}".format(wow_class))
 
     num_profiles = 0
     bestprofiles = []
     outfile_count = 0
-    subfolder = os.path.join(os.getcwd(), subdir1)
-    purge_subfolder(subfolder)
+    purge_subfolder(destination_folder)
     with open(inputfile, encoding='utf-8', mode="r") as src:
         for profile in parse_profiles_from_file(src, wow_class):
             profile.append("")  # Add tailing empty line
             bestprofiles.append("\n".join(profile))
             if len(bestprofiles) >= size:
-                outfile = os.path.join(subfolder, "sim" + str(outfile_count) + ".sim")
+                outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".sim")
                 dump_profiles_to_file(outfile, bestprofiles)
                 num_profiles += len(bestprofiles)
                 bestprofiles.clear()
                 outfile_count += 1
     # Write tail
     if len(bestprofiles):
-        outfile = os.path.join(subfolder, "sim" + str(outfile_count) + ".sim")
+        outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".sim")
         dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
         num_profiles += len(bestprofiles)
     return num_profiles
 
 
-def generateCommand(file, outputs, sim_type, stage3, player_profile, num_files_to_sim):
+def generateCommand(file, outputs, sim_type, is_last_stage, player_profile, num_files_to_sim):
     cmd = []
     cmd.append(os.path.normpath(simc_path))
     if bool(settings.simc_ptr):
@@ -121,7 +117,7 @@ def generateCommand(file, outputs, sim_type, stage3, player_profile, num_files_t
     cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
     cmd.append('process_priority=' + str(settings.simc_priority))
     cmd.append('single_actor_batch=' + str(single_actor_batch))
-    if stage3:
+    if is_last_stage:
         if settings.simc_scale_factors_stage3:
             cmd.append('calculate_scale_factors=1')
             if player_profile.class_role == "strattack":
@@ -213,17 +209,17 @@ def start_multi_sim(files_to_sim, player_profile, simtype, stage, num_profiles):
     num_files_to_sim = len(files_to_sim)
 
     commands = []
+    is_last_stage = (stage == settings.num_stages)
     for file in files_to_sim:
         if file.endswith(".sim"):
             name = file[0:file.find(".")]
             outputs = ['output=' + file + '.result']
-            if num_files_to_sim == 1 or stage >= 3:
+            if num_files_to_sim == 1 or is_last_stage:
                 outputs.append('html=' + name + "-" + str(output_time) + '.html')
-            stage3 = (stage == 3)
             cmd = generateCommand(file,
                                   outputs,
                                   simtype,
-                                  stage3,
+                                  is_last_stage,
                                   player_profile,
                                   num_files_to_sim)
             commands.append(cmd)

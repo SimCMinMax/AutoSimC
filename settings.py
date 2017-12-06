@@ -58,33 +58,44 @@ class settings():
     # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3" 
     default_sim_start_stage = "all"
 
-    # these folders will be created during calculation
-    # stage 1,2,3 correspond accordingly
-    subdir1 = "temp_step1"
-    subdir2 = "temp_step2"
-    subdir3 = "temp_step3"
+    # Inside this folder files&folders will be created during calculation
+    temporary_folder_basepath = "tmp"
+
+    # Number of stages to simulate
+    # It is recommended to have at least 2, better 3 stages to benefit from
+    # increasing accuracy and filtering number of profiles down on each stage.
+    # The optimal settings depends on the number of profiles you have on your input side.
+    # Default: 3
+    # Please not that you must extend 'default_iterations', 'default_target_error' and 'default_top_n'
+    # If you want to use this with a value > 3
+    num_stages = 3
+
     # Automatic delete of the temp folders
     delete_temp_default = False
+
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
     # the resulting html will be renamed to: <Timestamp - best.html>
-    clean_up_after_step3 = True
+    clean_up = True
+
     result_subfolder = "results"
 
-    # for static mode
-    default_iterations_stage1 = 100
-    default_iterations_stage2 = 1000
-    default_iterations_stage3 = 10000
+    # for static mode, default iterations per stage
+    # by default this is 100 for stage1, 1000 for stage2, and so on.
+    # default_iterations = {1: 100,
+    #                       2: 1000,
+    #                       3: 10000,}
+    default_iterations = {i: 10**(i+1) for i in range(1, num_stages+1)}
 
     # for dynamic mode
     # pls override this, especially stage2, if you think it is too erroneus, it depends on the chosen class/spec
     # the top100 will be simulated in stage2 and top3 in stage 3; stage1 can be chosen dynamically
     # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become
     # obsolete this case might not get fully supported because of the indivduality of these problems
-    default_top_n_stage2 = 100
-    default_target_error_stage2 = "0.2"
-    default_top_n_stage3 = 1
-    default_target_error_stage3 = "0.05"
+    default_target_error = {1: 5,
+                            2: 0.5,
+                            3: 0.05,
+                            4: 0.05}
 
     # alternate method to determine the "best" profiles when using target_error-method
     # it does not choose fixed top n for each stage
@@ -95,7 +106,17 @@ class settings():
     # with dps > 995.000
     # 3. use the same procedure for stage3
     # set this to True|False if you want to use this method
+    # Non-alternate grabbing method is no longer recommended, since it will lead to unneeded calculations and
+    # cannot give you a statistically correct selection of the "equally best" profiles by only looking at the
+    # dps without checking statistical variation.
     default_use_alternate_grabbing_method = True
+
+    # Number of profiles to grab with normal method, in reverse order
+    # This means 1: represents the last stage, while 2: is for the next_to_last stage, etc.
+    # default_top_n = {1: 1,
+    #                  2: 100,
+    #                  3: 1000}
+    default_top_n = {-i: 100**(i-1) for i in range(1, num_stages)}
 
     # Error Rate Multiplier / Confidence Range
     # change this to widen/narrow the interval of profiles taken into account for the next stage
