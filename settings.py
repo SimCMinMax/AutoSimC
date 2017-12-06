@@ -69,7 +69,8 @@ class settings():
     # The optimal settings depends on the number of profiles you have on your input side.
     # Default: 3
     # Please not that you must extend 'default_iterations', 'default_target_error' and 'default_top_n'
-    # If you want to use this with a value > 3
+    # If you want to use this with a value > 3 with skip_questions.
+    # This value can also be change through command line argument --stages.
     num_stages = 3
 
     # Automatic delete of the temp folders
@@ -84,10 +85,9 @@ class settings():
 
     # for static mode, default iterations per stage
     # by default this is 100 for stage1, 1000 for stage2, and so on.
-    # default_iterations = {1: 100,
-    #                       2: 1000,
-    #                       3: 10000,}
-    default_iterations = {i: 10**(i+1) for i in range(1, num_stages+1)}
+    default_iterations = {1: 100,
+                          2: 1000,
+                          3: 10000}
 
     # for dynamic mode
     # pls override this, especially stage2, if you think it is too erroneus, it depends on the chosen class/spec
@@ -99,8 +99,7 @@ class settings():
     # Remove all entries if you want to be asked at each stage
     default_target_error = {1: 1.0,
                             2: 0.2,
-                            3: 0.05,
-                            4: 0.05}
+                            3: 0.05}
 
     # alternate method to determine the "best" profiles when using target_error-method
     # it does not choose fixed top n for each stage
@@ -118,10 +117,10 @@ class settings():
 
     # Number of profiles to grab with normal method, in reverse order
     # This means 1: represents the last stage, while 2: is for the next_to_last stage, etc.
-    # default_top_n = {1: 1,
-    #                  2: 100,
-    #                  3: 1000}
-    default_top_n = {-i: 100**(i-1) for i in range(1, num_stages)}
+    default_top_n = {-1: 1,
+                     -2: 100,
+                     -3: 1000,
+                     -4: 10000}
 
     # Error Rate Multiplier / Confidence Range
     # change this to widen/narrow the interval of profiles taken into account for the next stage

@@ -205,7 +205,7 @@ def launch_simc_commands(commands):
     return False
 
 
-def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage, num_profiles):
+def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
 
     # some minor progress-bar-initialization
@@ -217,7 +217,6 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
     num_files_to_sim = len(files_to_sim)
 
     commands = []
-    is_last_stage = (stage == settings.num_stages)
     for file in files_to_sim:
         if file.endswith(".sim"):
             name = file[0:file.find(".")]
@@ -236,14 +235,14 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
 
 
 # chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, simtype_value, player_profile, stage, num_profiles):
+def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
     subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
 
     start = datetime.datetime.now()
-    result = start_multi_sim(files, player_profile, simtype, simtype_value, stage, num_profiles)
+    result = start_multi_sim(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end - start))
     return result

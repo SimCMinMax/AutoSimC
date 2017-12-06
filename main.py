@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=C0103
 # pylint: disable=C0301
 
@@ -169,7 +168,7 @@ def parse_command_line_args():
                         required=False,
                         nargs=1,
                         default=[settings.default_sim_start_stage],
-                        choices=['permutate_only', 'all', 'stage1', 'stage2', 'stage3'],
+                        choices=['permutate_only', 'all', *("stage{}".format(i) for i in range(1, 6))],
                         help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
                         "Might take a long time, depending on number of permutations. "
                         "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
@@ -191,6 +190,12 @@ def parse_command_line_args():
                         "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
                         "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
                         )
+
+    parser.add_argument('--stages',
+                        required=False,
+                        type=int,
+                        default=settings.num_stages,
+                        help="Number of stages to simulate.")
 
     parser.add_argument('-gems', '--gems',
                         required=False,
@@ -260,6 +265,9 @@ def handleCommandLine():
     # For now, just write command line arguments into globals
     global outputFileName
     outputFileName = args.outputfile
+    
+    global num_stages
+    num_stages = args.stages
 
     return args
 
@@ -381,7 +389,7 @@ def copy_result_file(last_subdir):
 
 def cleanup():
     printLog("Cleaning up")
-    subdirs = [get_subdir(stage) for stage in range(1, settings.num_stages + 1)]
+    subdirs = [get_subdir(stage) for stage in range(1, num_stages + 1)]
     copy_result_file(subdirs[-1])
     for subdir in subdirs:
         cleanup_subdir(subdir)
@@ -451,26 +459,6 @@ def validateSettings(args):
     if settings.default_error_rate_multiplier <= 0:
         raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
                          format(settings.default_error_rate_multiplier))
-
-    # Validate num dynamic number of stages settings.
-    for stage in range(1, settings.num_stages + 1):
-        if stage not in settings.default_iterations:
-            raise ValueError("No default iteration data for stage {} in settings.py 'default_iterations'".format(stage))
-        try:
-            settings.default_iterations[stage] = int(settings.default_iterations[stage])
-        except ValueError as e:
-            raise ValueError("Cannot convert iteration data '{}' for stage {} in settings.py 'default_iterations' to int.".
-                             format(settings.default_iterations[stage], stage)) from e
-
-    for stage in range(1, settings.num_stages):
-        stage = -stage
-        if stage not in settings.default_top_n:
-            raise ValueError("No default top_n data for stage {} in settings.py 'default_top_n'".format(stage))
-        try:
-            settings.default_top_n[stage] = int(settings.default_top_n[stage])
-        except ValueError as e:
-            raise ValueError("Cannot convert top_n data '{}' for stage {} in settings.py 'default_top_n' to int.".
-                             format(settings.default_top_n[stage], stage)) from e
 
 
 def file_checksum(filename):
@@ -1176,8 +1164,8 @@ def grab_profiles(player_profile, stage):
             filter_criterium = None
         else:
             filter_by = "count"
-            filter_criterium = settings.default_top_n[stage - settings.num_stages - 1]
-        is_last_stage = (stage == settings.num_stages)
+            filter_criterium = settings.default_top_n[stage - num_stages - 1]
+        is_last_stage = (stage == num_stages)
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, subdir_previous_stage,
                                                     get_subdir(stage), outputFileName, not is_last_stage)
     if num_generated_profiles:
@@ -1186,18 +1174,31 @@ def grab_profiles(player_profile, stage):
 
 
 def static_stage(player_profile, stage):
-    if stage > settings.num_stages:
+    if stage > num_stages:
         return
 
     printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
     num_generated_profiles = grab_profiles(player_profile, stage)
-    splitter.sim(get_subdir(stage), "iterations", settings.default_iterations[stage],
-                 player_profile, stage, num_generated_profiles)
+    is_last_stage = (stage == num_stages)
+    try:
+        num_iterations = settings.default_iterations[stage]
+    except Exception:
+        num_iterations = None
+    if not num_iterations:
+        if settings.skip_questions:
+            raise ValueError("Cannot run static mode and skip questions without default iterations set for stage {}.".format(stage))
+        iterations_choice = input("Please enter the number of iterations to use (q to quit): ")
+        if iterations_choice == "q":
+            printLog("Quitting application")
+            sys.exit(0)
+        num_iterations = int(iterations_choice)
+    splitter.sim(get_subdir(stage), "iterations", num_iterations,
+                 player_profile, stage, is_last_stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
 
 
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
-    if stage > settings.num_stages:
+    if stage > num_stages:
         return
     printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
 
@@ -1278,9 +1279,9 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                 break
         else:
             logging.warning("Could not provide any estimated calculation time.")
-
+            is_last_stage = (stage == num_stages)
     splitter.sim(get_subdir(stage), "target_error", target_error, player_profile,
-                 stage, num_generated_profiles)
+                 stage, is_last_stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 
@@ -1416,14 +1417,8 @@ def main():
 
 
 if __name__ == "__main__":
-
-
     try:
-
-
         main()
-
-
         logging.shutdown()
     except Exception as e:
         logging.error("Error: {}".format(e), exc_info=True)
