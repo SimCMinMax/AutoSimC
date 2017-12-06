@@ -1242,7 +1242,6 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 
     # if the user chose a target_error which is higher than one chosen in the previous stage
     # he is given an option to adjust it.
-    target_error = float(settings.default_target_error[stage])
     if previous_target_error is not None and previous_target_error <= target_error:
         print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
               format(stage - 1, previous_target_error, stage, target_error))
