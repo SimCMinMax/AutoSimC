@@ -1279,7 +1279,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                 break
         else:
             logging.warning("Could not provide any estimated calculation time.")
-            is_last_stage = (stage == num_stages)
+    is_last_stage = (stage == num_stages)
     splitter.sim(get_subdir(stage), "target_error", target_error, player_profile,
                  stage, is_last_stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
