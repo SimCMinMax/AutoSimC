@@ -1290,7 +1290,7 @@ def start_stage(player_profile, num_generated_profiles, stage):
     grabbing_method = "alternate" if settings.default_use_alternate_grabbing_method else "by_count ({})".\
         format(settings.default_top_n)
     logging.info("You selected grabbing method '{}'.".format(grabbing_method))
-    print("You have to choose one of the following modes for calculation:")
+    print("\nYou have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
           format(settings.default_iterations))
     print("   It is however faster if simulating huge amounts of profiles")
