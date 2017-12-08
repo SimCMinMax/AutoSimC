@@ -168,7 +168,8 @@ def parse_command_line_args():
                         required=False,
                         nargs=1,
                         default=[settings.default_sim_start_stage],
-                        choices=['permutate_only', 'all', *("stage{}".format(i) for i in range(1, 6))],
+                        choices=['permutate_only', 'all', 'stage1', 'stage2', 'stage3', 'stage4',
+                                 'stage5', 'stage6'],
                         help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
                         "Might take a long time, depending on number of permutations. "
                         "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
@@ -1419,8 +1420,8 @@ def main():
         if args.sim == "stage3":
             start_stage(player_profile, None, 3)
 
-    if settings.clean_up:
-        cleanup()
+        if settings.clean_up:
+            cleanup()
     print("Finished.")
 
 
