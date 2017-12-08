@@ -236,6 +236,8 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
 
 # chooses settings and multi- or singlemode smartly
 def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
+    logging.info("Starting simulation.")
+    logging.debug("Started simulation with {}".format(locals()))
     subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
     files = [f for f in files if not f.endswith(".result")]

@@ -697,8 +697,16 @@ def build_profile(args):
     config = configparser.ConfigParser()
 
     # use read_file to get a error when input file is not available
-    with open(args.inputfile, encoding='utf-8') as f:
-        config.read_file(f)
+
+    input_encoding = 'utf-8'
+    try:
+        with open(args.inputfile, encoding=input_encoding) as f:
+            config.read_file(f)
+    except UnicodeDecodeError as e:
+        raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
+Please make sure that your text editor encodes the file as '{enc}',
+or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
+                                                                                    enc=input_encoding)) from e
 
     profile = config['Profile']
 
