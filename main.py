@@ -571,7 +571,8 @@ class PermutationData:
             return
 
         # Combine existing gems of the item with the gems supplied by --gems
-        combined_gem_list = [*gems_on_gear, *gem_list]
+        combined_gem_list = gems_on_gear
+        combined_gem_list += gem_list
         combined_gem_list = stable_unique(combined_gem_list)
         # logging.debug("Combined gem list: {}".format(combined_gem_list))
         new_gems = get_gem_combinations(combined_gem_list, len(gems_on_gear))
