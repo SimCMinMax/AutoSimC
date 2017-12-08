@@ -12,9 +12,9 @@ AutoSimC works in two parts:
 2. Simulating the generated profiles in a multi-stage process: To narrow the large amount of generated profiles into a small set of best performing profiles, a multi-stage simulation process is performed, in which each stage simulates the given profiles with increased accuracy to narrow the number of profiles in each stage, resulting in only a handful of final profiles with the best DPS.
 
 You must have python (>=3.4) installed on you computer for this to work.
-- Check your environment-variables (python.exe should be in "path"). If not, edit absolute path into launch.bat
+- You can download python at https://www.python.org/downloads/. During installation, select *Add Python 3.x to PATH*, so that python gets automatically added to your PATH environment variable.
 - Download the project and extract it.
-- Open [input.txt](#inputtxt) and enter parameters depending on your character.
+- Open [input.txt](#inputtxt) and enter parameters depending on your character. Make sure your text editor encodes input.txt as UTF-8.
 - Either install 7zip for auto download of nightly SimulationCraft, or edit settings.py to set auto_download_simc=False and set the simc_path.
 - Edit [settings.py](settingspy) for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
 - Run launch.bat or run 'python main.py' directly. See [below](#command-line-interface) for detailed options.
