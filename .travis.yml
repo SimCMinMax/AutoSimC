@@ -2,6 +2,7 @@ language: python
 # python versions to use during the tests
 python:
     - "3.4"
+    - "3.6"
 # command to install dependencies
 install:
     - pip install -r requirements.txt
@@ -9,6 +10,10 @@ install:
 script:
 #    - py.test
     - python3 main.py -sim permutate_only
+    - python3 main.py -sim permutate_only --debug
+    - python3 main.py -sim permutate_only -i input.txt -o out.simc -l legs/102/103/104/105
+    - python3 main.py -sim permutate_only -gems
+    - python3 main.py -sim permutate_only --unique_jewelry False
 branches:
   only:
    - master
