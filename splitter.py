@@ -11,18 +11,6 @@ import math
 
 from settings import settings
 
-# change path accordingly to your location
-# don´t forget to add double-backslash for subdirs, as shown below
-try:
-    simc_path = settings.simc_path
-except AttributeError:
-    # set path after downloading nightly
-    pass
-
-single_actor_batch = settings.simc_single_actor_batch
-
-user_targeterror = 0.0
-
 
 def parse_profiles_from_file(fd, user_class):
     """Parse a simc file, and yield each player entry (between two class=name lines)"""
@@ -103,7 +91,7 @@ def split(inputfile, destination_folder, size, wow_class):
 
 def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
     cmd = []
-    cmd.append(os.path.normpath(simc_path))
+    cmd.append(os.path.normpath(settings.simc_path))
     if bool(settings.simc_ptr):
         cmd.append('ptr=' + str(int(settings.simc_ptr)))
     cmd.append(file)
@@ -117,7 +105,7 @@ def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, playe
     cmd.append('fight_style=' + str(settings.default_fightstyle))
     cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
     cmd.append('process_priority=' + str(settings.simc_priority))
-    cmd.append('single_actor_batch=' + str(single_actor_batch))
+    cmd.append('single_actor_batch=' + str(settings.simc_single_actor_batch))
 
     # For simulations with a high target_error, we want to get a faster execution (eg. only 47 iterations)
     # instead of the default minimum of ~100 iterations. This options tells SimC to more often check target_error
