@@ -1077,7 +1077,9 @@ def permutate(args, player_profile):
         for perm_normal in normal_permutations:
             for perm_finger in special_permutations["finger"][2]:
                 for perm_trinket in special_permutations["trinket"][2]:
-                    entries = [*perm_normal, *perm_finger, *perm_trinket]
+                    entries = perm_normal
+                    entries += perm_finger
+                    entries += perm_trinket
                     items = {e.slot: e for e in entries if type(e) is Item}
                     data = PermutationData(items, player_profile, max_profile_chars)
                     is_unusable_before_talents = data.check_usable_before_talents()
