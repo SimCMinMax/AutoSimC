@@ -1,4 +1,4 @@
-AutoSimC
+AutoSimC [![Build Status](https://travis-ci.org/SimCMinMax/AutoSimC.svg?branch=master)](https://travis-ci.org/SimCMinMax/AutoSimC)
 ========
 
 Python script to create multiple profiles for SimulationCraft to find Best-in-Slot and best enchants/gems/talents combinations.
