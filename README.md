@@ -8,7 +8,7 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 ## How does it work ?
 AutoSimC works in two parts:
-1. Generating Permutations: Given a input.txt file and certain settings, a output .simc file is generated containing all possible permutations specified. This output file can then be run with SimulationCraft.
+1. Generating Permutations: Given a input.txt file and certain settings, a output .simc file is generated containing all possible permutations specified, filtered down to "valid profiles" fullfilling certain requirements. This output file can then be run with SimulationCraft.
 2. Simulating the generated profiles in a multi-stage process: To narrow the large amount of generated profiles into a small set of best performing profiles, a multi-stage simulation process is performed, in which each stage simulates the given profiles with increased accuracy to narrow the number of profiles in each stage, resulting in only a handful of final profiles with the best DPS.
 
 You must have python (>=3.4) installed on you computer for this to work.
