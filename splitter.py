@@ -114,7 +114,7 @@ def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, playe
         cmd.append('analyze_error_interval=10')
 
     if is_last_stage:
-        if settings.simc_scale_factors_stage3:
+        if settings.simc_scale_factors_last_stage:
             cmd.append('calculate_scale_factors=1')
             if player_profile.class_role == "strattack":
                 cmd.append('scale_only=str,crit,haste,mastery,vers')

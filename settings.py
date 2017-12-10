@@ -2,40 +2,36 @@ import multiprocessing
 
 
 class settings():
-    # ----------------------------------------------------------------------
-    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
-    # ----------------------------------------------------------------------
-    # Path to your simc.exe (or binary on linux/mac) if you enable the simulation-part.
+    # Path to your SimulationCraft command line binary (simc.exe on Windows, or simc on linux/mac).
+    # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
-    # Don´t forget to >>>>INCLUDE DOUBLE-BACKSLASH<<<< for subfolders, like in the example.
-    simc_path = 'D:/dev/git/AutoSimC/auto_download/simc-730-03-win64/simc.exe'
-    # or enable auto_download_simc of latest nightly, need 7z command line utility in path to unzip
-    auto_download_simc = True
+    # Either use forward slashes, or >>>>DOUBLE-BACKSLASH<<<< for subfolders.
+    simc_path = 'D:/simc-730-03-win64/simc.exe'
 
-    # ----------------------------------------------------------------------
-    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
-    # ----------------------------------------------------------------------
+    # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.
+    # You need 7z command line utility in path to unzip for this to work.
+    auto_download_simc = True
 
     # standard-input
     default_inputFileName = "input.txt"
+
     # standard-output
     default_outputFileName = "out.simc"
 
+    # standard log file
     logFileName = "logs.txt"
+
+    # standard error file
     errorFileName = "error.txt"
 
-    # set minimal amount of legendaries to be simulated
-    # if min=max=2, it never simulates combinations with fewer legendaries, therefore rapidly decreasing the total
-    # amount of possible combinations
-    # beware: if you do not include at least leg_min legendaries into your simpermut-output, it might produce errors
-    # you can still override these settings via command-line (-l "" 2:2), as described in the readme
-    # enter max=3 only if you want to include the new Amanthul-Trinket
+    # Minimal/Maximal amount of legendaries for a profile combination to be valid.
+    # If min=max=2, it never simulates combinations with fewer legendaries, therefore rapidly decreasing the total
+    # amount of valid combinations
+    # You can override these settings via command-line (-min_leg and -max_leg), as described in the Readme.
+    # Enter max=3 only if you want to include the new Amanthul-Trinket
     default_leg_min = 2
     default_leg_max = 3
 
-    # ----------------------------------------------------------------------
-    # >>>>>>>>>>>>>>>>>  I M P O R T A N T ! ! ! ! ! <<<<<<<<<<<<<<<<<<<<<<
-    # ----------------------------------------------------------------------
     # set the amount of tier-items you want to include in your output
     # this reduces the number of permutations generated if you know what you want to sim
     # if you have no clue which items do what (= sim every combination), set all txx_min to 0 and txx_max to 6
@@ -49,18 +45,25 @@ class settings():
 
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
+    # No longer used for main.py
     b_quiet = 0
 
-    # split after n profiles. 50 seems to be a good number for this,
-    # it takes around 10-20s each, depending on simulation-parameters
+    # Number of profiles to split simulation work into.
+    # This means that each SimulationCraft instance will simulate at most this many profiles.
+    #
+    # 50 seems to be a good number for this, it takes around 10-20s each and a moderate amount of memory,
+    # depending on simulation-parameters
     # Splitting into too small sets will generate a lot of temporary files on disk and slow things down
-    # Too large split size will require more memory for SimulationCraft and slows down the simulation.
+    # Too large split size will require large amounts of memory for SimulationCraft and slow down the simulation.
     splitting_size = 50
 
-    # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3" 
+    # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3", ...
+    # 'permutate_only' will only generate profile combinations.
+    # 'all' generates profiles & starts simulation process at stage1.
+    # 'stageN' restarts simulation process at stage N.
     default_sim_start_stage = "all"
 
-    # Inside this folder files&folders will be created during calculation
+    # Folder in which temporary files for simulation are created.
     temporary_folder_basepath = "tmp"
 
     # Number of stages to simulate
@@ -83,17 +86,21 @@ class settings():
 
     result_subfolder = "results"
 
-    # for static mode, default iterations per stage
-    # by default this is 100 for stage1, 1000 for stage2, and so on.
+    # For static mode, default iterations per stage
+    # By default this is 100 for stage1, 1000 for stage2, and so on.
+    # If you do not specify a stage, you will be asked during simulation if skip_questions is False
     default_iterations = {1: 100,
                           2: 1000,
                           3: 10000}
 
-    # for dynamic mode
-    # pls override this, especially stage2, if you think it is too erroneus, it depends on the chosen class/spec
-    # the top100 will be simulated in stage2 and top3 in stage 3; stage1 can be chosen dynamically
-    # beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become
-    # obsolete this case might not get fully supported because of the indivduality of these problems
+    # For dynamic mode, default target_error per stage
+    # Please override this, especially stage2, if you think it is too erroneus, it depends on the chosen class/spec
+    # Beware: if you simulate the first stage with a very low target_error (<0.2), stage2 and stage 3 might become
+    # obsolete. This case might not get fully supported because of the indivduality of these problems.
+    #
+    # Please note that you should not just decrease the target_error indefinitely. While this minimises the statistical
+    # error, at some point errors in the modelling in SimulationCraft will mean that you should just accept that two
+    # profiles are 'about equal'.
     #
     # If you leave a stage empty, you will be asked to input a target_error during runtime
     # Remove all entries if you want to be asked at each stage
@@ -101,22 +108,25 @@ class settings():
                             2: 0.2,
                             3: 0.05}
 
-    # alternate method to determine the "best" profiles when using target_error-method
-    # it does not choose fixed top n for each stage
-    # instead it uses the following algorithm:
-    # 1. create the list of profile-dps as usual, descending order
-    # 2. if iterates the list and removes all profiles which do not fulfil (topdps-target_error) > profiledps
-    # e.g. target_error chosen in stage1 = 0.5, topdps = 1.000.000 -> it includes all profiles for stage2
-    # with dps > 995.000
-    # 3. use the same procedure for stage3
-    # set this to True|False if you want to use this method
-    # Non-alternate grabbing method is no longer recommended, since it will lead to unneeded calculations and
+    # Profile grabbing method to determine the "best" profiles when going from stage to stage.
+    # There are 2 modes available:
+    # 1. 'target_error':
+    #     Select all profiles which have statistically the "best" DPS. This means that a variable amount
+    #     of profiles get selected depending on the statistical error of the simulation, which depends on the number
+    #     of iterations or target_error used.
+    #     This also means you need to tweak iterations/target_error setting to get a suitable number of profiles for
+    #     each stage.
+    # 2. 'top_n':
+    #     The profiles are sorted by their DPS, and the top n profiles are selected for the next stage.
+    #     The numer of profiles selected, 'n', is specified in settings.default_top_n
+    #
+    # 'top_n' grabbing method is no longer recommended, since it will lead to unneeded calculations and
     # cannot give you a statistically correct selection of the "equally best" profiles by only looking at the
     # dps without checking statistical variation.
-    default_use_alternate_grabbing_method = True
+    default_grabbing_method = "target_error"
 
-    # Number of profiles to grab with normal method, in reverse order
-    # This means 1: represents the last stage, while 2: is for the next_to_last stage, etc.
+    # Number of profiles to grab with method 'top_n', in reverse order
+    # This means -1: represents the last stage, while -2: is for the next_to_last stage, etc.
     default_top_n = {-1: 1,
                      -2: 100,
                      -3: 1000,
@@ -131,15 +141,17 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
     default_fightstyle = "Patchwerk"
 
-    # enter desires priority
+    # SimulationCraft process priority.
+    # This can make your system more/less responsive. We recommend leaving this at 'low'.
     # low, below_normal, normal, above_normal, highest
     simc_priority = "low"
 
     # number of threads for simc. Default uses as many cores as available on your system.
     # https://github.com/simulationcraft/simc/wiki/Options#multithreading
     simc_threads = max(int(multiprocessing.cpu_count()), 1)
-    # True|False
-    simc_scale_factors_stage3 = True
+
+    # Calculate scale factors for the last stage.
+    simc_scale_factors_last_stage = True
 
     # Should ptr mode be used for SimC
     simc_ptr = False
@@ -151,9 +163,11 @@ class settings():
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole
     # raid instead of single profiles
     simc_safe_mode = False
+
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
     simc_single_actor_batch = 1
+
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
     # the file must be present in the autosimc-folder
@@ -171,8 +185,10 @@ class settings():
     # Default uses as many cores as available on your system - 1
     number_of_instances = max(int(multiprocessing.cpu_count() - 1), 1)
 
-    # console output tends to get spammy with mutliple instances running at once; this enables/disables this behaviour
+    # SimulationCraft console output tends to get spammy with mutliple instances running at once;
+    # this enables/disables this behaviour
     # keep in mind that, if enabled, there will be NO output at all, which may be confusing
+    # Setting this option to False might give you extra information to debug simulation problems.
     multi_sim_disable_console_output = True
 
     # some tests showed that multisimming is faster with many instances, each with 1 thread
@@ -193,15 +209,6 @@ class settings():
     # automation of dialogs
     # 1 or 2
     auto_choose_static_or_dynamic = 2
-    # enter the number of the number you would enter when being presented the target_error_table
-    # (run once with skip_questions=False to look it up if you dont know)
-    auto_dynamic_stage1_target_error_table = 8
-    # beware: in the current state it is not detectable in which stage it crashed respectively autosimc was restarted
-    # if you are unsure, try a higher/better amount to not skew the results too much
-    # resim for static mode gets its values from variables above (default_iterations_stage1,..)
-    # because target_error for dynamic mode has to be entered manually normally, you can set it here
-    # most probably you will enter here the value represented by auto_dynamic_stage1_target_error_table
-    auto_dynamic_stage1_target_error_value = 0.9
 
     # ----------------------------------------------------------------------
     #       ALL OPTIONS BELOW THIS ARE USED FOR THE PROFILE GENERATOR

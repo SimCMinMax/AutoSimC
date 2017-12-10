@@ -461,6 +461,11 @@ def validateSettings(args):
         raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
                          format(settings.default_error_rate_multiplier))
 
+    valid_grabbing_methods = ("target_error", "top_n")
+    if settings.default_grabbing_method not in valid_grabbing_methods:
+        raise ValueError("Invalid settings.default_grabbing_method '{}'. Valid options: {}".
+                         format(settings.default_grabbing_method, valid_grabbing_methods))
+
 
 def file_checksum(filename):
     h = hashlib.sha256()
@@ -1171,10 +1176,10 @@ def grab_profiles(player_profile, stage):
             msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".\
                 format(subdir_previous_stage, e)
             raise RuntimeError(msg) from e
-        if settings.default_use_alternate_grabbing_method:
+        if settings.default_grabbing_method == "target_error":
             filter_by = "target_error"
             filter_criterium = None
-        else:
+        elif settings.default_grabbing_method == "top_n":
             filter_by = "count"
             filter_criterium = settings.default_top_n[stage - num_stages - 1]
         is_last_stage = (stage == num_stages)
@@ -1299,9 +1304,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 
 def start_stage(player_profile, num_generated_profiles, stage):
     logging.info("Starting at stage {}".format(stage))
-    grabbing_method = "alternate" if settings.default_use_alternate_grabbing_method else "by_count ({})".\
-        format(settings.default_top_n)
-    logging.info("You selected grabbing method '{}'.".format(grabbing_method))
+    logging.info("You selected grabbing method '{}'.".format(settings.default_grabbing_method))
     print("\nYou have to choose one of the following modes for calculation:")
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
           format(settings.default_iterations))
