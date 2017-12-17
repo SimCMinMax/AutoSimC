@@ -167,6 +167,16 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 ## Known issues and developement plan
 - Bugfixing and expanding simulation-options
 
+## Frequently Asked Questions
+1. I get an error message *RuntimeError: AutoSimC could not decode your input file 'input.txt' with encoding 'utf-8'.*
+
+   This means that the textual content you stored in 'input.txt' is not encoded with 'utf-8', which AutoSimC expects for this file.
+  Your text editor with which you edited 'input.txt' chose a incompatible encoding when saving the file.
+  To resolve this issue, tell your text editor to save the file with a 'utf-8' encoding. Alternatively, you can remove any special, non-ASCII character from the problem to circumvent the problem, since ASCII is a subset of most encodings.
+1. I get an error message *ValueError: No valid profile combinations found. Please run again with --debug and check your input.txt and settings.py.*
+
+   This means that when AutoSimC generated all possible combinations and filtered them according to the criterias set up in settings.py, 0 valid profiles have been generated. In most cases, this means that your profile does not match the filtering criteria in settings.py about min_legendaries, max_legendaries, tier_min and tier_max number of items required.
+  To resolve this issue, run AutoSimC with the *--debug* argument to get a list of reasons for rejecting the generated profiles. It should then be easy to adjust your profile or settings.py to get some valid profiles.
 ## Credits
 Aethys
 
