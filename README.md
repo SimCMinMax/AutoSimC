@@ -177,6 +177,12 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
    This means that when AutoSimC generated all possible combinations and filtered them according to the criterias set up in settings.py, 0 valid profiles have been generated. Usually, this is because that your profile does not match the filtering criteria in settings.py about min_legendaries, max_legendaries, tier_min and tier_max number of items required.
   To resolve this issue, check the console/log output line starting with *Invalid profile statistics* to see a list of reasons and their percentage for rejecting the generated profiles. It should then be easy to adjust your profile or settings.py to get some valid profiles.
+
+1. How can I simulate multiple enemy targets?
+
+   Check 'additional_input.txt' to provide additional simulation options. You can adust the *desired_targets* option.
+  
+  
 ## Credits
 Aethys
 
