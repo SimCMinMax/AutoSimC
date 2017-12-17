@@ -1105,10 +1105,9 @@ def permutate(args, player_profile):
                                 processed += 1
                     else:
                         processed += len(talent_permutations) * gem_perms
-                        if args.debug:
-                            if is_unusable_before_talents not in unusable_histogram:
-                                unusable_histogram[is_unusable_before_talents] = 0
-                            unusable_histogram[is_unusable_before_talents] += len(talent_permutations) * gem_perms
+                        if is_unusable_before_talents not in unusable_histogram:
+                            unusable_histogram[is_unusable_before_talents] = 0
+                        unusable_histogram[is_unusable_before_talents] += len(talent_permutations) * gem_perms
                     progress += 1
                     print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
                                                progress, max_progress)
@@ -1120,12 +1119,11 @@ def permutate(args, player_profile):
     logging.info(result)
 
     # Not usable histogram debug output
-    if logger.isEnabledFor(logging.DEBUG):
-        unusable_string = []
-        for key, value in unusable_histogram.items():
-            unusable_string.append("'{}': {} ({:.2f}%)".
-                                   format(key, value, value * 100.0 / max_nperm if max_nperm else 0.0))
-        logging.debug("Not usable histogram: {}".format(unusable_string))
+    unusable_string = []
+    for key, value in unusable_histogram.items():
+        unusable_string.append("{:40s}: {:12b} ({:5.2f}%)".
+                               format(key, value, value * 100.0 / max_nperm if max_nperm else 0.0))
+    logging.info("Invalid profile statistics: [\n{}]".format("\n".join(unusable_string)))
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(args.outputfile)
@@ -1408,7 +1406,8 @@ def main():
     if outputGenerated:
         if num_generated_profiles == 0:
             raise ValueError("No valid profile combinations found."
-                             " Please run again with --debug and check your input.txt and settings.py.")
+                             " Please check the 'Invalid profile statistics' output and adjust your"
+                             " input.txt and settings.py.")
         if args.sim:
             if not settings.skip_questions:
                 if num_generated_profiles and num_generated_profiles > 50000:
