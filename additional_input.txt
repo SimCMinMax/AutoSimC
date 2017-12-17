@@ -1,0 +1,2 @@
+# Set this option to the desired number of target for multi-target simulation
+desired_targets=1
