@@ -368,7 +368,7 @@ def cleanup_subdir(subdir):
 
 
 def copy_result_file(last_subdir):
-    result_folder = os.path.join(os.getcwd(), settings.result_subfolder)
+    result_folder = os.path.abspath(settings.result_subfolder)
     if not os.path.exists(result_folder):
         logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
         os.makedirs(result_folder)
@@ -1405,9 +1405,9 @@ def main():
 
     if outputGenerated:
         if num_generated_profiles == 0:
-            raise ValueError("No valid profile combinations found."
-                             " Please check the 'Invalid profile statistics' output and adjust your"
-                             " input.txt and settings.py.")
+            raise RuntimeError("No valid profile combinations found."
+                               " Please check the 'Invalid profile statistics' output and adjust your"
+                               " input.txt and settings.py.")
         if args.sim:
             if not settings.skip_questions:
                 if num_generated_profiles and num_generated_profiles > 50000:

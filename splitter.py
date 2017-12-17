@@ -207,10 +207,12 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
     commands = []
     for file in files_to_sim:
         if file.endswith(".sim"):
-            name = file[0:file.find(".")]
-            outputs = ['output=' + file + '.result']
+            base_path, filename = os.path.split(file)
+            basename, _extension = os.path.splitext(filename)
+            outputs = ['output=' + os.path.join(base_path, basename + '.result')]
             if num_files_to_sim == 1 or is_last_stage:
-                outputs.append('html=' + name + "-" + str(output_time) + '.html')
+                html_file = os.path.join(base_path, str(output_time) + "-" + basename + ".html")
+                outputs.append('html={}'.format(html_file))
             cmd = generateCommand(file,
                                   outputs,
                                   simtype,
