@@ -142,7 +142,7 @@ def worker(command, counter, maximum, starttime, num_workers):
     except Exception:
         logging.debug("Error while calculating progress time.", exc_info=True)
 
-    if settings.multi_sim_disable_console_output and maximum > 1:
+    if settings.multi_sim_disable_console_output and maximum > 1 and num_workers > 1:
         FNULL = open(os.devnull, 'w')  # thx @cwok for working this out
         p = subprocess.Popen(command, stdout=FNULL, stderr=FNULL)
     else:
