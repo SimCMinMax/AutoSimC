@@ -182,6 +182,10 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
    Check 'additional_input.txt' to provide additional simulation options. You can adust the *desired_targets* option.
   
+1. Simulation crashed/stoped at stage x. How can I restart AutoSimC at stage x, without redoing all the previous work?
+
+   Start AutoSimC with the argument *-sim stagex*. If you use launch.bat, edit it and adjust the -sim argument in there.
+   This will resume AutoSimC at stage x, assuming all previous results are ok and you did not clean up the temp folder.
   
 ## Credits
 Aethys
