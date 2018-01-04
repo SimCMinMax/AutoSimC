@@ -123,9 +123,9 @@ Python (>=3.4) is required for this to work.
 
 
 ## Input.txt
-Follow the example that is downloaded and modify it with your own character
+Follow the example that is downloaded and modify it with your own character.
 
-For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
+For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ").
 Example : 
 
     neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
@@ -136,7 +136,7 @@ To specify Tier set and item names, use the following syntax:
     
 To specify a legendary, use the following syntax:
 
-    neck=L--Mangazas_Madness,id=132864,bonus_id=1811/3630
+    waist=L--Mangazas_Madness,id=132864,bonus_id=1811/3630
     
 (item name is not necessary)  
 
