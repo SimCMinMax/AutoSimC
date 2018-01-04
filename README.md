@@ -140,7 +140,7 @@ To specify a legendary, use the following syntax:
     
 (item name is not necessary)  
 
-You can also use [SimPermut](#simPermut-complementarity) to generate the string directly with the gear you have equipped and in your bag.
+You can also use [SimPermut](#simpermut-complementarity) to generate the string directly with the gear you have equipped and in your bag.
 
 If you want to add rotations, stance or others advanced SimulationCraft feature, add them with the "other=" field :
 Example :
