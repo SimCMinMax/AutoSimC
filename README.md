@@ -8,19 +8,19 @@ Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) 
 
 ## How does it work ?
 AutoSimC works in two parts:
-1. Generating Permutations: Given a input.txt file and certain settings, a output .simc file is generated containing all possible permutations specified, filtered down to "valid profiles" fullfilling certain requirements. This output file can then be run with SimulationCraft.
+1. Generating Permutations: Given a input.txt file and certain settings, an output .simc file is generated containing all possible permutations specified, filtered down to "valid profiles" fullfilling certain requirements. This output file can then be run with SimulationCraft.
 2. Simulating the generated profiles in a multi-stage process: To narrow the large amount of generated profiles into a small set of best performing profiles, a multi-stage simulation process is performed, in which each stage simulates the given profiles with increased accuracy to narrow the number of profiles in each stage, resulting in only a handful of final profiles with the best DPS.
 
-You must have python (>=3.4) installed on you computer for this to work.
+## Quick setup
+Python (>=3.4) is required for this to work.
 - You can download python at https://www.python.org/downloads/. During installation, select *Add Python 3.x to PATH*, so that python gets automatically added to your PATH environment variable.
 - Download the project and extract it.
 - Open [input.txt](#inputtxt) and enter parameters depending on your character. Make sure your text editor encodes input.txt as UTF-8.
 - Either install 7zip for auto download of nightly SimulationCraft, or edit settings.py to set auto_download_simc=False and set the simc_path.
 - Edit [settings.py](settingspy) for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
 - Run launch.bat or run 'python main.py' directly. See [below](#command-line-interface) for detailed options.
-- You can use the -sim option to simulate directly with AutoSimC. Or you can feed to generated output .simc file into
-  SimulationCraft yourself.
-- You can also follow this how-to set it up [https://goo.gl/5d7BAM]
+- You can use the -sim option to simulate directly with AutoSimC. Or you can feed to generated output .simc file into SimulationCraft yourself.
+- You can also follow this how-to set it up [https://goo.gl/5d7BAM].
 
 ## Command Line Interface
     python main.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
@@ -123,7 +123,24 @@ You must have python (>=3.4) installed on you computer for this to work.
 
 
 ## Input.txt
-You have to fill variables as it is on SimulationCraft.
+Follow the example that is downloaded and modify it with your own character
+
+For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
+Example : 
+
+    neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
+
+To specify Tier set and item names, use the following syntax:
+
+    neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
+    
+To specify a legendary, use the following syntax:
+
+    neck=L--Mangazas_Madness,id=132864,bonus_id=1811/3630
+    
+(item name is not necessary)  
+
+You can also use [SimPermut](#simPermut-complementarity) to generate the string directly with the gear you have equipped and in your bag.
 
 If you want to add rotations, stance or others advanced SimulationCraft feature, add them with the "other=" field :
 Example :
@@ -134,18 +151,7 @@ Example :
 
     other=initial_chi=4\nactions+=/stance,choose=fierce_tiger
 
-For the gear part, simply copy the gear part of the SimulationCraft addon. If you want to test different gear, add the simulationcraft string of the gear separated with a pipe ( the caracter " | ") 
-Example : 
-
-    neck=,id=130234,enchant_id=5890,bonus_id=1762/689/600/670,gem_id=130220|,id=134529,enchant_id=5890,bonus_id=3413/1808/1507/3336,gem_id=130220
-
-To specify Tier/Legendary set and item names, use the following syntax:
-
-    neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
-    
-You can also use SimPermut to generate the string directly with the gear you have equipped and in your bag (See below).
-
-Talent permutation: Just replace the talent row your want to permutate (talents 1, 2 and 3) with a 0 in your talent= string
+For talent permutation, just replace the talent row your want to permutate (talents 1, 2 and 3) with a 0 in your talent= string.
 
 ## settings.py
 You can/have to finetune your settings in the settings.py file:
