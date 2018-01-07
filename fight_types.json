@@ -1,0 +1,55 @@
+[
+  {
+    "name": "Default_Patchwerk",
+    "command": "Patchwerk",
+    "description": "Tank-n-Spank"
+  },
+  {
+    "name": "Default_LightMovement",
+    "command": "LightMovement",
+    "description": "Fight with infrequent movement"
+  },
+  {
+    "name": "Default_HeavyMovement",
+    "command": "HeavyMovement",
+    "description": "Fight with frequent movement"
+  },
+  {
+    "name": "Default_HelterSkelter",
+    "command": "HelterSkelter",
+    "description": "Movement, Stuns, Interrupts, Target-Switching (every 2min)"
+  },
+  {
+    "name": "Default_HecticAddCleave",
+    "command": "HecticAddCleave",
+    "description": "Heavy Movement, Frequent Add Spawns"
+  },
+  {
+    "name": "Default_Ultraxion",
+    "command": "Ultraxion",
+    "description": "Periodic Stuns, Raid Damage"
+  },
+  {
+    "name": "Default_Beastlord",
+    "command": "Beastlord",
+    "description": "Movement, 2 Types of Add-Waves (Warning: Style not error-free)"
+  },
+  {
+    "name": "Default_CastingPatchwerk",
+    "command": "CastingPatchwerk",
+    "description": "Tank-N-Spank with frequent casts"
+  },
+  {
+    "name": "Two Patchwerks, stacked",
+    "description": "Standard-Patchwerk with two Bosses, standing on top of each other",
+    "line1": "enemy=Patchwerk",
+    "line2": "enemy=Patchwerk2"
+  },
+  {
+    "name": "Two Patchwerks, 27 yards away from each other",
+    "description": "Standard-Patchwerk with two Bosses, which are standing far away",
+    "line1": "enemy=Patchwerk",
+    "line2": "enemy=Patchwerk2",
+    "line3": "raid_events+=/move_enemy,name=Patchwerk2,cooldown=2000,duration=1000,x=-27,y=-27"
+  }
+]

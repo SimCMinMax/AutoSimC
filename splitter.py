@@ -89,6 +89,23 @@ def split(inputfile, destination_folder, size, wow_class):
     return num_profiles
 
 
+def prepareFightStyle(player_profile, cmd):
+    # for now i overwrite additional_input.txt as it is relatively easy to edit the .json containing the profiles
+    # maybe concatenation could be possible? imho it would lead to more problems if a custom profile was loaded
+    # while additional_input contains even more custom commands
+    # i see however the appeal for e.g. appending a additional_input_2.txt containing only overrides
+    # default_profiles do not contain any additional lines, so they can be appended to the command line easily
+    if player_profile.fightstyle["name"].startswith("Default"):
+        cmd.append('fight_style=' + str(player_profile.fightstyle["command"]))
+    else:
+        with open(settings.additional_input_file, "w") as file:
+            for entry in player_profile.fightstyle:
+                if entry.startswith("line"):
+                    file.write(player_profile.fightstyle[entry]+"\n")
+            cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
+    return cmd
+
+
 def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
     cmd = []
     cmd.append(os.path.normpath(settings.simc_path))
@@ -102,8 +119,7 @@ def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, playe
         cmd.append('threads=' + str(settings.number_of_threads))
     else:
         cmd.append('threads=' + str(settings.simc_threads))
-    cmd.append('fight_style=' + str(settings.default_fightstyle))
-    cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
+    cmd = prepareFightStyle(player_profile, cmd)
     cmd.append('process_priority=' + str(settings.simc_priority))
     cmd.append('single_actor_batch=' + str(settings.simc_single_actor_batch))
 
@@ -122,6 +138,7 @@ def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, playe
                 cmd.append('scale_only=agi,crit,haste,mastery,vers')
             elif player_profile.class_role == "spell":
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
+    logging.info("Commandline: {}".format(cmd))
     return cmd
 
 
@@ -262,7 +279,8 @@ def filter_by_target_error(dps_results, target_error):
             dps = entry["dps"]
             err = entry["dps_error"]
             # if dps difference is less than sqrt(err_best**2+err**2) * error_mult, keep result
-            if dps_best_player - dps < math.sqrt(err ** 2 + dps_error_best_player ** 2) * settings.default_error_rate_multiplier:
+            if dps_best_player - dps < math.sqrt(
+                    err ** 2 + dps_error_best_player ** 2) * settings.default_error_rate_multiplier:
                 output.append(entry)
     return output
 

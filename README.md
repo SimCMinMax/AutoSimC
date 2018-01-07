@@ -157,7 +157,7 @@ For talent permutation, just replace the talent row your want to permutate (tale
 You can/have to finetune your settings in the settings.py file:
 - set min/max amount of tier-items and legendaries
 - default number of iterations or target_error for each stage
-- change type of fight (patchwerk, LightMovement etc.)
+- change default for type of fight (patchwerk, LightMovement etc.)
 - and several more
 
 ## Analyzer:
@@ -165,6 +165,14 @@ Included is Analyzer.py, which uses the standard-simc-profiles for each class to
  It is used in the main-program to show the approximate calculation times, therefore it is only needed to be recalculated at major WoW- and Simcraft-updates, e.g. 7.2.5, and if you want to sim your tank- or healspec. Edit the Analysis.py accordingly.
 
  Modules needed: marshmallow (pip install marshmallow) for generating json-files easier
+ 
+## Fight-Type Selector:
+In fight_types.json you can define your personal fight_types.
+The standard simc-profiles are already included, it is advised not to touch these.
+
+If you want to expand them, e.g. simulate two Patchwerks in cleave-range, simply add a block with the commands you would normally add to additional_input.txt. Use the syntax given in the two examples.
+
+*WARNING*: Currently it is therefore NOT advised to touch additional_input.txt AT ALL. For now leave it empty and create a new profile with your custom commands.
 
 ## SimPermut complementarity
 SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to extract a profile-set file to directly calculate the profiles with the items you have in your bags.
@@ -186,13 +194,22 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
 1. How can I simulate multiple enemy targets?
 
-   Check 'additional_input.txt' to provide additional simulation options. You can adust the *desired_targets* option.
+   Basic: Check 'additional_input.txt' to provide additional simulation options. You can adust the *desired_targets* option.
+   Advanced: You can edit fight_types.json to generate your own database of fights. If using this option, leave additional_input.txt empty as it gets overwritten during the process.
   
 1. Simulation crashed/stoped at stage x. How can I restart AutoSimC at stage x, without redoing all the previous work?
 
    Start AutoSimC with the argument *-sim stagex*. If you use launch.bat, edit it and adjust the -sim argument in there.
    This will resume AutoSimC at stage x, assuming all previous results are ok and you did not clean up the temp folder.
   
+
+## Changelog
+
+- 7.3.2a:
+  - Autosimc seems to be stable, therefore bumping version to match compatibility with the current WoW-Patch.
+  - Added additional functionality: Choose fightstyle dynamically before simulation starts. Edit fight_types.json accordingly.
+
+
 ## Credits
 Aethys
 

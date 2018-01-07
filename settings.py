@@ -6,11 +6,11 @@ class settings():
     # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Either use forward slashes, or >>>>SINGLE-BACKSLASH<<<< for subfolders. Do not remove the leading r'
-    simc_path = r'D:\simc-730-03-win64\simc.exe'
+    simc_path = r'C:\\Users\\rob\\Source\\Repos\\simc\simc.exe'
 
     # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.
     # You need 7z command line utility in path to unzip for this to work.
-    auto_download_simc = True
+    auto_download_simc = 0
 
     # standard-input
     default_inputFileName = "input.txt"
@@ -40,7 +40,7 @@ class settings():
     default_equip_t19_max = 6
     default_equip_t20_min = 0
     default_equip_t20_max = 6
-    default_equip_t21_min = 4
+    default_equip_t21_min = 0
     default_equip_t21_max = 6
 
     # quiet_mode for faster output; console is very slow
@@ -139,7 +139,14 @@ class settings():
 
     # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
-    default_fightstyle = "Patchwerk"
+    # The fighttypes are stored in fight_types.json
+    # You can specify your own fights there by simply extending the list with your own
+    # If you set choose_fightstyle to True, a menu pops up before simulation-begin where you can choose the fight to
+    # simulate.
+    # If set it to False, the entry you declare in the json, e.g. "name":"Default_Patchwerk", has to match default_fightstyle
+    file_fightstyle = "fight_types.json"
+    choose_fightstyle = False
+    default_fightstyle = "Default_Patchwerk"
 
     # SimulationCraft process priority.
     # This can make your system more/less responsive. We recommend leaving this at 'low'.
@@ -151,7 +158,7 @@ class settings():
     simc_threads = max(int(multiprocessing.cpu_count()), 1)
 
     # Calculate scale factors for the last stage.
-    simc_scale_factors_last_stage = True
+    simc_scale_factors_last_stage = 0
 
     # Should ptr mode be used for SimC
     simc_ptr = False
