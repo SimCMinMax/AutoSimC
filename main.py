@@ -23,7 +23,7 @@ from settings import settings
 import specdata
 import splitter
 
-__version__ = "0.0.1"
+__version__ = "7.3.2a"
 
 if __name__ == "__main__":
     try:
@@ -42,24 +42,24 @@ t20max = int(settings.default_equip_t20_max)
 t21min = int(settings.default_equip_t21_min)
 t21max = int(settings.default_equip_t21_max)
 
-gem_ids = {"150haste":  130220,
-           "200haste":  151583,
-           "haste":     151583,  # always contains maximum quality
-           "150crit":   130219,
-           "200crit":   151580,
-           "crit":      151580,  # always contains maximum quality
-           "150vers":   130221,
-           "200vers":   151585,
-           "vers":      151585,  # always contains maximum quality
-           "150mast":   130222,
-           "200mast":   151584,
-           "mast":      151584,  # always contains maximum quality
-           "200str":    130246,
-           "str":       130246,
-           "200agi":    130247,
-           "agi":       130247,
-           "200int":    130248,
-           "int":       130248,
+gem_ids = {"150haste": 130220,
+           "200haste": 151583,
+           "haste": 151583,  # always contains maximum quality
+           "150crit": 130219,
+           "200crit": 151580,
+           "crit": 151580,  # always contains maximum quality
+           "150vers": 130221,
+           "200vers": 151585,
+           "vers": 151585,  # always contains maximum quality
+           "150mast": 130222,
+           "200mast": 151584,
+           "mast": 151584,  # always contains maximum quality
+           "200str": 130246,
+           "str": 130246,
+           "200agi": 130247,
+           "agi": 130247,
+           "200int": 130248,
+           "int": 130248,
            }
 
 # Global logger instance
@@ -146,10 +146,10 @@ def parse_command_line_args():
 
     parser = argparse.ArgumentParser(prog="AutoSimC",
                                      description="Python script to create multiple profiles for SimulationCraft to "
-                                     "find Best-in-Slot and best enchants/gems/talents combinations.",
+                                                 "find Best-in-Slot and best enchants/gems/talents combinations.",
                                      epilog="Don't hesitate to go on the SimcMinMax Discord "
-                                     "(https://discordapp.com/invite/tFR2uvK) "
-                                     "in the #simpermut-autosimc Channel to ask about specific stuff.",
+                                            "(https://discordapp.com/invite/tFR2uvK) "
+                                            "in the #simpermut-autosimc Channel to ask about specific stuff.",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter  # Show default arguments
                                      )
 
@@ -157,7 +157,7 @@ def parse_command_line_args():
                         default=settings.default_inputFileName,
                         required=False,
                         help="Inputfile describing the permutation of SimC profiles to generate. See README for more "
-                        "details.")
+                             "details.")
 
     parser.add_argument('-o', '--outputfile',
                         default=settings.default_outputFileName,
@@ -171,25 +171,25 @@ def parse_command_line_args():
                         choices=['permutate_only', 'all', 'stage1', 'stage2', 'stage3', 'stage4',
                                  'stage5', 'stage6'],
                         help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
-                        "Might take a long time, depending on number of permutations. "
-                        "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
-                        "will be saved in results-subfolder."
-                        "There are 2 modes available for calculating the possible huge amount of permutations: "
-                        "Static and dynamic mode:"
-                        "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
-                        "100, 1000 and 10000 for each stage."
-                        "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
-                        "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
-                        "target_error=0.2, and 0.05 for the final stage 3."
-                        "(These numbers might be changed in future versions)"
-                        "You have to set the simc path in the settings.py file."
-                        "- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during "
-                        "stage1, by launching with the parameter -sim stage2 (or stage3). You will have to enter the "
-                        "amount of iterations or target_error of the broken simulation-stage. "
-                        "(See logs.txt for details)"
-                        "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
-                        "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
-                        "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
+                             "Might take a long time, depending on number of permutations. "
+                             "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
+                             "will be saved in results-subfolder."
+                             "There are 2 modes available for calculating the possible huge amount of permutations: "
+                             "Static and dynamic mode:"
+                             "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
+                             "100, 1000 and 10000 for each stage."
+                             "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
+                             "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
+                             "target_error=0.2, and 0.05 for the final stage 3."
+                             "(These numbers might be changed in future versions)"
+                             "You have to set the simc path in the settings.py file."
+                             "- Resuming: It is also possible to resume a broken stage, e.g. if simc.exe crashed during "
+                             "stage1, by launching with the parameter -sim stage2 (or stage3). You will have to enter the "
+                             "amount of iterations or target_error of the broken simulation-stage. "
+                             "(See logs.txt for details)"
+                             "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
+                             "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
+                             "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
                         )
 
     parser.add_argument('--stages',
@@ -202,26 +202,26 @@ def parse_command_line_args():
                         required=False,
                         nargs="*",
                         help='Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
-                        'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
-                        'greens are not supported) in addition to the ones you have currently equipped.\n'
-                        'Valid gems: {}'
-                        '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
-                        '(without <>) into the commandline, the permutation process uses the single int- '
-                        'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
-                        'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
-                        'commandline reenables that.\n'
-                        '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
-                        'Simpermut usually creates this for you.\n'
-                        '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
-                        'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
-                        'when enabling this.'
-                        '- additonally you can specify a empty list of gems, which will permutate the existing gems'
-                        'in your input gear.'.format(list(gem_ids.keys())))
+                             'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
+                             'greens are not supported) in addition to the ones you have currently equipped.\n'
+                             'Valid gems: {}'
+                             '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
+                             '(without <>) into the commandline, the permutation process uses the single int- '
+                             'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
+                             'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
+                             'commandline reenables that.\n'
+                             '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
+                             'Simpermut usually creates this for you.\n'
+                             '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
+                             'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
+                             'when enabling this.'
+                             '- additonally you can specify a empty list of gems, which will permutate the existing gems'
+                             'in your input gear.'.format(list(gem_ids.keys())))
 
     parser.add_argument('-l', '--legendaries',
                         required=False,
                         help='List of legendaries to add to the template. Format:\n'
-                        '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
+                             '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
 
     parser.add_argument('-min_leg', '--legendary_min',
                         default=settings.default_leg_min,
@@ -266,7 +266,7 @@ def handleCommandLine():
     # For now, just write command line arguments into globals
     global outputFileName
     outputFileName = args.outputfile
-    
+
     global num_stages
     num_stages = args.stages
 
@@ -529,16 +529,17 @@ def print_permutation_progress(valid_profiles, current, maximum, start_time, max
         if type(remaining_time) is datetime.timedelta:
             remaining_time = chop_microseconds(remaining_time)
         valid_pct = 100.0 * valid_profiles / current if current else 0.0
-        logging.info("Processed {}/{} ({:5.2f}%) valid {} ({:5.2f}%) elapsed_time {} remaining {} bw {:.0f}k/s bw(valid) {:.0f}k/s".
-                     format(str(current).rjust(max_profile_chars),
-                            maximum,
-                            pct,
-                            valid_profiles,
-                            valid_pct,
-                            elapsed,
-                            remaining_time,
-                            bandwith,
-                            bandwith_valid))
+        logging.info(
+            "Processed {}/{} ({:5.2f}%) valid {} ({:5.2f}%) elapsed_time {} remaining {} bw {:.0f}k/s bw(valid) {:.0f}k/s".
+                format(str(current).rjust(max_profile_chars),
+                       maximum,
+                       pct,
+                       valid_profiles,
+                       valid_pct,
+                       elapsed,
+                       remaining_time,
+                       bandwith,
+                       bandwith_valid))
 
 
 class Profile:
@@ -592,12 +593,12 @@ class PermutationData:
                 new_items[slot] = copied_item
                 gems_used += num_gem_slots
             new_combinations.append(new_items)
-#         logging.debug("Gem permutations:")
-#         for i, comb in enumerate(new_combinations):
-#             logging.debug("Combination {}".format(i))
-#             for slot, item in comb.items():
-#                 logging.debug("{}: {}".format(slot, item))
-#             logging.debug("")
+        #         logging.debug("Gem permutations:")
+        #         for i, comb in enumerate(new_combinations):
+        #             logging.debug("Combination {}".format(i))
+        #             for slot, item in comb.items():
+        #                 logging.debug("{}: {}".format(slot, item))
+        #             logging.debug("")
         return new_combinations
 
     def update_talents(self, talents):
@@ -678,7 +679,7 @@ class PermutationData:
 
         # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
         # scpout later adds a increment for multiple versions of this
-        template = "{Leg0}_{Leg1}_{Leg2}{T19}{T20}{T21}_".\
+        template = "{Leg0}_{Leg1}_{Leg2}{T19}{T20}{T21}_". \
             format(**namingData)
 
         return template + str(valid_profile_number).rjust(self.max_profile_chars, "0")
@@ -865,7 +866,7 @@ class Item:
                 self.extra_options[name].append(value)
 
     def _build_output_str(self):
-        self.output_str = "{}={},id={}".\
+        self.output_str = "{}={},id={}". \
             format(self.slot,
                    self.name,
                    self.item_id)
@@ -1051,10 +1052,10 @@ def permutate(args, player_profile):
     max_nperm = 1
     for name, perm in normal_permutation_options.items():
         max_nperm *= len(perm)
-    permutations_product = {"normal gear&talents":  "{} ({})".format(max_nperm,
-                                                                     {name: len(items) for name, items in
-                                                                      normal_permutation_options.items()}
-                                                                     )
+    permutations_product = {"normal gear&talents": "{} ({})".format(max_nperm,
+                                                                    {name: len(items) for name, items in
+                                                                     normal_permutation_options.items()}
+                                                                    )
                             }
     for name, _entries, opt in special_permutations.values():
         max_nperm *= len(opt)
@@ -1112,7 +1113,7 @@ def permutate(args, player_profile):
                     print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
                                                progress, max_progress)
 
-    result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)".\
+    result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)". \
         format(valid_profiles,
                processed,
                100.0 * valid_profiles / max_nperm if max_nperm else 0.0)
@@ -1171,7 +1172,7 @@ def grab_profiles(player_profile, stage):
         try:
             checkResultFiles(subdir_previous_stage)
         except Exception as e:
-            msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.".\
+            msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.". \
                 format(subdir_previous_stage, e)
             raise RuntimeError(msg) from e
         if settings.default_grabbing_method == "target_error":
@@ -1201,7 +1202,8 @@ def static_stage(player_profile, stage):
         num_iterations = None
     if not num_iterations:
         if settings.skip_questions:
-            raise ValueError("Cannot run static mode and skip questions without default iterations set for stage {}.".format(stage))
+            raise ValueError(
+                "Cannot run static mode and skip questions without default iterations set for stage {}.".format(stage))
         iterations_choice = input("Please enter the number of iterations to use (q to quit): ")
         if iterations_choice == "q":
             printLog("Quitting application")
@@ -1241,7 +1243,9 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     # If we do not have a target_error in settings, get target_error from user input
     if target_error is None:
         if settings.skip_questions:
-            raise ValueError("Cannot run dynamic mode and skip questions without default target_error set for stage {}.".format(stage))
+            raise ValueError(
+                "Cannot run dynamic mode and skip questions without default target_error set for stage {}.".format(
+                    stage))
         else:
             calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
             if calc_choice == "q":
@@ -1278,17 +1282,19 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         for i, (te, _iterations, elapsed_time_seconds) in enumerate(result_data):
             if target_error <= te:
                 elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
-                estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-                logging.info("Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
-                      format(target_error,
-                             te,
-                             elapsed_time.total_seconds(),
-                             estimated_time)
-                             )
+                estimated_time = chop_microseconds(
+                    elapsed_time * num_generated_profiles) if num_generated_profiles else None
+                logging.info(
+                    "Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                        format(target_error,
+                               te,
+                               elapsed_time.total_seconds(),
+                               estimated_time)
+                )
                 if not settings.skip_questions:
                     if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
                         if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".
-                                 format(estimated_time)) == "q":
+                                         format(estimated_time)) == "q":
                             printLog("Quitting application")
                             sys.exit(0)
                 break
@@ -1310,7 +1316,8 @@ def start_stage(player_profile, num_generated_profiles, stage):
     print(
         "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
     print(
-        "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}".format(settings.default_target_error))
+        "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}".format(
+            settings.default_target_error))
     if settings.skip_questions:
         mode_choice = int(settings.auto_choose_static_or_dynamic)
     else:
@@ -1328,7 +1335,7 @@ def start_stage(player_profile, num_generated_profiles, stage):
     elif mode_choice == 2:
         dynamic_stage(player_profile, num_generated_profiles, None, stage)
     else:
-        assert(False)
+        assert (False)
 
 
 def check_interpreter():
@@ -1346,6 +1353,50 @@ def check_interpreter():
                        "Python-Version {}.{}.x".format(sys.version,
                                                        required_major,
                                                        required_minor))
+
+
+def addFightStyle(profile):
+    try:
+        with open(os.path.join(os.getcwd(), settings.file_fightstyle)) as file:
+            profile.fightstyle = None
+            fights = json.load(file)
+            if len(fights) > 0:
+                # generate table to choose fightstyle
+                if settings.choose_fightstyle:
+                    print("\nChoose fightstyle:")
+                    for i, f in enumerate(fights):
+                        print("({:2n}) - {}: {}"
+                              .format(i,
+                                      f["name"],
+                                      f["description"]))
+                    fightstylechoose = int(input("Enter the number for your fightstyle: "))
+                    if fightstylechoose < 0 or fightstylechoose >= len(fights):
+                        logger.error("Wrong number for fightstyles chosen")
+                        sys.exit(1)
+                    else:
+                        profile.fightstyle = fights[fightstylechoose]
+                else:
+                    # fetch default_profile
+                    for f in fights:
+                        if f["name"] == settings.default_fightstyle:
+                            profile.fightstyle = f  # add the whole json-object, files will get created later
+                    if profile.fightstyle is None:
+                        logger.error(
+                            "No fightstyle found in .json with name: {}, exiting.." + format(
+                                settings.default_fightstyle))
+                        sys.exit(1)
+            else:
+                raise RuntimeError("Did not find entries in fight_style.json.")
+    except json.decoder.JSONDecodeError as error:
+        logging.error(error)
+        logging.error("Error: {}".format(error), exc_info=True)
+        sys.exit(1)
+
+    assert profile.fightstyle is not None
+    logger.info("Found fightstyle >>>{}<<< in {}".format(profile.fightstyle["name"], settings.file_fightstyle))
+
+    return profile
+
 
 ########################
 #     Program Start    #
@@ -1416,6 +1467,8 @@ def main():
                             " <----- (Press Enter to continue, q to quit)") == "q":
                         logging.info("Program exit by user")
                         sys.exit(0)
+
+    player_profile = addFightStyle(player_profile)
 
     if args.sim:
         if args.sim == "stage1" or args.sim == "all":
