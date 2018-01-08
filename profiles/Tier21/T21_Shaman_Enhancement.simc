@@ -40,6 +40,7 @@ actions+=/variable,name=OCPool70,value=(!talent.overcharge.enabled|(talent.overc
 actions+=/variable,name=OCPool60,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&maelstrom>60))
 actions+=/variable,name=heartEquipped,value=(equipped.151819)
 actions+=/variable,name=akainuEquipped,value=(equipped.137084)
+actions+=/variable,name=tempestEquipped,value=(equipped.137103)
 actions+=/variable,name=akainuAS,value=(variable.akainuEquipped&buff.hot_hand.react&!buff.frostbrand.up)
 actions+=/variable,name=LightningCrashNotUp,value=(!buff.lightning_crash.up&set_bonus.tier20_2pc)
 actions+=/variable,name=alphaWolfCheck,value=((pet.frost_wolf.buff.alpha_wolf.remains<2&pet.fiery_wolf.buff.alpha_wolf.remains<2&pet.lightning_wolf.buff.alpha_wolf.remains<2)&feral_spirit.remains>4)
@@ -54,6 +55,8 @@ actions+=/call_action_list,name=filler
 
 actions.asc=earthen_spike
 actions.asc+=/doom_winds,if=cooldown.strike.up
+actions.asc+=/crash_lightning,if=!buff.crash_lightning.up&active_enemies>=2
+actions.asc+=/windstrike,target_if=!debuff.storm_tempests.up&variable.tempestEquipped
 actions.asc+=/windstrike
 
 actions.buffs=rockbiter,if=talent.landslide.enabled&!buff.landslide.up
@@ -79,6 +82,7 @@ actions.core+=/windsong
 actions.core+=/crash_lightning,if=active_enemies>=8|(active_enemies>=6&talent.crashing_storm.enabled)
 actions.core+=/windstrike
 actions.core+=/rockbiter,if=buff.force_of_the_mountain.up&charges_fractional>1.7&active_enemies<=4
+actions.core+=/stormstrike,target_if=!debuff.storm_tempests.up&variable.tempestEquipped
 actions.core+=/stormstrike,if=buff.stormbringer.up&variable.furyCheck25
 actions.core+=/crash_lightning,if=active_enemies>=4|(active_enemies>=2&talent.crashing_storm.enabled)
 actions.core+=/rockbiter,if=buff.force_of_the_mountain.up
@@ -97,7 +101,7 @@ actions.filler+=/frostbrand,if=variable.akainuEquipped&!buff.frostbrand.up&maels
 actions.filler+=/sundering
 actions.filler+=/lava_lash,if=maelstrom>=50&variable.OCPool70&variable.furyCheck80
 actions.filler+=/rockbiter
-actions.filler+=/crash_lightning,if=(maelstrom>=65|talent.crashing_storm.enabled|active_enemies>=2)&variable.OCPool60&variable.furyCheck45
+actions.filler+=/crash_lightning,if=(maelstrom>=45|talent.crashing_storm.enabled|active_enemies>=2)
 actions.filler+=/flametongue
 
 actions.opener=rockbiter,if=maelstrom<15&time<gcd
@@ -109,7 +113,7 @@ back=drape_of_venerated_spirits,id=152167,bonus_id=3612/1502,enchant=binding_of_
 chest=robes_of_venerated_spirits,id=152166,bonus_id=3612/1502
 wrists=realitysplitting_wristguards,id=152008,bonus_id=3612/1502
 hands=smoldering_heart,id=151819,bonus_id=3630
-waist=worldravager_waistguard,id=152683,bonus_id=3612/1502
+waist=depraved_tacticians_waistguard,id=152006,bonus_id=3612/1502
 legs=leggings_of_venerated_spirits,id=152170,bonus_id=3612/1502
 feet=greatboots_of_the_searing_tempest,id=152684,bonus_id=3612/1502
 finger1=eye_of_the_twisting_nether,id=137050,bonus_id=3630,gem_id=151583,enchant=binding_of_haste
@@ -123,9 +127,9 @@ off_hand=fury_of_the_stonemother,id=128873
 # gear_ilvl=973.00
 # gear_agility=38816
 # gear_stamina=61124
-# gear_crit_rating=3527
-# gear_haste_rating=14403
-# gear_mastery_rating=11815
+# gear_crit_rating=2973
+# gear_haste_rating=14082
+# gear_mastery_rating=12690
 # gear_versatility_rating=1782
 # gear_armor=3609
 # set_bonus=tier21_2pc=1
