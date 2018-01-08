@@ -19,5 +19,5 @@ out.simc
 .project
 .pydevproject
 auto_download/
-
+settings.py
 
