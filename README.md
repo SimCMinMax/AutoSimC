@@ -202,6 +202,11 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
    Start AutoSimC with the argument *-sim stagex*. If you use launch.bat, edit it and adjust the -sim argument in there.
    This will resume AutoSimC at stage x, assuming all previous results are ok and you did not clean up the temp folder.
+   
+1. I get an error message *ModuleNotFoundError: No module named 'settings'*
+
+   That means you have no settings.py file. Rename settings.template.py to settings.py.
+   
   
 
 ## Changelog
