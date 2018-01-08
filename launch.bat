@@ -1,4 +1,10 @@
 @echo off
+
+REM copy template if settings.py doesnt exists
+IF NOT EXIST settings.py (
+  copy settings.template.py settings.py
+)
+
 where /q python.exe
 IF ERRORLEVEL 1 (
    ECHO Python.exe is missing. Ensure it is installed.
