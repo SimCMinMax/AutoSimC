@@ -10,7 +10,7 @@ class settings():
 
     # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.
     # You need 7z command line utility in path to unzip for this to work.
-    auto_download_simc = 0
+    auto_download_simc = True
 
     # standard-input
     default_inputFileName = "input.txt"
