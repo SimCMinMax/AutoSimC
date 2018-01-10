@@ -79,14 +79,14 @@ def split(inputfile, destination_folder, size, wow_class):
             profile.append("")  # Add tailing empty line
             bestprofiles.append("\n".join(profile))
             if len(bestprofiles) >= size:
-                outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".sim")
+                outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".simc")
                 dump_profiles_to_file(outfile, bestprofiles)
                 num_profiles += len(bestprofiles)
                 bestprofiles.clear()
                 outfile_count += 1
     # Write tail
     if len(bestprofiles):
-        outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".sim")
+        outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".simc")
         dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
         num_profiles += len(bestprofiles)
@@ -110,14 +110,11 @@ def prepareFightStyle(player_profile, cmd):
     return cmd
 
 
-def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
+def generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
+    """Generate global (per stage) simc options and write them to .simc output file"""
     cmd = []
-    cmd.append(os.path.normpath(settings.simc_path))
     if bool(settings.simc_ptr):
         cmd.append('ptr=' + str(int(settings.simc_ptr)))
-    cmd.append(file)
-    for output in outputs:
-        cmd.append(output)
     cmd.append("{}={}".format(sim_type, simtype_value))
     if num_files_to_sim > 1:
         cmd.append('threads=' + str(settings.number_of_threads))
@@ -143,6 +140,18 @@ def generateCommand(file, outputs, sim_type, simtype_value, is_last_stage, playe
             elif player_profile.class_role == "spell":
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
     logging.info("Commandline: {}".format(cmd))
+    with open(output_file, "w") as f:
+        f.write(" ".join(cmd))
+
+
+def generateCommand(file, global_option_file, outputs):
+    """Generate command line arguments to invoke SimulationCraft"""
+    cmd = []
+    cmd.append(os.path.normpath(settings.simc_path))
+    cmd.append(global_option_file)
+    cmd.append(file)
+    for output in outputs:
+        cmd.append(output)
     return cmd
 
 
@@ -220,14 +229,20 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
     # some minor progress-bar-initialization
     amount_of_generated_splits = 0
     for file in files_to_sim:
-        if file.endswith(".sim"):
+        if file.endswith(".simc"):
             amount_of_generated_splits += 1
 
     num_files_to_sim = len(files_to_sim)
 
+    # First generate global simc options
+    base_path, _filename = os.path.split(files_to_sim[0])
+    sim_options = os.path.join(base_path, "arguments.simc")
+    generate_sim_options(sim_options, simtype, simtype_value, is_last_stage, player_profile, num_files_to_sim)
+
+    # Generate arguments for launching simc for each splitted file
     commands = []
     for file in files_to_sim:
-        if file.endswith(".sim"):
+        if file.endswith(".simc"):
             base_path, filename = os.path.split(file)
             basename, _extension = os.path.splitext(filename)
             outputs = ['output=' + os.path.join(base_path, basename + '.result')]
@@ -235,12 +250,8 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
                 html_file = os.path.join(base_path, str(output_time) + "-" + basename + ".html")
                 outputs.append('html={}'.format(html_file))
             cmd = generateCommand(file,
-                                  outputs,
-                                  simtype,
-                                  simtype_value,
-                                  is_last_stage,
-                                  player_profile,
-                                  num_files_to_sim)
+                                  sim_options,
+                                  outputs)
             commands.append(cmd)
     return launch_simc_commands(commands)
 
@@ -388,14 +399,14 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
                 logging.debug("Added {} to best list.".format(profilename))
                 # If we reached chunk length, dump collected profiles and reset, so we do not store everything in memory
                 if len(bestprofiles) >= chunk_length:
-                    outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
+                    outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".simc")
                     dump_profiles_to_file(outfile, bestprofiles)
                     bestprofiles.clear()
                     outfile_count += 1
 
     # Write tail
     if len(bestprofiles):
-        outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".sim")
+        outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".simc")
         dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
 
