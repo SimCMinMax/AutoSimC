@@ -16,7 +16,6 @@ Python (>=3.4) is required for this to work.
 - You can download python at https://www.python.org/downloads/. During installation, select *Add Python 3.x to PATH*, so that python gets automatically added to your PATH environment variable.
 - Download the project and extract it.
 - Open [input.txt](#inputtxt) and enter parameters depending on your character. Make sure your text editor encodes input.txt as UTF-8.
-- Rename settings.template.py to settings.py
 - Either install 7zip for auto download of nightly SimulationCraft, or edit settings.py to set auto_download_simc=False and set the simc_path.
 - Edit [settings.py](settingspy) for additional parameters (e.g. #legendaries, iterations, threads, fightstyle etc.)
 - Run launch.bat or run 'python main.py' directly. See [below](#command-line-interface) for detailed options.
@@ -160,6 +159,12 @@ You can/have to finetune your settings in the settings.py file:
 - default number of iterations or target_error for each stage
 - change default for type of fight (patchwerk, LightMovement etc.)
 - and several more
+
+For developers/power users:
+- You can add a copy of settings.py named settings_local.py to provide overrides for you local settings. 
+  Since this file is not part of AutoSimc source, it will not be overridden/commited when pulling/pushing to
+  the AutoSimC remote repository.
+  For now, please ensure that your local copy stays in sync with settings.py whenever new options are added/renamed.
 
 ## Analyzer:
 Included is Analyzer.py, which uses the standard-simc-profiles for each class to generate a Analysis.json (in profiles-folder), which represents calculation data for each class/spec.

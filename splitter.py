@@ -10,6 +10,10 @@ import re
 import math
 
 from settings import settings
+try:
+    from settings_local import settings
+except ModuleNotFoundError:
+    pass
 
 
 def parse_profiles_from_file(fd, user_class):

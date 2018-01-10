@@ -20,19 +20,15 @@ from urllib.request import urlopen, urlretrieve
 import platform
 
 from settings import settings
+try:
+    from settings_local import settings
+except ModuleNotFoundError:
+    pass
 import specdata
 import splitter
 
 __version__ = "7.3.2a"
 
-if __name__ == "__main__":
-    try:
-        filename = "settings.py"
-        source = open(filename, 'r').read()
-        compile(source, filename, 'exec')
-    except SyntaxError:
-        print("Error in settings.py, pls check for syntax-errors")
-        sys.exit(1)
 
 # Var init with default value
 t19min = int(settings.default_equip_t19_min)
