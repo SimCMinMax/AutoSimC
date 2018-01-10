@@ -12,7 +12,7 @@ import math
 from settings import settings
 try:
     from settings_local import settings
-except ModuleNotFoundError:
+except ImportError:
     pass
 
 
