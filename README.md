@@ -212,6 +212,10 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
    That means you have no settings.py file. Rename settings.template.py to settings.py.
    
+1. How can I get back the target error selection dialog for each stage?
+
+   In settings.py, remove the default_target_error for a given stage and you will be prompted for a target error selection for that stage, assuming skip_questions is False.
+   
   
 
 ## Changelog
