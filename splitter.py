@@ -116,7 +116,7 @@ def generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, pl
     if bool(settings.simc_ptr):
         cmd.append('ptr=' + str(int(settings.simc_ptr)))
     cmd.append("{}={}".format(sim_type, simtype_value))
-    if num_files_to_sim > 1:
+    if num_files_to_sim > 1 and not is_last_stage:
         cmd.append('threads=' + str(settings.number_of_threads))
     else:
         cmd.append('threads=' + str(settings.simc_threads))
@@ -183,16 +183,19 @@ def worker(command, counter, maximum, starttime, num_workers):
     return r
 
 
-def launch_simc_commands(commands):
+def launch_simc_commands(commands, is_last_stage):
     starttime = datetime.datetime.now()
 
+    if is_last_stage:
+        num_workers = 1
+    else:
+        num_workers = settings.number_of_instances
     print("-----------------------------------------------------------------")
     print("Starting multi-process simulation.")
     print("Number of work items: {}.".format(len(commands)))
-    print("Number of worker instances: {}.".format(settings.number_of_instances))
+    print("Number of worker instances: {}.".format(num_workers))
     logging.debug("Starting simc with commands={}".format(commands))
     try:
-        num_workers = settings.number_of_instances
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         counter = 0
         results = []
@@ -253,7 +256,7 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
                                   sim_options,
                                   outputs)
             commands.append(cmd)
-    return launch_simc_commands(commands)
+    return launch_simc_commands(commands, is_last_stage)
 
 
 # chooses settings and multi- or singlemode smartly
