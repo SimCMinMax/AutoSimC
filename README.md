@@ -58,19 +58,17 @@ Python (>=3.4) is required for this to work.
 								1 can be entered at the beginning in the wizard. Stage
 								2 is set to target_error=0.2, and 0.05 for the final
 								stage 3.(These numbers might be changed in future
-								versions)You have to set the simc path in the
-								settings.py file.- Resuming: It is also possible to
-								resume a broken stage, e.g. if simc.exe crashed during
-								stage1, by launching with the parameter -sim stage2
-								(or stage3). You will have to enter the amount of
-								iterations or target_error of the broken simulation-
-								stage. (See logs.txt for details)- Parallel
-								Processing: By default multiple simc-instances are
-								launched for stage1 and 2, which is a major speedup on
-								modern multicore-cpus like AMD Ryzen. If you encounter
-								problems or instabilities, edit settings.py and change
-								the corresponding parameters or even disable it.
-								(default: ['all'])
+								versions) You have to set the simc path in the
+								settings.py file.
+								- Resuming: It is also possible to resume at a stage,
+								e.g. if simc.exe crashed during	stage1, by launching
+								with the parameter -sim stage1 (or stage2/3).
+								- Parallel Processing: By default multiple simc-
+								instances are launched for stage1 and 2, which is a
+								major speedup on modern multicore-cpus like AMD Ryzen.
+								If you encounter problems or instabilities, edit
+								settings.py and change the corresponding parameters
+								or even disable it.	(default: ['all'])
 		  --stages STAGES       Number of stages to simulate. (default: 3)
 		  -gems [GEMS [GEMS ...]], --gems [GEMS [GEMS ...]]
 								Enables permutation of gem-combinations in your gear.
@@ -89,12 +87,13 @@ Python (>=3.4) is required for this to work.
 								and adds ALL combinations from the ones in the
 								commandline, therefore mastery would be excluded.
 								However, adding mastery to the commandline reenables
-								that. - Gems have to fulfil the following syntax in
+								that.
+								- Gems have to fulfil the following syntax in
 								your profile: gem_id=123456[[/234567]/345678]
-								Simpermut usually creates this for you. - WARNING: If
-								you have many items with sockets and/or use a vast
-								gem-combination-setup as command, the number of
-								combinations will go through the roof VERY quickly.
+								Simpermut usually creates this for you.
+								- WARNING: If you have many items with sockets and/or
+								use a vast gem-combination-setup as command, the number
+								of combinations will go through the roof VERY quickly.
 								Please be cautious when enabling this.- additonally
 								you can specify a empty list of gems, which will
 								permutate the existing gemsin your input gear.
