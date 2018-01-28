@@ -177,7 +177,7 @@ The standard simc-profiles are already included, it is advised not to touch thes
 
 If you want to expand them, e.g. simulate two Patchwerks in cleave-range, simply add a block with the commands you would normally add to additional_input.txt. Use the syntax given in the two examples.
 
-If you want to expand already existing fights, e.g. Beastlord: Create a new Profile, remove the "command"-line and put into "line1:fight_style=Beastlord". All lines after that can now contain your overrides etc.
+If you want to expand already existing fights, e.g. Beastlord: Create a new Profile, remove the "command"-line and put into "line1":"fight_style=Beastlord". All lines after that can now contain your overrides etc.
 
 *WARNING*: Currently it is therefore NOT advised to touch additional_input.txt AT ALL. For now leave it empty and create a new profile with your custom commands.
 
