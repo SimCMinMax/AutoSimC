@@ -355,9 +355,10 @@ def autoDownloadSimc():
 def cleanup_subdir(subdir):
     if os.path.exists(subdir):
         if not settings.delete_temp_default and not settings.skip_questions:
-            if input("Do you want to remove subfolder: " + subdir + "? (Press y to confirm): ") != "y":
-                return
-        printLog("Removing: {}".format(subdir))
+            # if input("是否希望删除运行中产生的该垃圾子文件夹:: " + subdir + "? (输入 y 确认): ") != "y":
+            #     return
+            print('正在删除运行中产生的该垃圾子文件夹:' + subdir + "?")
+        printLog("已删除: {}".format(subdir))
         shutil.rmtree(subdir)
 
 
@@ -375,7 +376,7 @@ def copy_result_file(last_subdir):
                 if file.endswith(".html"):
                     src = os.path.join(last_subdir, file)
                     dst = os.path.join(result_folder, file)
-                    printLog("Moving file: {} to {}".format(src, dst))
+                    printLog("移动结果文件从 {} 至 {}\n******您可以用任一浏览器打开以上文件查看结果.******".format(src, dst))
                     shutil.move(src, dst)
                     found_html = True
     if not found_html:
@@ -383,7 +384,7 @@ def copy_result_file(last_subdir):
 
 
 def cleanup():
-    printLog("Cleaning up")
+    printLog("清理中...")
     subdirs = [get_subdir(stage) for stage in range(1, num_stages + 1)]
     copy_result_file(subdirs[-1])
     for subdir in subdirs:
@@ -1062,7 +1063,7 @@ def permutate(args, player_profile):
         max_nperm *= gem_perms
         permutations_product["gems"] = gem_perms
     permutations_product["talents"] = len(talent_permutations)
-    logging.info("Max number of normal permutations: {}".format(max_nperm))
+    logging.info("排序组合最大数: {}".format(max_nperm))
     logging.info("Number of permutations: {}".format(permutations_product))
     max_profile_chars = len(str(max_nperm))  # String length of max_nperm
 
@@ -1187,7 +1188,7 @@ def static_stage(player_profile, stage):
     if stage > num_stages:
         return
 
-    printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
+    printLog("\n\n***进入静态计算模式, 阶段 {}***".format(stage))
     num_generated_profiles = grab_profiles(player_profile, stage)
     is_last_stage = (stage == num_stages)
     try:
@@ -1200,7 +1201,7 @@ def static_stage(player_profile, stage):
                 "Cannot run static mode and skip questions without default iterations set for stage {}.".format(stage))
         iterations_choice = input("Please enter the number of iterations to use (q to quit): ")
         if iterations_choice == "q":
-            printLog("Quitting application")
+            printLog("正在关闭程序...")
             sys.exit(0)
         num_iterations = int(iterations_choice)
     splitter.sim(get_subdir(stage), "iterations", num_iterations,
@@ -1211,7 +1212,7 @@ def static_stage(player_profile, stage):
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
     if stage > num_stages:
         return
-    printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
+    printLog("\n\n***进入动态计算模式, 阶段 {}***".format(stage))
 
     num_generated_profiles = grab_profiles(player_profile, stage)
 
@@ -1243,7 +1244,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         else:
             calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
             if calc_choice == "q":
-                printLog("Quitting application")
+                printLog("正在关闭程序")
                 sys.exit(0)
         calc_choice = int(calc_choice)
         if calc_choice >= len(result_data) or calc_choice < 0:
@@ -1301,21 +1302,21 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 
 
 def start_stage(player_profile, num_generated_profiles, stage):
-    logging.info("Starting at stage {}".format(stage))
+    logging.info("开始第 {} 阶段计算".format(stage))
     logging.info("You selected grabbing method '{}'.".format(settings.default_grabbing_method))
-    print("\nYou have to choose one of the following modes for calculation:")
-    print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
+    print("\n请选择以下任一计算模式:")
+    print("1) 静态模式使用固定数量的迭代数，每个角色配置可能会具有不同的错误. ({})".
           format(settings.default_iterations))
-    print("   It is however faster if simulating huge amounts of profiles")
+    print("   尽管如此, 该模式在模拟大数量角色配置时会快很多.")
     print(
-        "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
+        "2) 动态模式（首选）可让您选择特定的计算“误差值”，但需要更多时间.")
     print(
-        "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}".format(
+        "   在第一阶段的计算中会使用已选特定误差进行; 在阶段2之后，使用以下值: {}".format(
             settings.default_target_error))
     if settings.skip_questions:
         mode_choice = int(settings.auto_choose_static_or_dynamic)
     else:
-        mode_choice = input("Please choose your mode (Enter to exit): ")
+        mode_choice = input("请选择模式 (如输入2然后回车,直接按回车则会关闭程序): ")
         if not len(mode_choice):
             logging.info("User exit.")
             sys.exit(0)
@@ -1477,7 +1478,15 @@ def main():
     print("Finished.")
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
+#     try:
+#         main()
+#         logging.shutdown()
+#     except Exception as e:
+#         logging.error("Error: {}".format(e), exc_info=True)
+#         sys.exit(1)
+
+def runs():
     try:
         main()
         logging.shutdown()

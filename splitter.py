@@ -46,9 +46,9 @@ def purge_subfolder(subfolder, retries=3):
             os.makedirs(subfolder)
         except PermissionError:
             if retries < 0:
-                print("Error creating folders, pls check your permissions.")
+                print("错误: 无法创建文件夹, 请检查您的运行权限.")
                 sys.exit(1)
-            print("Error creating folder, retrying in 3 secs")
+            print("无法创建文件夹, 在3秒后重新尝试.")
             time.sleep(3000)
             purge_subfolder(subfolder, retries - 1)
     else:
@@ -67,7 +67,7 @@ def split(inputfile, destination_folder, size, wow_class):
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
     logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
-    print("This may take a while...")
+    print("这可能会花些时间...")
     logging.debug("wow_class={}".format(wow_class))
 
     num_profiles = 0
@@ -167,8 +167,8 @@ def worker(command, counter, maximum, starttime, num_workers):
             avg_calctime_hist = duration / counter
             remaining_time = (maximum - counter) * avg_calctime_hist
             finish_time = datetime.datetime.now() + remaining_time
-            print("Remaining calculation time (est.): {}.".format(remaining_time))
-            print("Finish time (est.): {}".format(finish_time))
+            print("剩余计算时间 (预计): {}.".format(remaining_time))
+            print("结束时间 (预计): {}".format(finish_time))
     except Exception:
         logging.debug("Error while calculating progress time.", exc_info=True)
 
@@ -191,9 +191,9 @@ def launch_simc_commands(commands, is_last_stage):
     else:
         num_workers = settings.number_of_instances
     print("-----------------------------------------------------------------")
-    print("Starting multi-process simulation.")
-    print("Number of work items: {}.".format(len(commands)))
-    print("Number of worker instances: {}.".format(num_workers))
+    print("开启多进程模拟.Starting multi-process simulation.")
+    print("运作中的进程数: {}.".format(len(commands)))
+    print("运作中的线程数: {}.".format(num_workers))
     logging.debug("Starting simc with commands={}".format(commands))
     try:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
@@ -218,7 +218,7 @@ def launch_simc_commands(commands, is_last_stage):
         executor.shutdown()
         return True
     except KeyboardInterrupt:
-        logging.info("KeyboardInterrupt in simc executor. Stopping.")
+        logging.info("在执行simc程序中被键盘输入打断,正在中断程序..")
         for f in results:
             f.cancel()
         executor.shutdown(wait=False)
@@ -261,7 +261,7 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
 
 # chooses settings and multi- or singlemode smartly
 def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
-    logging.info("Starting simulation.")
+    logging.info("开始模拟.")
     logging.debug("Started simulation with {}".format(locals()))
     subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
@@ -271,7 +271,7 @@ def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, nu
     start = datetime.datetime.now()
     result = start_multi_sim(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
     end = datetime.datetime.now()
-    logging.info("Simulation took {}.".format(end - start))
+    logging.info("模拟花费的时间为 {}.".format(end - start))
     return result
 
 
