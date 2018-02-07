@@ -6,7 +6,7 @@ class settings():
     # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Either use forward slashes, or >>>>SINGLE-BACKSLASH<<<< for subfolders. Do not remove the leading r'
-    #simc_path = r'C:\Path\To\Simulationcraft\simc.exe'
+    #simc_path = 'E:\\Simulationcraft(x64)\\735-01\\simc.exe'
     simc_path = r'simc.exe'
 
     # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.
@@ -78,14 +78,14 @@ class settings():
     num_stages = 3
 
     # Automatic delete of the temp folders
-    delete_temp_default = False
+    delete_temp_default = True
 
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
     # the resulting html will be renamed to: <Timestamp - best.html>
     clean_up = True
 
-    result_subfolder = "results"
+    result_subfolder = "查看结果"
 
     # For static mode, default iterations per stage
     # By default this is 100 for stage1, 1000 for stage2, and so on.
