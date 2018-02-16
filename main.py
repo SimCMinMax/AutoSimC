@@ -27,7 +27,7 @@ except ImportError:
 import specdata
 import splitter
 
-__version__ = "7.3.2a"
+__version__ = "7.3.5"
 
 
 # Var init with default value
