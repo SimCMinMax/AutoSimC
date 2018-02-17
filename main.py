@@ -285,6 +285,44 @@ def get_analyzer_data(class_spec):
                                 )
                         result.append(item)
     return result
+from subprocess import Popen, PIPE, STDOUT
+
+# gets the version of our simc installation on disc
+def determineSimcVersionOnDisc():
+    try:
+        p = Popen([settings.simc_path],
+              stdout=PIPE, stderr=STDOUT, bufsize=1)
+        with p.stdout:
+            # 
+            for line in iter(p.stdout.readline, b''):
+                try:
+                    match = re.search(r'git.+\)', str(line)).group(0)
+                    if match:
+                        logging.debug("Found program in {}: Git_Version: {}"
+                                     .format(settings.simc_path,
+                                             match[:-1].split()[2]))
+                except AttributeError:
+                    # should only contain other lines from simc_standard-output
+                    pass
+    except FileNotFoundError:
+        logging.info("Did not find program in {}".format(settings.simc_path))
+    
+    if match is None:
+        logging.info("Found no git-string in simc.exe, self-compiled?")
+    return match
+
+
+# gets the version of the latest binaries available on the net
+def determineLatestSimcVersion():
+    html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
+    filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    latest_git_version = filename[:-3].split("-")[4]
+    logging.debug("Latest version available: {}".format(latest_git_version))
+    
+    if latest_git_version == "":
+        logging.info("Found no git-string in filename, new or changed format?")
+
+    return (filename, latest_git_version)
 
 
 def autoDownloadSimc():
@@ -329,7 +367,7 @@ def autoDownloadSimc():
         for seven_zip_executable in seven_zip_executables:
             try:
                 if not os.path.exists(seven_zip_executable):
-                    logging.info("7Zip exetuable at '{}' does not exist.".format(seven_zip_executable))
+                    logging.info("7Zip executable at '{}' does not exist.".format(seven_zip_executable))
                     continue
                 cmd = seven_zip_executable + ' x "' + filepath + '" -aoa -o"' + download_dir + '"'
                 logging.debug("Running unpack command '{}'".format(cmd))
@@ -1428,6 +1466,13 @@ def main():
     logging.debug("Parsed command line arguments: {}".format(args))
 
     if args.sim:
+        if not settings.auto_download_simc:
+            if settings.check_simc_version:
+                filename, latest = determineLatestSimcVersion();
+                ondisc = determineSimcVersionOnDisc();
+                if determineLatestSimcVersion() != determineSimcVersionOnDisc():
+                    logging.info("--> A newer SimCraft-version is available for download! Version: {}".format(filename))
+            
         autoDownloadSimc()
     validateSettings(args)
 

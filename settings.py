@@ -4,13 +4,17 @@ import multiprocessing
 class settings():
     # Path to your SimulationCraft command line binary (simc.exe on Windows, or simc on linux/mac).
     # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
-    # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
+    # Dont point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Either use forward slashes, or >>>>SINGLE-BACKSLASH<<<< for subfolders. Do not remove the leading r'
     simc_path = r'C:\Path\To\Simulationcraft\simc.exe'
 
     # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.
     # You need 7z command line utility in path to unzip for this to work.
     auto_download_simc = True
+    # Check if a newer version is available on http://downloads.simulationcraft.org/?C=M;O=D
+    # A valid path to your current simc.exe on disc has to exist, see variable above (simc_path)
+    # It is only checked if auto_download_simc is set to false
+    check_simc_version = True    
 
     # standard-input
     default_inputFileName = "input.txt"
