@@ -1470,7 +1470,7 @@ def main():
             if settings.check_simc_version:
                 filename, latest = determineLatestSimcVersion();
                 ondisc = determineSimcVersionOnDisc();
-                if determineLatestSimcVersion() != determineSimcVersionOnDisc():
+                if latest != determineSimcVersionOnDisc():
                     logging.info("--> A newer SimCraft-version is available for download! Version: {}".format(filename))
             
         autoDownloadSimc()
