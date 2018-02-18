@@ -18,6 +18,7 @@ import hashlib
 import re
 from urllib.request import urlopen, urlretrieve
 import platform
+from subprocess import Popen, PIPE, STDOUT
 
 from settings import settings
 try:
@@ -285,7 +286,6 @@ def get_analyzer_data(class_spec):
                                 )
                         result.append(item)
     return result
-from subprocess import Popen, PIPE, STDOUT
 
 # gets the version of our simc installation on disc
 def determineSimcVersionOnDisc():
