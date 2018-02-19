@@ -15,7 +15,7 @@ from tkinter.filedialog import *
 from tkinter import messagebox
 import random
 from settings import settings
-from stdsupo import redirectedGuiFunc
+#from stdsupo import redirectedGuiFunc
 
 class asmTk:
     def __init__(self, ):
@@ -75,7 +75,7 @@ class asmTk:
         self.news.place(x=65, y=630)
 
         self.info = tk.Label(text='AutoSimC介绍:\n将您身上的装备宝石等自动输入Simulationcraft中进行组合\n'
-                                  '然后批量进行伤害模拟最后输出DPS最高的组合以供参考\n开源https://github.com/Sirius5783/AutoSimC',
+                                  '然后批量进行伤害模拟最后输出DPS最高的配装以供参考\n开源https://github.com/Sirius5783/AutoSimC',
                              justify=LEFT)
         self.info.place(x=65, y=655)
 
@@ -126,7 +126,7 @@ class asmTk:
         self.root.destroy()
         import main
         main.runs()
-        input('现在可以点击叉叉或按回车关闭程序啦.')
+        input('现在可以按回车关闭程序啦.')
 
     # print(self.max_leg.get(),self.min_T21.get(),self.boss_types[self.boss_type.get()],self.priorities[self.priority.get()])
     def leg_spe(self,*args):
