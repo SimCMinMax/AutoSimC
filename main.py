@@ -358,7 +358,7 @@ def cleanup_subdir(subdir):
             # if input("是否希望删除运行中产生的该垃圾子文件夹:: " + subdir + "? (输入 y 确认): ") != "y":
             #     return
             print('正在删除运行中产生的该垃圾子文件夹:' + subdir + "?")
-        printLog("已删除: {}".format(subdir))
+        printLog("已删除运行中产生的垃圾文件夹: {}".format(subdir))
         shutil.rmtree(subdir)
 
 
@@ -379,6 +379,7 @@ def copy_result_file(last_subdir):
                     printLog("移动结果文件从 {} 至 {}\n******您可以用任一浏览器打开以上文件查看结果.******".format(src, dst))
                     shutil.move(src, dst)
                     found_html = True
+                    os.startfile(result_folder,'explore')
     if not found_html:
         logging.warning("Could not copy html result file, since there was no file found in '{}'.".format(last_subdir))
 
@@ -401,14 +402,14 @@ def validateSettings(args):
             logging.debug("Simc executable exists at '{}', proceeding...".format(settings.simc_path))
         if os.name == "nt":
             if not settings.simc_path.endswith("simc.exe"):
-                raise RuntimeError("Simc executable must end with 'simc.exe', and '{}' does not."
-                                   "Please check your settings.py simc_path options.".format(settings.simc_path))
+                raise RuntimeError("Simc可执行程序必须以'simc.exe'结尾, 而 '{}' 不存在."
+                                   "请检查您的Simc路径选择.".format(settings.simc_path))
 
         analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
         if os.path.exists(analyzer_path):
-            logging.info("Analyzer-file found at '{}'.".format(analyzer_path))
+            logging.info("自动模拟启动,正在分析角色字符串...\n已发现分析文件 at '{}'.".format(analyzer_path))
         else:
-            raise RuntimeError("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.".
+            raise RuntimeError("无法于 '{}' 找到分析文件, 请确保您完整的下载了AutoSimC.".
                                format(analyzer_path))
 
     # validate amount of legendaries
@@ -633,17 +634,17 @@ class PermutationData:
                 return " 3 legs equipped, but no Amanthul-Trinket found"
 
         if self.t19 < t19min:
-            return "too few tier 19 items"
+            return "没有那么多的T19装备"
         if self.t19 > t19max:
-            return "too many tier 19 items"
+            return "T19装备过多"
         if self.t20 < t20min:
-            return "too few tier 20 items"
+            return "没有那么多的T20装备"
         if self.t20 > t20max:
-            return "too many tier 20 items"
+            return "T20装备过多"
         if self.t21 < t21min:
-            return "too few tier 21 items"
+            return "没有那么多的T21装备"
         if self.t21 > t21max:
-            return "too many tier 21 items"
+            return "T21装备过多"
 
         return None
 
@@ -706,15 +707,14 @@ def build_profile(args):
         with open(args.inputfile, encoding=input_encoding) as f:
             config.read_file(f)
     except UnicodeDecodeError as e:
-        raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
-Please make sure that your text editor encodes the file as '{enc}',
-or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
+        raise RuntimeError("""AutoSimC无法将您的输入字符串'{file}' 使用 '{enc}' 编码进行解码.
+可以尝试移除其中任意特殊字符,如法文和中文.""".format(file=args.inputfile,
                                                                                     enc=input_encoding)) from e
 
     profile = config['Profile']
 
     if 'class' in profile:
-        raise RuntimeError("You input class format is wrong, please update SimPermut or your input file.")
+        raise RuntimeError("您输入的字符串格式错误，请升级SimPermut插件，或是修改输入.")
 
     # Read input.txt
     #   Profile
@@ -737,7 +737,7 @@ or as a quick fix remove any special characters from your character name.""".for
             c_profilename = profile[wow_class]
             break
     else:
-        raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
+        raise RuntimeError("无法在输入字符串中找到有效的魔兽世界职业, 可模拟的职业列表: {}".
                            format(valid_classes))
     player_profile = Profile()
     player_profile.args = args
@@ -766,7 +766,7 @@ or as a quick fix remove any special characters from your character name.""".for
     player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
 
     # Build 'general' profile options which do not permutate once into a simc-string
-    logging.info("SimC options: {}".format(player_profile.simc_options))
+    logging.info("SimC选项: {}".format(player_profile.simc_options))
     player_profile.general_options = "\n".join(["{}={}".format(key, value) for key, value in
                                                 player_profile.simc_options.items()])
     logging.debug("Built simc general options string: {}".format(player_profile.general_options))
@@ -953,7 +953,7 @@ def permutate(args, player_profile):
         for legendary in args.legendaries.split(','):
             add_legendary(legendary.split("/"), parsed_gear)
 
-    logging.info("Parsed gear including legendaries:")
+    logging.info("已验证装备:")
     for slot, item in parsed_gear.items():
         logging.info("{:10s}: {}".format(slot, item))
 
@@ -1063,8 +1063,8 @@ def permutate(args, player_profile):
         max_nperm *= gem_perms
         permutations_product["gems"] = gem_perms
     permutations_product["talents"] = len(talent_permutations)
-    logging.info("排序组合最大数: {}".format(max_nperm))
-    logging.info("Number of permutations: {}".format(permutations_product))
+    logging.info("装备附魔等组合总数: {}".format(max_nperm))
+    logging.info("可进行组合的装备数: {}".format(permutations_product))
     max_profile_chars = len(str(max_nperm))  # String length of max_nperm
 
     # Start the permutation!
@@ -1108,7 +1108,7 @@ def permutate(args, player_profile):
                     print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
                                                progress, max_progress)
 
-    result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)". \
+    result = "装备组合数排序结束. 有效组合数: {:n} of {:n} 已验证. ({:.2f}%)". \
         format(valid_profiles,
                processed,
                100.0 * valid_profiles / max_nperm if max_nperm else 0.0)
@@ -1119,11 +1119,11 @@ def permutate(args, player_profile):
     for key, value in unusable_histogram.items():
         unusable_string.append("{:40s}: {:12b} ({:5.2f}%)".
                                format(key, value, value * 100.0 / max_nperm if max_nperm else 0.0))
-    logging.info("Invalid profile statistics: [\n{}]".format("\n".join(unusable_string)))
+    logging.info("无效的角色数据: [\n{}]".format("\n".join(unusable_string)))
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(args.outputfile)
-    logging.info("Output file checksum: {}".format(outfile_checksum))
+    logging.info("输出文件检验: {}".format(outfile_checksum))
 
     return valid_profiles
 
@@ -1131,23 +1131,23 @@ def permutate(args, player_profile):
 def checkResultFiles(subdir):
     """Check the SimC result files of a previous stage for validity."""
     subdir = os.path.join(os.getcwd(), subdir)
-    printLog("Checking Files in subdirectory: {}".format(subdir))
+    printLog("正在检查子文件夹文件: {}".format(subdir))
 
     if not os.path.exists(subdir):
-        raise FileNotFoundError("Subdir '{}' does not exist.".format(subdir))
+        raise FileNotFoundError("子文件夹 '{}' 不存在.".format(subdir))
 
     files = os.listdir(subdir)
     if len(files) == 0:
-        raise FileNotFoundError("No files in: " + str(subdir))
+        raise FileNotFoundError("次子文件无文件: " + str(subdir))
 
     files = [f for f in files if f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
     for file in files:
         if os.stat(file).st_size <= 0:
-            raise RuntimeError("Result file '{}' is empty.".format(file))
+            raise RuntimeError("结果文件 '{}' 为空.".format(file))
 
-    logging.debug("{} valid result files found in {}.".format(len(files), subdir))
-    logging.info("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
+    logging.debug(" 已发现 {} 个有效的结果文件, 目录为 {} .".format(len(files), subdir))
+    logging.info("已检查此文件夹中所有文件 " + str(subdir) + " : 看起来一切正常.")
 
 
 def get_subdir(stage):
@@ -1180,7 +1180,7 @@ def grab_profiles(player_profile, stage):
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, subdir_previous_stage,
                                                     get_subdir(stage), outputFileName, not is_last_stage)
     if num_generated_profiles:
-        logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
+        logging.info("已发现 {} 可进行模拟的组合数.".format(num_generated_profiles))
     return num_generated_profiles
 
 
@@ -1212,17 +1212,17 @@ def static_stage(player_profile, stage):
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
     if stage > num_stages:
         return
-    printLog("\n\n***进入动态计算模式, 阶段 {}***".format(stage))
+    printLog("\n\n***进入动态计算模式, 第 {} 阶段***".format(stage))
 
     num_generated_profiles = grab_profiles(player_profile, stage)
 
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
-    print("Estimated calculation times for stage {} based on your data:".format(stage))
+    print("基于你提供的角色数据，该模拟的第{}阶段预计耗时为:".format(stage))
     for i, (target_error, iterations, elapsed_time_seconds) in enumerate(result_data):
         elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
         estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-        print("({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) ".
+        print("({:2n}): 目标误差值: {:6.3f}%:  预计计算时间: {} (每个角色配置消耗时间: {:5.2f}s 迭代数: {:5n}) ".
               format(i,
                      target_error,
                      estimated_time,
@@ -1250,7 +1250,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         if calc_choice >= len(result_data) or calc_choice < 0:
             raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
                                                                                         len(result_data) - 1))
-        printLog("Sim: Number of permutations: " + str(num_generated_profiles))
+        printLog("Sim: 可进行组合的装备数: " + str(num_generated_profiles))
         printLog("Sim: Chosen calculation: {}".format(calc_choice))
 
         target_error, _iterations, _elapsed_time_seconds = result_data[calc_choice]
@@ -1305,13 +1305,13 @@ def start_stage(player_profile, num_generated_profiles, stage):
     logging.info("开始第 {} 阶段计算".format(stage))
     logging.info("You selected grabbing method '{}'.".format(settings.default_grabbing_method))
     print("\n请选择以下任一计算模式:")
-    print("1) 静态模式使用固定数量的迭代数，每个角色配置可能会具有不同的错误. ({})".
+    print("1) 静态模式使用固定次数的迭代总数. ({})".
           format(settings.default_iterations))
-    print("   尽管如此, 该模式在模拟大数量角色配置时会快很多.")
+    print("   尽管如此, 该模式在模拟大数量装备组合时会快很多.")
     print(
-        "2) 动态模式（首选）可让您选择特定的计算“误差值”，但需要更多时间.")
+        "2) 动态模式（首选）可让您按预设误差值进行模拟，但需要更多时间.")
     print(
-        "   在第一阶段的计算中会使用已选特定误差进行; 在阶段2之后，使用以下值: {}".format(
+        "   结果更为精准,但模拟速度会慢些.使用以下值: {}".format(
             settings.default_target_error))
     if settings.skip_questions:
         mode_choice = int(settings.auto_choose_static_or_dynamic)
@@ -1323,7 +1323,7 @@ def start_stage(player_profile, num_generated_profiles, stage):
         mode_choice = int(mode_choice)
     valid_modes = (1, 2)
     if mode_choice not in valid_modes:
-        raise RuntimeError("Invalid mode '{}' selected. Valid modes: {}.".format(mode_choice,
+        raise RuntimeError("无效选择模式 '{}' . 请选择: {}.".format(mode_choice,
                                                                                  valid_modes))
     if mode_choice == 1:
         static_stage(player_profile, stage)
@@ -1344,8 +1344,8 @@ def check_interpreter():
     elif major == required_major:
         if minor >= required_minor:
             return
-    raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
-                       "Python-Version {}.{}.x".format(sys.version,
+    raise RuntimeError("Python版本过老! 正在运行的Python版本为 {}. 请至少升级为"
+                       "{}.{}.x".format(sys.version,
                                                        required_major,
                                                        required_minor))
 
@@ -1377,18 +1377,18 @@ def addFightStyle(profile):
                             profile.fightstyle = f  # add the whole json-object, files will get created later
                     if profile.fightstyle is None:
                         logger.error(
-                            "No fightstyle found in .json with name: {}, exiting.." + format(
+                            "未在 .json 文件中找到此战斗模式: {}" + format(
                                 settings.default_fightstyle))
                         sys.exit(1)
             else:
-                raise RuntimeError("Did not find entries in fight_style.json.")
+                raise RuntimeError("无法于 fight_style.json 中找到匹配的BOSS类型/战斗模式.")
     except json.decoder.JSONDecodeError as error:
         logging.error(error)
         logging.error("Error: {}".format(error), exc_info=True)
         sys.exit(1)
 
     assert profile.fightstyle is not None
-    logger.info("Found fightstyle >>>{}<<< in {}".format(profile.fightstyle["name"], settings.file_fightstyle))
+    logger.info("BOSS类型为 >>>{}<<< in {}".format(profile.fightstyle["name"], settings.file_fightstyle))
 
     return profile
 
@@ -1434,7 +1434,7 @@ def main():
 
     player_profile = build_profile(args)
 
-    print("Combinations in progress...")
+    print("正在对以上选项进行组合排序...")
 
     # can always be rerun since it is now deterministic
     outputGenerated = False
@@ -1442,7 +1442,7 @@ def main():
     if args.sim == "all" or args.sim is None:
         start = datetime.datetime.now()
         num_generated_profiles = permutate(args, player_profile)
-        logging.info("Permutating took {}.".format(datetime.datetime.now() - start))
+        logging.info("对装备进行组合排序耗时 {}.".format(datetime.datetime.now() - start))
         outputGenerated = True
     elif args.sim == "stage1":
         if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
@@ -1451,9 +1451,8 @@ def main():
 
     if outputGenerated:
         if num_generated_profiles == 0:
-            raise RuntimeError("No valid profile combinations found."
-                               " Please check the 'Invalid profile statistics' output and adjust your"
-                               " input.txt and settings.py.")
+            raise RuntimeError("未找到有效的装备组合."
+                               "请检查无效角色数据'Invalid profile statistics'并调整字符串和设置.")
         if args.sim:
             if not settings.skip_questions:
                 if num_generated_profiles and num_generated_profiles > 50000:
@@ -1475,7 +1474,7 @@ def main():
 
         if settings.clean_up:
             cleanup()
-    print("Finished.")
+    print("已结束全部模拟!")
 
 
 # if __name__ == "__main__":
@@ -1493,3 +1492,6 @@ def runs():
     except Exception as e:
         logging.error("Error: {}".format(e), exc_info=True)
         sys.exit(1)
+
+if __name__ == "__main__":
+    runs()

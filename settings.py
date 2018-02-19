@@ -7,7 +7,7 @@ class settings():
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Either use forward slashes, or >>>>SINGLE-BACKSLASH<<<< for subfolders. Do not remove the leading r'
     #simc_path = 'E:\\Simulationcraft(x64)\\735-01\\simc.exe'
-    simc_path = r'simc.exe'
+    simc_path ='E:/Simulationcraft(x64)/735-01/simc.exe'
 
     # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.
     # You need 7z command line utility in path to unzip for this to work.
@@ -85,7 +85,7 @@ class settings():
     # the resulting html will be renamed to: <Timestamp - best.html>
     clean_up = True
 
-    result_subfolder = "查看结果"
+    result_subfolder = "results"
 
     # For static mode, default iterations per stage
     # By default this is 100 for stage1, 1000 for stage2, and so on.
@@ -212,7 +212,7 @@ class settings():
     # ALL OPTIONS BELOW THIS VARIABLE ARE AFFECTED BY THIS SWITCH!!!
     #               YOU HAVE TO KNOW WHAT YOU DO!
     # ----------------------------------------------------------------------
-    skip_questions = False
+    skip_questions = True
 
     # automation of dialogs
     # 1 or 2

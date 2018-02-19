@@ -66,7 +66,7 @@ def split(inputfile, destination_folder, size, wow_class):
     """
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
-    logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
+    logging.info("正在将 {} 分拆为大小为 {} 的数个文件进行模拟,以防止内存占用过大而崩溃.".format(inputfile, size))
     print("这可能会花些时间...")
     logging.debug("wow_class={}".format(wow_class))
 
@@ -157,10 +157,11 @@ def generateCommand(file, global_option_file, outputs):
 
 def worker(command, counter, maximum, starttime, num_workers):
     print("-----------------------------------------------------------------")
-    print("Currently processing: {}".format(command[2]))
-    print("Processing: {}/{} ({}%)".format(counter + 1,
+    print("正在进行模拟计算: {}".format(command[2]))
+    print("进行中: {}/{} ({}%)".format(counter + 1,
                                            maximum,
                                            round(100 * float(int(counter) / int(maximum)), 1)))
+    print('SimulationCraft版本号:')
     try:
         if counter > 0 and counter % num_workers == 0:
             duration = datetime.datetime.now() - starttime
@@ -191,9 +192,9 @@ def launch_simc_commands(commands, is_last_stage):
     else:
         num_workers = settings.number_of_instances
     print("-----------------------------------------------------------------")
-    print("开启多进程模拟.Starting multi-process simulation.")
-    print("运作中的进程数: {}.".format(len(commands)))
-    print("运作中的线程数: {}.".format(num_workers))
+    print("多进程模拟:ON")
+    print("已开启的进程数: {}.".format(len(commands)))
+    print("已开启的线程数: {}.".format(num_workers))
     logging.debug("Starting simc with commands={}".format(commands))
     try:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
@@ -261,7 +262,7 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
 
 # chooses settings and multi- or singlemode smartly
 def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
-    logging.info("开始模拟.")
+    logging.info("此阶段模拟开始.")
     logging.debug("Started simulation with {}".format(locals()))
     subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
@@ -271,7 +272,7 @@ def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, nu
     start = datetime.datetime.now()
     result = start_multi_sim(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
     end = datetime.datetime.now()
-    logging.info("模拟花费的时间为 {}.".format(end - start))
+    logging.info("以上模拟花费的时间为 {}.".format(end - start))
     return result
 
 
