@@ -5,12 +5,13 @@ Python script to create multiple profiles for SimulationCraft to find Best-in-Sl
 
 Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) Discord in the #simpermut-autosimc Channel to ask about specific stuff.
 
-## AutoSim窗口版
+## AutoSimC窗口版
 - 窗口版是为无Python环境和编程经验的中国玩家使用.
 - 支持直接把角色的字符串输入窗口中,无需修改input.txt文件,也解决了部分可能遇到的编码坑。
 - 汉化了部分模拟过程中显示的英文字符串
 - 模拟结束默认删除所有产生的垃圾文件夹
 - 终端在模拟结束后需要再输入一次Enter回车才会关闭
+- 更新了一些自定义选项和更多的汉化
 - 详情查看[NGA](https://bbs.nga.cn/read.php?tid=13391684)
 
 
