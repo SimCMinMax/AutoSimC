@@ -161,7 +161,6 @@ def worker(command, counter, maximum, starttime, num_workers):
     print("进行中: {}/{} ({}%)".format(counter + 1,
                                            maximum,
                                            round(100 * float(int(counter) / int(maximum)), 1)))
-    print('SimulationCraft版本号:')
     try:
         if counter > 0 and counter % num_workers == 0:
             duration = datetime.datetime.now() - starttime

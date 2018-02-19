@@ -15,12 +15,12 @@
     "description": "Fight with frequent movement"
   },
   {
-    "name": "Default_HelterSkelter",
+    "name": "Default_HeavyMovement",
     "command": "HelterSkelter",
     "description": "Movement, Stuns, Interrupts, Target-Switching (every 2min)"
   },
   {
-    "name": "Default_HecticAddCleave",
+    "name": "Default_HeavyMovement",
     "command": "HecticAddCleave",
     "description": "Heavy Movement, Frequent Add Spawns"
   },

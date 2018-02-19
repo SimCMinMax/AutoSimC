@@ -149,7 +149,7 @@ class settings():
     choose_fightstyle = False
     default_fightstyle = "Default_Patchwerk"
 
-    # SimulationCraft process priority.
+    # SimulationCraft .
     # This can make your system more/less responsive. We recommend leaving this at 'low'.
     # low, below_normal, normal, above_normal, highest
     simc_priority = "low"

@@ -1401,12 +1401,12 @@ def addFightStyle(profile):
 def main():
     global class_spec
 
-    error_handler = logging.FileHandler(settings.errorFileName)
+    error_handler = logging.FileHandler(settings.errorFileName,encoding='UTF-8')
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
     # Handler to log messages to file
-    log_handler = logging.FileHandler(settings.logFileName)
+    log_handler = logging.FileHandler(settings.logFileName,encoding = "UTF-8")
     log_handler.setLevel(logging.INFO)
     log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 

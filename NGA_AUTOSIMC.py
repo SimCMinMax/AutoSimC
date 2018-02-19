@@ -67,7 +67,7 @@ class asmTk:
         self.entry.place(x=65, y=198)
 
         self.status = tk.Label(relief=RIDGE, anchor=W)
-        self.status.config(text='状态:未选择simc程序!', fg='red')
+        self.status.config(text='状态:', fg='red')
         self.status.place(x=65, y=608)
 
         self.news = tk.Label(relief=RIDGE, anchor=W)
@@ -84,6 +84,7 @@ class asmTk:
             self.status.config(text='状态:已选择的simc.exe路径' + self.filename, fg='blue')
         else:
             self.filename = None
+            self.status.config(text='状态:未选择simc程序的路径!', fg='red')
 
         tk.mainloop()
 
@@ -111,9 +112,11 @@ class asmTk:
                 messagebox.showerror(title='错误提示', message='未选择simc程序的路径!~')
             elif self.filename[-8:] == 'simc.exe':
                 # print(strings,'\n',type(strings))
+
                 personal_input = open('input.txt', 'w', encoding='utf-8')
                 personal_input.write(strings)
                 personal_input.close()
+
                 messagebox.showinfo(title='觉醒!', message='模拟即将在身后那个黑乎乎的窗口开始了哦!')
                 self.start_autosimc()
             else:
@@ -169,11 +172,11 @@ class asmTk:
         self.news.config(text=random_text, fg=color[random.randint(0, 4)])
 
     def save_location(self):
-        with open('settings.py','r') as file:
+        with open('settings.py','r',encoding='utf-8') as file:
             content = file.readlines()
 
         content[9] = f"    simc_path ='{self.filename}'\n"
-        with open('settings.py', 'w') as file:
+        with open('settings.py', 'w',encoding='utf-8') as file:
             file.writelines(content)
 
 # def runPackDialog_Wrapped():            # callback to run in mytools.py
