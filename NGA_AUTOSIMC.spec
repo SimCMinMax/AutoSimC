@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['NGA_AUTOSIMC.py'],
-             pathex=['F:\\AutoSimC-master'],
+             pathex=['F:\\GitHub\\AutoSimC'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -6,7 +6,6 @@ class settings():
     # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
     # Don´t point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
     # Either use forward slashes, or >>>>SINGLE-BACKSLASH<<<< for subfolders. Do not remove the leading r'
-    #simc_path = 'E:\\Simulationcraft(x64)\\735-01\\simc.exe'
     simc_path ='E:/Simulationcraft(x64)/735-01/simc.exe'
 
     # On Windows, AutoSimCor can automatically download the latest nightly version of SimulationCraft for you.

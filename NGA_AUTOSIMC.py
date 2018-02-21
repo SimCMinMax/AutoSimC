@@ -4,7 +4,7 @@
 @license: None
 @contact: markdan@foxmail.com
 @file: NGA_AUTOSIMC.py
-@time: 2018/2/19 0019 11:19
+@time: 2018/2/21 0019 23:22
 @desc:Windows 10,Python3.6
 """
 """
@@ -79,18 +79,21 @@ class asmTk:
                              justify=LEFT)
         self.info.place(x=65, y=655)
 
-        if os.path.exists(settings.simc_path):
-            self.filename = settings.simc_path
-            self.status.config(text='状态:已选择的simc.exe路径' + self.filename, fg='blue')
+        if os.path.exists('path2sim.nga'):
+            with open('path2sim.nga', 'r', encoding='utf-8') as file:
+                self.filename = file.read()
+                self.status.config(text='状态:已选择的simc.exe路径' + self.filename, fg='blue')
         else:
             self.filename = None
             self.status.config(text='状态:未选择simc程序的路径!', fg='red')
 
         tk.mainloop()
 
+
     def file_open(self):
         self.boring()
         self.filename = askopenfilename()
+        print(repr(self.filename))
         if self.filename:
             #print(f'filename:{self.filename}',type(self.filename))
             if self.filename[-8:] == 'simc.exe':
@@ -120,6 +123,7 @@ class asmTk:
                 messagebox.showinfo(title='觉醒!', message='模拟即将在身后那个黑乎乎的窗口开始了哦!')
                 self.start_autosimc()
             else:
+                #print('file check:',repr(self.filename))
                 messagebox.showerror(title='错误提示', message='您选择的不是simc.exe程序!请重新选择~')
         else:
             messagebox.showerror(title='错误提示', message='您输入的不是合法的角色字符串,请重新输入~')
@@ -172,12 +176,9 @@ class asmTk:
         self.news.config(text=random_text, fg=color[random.randint(0, 4)])
 
     def save_location(self):
-        with open('settings.py','r',encoding='utf-8') as file:
-            content = file.readlines()
+        with open('path2sim.nga','w',encoding='utf-8') as file:
+            file.write(f"{self.filename}")
 
-        content[9] = f"    simc_path ='{self.filename}'\n"
-        with open('settings.py', 'w',encoding='utf-8') as file:
-            file.writelines(content)
 
 # def runPackDialog_Wrapped():            # callback to run in mytools.py
 #     redirectedGuiFunc(runn)
@@ -185,6 +186,11 @@ class asmTk:
 
 if __name__ == '__main__':
 #def runn():
+    print('正在初始化程序,请不要关闭这个黑色的窗口哦.')
+    for i in range(0,101):
+        print('进度:',i,'%')
+    print('初始化完成.')
+    print('正在打开窗口界面,请不要关闭这个黑色的窗口哦,后面有大用')
     user = asmTk()
 
 #runPackDialog_Wrapped()
