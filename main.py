@@ -291,8 +291,7 @@ def get_analyzer_data(class_spec):
 def determineSimcVersionOnDisc():
     """gets the version of our simc installation on disc"""
     try:
-        p = Popen([settings.simc_path],
-              stdout=PIPE, stderr=STDOUT, bufsize=1)
+        p = Popen([settings.simc_path], stdout=PIPE, stderr=STDOUT, bufsize=1)
         match = None
         with p.stdout:
             for raw_line in p.stdout:
@@ -321,7 +320,8 @@ def determineLatestSimcVersion():
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
     filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
-    latest_git_version = filename[:-3].split("-")[4]
+    head, _tail = os.path.splitext(filename)
+    latest_git_version = head.split("-")[-1]
     logging.debug("Latest version available: {}".format(latest_git_version))
 
     if not len(latest_git_version):
