@@ -297,11 +297,12 @@ def determineSimcVersionOnDisc():
             for raw_line in p.stdout:
                 decoded_line = raw_line.decode()
                 try:
-                    match = re.search(r'git.+\)', decoded_line).group(0)
+                    # git build <branch> <git-ref>
+                    match = re.search(r'git build \S* (\S+)\)', decoded_line).group(1)
                     if match:
                         logging.debug("Found program in {}: Git_Version: {}"
                                       .format(settings.simc_path,
-                                              match[:-1].split()[2]))
+                                              match))
                         return match
                 except AttributeError:
                     # should only contain other lines from simc_standard-output
