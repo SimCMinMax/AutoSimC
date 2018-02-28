@@ -299,7 +299,6 @@ def determineSimcVersionOnDisc():
                 try:
                     match = re.search(r'git.+\)', decoded_line).group(0)
                     if match:
-
                         logging.debug("Found program in {}: Git_Version: {}"
                                       .format(settings.simc_path,
                                               match[:-1].split()[2]))
