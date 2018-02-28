@@ -289,32 +289,35 @@ def get_analyzer_data(class_spec):
 
 # gets the version of our simc installation on disc
 def determineSimcVersionOnDisc():
+    match = None
     try:
         p = Popen([settings.simc_path],
               stdout=PIPE, stderr=STDOUT, bufsize=1)
         with p.stdout:
-            # 
             for line in iter(p.stdout.readline, b''):
                 try:
                     match = re.search(r'git.+\)', str(line)).group(0)
                     if match:
-                        logging.debug("Found program in {}: Git_Version: {}"
+                        logging.debug("Found Simc.exe in {}: Git_Version: {}"
                                      .format(settings.simc_path,
                                              match[:-1].split()[2]))
                 except AttributeError:
                     # should only contain other lines from simc_standard-output
                     pass
     except FileNotFoundError:
-        logging.info("Did not find program in {}".format(settings.simc_path))
+        logging.info("Did not find program in {}, please check your settings!".format(settings.simc_path))
     
     if match is None:
-        logging.info("Found no git-string in simc.exe, self-compiled?")
+        raise ValueError("Found no git-string in simc.exe, self-compiled (disable version-check in settings)? Correctly downloaded?")
     return match
 
 
 # gets the version of the latest binaries available on the net
 def determineLatestSimcVersion():
-    html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
+    try:
+        html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
+    except URLError:
+        logging.info("Could not access download directory on simulationcraft.org")
     filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     latest_git_version = filename[:-3].split("-")[4]
     logging.debug("Latest version available: {}".format(latest_git_version))
@@ -1458,6 +1461,7 @@ def main():
 
     # check version of python-interpreter running the script
     check_interpreter()
+    logging.info("AutoSimC - Supported WoW-Version: {}".format(__version__))
 
     args = handleCommandLine()
     if args.debug:
@@ -1470,7 +1474,9 @@ def main():
             if settings.check_simc_version:
                 filename, latest = determineLatestSimcVersion();
                 ondisc = determineSimcVersionOnDisc();
-                if latest != determineSimcVersionOnDisc():
+                if ondisc is None:
+                    pass
+                if latest != ondisc:
                     logging.info("--> A newer SimCraft-version is available for download! Version: {}".format(filename))
             
         autoDownloadSimc()
