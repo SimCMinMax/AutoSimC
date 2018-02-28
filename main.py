@@ -287,39 +287,40 @@ def get_analyzer_data(class_spec):
                         result.append(item)
     return result
 
-# gets the version of our simc installation on disc
+
 def determineSimcVersionOnDisc():
+    """gets the version of our simc installation on disc"""
     try:
         p = Popen([settings.simc_path],
               stdout=PIPE, stderr=STDOUT, bufsize=1)
+        match = None
         with p.stdout:
-            # 
-            for line in iter(p.stdout.readline, b''):
+            for raw_line in p.stdout:
+                decoded_line = raw_line.decode()
                 try:
-                    match = re.search(r'git.+\)', str(line)).group(0)
+                    match = re.search(r'git.+\)', decoded_line).group(0)
                     if match:
                         logging.debug("Found program in {}: Git_Version: {}"
-                                     .format(settings.simc_path,
-                                             match[:-1].split()[2]))
+                                      .format(settings.simc_path,
+                                              match[:-1].split()[2]))
+                        return match
                 except AttributeError:
                     # should only contain other lines from simc_standard-output
                     pass
+        if match is None:
+            logging.info("Found no git-string in simc.exe, self-compiled?")
     except FileNotFoundError:
         logging.info("Did not find program in {}".format(settings.simc_path))
-    
-    if match is None:
-        logging.info("Found no git-string in simc.exe, self-compiled?")
-    return match
 
 
-# gets the version of the latest binaries available on the net
 def determineLatestSimcVersion():
+    """gets the version of the latest binaries available on the net"""
     html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
     filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     latest_git_version = filename[:-3].split("-")[4]
     logging.debug("Latest version available: {}".format(latest_git_version))
-    
-    if latest_git_version == "":
+
+    if not len(latest_git_version):
         logging.info("Found no git-string in filename, new or changed format?")
 
     return (filename, latest_git_version)
@@ -1470,7 +1471,7 @@ def main():
             if settings.check_simc_version:
                 filename, latest = determineLatestSimcVersion();
                 ondisc = determineSimcVersionOnDisc();
-                if latest != determineSimcVersionOnDisc():
+                if latest != ondisc:
                     logging.info("--> A newer SimCraft-version is available for download! Version: {}".format(filename))
             
         autoDownloadSimc()
