@@ -303,6 +303,7 @@ def determineSimcVersionOnDisc():
                         logging.debug("Found program in {}: Git_Version: {}"
                                       .format(settings.simc_path,
                                               match))
+                        print(match)
                         return match
                 except AttributeError:
                     # should only contain other lines from simc_standard-output
