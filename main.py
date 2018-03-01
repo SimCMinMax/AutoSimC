@@ -108,7 +108,7 @@ def add_legendary(legendary_split, gear_list):
     """
     Parse --legendaries arguments, create Items and add them to gear list for permutation.
     """
-    logging.info("Adding legendary: {}".format(legendary_split))
+    logging.info(_("Adding legendary: {}").format(legendary_split))
     try:
         slot, item_id, *tail = legendary_split
         bonus_id = tail[0] if len(tail) > 0 else None
@@ -123,16 +123,16 @@ def add_legendary(legendary_split, gear_list):
         if gem_id:
             legendary_string += ",gem_id={}".format(gem_id)
 
-        logging.debug("Legendary string: {}".format(legendary_string))
+        logging.debug(_("Legendary string: {}").format(legendary_string))
         if slot in gear_list.keys():
             gear_list[slot].append(Item(slot, legendary_string))
-            logging.info("Added legendary '{}' to {}.".format(legendary_string,
-                                                              slot))
+            logging.info(_("Added legendary '{}' to {}.").format(legendary_string,
+                                                                 slot))
         else:
-            raise ValueError("Invalid legendary gear slot '{}' not in {}".format(slot,
-                                                                                 list(gear_list.keys())))
+            raise ValueError(_("Invalid legendary gear slot '{}' not in {}").format(slot,
+                                                                                    list(gear_list.keys())))
     except Exception as e:
-        raise Exception("Could not add legendary: {}".format(e)) from e
+        raise Exception(_("Could not add legendary: {}").format(e)) from e
 
 
 def build_gem_list(gem_lists):
@@ -166,109 +166,121 @@ def parse_command_line_args():
     """Parse command line arguments using argparse. Also provides --help functionality, and default values for args"""
 
     parser = argparse.ArgumentParser(prog="AutoSimC",
-                                     description="Python script to create multiple profiles for SimulationCraft to "
-                                                 "find Best-in-Slot and best enchants/gems/talents combinations.",
-                                     epilog="Don't hesitate to go on the SimcMinMax Discord "
-                                            "(https://discordapp.com/invite/tFR2uvK) "
-                                            "in the #simpermut-autosimc Channel to ask about specific stuff.",
+                                     description=_("Python script to create multiple profiles for SimulationCraft to "
+                                                   "find Best-in-Slot and best enchants/gems/talents combinations."),
+                                     epilog=_("Don't hesitate to go on the SimcMinMax Discord "
+                                              "(https://discordapp.com/invite/tFR2uvK) "
+                                              "in the #simpermut-autosimc Channel to ask about specific stuff."),
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter  # Show default arguments
                                      )
 
-    parser.add_argument('-i', '--inputfile',
+    parser.add_argument('-i', _('--inputfile'),
+                        dest="inputfile",
                         default=settings.default_inputFileName,
                         required=False,
-                        help="Inputfile describing the permutation of SimC profiles to generate. See README for more "
-                             "details.")
+                        help=_("Inputfile describing the permutation of SimC profiles to generate. See README for more "
+                               "details."))
 
-    parser.add_argument('-o', '--outputfile',
+    parser.add_argument('-o', _('--outputfile'),
+                        dest="outputfile",
                         default=settings.default_outputFileName,
                         required=False,
-                        help='Output file containing the generated profiles used for the simulation.')
+                        help=_("Output file containing the generated profiles used for the simulation."))
 
-    parser.add_argument('-sim',
+    parser.add_argument('-sim', _("--sim"),
+                        dest="sim",
                         required=False,
                         nargs=1,
                         default=[settings.default_sim_start_stage],
                         choices=['permutate_only', 'all', 'stage1', 'stage2', 'stage3', 'stage4',
                                  'stage5', 'stage6'],
-                        help="Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
-                             "Might take a long time, depending on number of permutations. "
-                             "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
-                             "will be saved in results-subfolder."
-                             "There are 2 modes available for calculating the possible huge amount of permutations: "
-                             "Static and dynamic mode:"
-                             "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
-                             "100, 1000 and 10000 for each stage."
-                             "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
-                             "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
-                             "target_error=0.2, and 0.05 for the final stage 3."
-                             "(These numbers might be changed in future versions)"
-                             "You have to set the simc path in the settings.py file."
-                             "- Resuming: It is also possible to resume at a stage, e.g. if simc.exe crashed during "
-                             "stage1, by launching with the parameter -sim stage1 (or stage2/3)."
-                             "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
-                             "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
-                             "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
+                        help=_("Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
+                               "Might take a long time, depending on number of permutations. "
+                               "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
+                               "will be saved in results-subfolder."
+                               "There are 2 modes available for calculating the possible huge amount of permutations: "
+                               "Static and dynamic mode:"
+                               "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
+                               "100, 1000 and 10000 for each stage."
+                               "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
+                               "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
+                               "target_error=0.2, and 0.05 for the final stage 3."
+                               "(These numbers might be changed in future versions)"
+                               "You have to set the simc path in the settings.py file."
+                               "- Resuming: It is also possible to resume at a stage, e.g. if simc.exe crashed during "
+                               "stage1, by launching with the parameter -sim stage1 (or stage2/3)."
+                               "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
+                               "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
+                               "or instabilities, edit settings.py and change the corresponding parameters or even disable it.")
                         )
 
-    parser.add_argument('--stages',
+    parser.add_argument('-stages', _('--stages'),
+                        dest="stages",
                         required=False,
                         type=int,
                         default=settings.num_stages,
-                        help="Number of stages to simulate.")
+                        help=_("Number of stages to simulate."))
 
-    parser.add_argument('-gems', '--gems',
+    parser.add_argument('-gems', _('--gems'),
+                        dest="gems",
                         required=False,
                         nargs="*",
-                        help='Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
-                             'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
-                             'greens are not supported) in addition to the ones you have currently equipped.\n'
-                             'Valid gems: {}'
-                             '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
-                             '(without <>) into the commandline, the permutation process uses the single int- '
-                             'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
-                             'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
-                             'commandline reenables that.\n'
-                             '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
-                             'Simpermut usually creates this for you.\n'
-                             '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
-                             'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
-                             'when enabling this.'
-                             '- additonally you can specify a empty list of gems, which will permutate the existing gems'
-                             'in your input gear.'.format(list(gem_ids.keys())))
+                        help=_('Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
+                               'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
+                               'greens are not supported) in addition to the ones you have currently equipped.\n'
+                               'Valid gems: {}'
+                               '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
+                               '(without <>) into the commandline, the permutation process uses the single int- '
+                               'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
+                               'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
+                               'commandline reenables that.\n'
+                               '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
+                               'Simpermut usually creates this for you.\n'
+                               '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
+                               'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
+                               'when enabling this.'
+                               '- additonally you can specify a empty list of gems, which will permutate the existing gems'
+                               'in your input gear.').format(list(gem_ids.keys())))
 
-    parser.add_argument('-l', '--legendaries',
+    parser.add_argument('-l', _('--legendaries'),
+                        dest="legendaries",
                         required=False,
-                        help='List of legendaries to add to the template. Format:\n'
-                             '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."')
+                        help=_('List of legendaries to add to the template. Format:\n'
+                               '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."'))
 
-    parser.add_argument('-min_leg', '--legendary_min',
+    parser.add_argument('-min_leg', _('--legendary_min'),
+                        dest="legendary_min",
                         default=settings.default_leg_min,
                         type=int,
                         required=False,
-                        help='Minimum number of legendaries in the permutations.')
+                        help=_('Minimum number of legendaries in the permutations.'))
 
-    parser.add_argument('-max_leg', '--legendary_max',
+    parser.add_argument('-max_leg', _('--legendary_max'),
+                        dest="legendary_max",
                         default=settings.default_leg_max,
                         type=int,
                         required=False,
-                        help='Maximum number of legendaries in the permutations.')
+                        help=_('Maximum number of legendaries in the permutations.'))
 
-    parser.add_argument('--unique_jewelry',
+    parser.add_argument('-unique_jewelry', _('--unique_jewelry'),
+                        dest='unique_jewelry',
                         type=str2bool,
                         default="true",
                         help='Assume ring and trinkets are unique-equipped, and only a single item id can be equipped.')
 
-    parser.add_argument('--debug',
+    parser.add_argument('-d', _('--debug'),
+                        dest="debug",
                         action='store_true',
                         help='Write debug information to log file.')
 
     # TODO Handle quiet argument in the code
-    parser.add_argument('-quiet',
+    parser.add_argument('-quiet', _("--quiet"),
+                        dest="quiet",
                         action='store_true',
                         help='Run quietly. /!\ Not implemented yet')
 
-    parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
+    parser.add_argument('-version', _('--version'),
+                        action='version', version='%(prog)s {}'.format(__version__))
 
     return parser.parse_args()
 
@@ -279,7 +291,7 @@ def handleCommandLine():
 
     # Sim stage is always a list with 1 element, eg. ["all"], ['stage1'], ...
     args.sim = args.sim[0]
-    if args.sim == "permutate_only":
+    if args.sim == _("permutate_only"):
         args.sim = None
 
     # For now, just write command line arguments into globals
@@ -324,7 +336,7 @@ def determineSimcVersionOnDisc():
                     # git build <branch> <git-ref>
                     match = re.search(r'git build \S* (\S+)\)', decoded_line).group(1)
                     if match:
-                        logging.debug("Found program in {}: Git_Version: {}"
+                        logging.debug(_("Found program in {}: Git_Version: {}")
                                       .format(settings.simc_path,
                                               match))
                         return match
@@ -332,9 +344,9 @@ def determineSimcVersionOnDisc():
                     # should only contain other lines from simc_standard-output
                     pass
         if match is None:
-            logging.info("Found no git-string in simc.exe, self-compiled?")
+            logging.info(_("Found no git-string in simc.exe, self-compiled?"))
     except FileNotFoundError:
-        logging.info("Did not find program in {}".format(settings.simc_path))
+        logging.info(_("Did not find program in '{}'.").format(settings.simc_path))
 
 
 def determineLatestSimcVersion():
@@ -343,10 +355,10 @@ def determineLatestSimcVersion():
     filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     head, _tail = os.path.splitext(filename)
     latest_git_version = head.split("-")[-1]
-    logging.debug("Latest version available: {}".format(latest_git_version))
+    logging.debug(_("Latest version available: {}").format(latest_git_version))
 
     if not len(latest_git_version):
-        logging.info("Found no git-string in filename, new or changed format?")
+        logging.info(_("Found no git-string in filename, new or changed format?"))
 
     return (filename, latest_git_version)
 
@@ -357,12 +369,12 @@ def autoDownloadSimc():
     try:
         if settings.auto_download_simc:
             if platform.system() != "Windows" or not platform.machine().endswith('64'):
-                print("Sorry autodownloading only supported for 64bit windows")
+                print(_("Sorry autodownloading only supported for 64bit windows"))
                 return
     except AttributeError:
         return
 
-    logging.info("Starting auto download check of SimulationCraft.")
+    logging.info(_("Starting auto download check of SimulationCraft."))
 
     # Application root path, and destination path
     rootpath = os.path.dirname(os.path.realpath(__file__))
@@ -373,17 +385,17 @@ def autoDownloadSimc():
     # Get filename of latest build of simc
     html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
     filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
-    print("Latest simc:", filename)
+    print(_("Latest simc: {filename}").format(filename=filename))
 
     # Download latest build of simc
     filepath = os.path.join(download_dir, filename)
     if not os.path.exists(filepath):
         url = 'http://downloads.simulationcraft.org/' + filename
-        logging.info("Retrieving simc from url {} to {}.".format(url,
-                                                                 filepath))
+        logging.info(_("Retrieving simc from url {} to {}.").format(url,
+                                                                    filepath))
         urlretrieve(url, filepath)
     else:
-        logging.debug("Latest simc version already downloaded at {}.".format(filename))
+        logging.debug(_("Latest simc version already downloaded at {}.").format(filename))
 
     # Unpack downloaded build and set simc_path
     settings.simc_path = os.path.join(download_dir, filename[:filename.find("win64") + len("win64")], "simc.exe")
@@ -393,42 +405,42 @@ def autoDownloadSimc():
         for seven_zip_executable in seven_zip_executables:
             try:
                 if not os.path.exists(seven_zip_executable):
-                    logging.info("7Zip executable at '{}' does not exist.".format(seven_zip_executable))
+                    logging.info(_("7Zip executable at '{}' does not exist.").format(seven_zip_executable))
                     continue
                 cmd = seven_zip_executable + ' x "' + filepath + '" -aoa -o"' + download_dir + '"'
-                logging.debug("Running unpack command '{}'".format(cmd))
+                logging.debug(_("Running unpack command '{}'").format(cmd))
                 subprocess.call(cmd)
 
                 # keep the latest 7z to remember current version, but clean up any other ones
                 files = glob.glob(download_dir + '/simc*win64*7z')
                 for f in files:
                     if not os.path.basename(f) == filename:
-                        print("Removing old simc:", os.path.basename(f))
+                        print(_("Removing old simc from '{}'.").format(os.path.basename(f)))
                         os.remove(f)
                 break
             except Exception as e:
-                print("Exception when unpacking: {}".format(e))
+                print(_("Exception when unpacking: {}").format(e))
         else:
-            raise RuntimeError("Could not unpack the auto downloaded SimulationCraft executable."
-                               "Please note that you need 7Zip installed at one of the following locations: {}.".
+            raise RuntimeError(_("Could not unpack the auto downloaded SimulationCraft executable."
+                                 "Please note that you need 7Zip installed at one of the following locations: {}.").
                                format(seven_zip_executables))
     else:
-        print("simc_path={}".format(repr(settings.simc_path)))
+        print(_("Simc already exists at '{}'.").format(repr(settings.simc_path)))
 
 
 def cleanup_subdir(subdir):
     if os.path.exists(subdir):
         if not settings.delete_temp_default and not settings.skip_questions:
-            if input("Do you want to remove subfolder: " + subdir + "? (Press y to confirm): ") != "y":
+            if input(_("Do you want to remove subfolder: {}? (Press y to confirm): ").format(subdir)) != _("y"):
                 return
-        printLog("Removing: {}".format(subdir))
+        printLog(_("Removing subdir '{}'.").format(subdir))
         shutil.rmtree(subdir)
 
 
 def copy_result_file(last_subdir):
     result_folder = os.path.abspath(settings.result_subfolder)
     if not os.path.exists(result_folder):
-        logging.info("Result-subfolder '{}' does not exist. Creating it.".format(result_folder))
+        logging.info(_("Result-subfolder '{}' does not exist. Creating it.").format(result_folder))
         os.makedirs(result_folder)
 
     # Copy html files from last subdir to results folder
@@ -439,15 +451,16 @@ def copy_result_file(last_subdir):
                 if file.endswith(".html"):
                     src = os.path.join(last_subdir, file)
                     dst = os.path.join(result_folder, file)
-                    printLog("Moving file: {} to {}".format(src, dst))
+                    printLog(_("Moving file: {} to {}").format(src, dst))
                     shutil.move(src, dst)
                     found_html = True
     if not found_html:
-        logging.warning("Could not copy html result file, since there was no file found in '{}'.".format(last_subdir))
+        logging.warning(_("Could not copy html result file, since there was no file found in '{}'.")
+                        .format(last_subdir))
 
 
 def cleanup():
-    printLog("Cleaning up")
+    printLog(_("Cleaning up"))
     subdirs = [get_subdir(stage) for stage in range(1, num_stages + 1)]
     copy_result_file(subdirs[-1])
     for subdir in subdirs:
@@ -459,32 +472,32 @@ def validateSettings(args):
     # Check simc executable availability.
     if args.sim:
         if not os.path.exists(settings.simc_path):
-            raise FileNotFoundError("Simc executable at '{}' does not exist.".format(settings.simc_path))
+            raise FileNotFoundError(_("Simc executable at '{}' does not exist.").format(settings.simc_path))
         else:
-            logging.debug("Simc executable exists at '{}', proceeding...".format(settings.simc_path))
+            logging.debug(_("Simc executable exists at '{}', proceeding...").format(settings.simc_path))
         if os.name == "nt":
             if not settings.simc_path.endswith("simc.exe"):
-                raise RuntimeError("Simc executable must end with 'simc.exe', and '{}' does not."
-                                   "Please check your settings.py simc_path options.".format(settings.simc_path))
+                raise RuntimeError(_("Simc executable must end with 'simc.exe', and '{}' does not."
+                                     "Please check your settings.py simc_path options.").format(settings.simc_path))
 
         analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
         if os.path.exists(analyzer_path):
-            logging.info("Analyzer-file found at '{}'.".format(analyzer_path))
+            logging.info(_("Analyzer-file found at '{}'.").format(analyzer_path))
         else:
-            raise RuntimeError("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.".
+            raise RuntimeError(_("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.").
                                format(analyzer_path))
 
     # validate amount of legendaries
     if args.legendary_min > args.legendary_max:
-        raise ValueError("Legendary min '{}' > legendary max '{}'".format(args.legendary_min, args.legendary_max))
+        raise ValueError(_("Legendary min '{}' > legendary max '{}'").format(args.legendary_min, args.legendary_max))
     if args.legendary_max > 3:
-        raise ValueError("Legendary Max '{}' too large (>3).".format(args.legendary_max))
+        raise ValueError(_("Legendary Max '{}' too large (>3).").format(args.legendary_max))
     if args.legendary_min > 3:
-        raise ValueError("Legendary Min '{}' too large (>3).".format(args.legendary_min))
+        raise ValueError(_("Legendary Min '{}' too large (>3).").format(args.legendary_min))
     if args.legendary_min < 0:
-        raise ValueError("Legendary Min '{}' is negative.".format(args.legendary_min))
+        raise ValueError(_("Legendary Min '{}' is negative.").format(args.legendary_min))
     if args.legendary_max < 0:
-        raise ValueError("Legendary Max '{}' is negative.".format(args.legendary_max))
+        raise ValueError(_("Legendary Max '{}' is negative.").format(args.legendary_max))
 
     # validate tier-set
     min_tier_sets = 0
@@ -497,31 +510,32 @@ def validateSettings(args):
     total_min = 0
     for tier_name, (tier_set_min, tier_set_max) in tier_sets.items():
         if tier_set_min < min_tier_sets:
-            raise ValueError("Invalid tier set minimum ({} < {}) for tier '{}'".
+            raise ValueError(_("Invalid tier set minimum ({} < {}) for tier '{}'").
                              format(tier_set_min, min_tier_sets, tier_name))
         if tier_set_max > max_tier_sets:
-            raise ValueError("Invalid tier set maximum ({} > {}) for tier '{}'".
+            raise ValueError(_("Invalid tier set maximum ({} > {}) for tier '{}'").
                              format(tier_set_max, max_tier_sets, tier_name))
         if tier_set_min > tier_set_max:
-            raise ValueError("Tier set min > max ({} > {}) for tier '{}'".format(tier_set_min, tier_set_max, tier_name))
+            raise ValueError(_("Tier set min > max ({} > {}) for tier '{}'")
+                             .format(tier_set_min, tier_set_max, tier_name))
         total_min += tier_set_min
 
     if total_min > max_tier_sets:
-        raise ValueError("All tier sets together have too much combined min sets ({}=sum({}) > {}).".
+        raise ValueError(_("All tier sets together have too much combined min sets ({}=sum({}) > {}).").
                          format(total_min, [t[0] for t in tier_sets.values()], max_tier_sets))
 
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
-        printLog("Using Safe Mode")
+        printLog(_("Using Safe Mode as specified in settings."))
         settings.simc_threads = 1
 
     if settings.default_error_rate_multiplier <= 0:
-        raise ValueError("Invalid default_error_rate_multiplier ({}) <= 0".
+        raise ValueError(_("Invalid default_error_rate_multiplier ({}) <= 0").
                          format(settings.default_error_rate_multiplier))
 
-    valid_grabbing_methods = ("target_error", "top_n")
+    valid_grabbing_methods = (_("target_error"), _("top_n"))
     if settings.default_grabbing_method not in valid_grabbing_methods:
-        raise ValueError("Invalid settings.default_grabbing_method '{}'. Valid options: {}".
+        raise ValueError(_("Invalid settings.default_grabbing_method '{}'. Valid options: {}").
                          format(settings.default_grabbing_method, valid_grabbing_methods))
 
 
@@ -587,17 +601,17 @@ def print_permutation_progress(valid_profiles, current, maximum, start_time, max
         if type(remaining_time) is datetime.timedelta:
             remaining_time = chop_microseconds(remaining_time)
         valid_pct = 100.0 * valid_profiles / current if current else 0.0
-        logging.info(
-            "Processed {}/{} ({:5.2f}%) valid {} ({:5.2f}%) elapsed_time {} remaining {} bw {:.0f}k/s bw(valid) {:.0f}k/s".
-                format(str(current).rjust(max_profile_chars),
-                       maximum,
-                       pct,
-                       valid_profiles,
-                       valid_pct,
-                       elapsed,
-                       remaining_time,
-                       bandwith,
-                       bandwith_valid))
+        logging.info("Processed {}/{} ({:5.2f}%) valid {} ({:5.2f}%) elapsed_time {} "
+                     "remaining {} bw {:.0f}k/s bw(valid) {:.0f}k/s"
+                     .format(str(current).rjust(max_profile_chars),
+                             maximum,
+                             pct,
+                             valid_profiles,
+                             valid_pct,
+                             elapsed,
+                             remaining_time,
+                             bandwith,
+                             bandwith_valid))
 
 
 class Profile:
@@ -1063,7 +1077,7 @@ def permutate(args, player_profile):
             entries = remove_empty_entries
 
         logging.debug(_("Input list for special permutation '{}': {}").format(name,
-                                                                           entries))
+                                                                              entries))
         if args.unique_jewelry:
             # Unique finger/trinkets.
             permutations = itertools.combinations(entries, len(values))
@@ -1237,10 +1251,10 @@ def grab_profiles(player_profile, stage):
             msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.". \
                 format(subdir_previous_stage, e)
             raise RuntimeError(msg) from e
-        if settings.default_grabbing_method == "target_error":
+        if settings.default_grabbing_method == _("target_error"):
             filter_by = "target_error"
             filter_criterium = None
-        elif settings.default_grabbing_method == "top_n":
+        elif settings.default_grabbing_method == _("top_n"):
             filter_by = "count"
             filter_criterium = settings.default_top_n[stage - num_stages - 1]
         is_last_stage = (stage == num_stages)
