@@ -15,6 +15,9 @@ try:
 except ImportError:
     pass
 
+import gettext
+gettext.install('AutoSimC')
+
 
 def parse_profiles_from_file(fd, user_class):
     """Parse a simc file, and yield each player entry (between two class=name lines)"""
@@ -413,5 +416,5 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
         dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
 
-    logging.info("Got {} best profiles written to {} files..".format(num_profiles, outfile_count))
+    logging.info(_("Got {} best profiles written to {} files..").format(num_profiles, outfile_count))
     return num_profiles

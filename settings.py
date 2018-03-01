@@ -14,7 +14,13 @@ class settings():
     # Check if a newer version is available on http://downloads.simulationcraft.org/?C=M;O=D
     # A valid path to your current simc.exe on disc has to exist, see variable above (simc_path)
     # It is only checked if auto_download_simc is set to false
-    check_simc_version = True    
+    check_simc_version = True
+
+    # Choose the translation language used for AutoSimC. The string must look like this:
+    # eg. "de" for German language, or "de_CH" for German (Switzerland).
+    # check the "locale" folder for available translations.
+    # Default is auto, selecting the language based on your systems locale settings.
+    localization_language = "auto"
 
     # standard-input
     default_inputFileName = "input.txt"

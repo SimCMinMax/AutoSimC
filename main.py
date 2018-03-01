@@ -19,7 +19,6 @@ import re
 from urllib.request import urlopen, urlretrieve
 import platform
 from subprocess import Popen, PIPE, STDOUT
-import gettext
 import locale
 
 from settings import settings
@@ -32,18 +31,26 @@ import splitter
 
 __version__ = "7.3.5"
 
+import gettext
 gettext.install('AutoSimC')
-# get the default locale using the locale module
-default_lang, default_enc = locale.getdefaultlocale()
-# if found, set the appropriate environment variable
-if default_lang:
-    print("Default language is:", default_lang)
-    os.environ['LANG'] = default_lang
-try:
-    lang = gettext.translation('AutoSimC', localedir='locale')
-    lang.install()
-except FileNotFoundError:
-    print("No translation for {} available.".format(os.environ['LANG']))
+
+
+def install_translation():
+    if settings.localization_language is "auto":
+        # get the default locale using the locale module
+        default_lang, _default_enc = locale.getdefaultlocale()
+    else:
+        default_lang = settings.localization_language
+    try:
+        if default_lang is not None:
+            default_lang = [default_lang]
+        lang = gettext.translation('AutoSimC', localedir='locale', languages=default_lang)
+        lang.install()
+    except FileNotFoundError:
+        print("No translation for {} available.".format(default_lang))
+
+
+install_translation()
 
 # Var init with default value
 t19min = int(settings.default_equip_t19_min)
@@ -1356,7 +1363,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 
 def start_stage(player_profile, num_generated_profiles, stage):
     logging.info("Starting at stage {}".format(stage))
-    logging.info("You selected grabbing method '{}'.".format(settings.default_grabbing_method))
+    logging.info(_("You selected grabbing method '{}'.").format(settings.default_grabbing_method))
     print("")
     print(_("You have to choose one of the following modes for calculation:"))
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
