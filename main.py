@@ -19,6 +19,8 @@ import re
 from urllib.request import urlopen, urlretrieve
 import platform
 from subprocess import Popen, PIPE, STDOUT
+import gettext
+import locale
 
 from settings import settings
 try:
@@ -30,6 +32,18 @@ import splitter
 
 __version__ = "7.3.5"
 
+gettext.install('AutoSimC')
+# get the default locale using the locale module
+default_lang, default_enc = locale.getdefaultlocale()
+# if found, set the appropriate environment variable
+if default_lang:
+    print("Default language is:", default_lang)
+    os.environ['LANG'] = default_lang
+try:
+    lang = gettext.translation('AutoSimC', localedir='locale')
+    lang.install()
+except FileNotFoundError:
+    print("No translation for {} available.".format(os.environ['LANG']))
 
 # Var init with default value
 t19min = int(settings.default_equip_t19_min)
@@ -1350,7 +1364,8 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 def start_stage(player_profile, num_generated_profiles, stage):
     logging.info("Starting at stage {}".format(stage))
     logging.info("You selected grabbing method '{}'.".format(settings.default_grabbing_method))
-    print("\nYou have to choose one of the following modes for calculation:")
+    print("")
+    print(_("You have to choose one of the following modes for calculation:"))
     print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
           format(settings.default_iterations))
     print("   It is however faster if simulating huge amounts of profiles")
