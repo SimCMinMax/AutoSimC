@@ -65,7 +65,7 @@ class settings():
     # depending on simulation-parameters
     # Splitting into too small sets will generate a lot of temporary files on disk and slow things down
     # Too large split size will require large amounts of memory for SimulationCraft and slow down the simulation.
-    splitting_size = 50
+    splitting_size = 10
 
     # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3", ...
     # 'permutate_only' will only generate profile combinations.

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-03-01 09:21+0100\n"
+"POT-Creation-Date: 2018-03-01 12:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,253 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: main.py:1366
+#: main.py:975
+msgid "Combinations in progress..."
+msgstr ""
+
+#: main.py:1007
+msgid "Parsed gear before legendaries: {}"
+msgstr ""
+
+#: main.py:1021
+msgid "Parsed gear including legendaries:"
+msgstr ""
+
+#: main.py:1048
+msgid "Building permutations matrix finished."
+msgstr ""
+
+#: main.py:1065
+msgid "Input list for special permutation '{}': {}"
+msgstr ""
+
+#: main.py:1080
+msgid "Got {num} permutations for {item_name}."
+msgstr ""
+
+#: main.py:1088
+msgid "Got {num} permutations for {item_name} after id filter."
+msgstr ""
+
+#: main.py:1095
+msgid "Got {num} permutations for {item_name} after unique filter."
+msgstr ""
+
+#: main.py:1108
+msgid "Got {num} permutations for trinkets after Antorus filter."
+msgstr ""
+
+#: main.py:1117
+msgid "normal gear&talents"
+msgstr ""
+
+#: main.py:1133
+msgid "Max number of normal permutations: {}"
+msgstr ""
+
+#: main.py:1134
+msgid "Number of permutations: {}"
+msgstr ""
+
+#: main.py:1178
+msgid "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)"
+msgstr ""
+
+#: main.py:1189
+msgid ""
+"Invalid profile statistics: [\n"
+"{}]"
+msgstr ""
+
+#: main.py:1193
+msgid "Output file checksum: {}"
+msgstr ""
+
+#: main.py:1279
+msgid "***Entering static mode, STAGE {}***"
+msgstr ""
+
+#: main.py:1288
+msgid "Cannot run static mode and skip questions without default iterations set for stage {}."
+msgstr ""
+
+#: main.py:1290
+msgid "Please enter the number of iterations to use (q to quit): "
+msgstr ""
+
+#: main.py:1292 main.py:1335 main.py:1356 main.py:1381
+msgid "Quitting application"
+msgstr ""
+
+#: main.py:1304
+msgid "***Entering dynamic mode, STAGE {}***"
+msgstr ""
+
+#: main.py:1310
+msgid "Estimated calculation times for stage {} based on your data:"
+msgstr ""
+
+#: main.py:1314
+msgid "({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) "
+msgstr ""
+
+#: main.py:1330
+msgid "Cannot run dynamic mode and skip questions without default target_error set for stage {}."
+msgstr ""
+
+#: main.py:1333
+msgid "Please enter the type of calculation to perform (q to quit): "
+msgstr ""
+
+#: main.py:1339
+msgid "Invalid calc choice '{}' can only be from 0 to {}"
+msgstr ""
+
+#: main.py:1341
+msgid "Sim: Number of permutations: "
+msgstr ""
+
+#: main.py:1342
+msgid "Sim: Chosen calculation: {}"
+msgstr ""
+
+#: main.py:1349
+msgid "Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}"
+msgstr ""
+
+#: main.py:1352
+msgid "Do you want to continue anyway (Enter), quit (q) or enter a new target_error for the current stage (n)?: "
+msgstr ""
+
+#: main.py:1354
+msgid "User chose: "
+msgstr ""
+
+#: main.py:1359
+msgid "Enter new target_error (Format: 0.3): "
+msgstr ""
+
+#: main.py:1360
+msgid "User entered target_error_secondpart: "
+msgstr ""
+
+#: main.py:1371
+msgid "Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}"
+msgstr ""
+
+#: main.py:1379
+msgid "Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )"
+msgstr ""
+
+#: main.py:1385
+msgid "Could not provide any estimated calculation time."
+msgstr ""
+
+#: main.py:1393
+msgid "Starting at stage {}"
+msgstr ""
+
+#: main.py:1394
 msgid "You selected grabbing method '{}'."
 msgstr ""
 
-#: main.py:1368
+#: main.py:1396
 msgid "You have to choose one of the following modes for calculation:"
 msgstr ""
 
-#: splitter.py:419
+#: main.py:1397
+msgid "1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})"
+msgstr ""
+
+#: main.py:1399
+msgid "   It is however faster if simulating huge amounts of profiles"
+msgstr ""
+
+#: main.py:1400
+msgid "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."
+msgstr ""
+
+#: main.py:1401
+msgid "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}"
+msgstr ""
+
+#: main.py:1406
+msgid "Please choose your mode (Enter to exit): "
+msgstr ""
+
+#: main.py:1408
+msgid "User exit."
+msgstr ""
+
+#: main.py:1413
+msgid "Invalid simulation mode '{}' selected. Valid modes: {}."
+msgstr ""
+
+#: main.py:1434
+msgid "Python-Version too old! You are running Python {}. Please install at least Python-Version {}.{}.x"
+msgstr ""
+
+#: main.py:1449
+msgid "Choose fightstyle:"
+msgstr ""
+
+#: main.py:1455
+msgid "Enter the number for your fightstyle: "
+msgstr ""
+
+#: main.py:1457
+msgid "Wrong number for fightstyles chosen"
+msgstr ""
+
+#: main.py:1467
+msgid "No fightstyle found in .json with name: {}, exiting."
+msgstr ""
+
+#: main.py:1471
+msgid "Did not find entries in fight_style.json."
+msgstr ""
+
+#: main.py:1473
+msgid "Error while decoding JSON file: {}"
+msgstr ""
+
+#: main.py:1477
+msgid "Found fightstyle >>>{name}<<< in {file}"
+msgstr ""
+
+#: main.py:1517
+msgid "Parsed command line arguments: {}"
+msgstr ""
+
+#: main.py:1525
+msgid "A newer SimCraft-version might be available for download! Version: {}"
+msgstr ""
+
+#: main.py:1538
+msgid "Permutating took {}."
+msgstr ""
+
+#: main.py:1541
+msgid "Do you want to generate {outfile} again? Press y to regenerate: "
+msgstr ""
+
+#: main.py:1547
+msgid "No valid profile combinations found. Please check the 'Invalid profile statistics' output and adjust your input.txt and settings.py."
+msgstr ""
+
+#: main.py:1553
+msgid "Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!(Press Enter to continue, q to quit)"
+msgstr ""
+
+#: main.py:1555
+msgid "Program exit by user"
+msgstr ""
+
+#: main.py:1570
+msgid "AutoSimC finished correctly."
+msgstr ""
+
+#: splitter.py:422
 msgid "Got {} best profiles written to {} files.."
 msgstr ""
 

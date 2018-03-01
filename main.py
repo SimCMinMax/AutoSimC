@@ -972,6 +972,8 @@ def product(*iterables):
 
 
 def permutate(args, player_profile):
+    print(_("Combinations in progress..."))
+
     # Items to parse. First entry is the "correct" name
     gear_slots = [("head",),
                   ("neck",),
@@ -1002,7 +1004,7 @@ def permutate(args, player_profile):
             # We havent found any items for that slot, add empty dummy item
             parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
 
-    logging.debug("Parsed gear before legendaries: {}".format(parsed_gear))
+    logging.debug(_("Parsed gear before legendaries: {}").format(parsed_gear))
 
     if args.gems is not None:
         splitted_gems = build_gem_list(args.gems)
@@ -1016,7 +1018,7 @@ def permutate(args, player_profile):
         for legendary in args.legendaries.split(','):
             add_legendary(legendary.split("/"), parsed_gear)
 
-    logging.info("Parsed gear including legendaries:")
+    logging.info(_("Parsed gear including legendaries:"))
     for slot, item in parsed_gear.items():
         logging.info("{:10s}: {}".format(slot, item))
 
@@ -1043,7 +1045,7 @@ def permutate(args, player_profile):
 
     # Calculate normal permutations
     normal_permutations = product(*normal_permutation_options.values())
-    logging.debug("Building permutations matrix finished.")
+    logging.debug(_("Building permutations matrix finished."))
 
     special_permutations_config = {"finger": ("finger1", "finger2"),
                                    "trinket": ("trinket1", "trinket2")
@@ -1060,7 +1062,7 @@ def permutate(args, player_profile):
         if len(remove_empty_entries):
             entries = remove_empty_entries
 
-        logging.debug("Input list for special permutation '{}': {}".format(name,
+        logging.debug(_("Input list for special permutation '{}': {}").format(name,
                                                                            entries))
         if args.unique_jewelry:
             # Unique finger/trinkets.
@@ -1075,22 +1077,24 @@ def permutate(args, player_profile):
             new_item2.slot = values[1]
             permutations[i] = (new_item1, new_item2)
 
-        logging.debug("Got {} permutations for {}.".format(len(permutations),
-                                                           name))
+        logging.debug(_("Got {num} permutations for {item_name}.").format(num=len(permutations),
+                                                                          item_name=name))
         for p in permutations:
             logging.debug(p)
 
         # Remove equal id's
         if args.unique_jewelry:
             permutations = [p for p in permutations if p[0].item_id != p[1].item_id]
-            logging.debug("Got {} permutations for {} after id filter.".format(len(permutations),
-                                                                               name))
+            logging.debug(_("Got {num} permutations for {item_name} after id filter.")
+                          .format(num=len(permutations),
+                                  item_name=name))
             for p in permutations:
                 logging.debug(p)
         # Make unique
         permutations = stable_unique(permutations)
-        logging.info("Got {} permutations for {} after unique filter.".format(len(permutations),
-                                                                              name))
+        logging.info(_("Got {num} permutations for {item_name} after unique filter.")
+                     .format(num=len(permutations),
+                             item_name=name))
         for p in permutations:
             logging.debug(p)
 
@@ -1101,8 +1105,8 @@ def permutate(args, player_profile):
     p_trinkets = special_permutations["trinket"][2]
     p_trinkets = [p for p in p_trinkets if p[0].item_id not in antorusTrinkets or p[1].item_id not in antorusTrinkets]
     special_permutations["trinket"][2] = p_trinkets
-    logging.info("Got {} permutations for trinkets after Antorus filter.".
-                 format(len(special_permutations["trinket"][2])))
+    logging.info(_("Got {num} permutations for trinkets after Antorus filter.").
+                 format(num=len(special_permutations["trinket"][2])))
     for p in special_permutations["trinket"][2]:
         logging.debug(p)
 
@@ -1110,10 +1114,10 @@ def permutate(args, player_profile):
     max_nperm = 1
     for name, perm in normal_permutation_options.items():
         max_nperm *= len(perm)
-    permutations_product = {"normal gear&talents": "{} ({})".format(max_nperm,
-                                                                    {name: len(items) for name, items in
-                                                                     normal_permutation_options.items()}
-                                                                    )
+    permutations_product = {_("normal gear&talents"): "{} ({})".format(max_nperm,
+                                                                       {name: len(items) for name, items in
+                                                                        normal_permutation_options.items()}
+                                                                       )
                             }
     for name, _entries, opt in special_permutations.values():
         max_nperm *= len(opt)
@@ -1126,8 +1130,8 @@ def permutate(args, player_profile):
         max_nperm *= gem_perms
         permutations_product["gems"] = gem_perms
     permutations_product["talents"] = len(talent_permutations)
-    logging.info("Max number of normal permutations: {}".format(max_nperm))
-    logging.info("Number of permutations: {}".format(permutations_product))
+    logging.info(_("Max number of normal permutations: {}").format(max_nperm))
+    logging.info(_("Number of permutations: {}").format(permutations_product))
     max_profile_chars = len(str(max_nperm))  # String length of max_nperm
 
     # Start the permutation!
@@ -1171,7 +1175,7 @@ def permutate(args, player_profile):
                     print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
                                                progress, max_progress)
 
-    result = "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)". \
+    result = _("Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)"). \
         format(valid_profiles,
                processed,
                100.0 * valid_profiles / max_nperm if max_nperm else 0.0)
@@ -1182,11 +1186,11 @@ def permutate(args, player_profile):
     for key, value in unusable_histogram.items():
         unusable_string.append("{:40s}: {:12b} ({:5.2f}%)".
                                format(key, value, value * 100.0 / max_nperm if max_nperm else 0.0))
-    logging.info("Invalid profile statistics: [\n{}]".format("\n".join(unusable_string)))
+    logging.info(_("Invalid profile statistics: [\n{}]").format("\n".join(unusable_string)))
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(args.outputfile)
-    logging.info("Output file checksum: {}".format(outfile_checksum))
+    logging.info(_("Output file checksum: {}").format(outfile_checksum))
 
     return valid_profiles
 
@@ -1247,12 +1251,33 @@ def grab_profiles(player_profile, stage):
     return num_generated_profiles
 
 
+def check_profiles(stage):
+    subdir = get_subdir(stage)
+    if not os.path.exists(subdir):
+        return False
+    files = os.listdir(subdir
+                       )
+    files = [f for f in files if f.endswith(".simc")]
+    files = [f for f in files if not f.endswith("arguments.simc")]
+    files = [f for f in files if os.stat(os.path.join(subdir, f)).st_size > 0]
+    return len(files)
+
+
+def prepare_profiles(player_profile, stage):
+#     profiles_valid = check_profiles(stage)
+#     if profiles_valid:
+#         logging.info(_("Got {} existing profiles to simulate for stage {}.")
+#                      .format(profiles_valid, stage))
+#         return None
+    return grab_profiles(player_profile, stage)
+
+
 def static_stage(player_profile, stage):
     if stage > num_stages:
         return
-
-    printLog("\n\n***Entering static mode, STAGE {}***".format(stage))
-    num_generated_profiles = grab_profiles(player_profile, stage)
+    print("\n")
+    printLog(_("***Entering static mode, STAGE {}***").format(stage))
+    num_generated_profiles = prepare_profiles(player_profile, stage)
     is_last_stage = (stage == num_stages)
     try:
         num_iterations = settings.default_iterations[stage]
@@ -1260,11 +1285,11 @@ def static_stage(player_profile, stage):
         num_iterations = None
     if not num_iterations:
         if settings.skip_questions:
-            raise ValueError(
-                "Cannot run static mode and skip questions without default iterations set for stage {}.".format(stage))
-        iterations_choice = input("Please enter the number of iterations to use (q to quit): ")
+            raise ValueError(_("Cannot run static mode and skip questions without default iterations set for stage {}.")
+                             .format(stage))
+        iterations_choice = input(_("Please enter the number of iterations to use (q to quit): "))
         if iterations_choice == "q":
-            printLog("Quitting application")
+            printLog(_("Quitting application"))
             sys.exit(0)
         num_iterations = int(iterations_choice)
     splitter.sim(get_subdir(stage), "iterations", num_iterations,
@@ -1275,17 +1300,18 @@ def static_stage(player_profile, stage):
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
     if stage > num_stages:
         return
-    printLog("\n\n***Entering dynamic mode, STAGE {}***".format(stage))
+    print("\n")
+    printLog(_("***Entering dynamic mode, STAGE {}***").format(stage))
 
-    num_generated_profiles = grab_profiles(player_profile, stage)
+    num_generated_profiles = prepare_profiles(player_profile, stage)
 
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
-    print("Estimated calculation times for stage {} based on your data:".format(stage))
+    print(_("Estimated calculation times for stage {} based on your data:").format(stage))
     for i, (target_error, iterations, elapsed_time_seconds) in enumerate(result_data):
         elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
         estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-        print("({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) ".
+        print(_("({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) ").
               format(i,
                      target_error,
                      estimated_time,
@@ -1301,38 +1327,37 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     # If we do not have a target_error in settings, get target_error from user input
     if target_error is None:
         if settings.skip_questions:
-            raise ValueError(
-                "Cannot run dynamic mode and skip questions without default target_error set for stage {}.".format(
-                    stage))
+            raise ValueError(_("Cannot run dynamic mode and skip questions without default target_error set for stage {}.")
+                             .format(stage))
         else:
-            calc_choice = input("Please enter the type of calculation to perform (q to quit): ")
+            calc_choice = input(_("Please enter the type of calculation to perform (q to quit): "))
             if calc_choice == "q":
-                printLog("Quitting application")
+                printLog(_("Quitting application"))
                 sys.exit(0)
         calc_choice = int(calc_choice)
         if calc_choice >= len(result_data) or calc_choice < 0:
-            raise ValueError("Invalid calc choice '{}' can only be from 0 to {}".format(calc_choice,
-                                                                                        len(result_data) - 1))
-        printLog("Sim: Number of permutations: " + str(num_generated_profiles))
-        printLog("Sim: Chosen calculation: {}".format(calc_choice))
+            raise ValueError(_("Invalid calc choice '{}' can only be from 0 to {}").format(calc_choice,
+                                                                                           len(result_data) - 1))
+        printLog(_("Sim: Number of permutations: ") + str(num_generated_profiles))
+        printLog(_("Sim: Chosen calculation: {}").format(calc_choice))
 
         target_error, _iterations, _elapsed_time_seconds = result_data[calc_choice]
 
     # if the user chose a target_error which is higher than one chosen in the previous stage
     # he is given an option to adjust it.
     if previous_target_error is not None and previous_target_error <= target_error:
-        print("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}".
+        print(_("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}").
               format(stage - 1, previous_target_error, stage, target_error))
         new_value = input(
-            "Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
-            " for the current stage (n)?: ")
-        printLog("User chose: " + str(new_value))
+            _("Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
+              " for the current stage (n)?: "))
+        printLog(_("User chose: ") + str(new_value))
         if new_value == "q":
-            printLog("Quitting application")
+            printLog(_("Quitting application"))
             sys.exit(0)
         if new_value == "n":
-            target_error = float(input("Enter new target_error (Format: 0.3): "))
-            printLog("User entered target_error_secondpart: " + str(target_error))
+            target_error = float(input(_("Enter new target_error (Format: 0.3): ")))
+            printLog(_("User entered target_error_secondpart: ") + str(target_error))
 
     # Show estimated sim time based on users chosen target_error
     if num_generated_profiles:
@@ -1343,7 +1368,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                 estimated_time = chop_microseconds(
                     elapsed_time * num_generated_profiles) if num_generated_profiles else None
                 logging.info(
-                    "Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}".
+                    _("Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}").
                         format(target_error,
                                te,
                                elapsed_time.total_seconds(),
@@ -1351,13 +1376,13 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                 )
                 if not settings.skip_questions:
                     if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
-                        if input("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )".
+                        if input(_("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )").
                                          format(estimated_time)) == "q":
-                            printLog("Quitting application")
+                            printLog(_("Quitting application"))
                             sys.exit(0)
                 break
         else:
-            logging.warning("Could not provide any estimated calculation time.")
+            logging.warning(_("Could not provide any estimated calculation time."))
     is_last_stage = (stage == num_stages)
     splitter.sim(get_subdir(stage), "target_error", target_error, player_profile,
                  stage, is_last_stage, num_generated_profiles)
@@ -1365,30 +1390,28 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
 
 
 def start_stage(player_profile, num_generated_profiles, stage):
-    logging.info("Starting at stage {}".format(stage))
+    logging.info(_("Starting at stage {}").format(stage))
     logging.info(_("You selected grabbing method '{}'.").format(settings.default_grabbing_method))
     print("")
     print(_("You have to choose one of the following modes for calculation:"))
-    print("1) Static mode uses a fixed number of iterations, with varying error per profile ({})".
-          format(settings.default_iterations))
-    print("   It is however faster if simulating huge amounts of profiles")
-    print(
-        "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time.")
-    print(
-        "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}".format(
-            settings.default_target_error))
+    print(_("1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})").
+          format(num_iterations=settings.default_iterations))
+    print(_("   It is however faster if simulating huge amounts of profiles"))
+    print(_("2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."))
+    print(_("   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}")
+          .format(settings.default_target_error))
     if settings.skip_questions:
         mode_choice = int(settings.auto_choose_static_or_dynamic)
     else:
-        mode_choice = input("Please choose your mode (Enter to exit): ")
+        mode_choice = input(_("Please choose your mode (Enter to exit): "))
         if not len(mode_choice):
-            logging.info("User exit.")
+            logging.info(_("User exit."))
             sys.exit(0)
         mode_choice = int(mode_choice)
     valid_modes = (1, 2)
     if mode_choice not in valid_modes:
-        raise RuntimeError("Invalid mode '{}' selected. Valid modes: {}.".format(mode_choice,
-                                                                                 valid_modes))
+        raise RuntimeError(_("Invalid simulation mode '{}' selected. Valid modes: {}.")
+                           .format(mode_choice, valid_modes))
     if mode_choice == 1:
         static_stage(player_profile, stage)
     elif mode_choice == 2:
@@ -1408,8 +1431,8 @@ def check_interpreter():
     elif major == required_major:
         if minor >= required_minor:
             return
-    raise RuntimeError("Python-Version too old! You are running Python {}. Please install at least "
-                       "Python-Version {}.{}.x".format(sys.version,
+    raise RuntimeError(_("Python-Version too old! You are running Python {}. Please install at least "
+                       "Python-Version {}.{}.x").format(sys.version,
                                                        required_major,
                                                        required_minor))
 
@@ -1422,15 +1445,16 @@ def addFightStyle(profile):
             if len(fights) > 0:
                 # generate table to choose fightstyle
                 if settings.choose_fightstyle:
-                    print("\nChoose fightstyle:")
+                    print("")
+                    print(_("Choose fightstyle:"))
                     for i, f in enumerate(fights):
-                        print("({:2n}) - {}: {}"
-                              .format(i,
-                                      f["name"],
-                                      f["description"]))
-                    fightstylechoose = int(input("Enter the number for your fightstyle: "))
+                        print("({index:2n}) - {name}: {desc}"
+                              .format(index=i,
+                                      name=f["name"],
+                                      desc=f["description"]))
+                    fightstylechoose = int(input(_("Enter the number for your fightstyle: ")))
                     if fightstylechoose < 0 or fightstylechoose >= len(fights):
-                        logger.error("Wrong number for fightstyles chosen")
+                        logger.error(_("Wrong number for fightstyles chosen"))
                         sys.exit(1)
                     else:
                         profile.fightstyle = fights[fightstylechoose]
@@ -1440,19 +1464,19 @@ def addFightStyle(profile):
                         if f["name"] == settings.default_fightstyle:
                             profile.fightstyle = f  # add the whole json-object, files will get created later
                     if profile.fightstyle is None:
-                        logger.error(
-                            "No fightstyle found in .json with name: {}, exiting.." + format(
-                                settings.default_fightstyle))
+                        logger.error(_("No fightstyle found in .json with name: {}, exiting.").
+                                     format(settings.default_fightstyle))
                         sys.exit(1)
             else:
-                raise RuntimeError("Did not find entries in fight_style.json.")
+                raise RuntimeError(_("Did not find entries in fight_style.json."))
     except json.decoder.JSONDecodeError as error:
-        logging.error(error)
-        logging.error("Error: {}".format(error), exc_info=True)
+        logging.error(_("Error while decoding JSON file: {}").format(error), exc_info=True)
         sys.exit(1)
 
     assert profile.fightstyle is not None
-    logger.info("Found fightstyle >>>{}<<< in {}".format(profile.fightstyle["name"], settings.file_fightstyle))
+    logger.info(_("Found fightstyle >>>{name}<<< in {file}")
+                .format(name=profile.fightstyle["name"],
+                        file=settings.file_fightstyle))
 
     return profile
 
@@ -1490,7 +1514,7 @@ def main():
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
-    logging.debug("Parsed command line arguments: {}".format(args))
+    logging.debug(_("Parsed command line arguments: {}").format(args))
 
     if args.sim:
         if not settings.auto_download_simc:
@@ -1498,14 +1522,12 @@ def main():
                 filename, latest = determineLatestSimcVersion();
                 ondisc = determineSimcVersionOnDisc();
                 if latest != ondisc:
-                    logging.info("--> A newer SimCraft-version is available for download! Version: {}".format(filename))
-            
+                    logging.warning(_("A newer SimCraft-version might be available for download! Version: {}").
+                                    format(filename))
         autoDownloadSimc()
     validateSettings(args)
 
     player_profile = build_profile(args)
-
-    print("Combinations in progress...")
 
     # can always be rerun since it is now deterministic
     outputGenerated = False
@@ -1513,25 +1535,24 @@ def main():
     if args.sim == "all" or args.sim is None:
         start = datetime.datetime.now()
         num_generated_profiles = permutate(args, player_profile)
-        logging.info("Permutating took {}.".format(datetime.datetime.now() - start))
+        logging.info(_("Permutating took {}.").format(datetime.datetime.now() - start))
         outputGenerated = True
     elif args.sim == "stage1":
-        if input("Do you want to generate {} again? Press y to regenerate: ".format(args.outputfile)) == "y":
+        if input(_("Do you want to generate {outfile} again? Press y to regenerate: ").format(outfile=args.outputfile)) == "y":
             num_generated_profiles = permutate(args, player_profile)
             outputGenerated = True
 
     if outputGenerated:
         if num_generated_profiles == 0:
-            raise RuntimeError("No valid profile combinations found."
-                               " Please check the 'Invalid profile statistics' output and adjust your"
-                               " input.txt and settings.py.")
+            raise RuntimeError(_("No valid profile combinations found."
+                                 " Please check the 'Invalid profile statistics' output and adjust your"
+                                 " input.txt and settings.py."))
         if args.sim:
             if not settings.skip_questions:
                 if num_generated_profiles and num_generated_profiles > 50000:
-                    if input(
-                            "-----> Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
-                            " <----- (Press Enter to continue, q to quit)") == "q":
-                        logging.info("Program exit by user")
+                    if input(_("Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                               "(Press Enter to continue, q to quit)")) == "q":
+                        logging.info(_("Program exit by user"))
                         sys.exit(0)
 
     player_profile = addFightStyle(player_profile)
@@ -1546,7 +1567,7 @@ def main():
 
         if settings.clean_up:
             cleanup()
-    print("Finished.")
+    logging.info(_("AutoSimC finished correctly."))
 
 
 if __name__ == "__main__":
