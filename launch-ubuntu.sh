@@ -2,7 +2,7 @@
 
 
 ########
-# This script ASSUMES Ubuntui to know if the correct pakcages are installed.
+# This script ASSUMES Ubuntu to know if the correct packages are installed.
 # Please update the script accordingly for your own distribution.
 #######
 
@@ -17,7 +17,7 @@ fi
 prompt=""
 while [[ $prompt != Y ]]; do 
 	# Ask the user if they want to download SIMC. TODO: check if we're already on the newest version...
-	echo "Do you want to fully downlaod and build simc? (Y/N) WARNING: This may take a very long time."
+	echo "Do you want to fully download and build simc? (Y/N) WARNING: This may take a very long time."
 	read prompt 
 	prompt=$(echo $prompt | tr [a-z] [A-Z]) # upcase
 	if [[ $prompt == "Y" ]]; then
@@ -43,7 +43,7 @@ while [[ $prompt != Y ]]; do
 		rm -r * #remove everything if there is anything.
 		echo "Downloading the source code.."
 		wget $(curl --silent "http://www.simulationcraft.org/download.html" | grep -ioP \".*github.*archive.*\" | tr -d \") # download the source code
-		exho "Extracting the source code.."
+		echo "Extracting the source code.."
 		unzip *.zip
 		rm *.zip
 		cd simc*/engine
