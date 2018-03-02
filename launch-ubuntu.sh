@@ -17,14 +17,16 @@ if [[ -z $input ]]; then
 fi
 
 check_dependency() {
+  p=""
   for dep in build-essential libssl-dev; do
     echo "Checking if ${dep} is installed.."
     if [[ -z $(dpkg -l | grep ${dep}) ]]; then
       # check if dep is installed, if not install it
-      echo "${dep} is not installed. Do you want to install it? (Y/N) (requires root)"
-      read p
-      p=$(echo $p | tr [a-z] [A-Z]) # upcase
       while [[ $p != Y ]]; do
+        echo "${dep} is not installed Do you want to install it? (Y/N) (requires root)"
+        read p
+        p=$(echo $p | tr [a-z] [A-Z]) # upcase
+
         case $p in
           Y)
             sudo apt-get install -y ${dep}
@@ -92,6 +94,7 @@ run_auto_simc() {
 
   # UPDATE THIS PYTHON BASED ON YOUR PATH
   python3 main.py -i $input -o out.simc -sim all
+  # gave up trying to 'auto find python exe'.  Not worth the for loop when the user can just change 1 line.
 }
 
 # prompt for installation.
