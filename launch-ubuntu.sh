@@ -7,7 +7,7 @@
 #######
 
 echo "NOTE: Running this script for the first time is recommended as sudo/root incase any simc dependencies are missing."
-echo "IF you already have the dependencies installed, you do not need root."
+echo "NOTE: If you already have the dependencies (build-essential libssl-dev) installed, you do not need root."
 
 input=$1 # input file if not the normal one.
 auto_simc_pwd=$(pwd) # current directory to get back to later.
@@ -21,22 +21,22 @@ check_dependency() {
     echo "Checking if ${dep} is installed.."
     if [[ -z $(dpkg -l | grep ${dep}) ]]; then
       # check if dep is installed, if not install it
-      echo "${dep} is not installed Do you want to install it? (Y/N) (requires root)"
+      echo "${dep} is not installed. Do you want to install it? (Y/N) (requires root)"
       read p
       p=$(echo $p | tr [a-z] [A-Z]) # upcase
-      while [[ $prompt != Y ]]; do
+      while [[ $p != Y ]]; do
         case $p in
           Y)
             sudo apt-get install -y ${dep}
-            echo "${dep} is installed"
             ;;
           N)
-            echo "Aborting script."
+            echo "${dep} installation canceled. Aborting script."
             exit 1
             ;;
         esac
       done
     fi
+	echo "${dep} is installed"
   done
 }
 
@@ -55,7 +55,7 @@ download_and_compile_simc_zip() {
   rm $default_branch
 
   echo "Compiling simc"
-  cd simc*/engine
+  cd *simc*/engine
   make OPENSSL=1 optimized # build from source
 
   # set the new path in the setting file.
@@ -73,7 +73,7 @@ prompt() {
     read prompt
     prompt=$(echo $prompt | tr [a-z] [A-Z]) # upcase
 
-    case $p in
+    case $prompt in
       Y)
         check_dependency
         download_and_compile_simc_zip
