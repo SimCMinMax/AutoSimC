@@ -317,7 +317,6 @@ def determineSimcVersionOnDisc():
                         logging.debug("Found program in {}: Git_Version: {}"
                                       .format(settings.simc_path,
                                               match))
-                        print(match)
                         return match
                 except AttributeError:
                     # should only contain other lines from simc_standard-output
@@ -1495,8 +1494,8 @@ def main():
             if settings.check_simc_version:
                 filename, latest = determineLatestSimcVersion();
                 ondisc = determineSimcVersionOnDisc();
-                print("Latest: "+latest)
-                print("Ondisc: "+ondisc)
+                #print("Latest: "+latest)
+                #print("Ondisc: "+ondisc)
                 if latest != ondisc:
                     logging.info("--> A newer SimCraft-version is available for download! Version: {}".format(filename))
             
