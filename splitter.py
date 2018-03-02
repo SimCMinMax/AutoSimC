@@ -15,6 +15,9 @@ try:
 except ImportError:
     pass
 
+import gettext
+gettext.install('AutoSimC')
+
 
 def parse_profiles_from_file(fd, user_class):
     """Parse a simc file, and yield each player entry (between two class=name lines)"""
@@ -52,8 +55,8 @@ def purge_subfolder(subfolder, retries=3):
             time.sleep(3000)
             purge_subfolder(subfolder, retries - 1)
     else:
-        shutil.rmtree(subfolder)
-        purge_subfolder(subfolder, retries)
+        shutil.rmtree(subfolder, ignore_errors=True)
+        os.makedirs(subfolder)
 
 
 def split(inputfile, destination_folder, size, wow_class):
@@ -388,10 +391,13 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
         chunk_length = int(settings.splitting_size)
     logging.debug("Chunk length: {}".format(chunk_length))
 
+    if not os.path.exists(target_subdir):
+        os.makedirs(target_subdir)
+
     # now parse our "database" and extract the profiles of our top n
     logging.debug("Getting sim input from file {}.".format(origin))
     with open(origin, "r") as source:
-        subfolder = os.path.join(os.getcwd(), target_subdir)
+        subfolder = target_subdir
         purge_subfolder(subfolder)
         for profile in parse_profiles_from_file(source, user_class):
             _classname, profilename = profile[0].split("=")
@@ -402,16 +408,16 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
                 logging.debug("Added {} to best list.".format(profilename))
                 # If we reached chunk length, dump collected profiles and reset, so we do not store everything in memory
                 if len(bestprofiles) >= chunk_length:
-                    outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".simc")
+                    outfile = os.path.join(target_subdir, "best" + str(outfile_count) + ".simc")
                     dump_profiles_to_file(outfile, bestprofiles)
                     bestprofiles.clear()
                     outfile_count += 1
 
     # Write tail
     if len(bestprofiles):
-        outfile = os.path.join(os.getcwd(), target_subdir, "best" + str(outfile_count) + ".simc")
+        outfile = os.path.join(target_subdir, "best" + str(outfile_count) + ".simc")
         dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
 
-    logging.info("Got {} best profiles written to {} files..".format(num_profiles, outfile_count))
+    logging.info(_("Got {} best profiles written to {} files..").format(num_profiles, outfile_count))
     return num_profiles

@@ -9,6 +9,8 @@ results/
 temp_step1/
 temp_step2/
 temp_step3/
+tmp/
+.cache/
 
 logs.txt
 error.txt

@@ -217,7 +217,17 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
    In settings.py, remove the default_target_error for a given stage and you will be prompted for a target error selection for that stage, assuming skip_questions is False.
    
-  
+## Localization
+
+AutoSimC has experimental support for localization/translation using the [gettext](https://docs.python.org/3/library/gettext.html) module. You can improve or extend our translation efforts even as a non-programmer.
+
+- All string to be translated in the source code need to be enclose in \_(). So "Hello World" becomes \_("Hello World").
+- All strings marked with \_() are extracted by the pygettext script. Run *update_language_file.py* to update the extracted language file *AutoSimC.pot* with any changes done in the source code.
+- To edit & create new translations, we recommend a graphical PO editor, like [Poedit](https://poedit.net/).
+- A new translation for a language needs to go in a specific folder following the scheme, eg. for language "de":          ```./locale/de/LC_MESSAGES/AutoSimC.mo
+  ./locale/de/LC_MESSAGES/AutoSimC.po```
+- To update a existing translation *.po* file from a updated *AutoSimc.pot* file, in [Poedit](https://poedit.net/) select *Catalog -> Update from POT file*.
+- In settings.py there is a option *localization_language* to control the language to which AutoSimC is translated. Default is "auto", selecting the language based on your system setting.
 
 ## Changelog
 
