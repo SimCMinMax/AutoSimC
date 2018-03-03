@@ -213,8 +213,7 @@ Just copy the text you get in SimPermut and paste it in your input.txt file (era
 
 1. How can I simulate multiple enemy targets?
 
-   Basic: Check 'additional_input.txt' to provide additional simulation options. You can adust the *desired_targets* option.
-   Advanced: You can edit fight_types.json to generate your own database of fights. If using this option, leave additional_input.txt empty as it gets overwritten during the process.
+   See [Fight-Type Selector](#fight-type-selector) for detailed instructions on how to select different fight types, including simulating against multiple enemies.
 
 1. Simulation crashed/stoped at stage x. How can I restart AutoSimC at stage x, without redoing all the previous work?
 
