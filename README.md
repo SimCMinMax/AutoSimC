@@ -173,7 +173,7 @@ Included is Analyzer.py, which uses the standard-simc-profiles for each class to
  Modules needed: marshmallow (pip install marshmallow) for generating json-files easier
 
 ## Fight-Type Selector:
-In fight_types.json you can define your personal fight_types.
+In fight_types.json you can define your personal fight_types. In settings.py you must select the desired fight style in the option *default_fightstyle*.
 The standard simc-profiles are already included, it is advised not to touch these.
 
 If you want to expand them, e.g. simulate two Patchwerks in cleave-range, simply add a block with the commands you would normally add to additional_input.txt. Use the syntax given in the two examples.
