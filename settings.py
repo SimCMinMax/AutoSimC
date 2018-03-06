@@ -160,7 +160,7 @@ class settings():
     # simulate.
     # If set it to False, the entry you declare in the json, e.g. "name":"Default_Patchwerk", has to match default_fightstyle
     file_fightstyle = "fight_types.json"
-    choose_fightstyle = False
+    choose_fightstyle = True
     default_fightstyle = "Default_Patchwerk"
 
     # SimulationCraft process priority.

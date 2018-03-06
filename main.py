@@ -1453,13 +1453,16 @@ def check_interpreter():
             return
     raise RuntimeError(_("Python-Version too old! You are running Python {}. Please install at least "
                        "Python-Version {}.{}.x").format(sys.version,
-                                                       required_major,
-                                                       required_minor))
+                                                        required_major,
+                                                        required_minor))
 
 
 def addFightStyle(profile):
-    try:
-        with open(os.path.join(os.getcwd(), settings.file_fightstyle)) as file:
+    filepath = os.path.join(os.getcwd(), settings.file_fightstyle)
+    filepath = os.path.abspath(filepath)
+    logging.debug(_("Opening fight types data file at '{}'.".format(filepath)))
+    with open(filepath, encoding="utf-8") as file:
+        try:
             profile.fightstyle = None
             fights = json.load(file)
             if len(fights) > 0:
@@ -1474,24 +1477,23 @@ def addFightStyle(profile):
                                       desc=f["description"]))
                     fightstylechoose = int(input(_("Enter the number for your fightstyle: ")))
                     if fightstylechoose < 0 or fightstylechoose >= len(fights):
-                        logger.error(_("Wrong number for fightstyles chosen"))
-                        sys.exit(1)
-                    else:
-                        profile.fightstyle = fights[fightstylechoose]
+                        raise ValueError(_("Wrong number ({}) for fightstyles chosen."
+                                           " Must be greater between {} and {}.")
+                                         .format(fightstylechoose, 0, len(fights)))
+                    profile.fightstyle = fights[fightstylechoose]
                 else:
                     # fetch default_profile
                     for f in fights:
                         if f["name"] == settings.default_fightstyle:
                             profile.fightstyle = f  # add the whole json-object, files will get created later
                     if profile.fightstyle is None:
-                        logger.error(_("No fightstyle found in .json with name: {}, exiting.").
-                                     format(settings.default_fightstyle))
-                        sys.exit(1)
+                        raise ValueError(_("No fightstyle found in .json with name: {}, exiting.")
+                                         .format(settings.default_fightstyle))
             else:
                 raise RuntimeError(_("Did not find entries in fight_style.json."))
-    except json.decoder.JSONDecodeError as error:
-        logging.error(_("Error while decoding JSON file: {}").format(error), exc_info=True)
-        sys.exit(1)
+        except json.decoder.JSONDecodeError as error:
+            logging.error(_("Error while decoding JSON file: {}").format(error), exc_info=True)
+            sys.exit(1)
 
     assert profile.fightstyle is not None
     logger.info(_("Found fightstyle >>>{name}<<< in {file}")

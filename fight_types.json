@@ -51,5 +51,11 @@
     "line1": "enemy=Patchwerk",
     "line2": "enemy=Patchwerk2",
     "line3": "raid_events+=/move_enemy,name=Patchwerk2,cooldown=2000,duration=1000,x=-27,y=-27"
+  },
+  {
+    "name": "TMI_T21N25",
+    "description": "Theck-Meloree Index tank boss for T21 normal mode 25 players.",
+    "line1": "enemy=TMI_T21N25",
+    "line2": "tmi_boss=T21N25"
   }
 ]
