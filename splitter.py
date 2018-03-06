@@ -299,6 +299,9 @@ def filter_by_target_error(dps_results, target_error):
         output = []
         dps_best_player = dps_results[0]["dps"]
         dps_error_best_player = dps_results[0]["dps_error"]
+        if dps_error_best_player == 0:
+            raise ValueError(_("DPS error of best player {} is zero. Cannot filter by target_error.")
+                             .format(dps_results[0]["name"]))
         for entry in dps_results:
             dps = entry["dps"]
             err = entry["dps_error"]
@@ -332,7 +335,9 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     logging.debug("Grabbing files: {}".format(files))
 
     start = datetime.datetime.now()
-    dps_regex = re.compile("  DPS: (\d+\.\d+)  DPS-Error=(\d+\.\d+)/(\d+\.\d+)%")
+    metric = settings.select_by_metric
+    logging.info("Selecting by metric: '{}'.".format(metric))
+    metric_regex = re.compile("\s*{metric}: (\d+\.\d+)  {metric}-error=(\d+\.\d+)/(\d+\.\d+)%".format(metric=metric), re.IGNORECASE)
     for file in files:
         if os.stat(file).st_size <= 0:
             raise RuntimeError("Error: result file '{}' is empty, exiting.".format(file))
@@ -344,39 +349,43 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
                     _player, profile_name, _race, wow_class, *_tail = line.split()
                     user_class = wow_class
                     current_player["name"] = profile_name
-                if line.startswith("  DPS: "):
-                    match = dps_regex.search(line)
-                    if not match:
-                        raise ValueError("Invalid SimC result file. DPS information could not be parsed.")
-                    dps, dps_error, dps_error_pct = match.groups()
-                    if "name" not in current_player:
-                        # DPS entry does not belong to "Player". (eg. "Target")
-                        continue
-                    current_player["dps"] = float(dps)
-                    current_player["dps_error"] = float(dps_error)
-                    current_player["dps_error_pct"] = dps_error_pct
-                    best.append(current_player)
-                    current_player = {}
+                match = metric_regex.search(line)
+                if not match:
+                    continue
+                print(line)
+                dps, dps_error, dps_error_pct = match.groups()
+                if "name" not in current_player:
+                    # DPS entry does not belong to "Player". (eg. "Target")
+                    continue
+                current_player["dps"] = float(dps)
+                current_player["dps_error"] = float(dps_error)
+                current_player["dps_error_pct"] = dps_error_pct
+                best.append(current_player)
+                current_player = {}
 
-    logging.debug("Parsing input files for dps took: {}".format(datetime.datetime.now() - start))
+    logging.debug("Parsing input files for {} took: {}".format(metric, datetime.datetime.now() - start))
 
     # sort best dps, descending order
     best = list(reversed(sorted(best, key=lambda entry: entry["dps"])))
-    logging.debug("Result from parsing dps len={}".format(len(best)))
+    logging.debug("Result from parsing {} len={}".format(metric, len(best)))
 
     if filter_by == "target_error":
-        best = filter_by_target_error(best, filter_criterium)
+        filterd_best = filter_by_target_error(best, filter_criterium)
     elif filter_by == "count":
-        best = filter_by_length(best, filter_criterium)
+        filterd_best = filter_by_length(best, filter_criterium)
     else:
         raise ValueError("Invalid filter")
 
-    logging.debug("Filtered dps results len={}".format(len(best)))
-    for entry in best:
+    logging.debug("Filtered dps results len={}".format(len(filterd_best)))
+    for entry in filterd_best:
         logging.debug("{}".format(entry))
 
-    sortednames = [entry["name"] for entry in best]
-    print(sortednames)
+    sortednames = [entry["name"] for entry in filterd_best]
+
+    if len(filterd_best) == 0:
+        raise RuntimeError(_("Could not grab any valid profiles from previous run."
+                             " ({} profiles available before filtering, {} after filtering)")
+                           .format(len(best), len(filterd_best)))
 
     bestprofiles = []
     outfile_count = 0

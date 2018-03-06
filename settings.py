@@ -96,6 +96,11 @@ class settings():
 
     result_subfolder = "results"
 
+    # Define which metric to use to select & filter profiles.
+    # Supported: dps, hps for healers and tmi for tanks.
+    # single_actor_batch=1 seems to be bugged for tanks right now.
+    select_by_metric = "DPS"
+
     # For static mode, default iterations per stage
     # By default this is 100 for stage1, 1000 for stage2, and so on.
     # If you do not specify a stage, you will be asked during simulation if skip_questions is False
@@ -183,7 +188,7 @@ class settings():
 
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
-    simc_single_actor_batch = 1
+    simc_single_actor_batch = 0
 
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
