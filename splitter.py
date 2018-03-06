@@ -281,33 +281,33 @@ def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, nu
     return result
 
 
-def filter_by_length(dps_results, n):
+def filter_by_length(metric_results, n):
     """
-    filter dps list to only contain n results
+    filter metric(dps/hps/tmi) list to only contain n results
     dps_results is a pre-sorted list (dps, name) in descending order
     """
-    return dps_results[:n]
+    return metric_results[:n]
 
 
-def filter_by_target_error(dps_results, target_error):
+def filter_by_target_error(metric_results, target_error):
     """
     remove all profiles not within the errorrange of the best player
-    dps_results is a pre-sorted list (dps, name) in descending order
+    metric_results is a pre-sorted list (dps/hps/tmi, name) in descending order
     """
-    output = dps_results
-    if len(dps_results) > 2:
+    output = metric_results
+    if len(metric_results) > 2:
         output = []
-        dps_best_player = dps_results[0]["dps"]
-        dps_error_best_player = dps_results[0]["dps_error"]
-        if dps_error_best_player == 0:
-            raise ValueError(_("DPS error of best player {} is zero. Cannot filter by target_error.")
-                             .format(dps_results[0]["name"]))
-        for entry in dps_results:
-            dps = entry["dps"]
-            err = entry["dps_error"]
+        metric_best_player = metric_results[0]["metric"]
+        metric_error_best_player = metric_results[0]["metric_error"]
+        if metric_error_best_player == 0:
+            raise ValueError(_("Metric error of best player {} is zero. Cannot filter by target_error.")
+                             .format(metric_results[0]["name"]))
+        for entry in metric_results:
+            metric = entry["metric"]
+            err = entry["metric_error"]
             # if dps difference is less than sqrt(err_best**2+err**2) * error_mult, keep result
-            if dps_best_player - dps < math.sqrt(
-                    err ** 2 + dps_error_best_player ** 2) * settings.default_error_rate_multiplier:
+            if metric_best_player - metric < math.sqrt(
+                    err ** 2 + metric_error_best_player ** 2) * settings.default_error_rate_multiplier:
                 output.append(entry)
     return output
 
@@ -352,22 +352,21 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
                 match = metric_regex.search(line)
                 if not match:
                     continue
-                print(line)
-                dps, dps_error, dps_error_pct = match.groups()
+                metric_value, metric_error, metric_error_pct = match.groups()
                 if "name" not in current_player:
-                    # DPS entry does not belong to "Player". (eg. "Target")
+                    # metric entry does not belong to "Player". (eg. "Target")
                     continue
-                current_player["dps"] = float(dps)
-                current_player["dps_error"] = float(dps_error)
-                current_player["dps_error_pct"] = dps_error_pct
+                current_player["metric"] = float(metric_value)
+                current_player["metric_error"] = float(metric_error)
+                current_player["metric_error_pct"] = metric_error_pct
                 best.append(current_player)
                 current_player = {}
 
     logging.debug("Parsing input files for {} took: {}".format(metric, datetime.datetime.now() - start))
 
-    # sort best dps, descending order
-    best = list(reversed(sorted(best, key=lambda entry: entry["dps"])))
-    logging.debug("Result from parsing {} len={}".format(metric, len(best)))
+    # sort best metric, descending order
+    best = list(reversed(sorted(best, key=lambda entry: entry["metric"])))
+    logging.debug("Result from parsing {} with metric '{}' len={}".format(metric, metric, len(best)))
 
     if filter_by == "target_error":
         filterd_best = filter_by_target_error(best, filter_criterium)
@@ -376,7 +375,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     else:
         raise ValueError("Invalid filter")
 
-    logging.debug("Filtered dps results len={}".format(len(filterd_best)))
+    logging.debug("Filtered metric results len={}".format(len(filterd_best)))
     for entry in filterd_best:
         logging.debug("{}".format(entry))
 
