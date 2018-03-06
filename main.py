@@ -1538,6 +1538,7 @@ def main():
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
     logging.debug(_("Parsed command line arguments: {}").format(args))
+    logging.debug(_("Parsed settings: {}").format(vars(settings)))
 
     if args.sim:
         if not settings.auto_download_simc:
