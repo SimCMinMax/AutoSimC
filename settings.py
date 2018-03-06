@@ -188,7 +188,7 @@ class settings():
 
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
-    simc_single_actor_batch = 0
+    simc_single_actor_batch = 1
 
     # additional input you might want to sim according to
     # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
