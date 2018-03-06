@@ -239,6 +239,9 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
             amount_of_generated_splits += 1
 
     num_files_to_sim = len(files_to_sim)
+    
+    if num_files_to_sim == 0:
+        raise ValueError("Number of files to sim in stage {} is 0. Check path (spaces? special chars?)".format(stage))
 
     # First generate global simc options
     base_path, _filename = os.path.split(files_to_sim[0])
