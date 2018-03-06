@@ -843,7 +843,7 @@ or as a quick fix remove any special characters from your character name.""".for
                             "augmentation"]
     for opt in simc_profile_options:
         if opt in profile:
-            player_profile.simc_options[opt] = profile[opt]
+            player_profile.simc_options[opt] = profile[opt].strip("\"")
 
     player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
     player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
@@ -884,7 +884,7 @@ class Item:
             else:
                 setattr(self, "tier_{}".format(tier), False)
         if len(input_string):
-            self.parse_input(input_string)
+            self.parse_input(input_string.strip("\""))
 
         self._build_output_str()  # Pre-Build output string as good as possible
 
@@ -1581,9 +1581,8 @@ def main():
                         logging.info(_("Program exit by user"))
                         sys.exit(0)
 
-    player_profile = addFightStyle(player_profile)
-
     if args.sim:
+        player_profile = addFightStyle(player_profile)
         if args.sim == "stage1" or args.sim == "all":
             start_stage(player_profile, num_generated_profiles, 1)
         if args.sim == "stage2":
