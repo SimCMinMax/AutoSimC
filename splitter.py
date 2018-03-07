@@ -179,6 +179,7 @@ def worker(command, counter, maximum, starttime, num_workers):
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
         p = subprocess.Popen(command)
+    (output, err) = p.communicate()
     r = p.wait()
     if r != 0:
         logging.error("SimulationCraft error! Worker #{} returned error code {}.".format(counter, r))
