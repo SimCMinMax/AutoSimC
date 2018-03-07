@@ -1520,7 +1520,7 @@ def main():
     log_handler.setLevel(logging.INFO)
     log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
-    # Handler for loging to stdout
+    # Handler for logging to stdout
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setLevel(logging.INFO)
     stdout_handler.setFormatter(logging.Formatter("%(message)s"))
@@ -1531,24 +1531,33 @@ def main():
 
     # check version of python-interpreter running the script
     check_interpreter()
+    
+    stdout_handler.setLevel(logging.CRITICAL)
+    logging.info("----------------------------------------------------------------------------")
+    stdout_handler.setLevel(logging.INFO)
     logging.info("AutoSimC - Supported WoW-Version: {}".format(__version__))
 
     args = handleCommandLine()
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
-    logging.debug(_("Parsed command line arguments: {}").format(args))
-    logging.debug(_("Parsed settings: {}").format(vars(settings)))
+
+    # dont output these settings to console, only to file
+    # so users can send logs containing this information, but dont get spammed during runtime
+    # forcing them to redo vast amounts of calculations with --debug enabled seems a waste of time
+    if not args.debug:
+        stdout_handler.setLevel(logging.CRITICAL)
+    logging.info(_("Parsed command line arguments: {}").format(args))
+    logging.info(_("Parsed settings: {}").format(vars(settings)))
+    stdout_handler.setLevel(logging.INFO)
 
     if args.sim:
         if not settings.auto_download_simc:
             if settings.check_simc_version:
                 filename, latest = determineLatestSimcVersion();
                 ondisc = determineSimcVersionOnDisc();
-                #print("Latest: "+latest)
-                #print("Ondisc: "+ondisc)
                 if latest != ondisc:
-                    logging.warning(_("A newer SimCraft-version might be available for download! Version: {}").
+                    logging.info(_("A newer SimCraft-version might be available for download! Version: {}").
                                     format(filename))
         autoDownloadSimc()
     validateSettings(args)
