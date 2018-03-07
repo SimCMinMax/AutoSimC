@@ -12,7 +12,7 @@ AutoSimC works in two parts:
 2. Simulating the generated profiles in a multi-stage process: To narrow the large amount of generated profiles into a small set of best performing profiles, a multi-stage simulation process is performed, in which each stage simulates the given profiles with increased accuracy to narrow the number of profiles in each stage, resulting in only a handful of final profiles with the best DPS.
 
 ## Quick setup
-Python (>=3.4) is required for this to work.
+Python (>=3.5) is required for this to work.
 - You can download python at https://www.python.org/downloads/. During installation, select *Add Python 3.x to PATH*, so that python gets automatically added to your PATH environment variable.
 - Download the project and extract it.
 - Open [input.txt](#inputtxt) and enter parameters depending on your character. Make sure your text editor encodes input.txt as UTF-8.

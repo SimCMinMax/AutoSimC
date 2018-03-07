@@ -1444,7 +1444,7 @@ def check_interpreter():
     """Check interpreter for minimum requirements."""
     # Does not really work in practice, since formatted string literals (3.6) lead to SyntaxError prior to execution of
     # the program with older interpreters.
-    required_major, required_minor = (3, 4)
+    required_major, required_minor = (3, 5)
     major, minor, _micro, _releaselevel, _serial = sys.version_info
     if major > required_major:
         return
