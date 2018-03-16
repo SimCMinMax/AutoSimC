@@ -33,6 +33,27 @@ __version__ = "7.3.5"
 
 import gettext
 gettext.install('AutoSimC')
+translator = gettext.translation('AutoSimC', fallback=True)
+
+
+class TranslatedText(str):
+    """Represents a translatable text string, while also keeping a reference to the original (englisch) string"""
+    def __new__(cls, message, translate=True):
+        if translate:
+            return super(TranslatedText, cls).__new__(cls, translator.gettext(message))
+        else:
+            return super(TranslatedText, cls).__new__(cls, message)
+
+    def __init__(self, message, translate=True):
+        self.original_message = message
+
+    def format(self, *args, **kwargs):
+        s = TranslatedText(str.format(self, *args, **kwargs), translate=False)
+        s.original_message = str.format(self.original_message, *args, **kwargs)
+        return s
+
+
+_ = TranslatedText
 
 
 def install_translation():
@@ -49,6 +70,8 @@ def install_translation():
             default_lang = [default_lang]
         lang = gettext.translation('AutoSimC', localedir='locale', languages=default_lang)
         lang.install()
+        global translator
+        translator = lang
     except FileNotFoundError:
         print("No translation for {} available.".format(default_lang))
 
@@ -1460,7 +1483,7 @@ def check_interpreter():
 def addFightStyle(profile):
     filepath = os.path.join(os.getcwd(), settings.file_fightstyle)
     filepath = os.path.abspath(filepath)
-    logging.debug(_("Opening fight types data file at '{}'.".format(filepath)))
+    logging.debug(_("Opening fight types data file at '{}'.").format(filepath))
     with open(filepath, encoding="utf-8") as file:
         try:
             profile.fightstyle = None
@@ -1508,17 +1531,33 @@ def addFightStyle(profile):
 ########################
 
 
+class UntranslatedFileHandler(logging.FileHandler):
+    """File Handler which logs messages untranslated"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
+
+    def emit(self, record):
+        if isinstance(record.msg, TranslatedText):
+            orig_msg = record.msg
+            try:
+                record.msg = record.msg.original_message
+                logging.FileHandler.emit(self, record)
+            finally:
+                record.msg = orig_msg
+        else:
+            logging.FileHandler.emit(self, record)
+
+
 def main():
     global class_spec
 
-    error_handler = logging.FileHandler(settings.errorFileName)
+    error_handler = UntranslatedFileHandler(settings.errorFileName, encoding="utf-8")
     error_handler.setLevel(logging.ERROR)
-    error_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 
     # Handler to log messages to file
-    log_handler = logging.FileHandler(settings.logFileName)
-    log_handler.setLevel(logging.INFO)
-    log_handler.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
+    log_handler = UntranslatedFileHandler(settings.logFileName, encoding="utf-8")
+    log_handler.setLevel(logging.DEBUG)
 
     # Handler for logging to stdout
     stdout_handler = logging.StreamHandler(sys.stdout)
@@ -1531,25 +1570,17 @@ def main():
 
     # check version of python-interpreter running the script
     check_interpreter()
-    
-    stdout_handler.setLevel(logging.CRITICAL)
-    logging.info("----------------------------------------------------------------------------")
-    stdout_handler.setLevel(logging.INFO)
-    logging.info("AutoSimC - Supported WoW-Version: {}".format(__version__))
+
+    logging.debug("----------------------------------------------------------------------------")
+    logging.info(_("AutoSimC - Supported WoW-Version: {}").format(__version__))
 
     args = handleCommandLine()
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
 
-    # dont output these settings to console, only to file
-    # so users can send logs containing this information, but dont get spammed during runtime
-    # forcing them to redo vast amounts of calculations with --debug enabled seems a waste of time
-    if not args.debug:
-        stdout_handler.setLevel(logging.CRITICAL)
-    logging.info(_("Parsed command line arguments: {}").format(args))
-    logging.info(_("Parsed settings: {}").format(vars(settings)))
-    stdout_handler.setLevel(logging.INFO)
+    logging.debug(_("Parsed command line arguments: {}").format(args))
+    logging.debug(_("Parsed settings: {}").format(vars(settings)))
 
     if args.sim:
         if not settings.auto_download_simc:
