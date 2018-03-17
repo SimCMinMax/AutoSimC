@@ -18,7 +18,6 @@ import hashlib
 import re
 from urllib.request import urlopen, urlretrieve
 import platform
-from subprocess import Popen, PIPE, STDOUT
 import locale
 
 from settings import settings
@@ -108,11 +107,6 @@ gem_ids = {"150haste": 130220,
 
 # Global logger instance
 logger = logging.getLogger()
-
-
-#   Error handle
-def printLog(stringToPrint):
-    logging.info(stringToPrint)
 
 
 def stable_unique(seq):
@@ -350,22 +344,21 @@ def get_analyzer_data(class_spec):
 def determineSimcVersionOnDisc():
     """gets the version of our simc installation on disc"""
     try:
-        p = Popen([settings.simc_path], stdout=PIPE, stderr=STDOUT, bufsize=1)
+        p = subprocess.run([settings.simc_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         match = None
-        with p.stdout:
-            for raw_line in p.stdout:
-                decoded_line = raw_line.decode()
-                try:
-                    # git build <branch> <git-ref>
-                    match = re.search(r'git build \S* (\S+)\)', decoded_line).group(1)
-                    if match:
-                        logging.debug(_("Found program in {}: Git_Version: {}")
-                                      .format(settings.simc_path,
-                                              match))
-                        return match
-                except AttributeError:
-                    # should only contain other lines from simc_standard-output
-                    pass
+        for raw_line in p.stdout.decode():
+            decoded_line = raw_line
+            try:
+                # git build <branch> <git-ref>
+                match = re.search(r'git build \S* (\S+)\)', decoded_line).group(1)
+                if match:
+                    logging.debug(_("Found program in {}: Git_Version: {}")
+                                  .format(settings.simc_path,
+                                          match))
+                    return match
+            except AttributeError:
+                # should only contain other lines from simc_standard-output
+                pass
         if match is None:
             logging.info(_("Found no git-string in simc.exe, self-compiled?"))
     except FileNotFoundError:
@@ -462,7 +455,7 @@ def cleanup_subdir(subdir):
         if not settings.delete_temp_default and not settings.skip_questions:
             if input(_("Do you want to remove subfolder: {}? (Press y to confirm): ").format(subdir)) != _("y"):
                 return
-        printLog(_("Removing subdir '{}'.").format(subdir))
+        logging.info(_("Removing subdir '{}'.").format(subdir))
         shutil.rmtree(subdir)
 
 
@@ -480,7 +473,7 @@ def copy_result_file(last_subdir):
                 if file.endswith(".html"):
                     src = os.path.join(last_subdir, file)
                     dst = os.path.join(result_folder, file)
-                    printLog(_("Moving file: {} to {}").format(src, dst))
+                    logging.info(_("Moving file: {} to {}").format(src, dst))
                     shutil.move(src, dst)
                     found_html = True
     if not found_html:
@@ -489,7 +482,7 @@ def copy_result_file(last_subdir):
 
 
 def cleanup():
-    printLog(_("Cleaning up"))
+    logging.info(_("Cleaning up"))
     subdirs = [get_subdir(stage) for stage in range(1, num_stages + 1)]
     copy_result_file(subdirs[-1])
     for subdir in subdirs:
@@ -555,7 +548,7 @@ def validateSettings(args):
 
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
-        printLog(_("Using Safe Mode as specified in settings."))
+        logging.info(_("Using Safe Mode as specified in settings."))
         settings.simc_threads = 1
 
     if settings.default_error_rate_multiplier <= 0:
@@ -765,7 +758,7 @@ class PermutationData:
         for i in range(1, 4):
             if len(self.legendaries) == i:
                 for j in range(i):
-                    namingData['Leg' + str(j)] = specdata.getAcronymForID(str(self.legendaries[j].item_id))
+                    namingData['Leg' + str(j)] = specdata.getAcronymForID(self.legendaries[j].item_id)
 
         for tier in (19, 20, 21):
             count = getattr(self, "t" + str(tier))
@@ -1241,7 +1234,7 @@ def permutate(args, player_profile):
 def checkResultFiles(subdir):
     """Check the SimC result files of a previous stage for validity."""
     subdir = os.path.join(os.getcwd(), subdir)
-    printLog("Checking Files in subdirectory: {}".format(subdir))
+    logging.info("Checking Files in subdirectory: {}".format(subdir))
 
     if not os.path.exists(subdir):
         raise FileNotFoundError("Subdir '{}' does not exist.".format(subdir))
@@ -1319,7 +1312,7 @@ def static_stage(player_profile, stage):
     if stage > num_stages:
         return
     print("\n")
-    printLog(_("***Entering static mode, STAGE {}***").format(stage))
+    logging.info(_("***Entering static mode, STAGE {}***").format(stage))
     num_generated_profiles = prepare_profiles(player_profile, stage)
     is_last_stage = (stage == num_stages)
     try:
@@ -1332,11 +1325,11 @@ def static_stage(player_profile, stage):
                              .format(stage))
         iterations_choice = input(_("Please enter the number of iterations to use (q to quit): "))
         if iterations_choice == "q":
-            printLog(_("Quitting application"))
+            logging.info(_("Quitting application"))
             sys.exit(0)
         num_iterations = int(iterations_choice)
-    splitter.sim(get_subdir(stage), "iterations", num_iterations,
-                 player_profile, stage, is_last_stage, num_generated_profiles)
+    splitter.simulate(get_subdir(stage), "iterations", num_iterations,
+                      player_profile, stage, is_last_stage, num_generated_profiles)
     static_stage(player_profile, stage + 1)
 
 
@@ -1344,7 +1337,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     if stage > num_stages:
         return
     print("\n")
-    printLog(_("***Entering dynamic mode, STAGE {}***").format(stage))
+    logging.info(_("***Entering dynamic mode, STAGE {}***").format(stage))
 
     num_generated_profiles = prepare_profiles(player_profile, stage)
 
@@ -1375,14 +1368,14 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         else:
             calc_choice = input(_("Please enter the type of calculation to perform (q to quit): "))
             if calc_choice == "q":
-                printLog(_("Quitting application"))
+                logging.info(_("Quitting application"))
                 sys.exit(0)
         calc_choice = int(calc_choice)
         if calc_choice >= len(result_data) or calc_choice < 0:
             raise ValueError(_("Invalid calc choice '{}' can only be from 0 to {}").format(calc_choice,
                                                                                            len(result_data) - 1))
-        printLog(_("Sim: Number of permutations: ") + str(num_generated_profiles))
-        printLog(_("Sim: Chosen calculation: {}").format(calc_choice))
+        logging.info(_("Sim: Number of permutations: ") + str(num_generated_profiles))
+        logging.info(_("Sim: Chosen calculation: {}").format(calc_choice))
 
         target_error, _iterations, _elapsed_time_seconds = result_data[calc_choice]
 
@@ -1394,13 +1387,13 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
         new_value = input(
             _("Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
               " for the current stage (n)?: "))
-        printLog(_("User chose: ") + str(new_value))
+        logging.info(_("User chose: ") + str(new_value))
         if new_value == "q":
-            printLog(_("Quitting application"))
+            logging.info(_("Quitting application"))
             sys.exit(0)
         if new_value == "n":
             target_error = float(input(_("Enter new target_error (Format: 0.3): ")))
-            printLog(_("User entered target_error_secondpart: ") + str(target_error))
+            logging.info(_("User entered target_error_secondpart: ") + str(target_error))
 
     # Show estimated sim time based on users chosen target_error
     if num_generated_profiles:
@@ -1421,14 +1414,14 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
                     if estimated_time and estimated_time.total_seconds() > 43200:  # 12h
                         if input(_("Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )").
                                          format(estimated_time)) == "q":
-                            printLog(_("Quitting application"))
+                            logging.info(_("Quitting application"))
                             sys.exit(0)
                 break
         else:
             logging.warning(_("Could not provide any estimated calculation time."))
     is_last_stage = (stage == num_stages)
-    splitter.sim(get_subdir(stage), "target_error", target_error, player_profile,
-                 stage, is_last_stage, num_generated_profiles)
+    splitter.simulate(get_subdir(stage), "target_error", target_error, player_profile,
+                      stage, is_last_stage, num_generated_profiles)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 

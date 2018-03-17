@@ -19,7 +19,7 @@ import gettext
 gettext.install('AutoSimC')
 
 
-def parse_profiles_from_file(fd, user_class):
+def _parse_profiles_from_file(fd, user_class):
     """Parse a simc file, and yield each player entry (between two class=name lines)"""
     current_profile = []
     for line in fd:
@@ -34,29 +34,29 @@ def parse_profiles_from_file(fd, user_class):
         yield current_profile
 
 
-def dump_profiles_to_file(filename, profiles):
+def _dump_profiles_to_file(filename, profiles):
     logging.debug("Writing {} profiles to file {}.".format(len(profiles), filename))
     with open(filename, "w") as out:
         for line in profiles:
             out.write(line)
 
 
-# deletes and creates needed folders
-# sometimes it generates a permission error; do not know why (am i removing and recreating too fast?)
-def purge_subfolder(subfolder, retries=3):
+def _purge_subfolder(subfolder):
+    """Deletes and creates needed subfolders"""
     if not os.path.exists(subfolder):
         try:
             os.makedirs(subfolder)
-        except PermissionError:
-            if retries < 0:
-                print("Error creating folders, pls check your permissions.")
-                sys.exit(1)
-            print("Error creating folder, retrying in 3 secs")
-            time.sleep(3000)
-            purge_subfolder(subfolder, retries - 1)
+        except Exception as e:
+            raise RuntimeError(_("Error creating subfolder '{}': {}.").format(e)) from e
     else:
-        shutil.rmtree(subfolder, ignore_errors=True)
-        os.makedirs(subfolder)
+        # Avoid PermissionError when re-creating directory directly after deleting the tree.
+        # See https://stackoverflow.com/a/16375240
+        tmp_name = subfolder + "_tmp"
+        os.rename(subfolder, tmp_name)
+        try:
+            shutil.rmtree(tmp_name)
+        finally:
+            os.makedirs(subfolder)
 
 
 def split(inputfile, destination_folder, size, wow_class):
@@ -76,27 +76,27 @@ def split(inputfile, destination_folder, size, wow_class):
     num_profiles = 0
     bestprofiles = []
     outfile_count = 0
-    purge_subfolder(destination_folder)
+    _purge_subfolder(destination_folder)
     with open(inputfile, encoding='utf-8', mode="r") as src:
-        for profile in parse_profiles_from_file(src, wow_class):
+        for profile in _parse_profiles_from_file(src, wow_class):
             profile.append("")  # Add tailing empty line
             bestprofiles.append("\n".join(profile))
             if len(bestprofiles) >= size:
                 outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".simc")
-                dump_profiles_to_file(outfile, bestprofiles)
+                _dump_profiles_to_file(outfile, bestprofiles)
                 num_profiles += len(bestprofiles)
                 bestprofiles.clear()
                 outfile_count += 1
     # Write tail
     if len(bestprofiles):
         outfile = os.path.join(destination_folder, "sim" + str(outfile_count) + ".simc")
-        dump_profiles_to_file(outfile, bestprofiles)
+        _dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
         num_profiles += len(bestprofiles)
     return num_profiles
 
 
-def prepareFightStyle(player_profile, cmd):
+def _prepare_fight_style(player_profile, cmd):
     # for now i overwrite additional_input.txt as it is relatively easy to edit the .json containing the profiles
     # maybe concatenation could be possible? imho it would lead to more problems if a custom profile was loaded
     # while additional_input contains even more custom commands
@@ -113,7 +113,7 @@ def prepareFightStyle(player_profile, cmd):
     return cmd
 
 
-def generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
+def _generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
     """Generate global (per stage) simc options and write them to .simc output file"""
     cmd = []
     if bool(settings.simc_ptr):
@@ -123,7 +123,7 @@ def generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, pl
         cmd.append('threads=' + str(settings.number_of_threads))
     else:
         cmd.append('threads=' + str(settings.simc_threads))
-    cmd = prepareFightStyle(player_profile, cmd)
+    cmd = _prepare_fight_style(player_profile, cmd)
     cmd.append('process_priority=' + str(settings.simc_priority))
     cmd.append('single_actor_batch=' + str(settings.simc_single_actor_batch))
 
@@ -147,7 +147,7 @@ def generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, pl
         f.write(" ".join(cmd))
 
 
-def generateCommand(file, global_option_file, outputs):
+def _generateCommand(file, global_option_file, outputs):
     """Generate command line arguments to invoke SimulationCraft"""
     cmd = []
     cmd.append(os.path.normpath(settings.simc_path))
@@ -158,7 +158,7 @@ def generateCommand(file, global_option_file, outputs):
     return cmd
 
 
-def worker(command, counter, maximum, starttime, num_workers):
+def _worker(command, counter, maximum, starttime, num_workers):
     print("-----------------------------------------------------------------")
     print("Currently processing: {}".format(command[2]))
     print("Processing: {}/{} ({}%)".format(counter + 1,
@@ -180,14 +180,14 @@ def worker(command, counter, maximum, starttime, num_workers):
     else:
         p = subprocess.run(command)
     if p.returncode != 0:
-        logging.error("SimulationCraft error! Worker #{} returned error code {}.".format(counter, r))
+        logging.error("SimulationCraft error! Worker #{} returned error code {}.".format(counter, p.returncode))
         if settings.multi_sim_disable_console_output and maximum > 1 and num_workers > 1:
             logging.info("SimulationCraft #{} stderr: \n{}".format(counter, p.stderr.read().decode()))
             logging.debug("SimulationCraft #{} stdout: \n{}".format(counter, p.stdout.read().decode()))
     return p.returncode
 
 
-def launch_simc_commands(commands, is_last_stage):
+def _launch_simc_commands(commands, is_last_stage):
     starttime = datetime.datetime.now()
 
     if is_last_stage:
@@ -195,16 +195,16 @@ def launch_simc_commands(commands, is_last_stage):
     else:
         num_workers = settings.number_of_instances
     print("-----------------------------------------------------------------")
-    print("Starting multi-process simulation.")
-    print("Number of work items: {}.".format(len(commands)))
-    print("Number of worker instances: {}.".format(num_workers))
+    logging.info("Starting multi-process simulation.")
+    logging.info("Number of work items: {}.".format(len(commands)))
+    logging.info("Number of worker instances: {}.".format(num_workers))
     logging.debug("Starting simc with commands={}".format(commands))
     try:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         counter = 0
         results = []
         for command in commands:
-            results.append(executor.submit(worker, command, counter, len(commands), starttime, num_workers))
+            results.append(executor.submit(_worker, command, counter, len(commands), starttime, num_workers))
             counter += 1
 
         # Check if we got any simulations with error code != 0. futures.as_completed gives us the results as soon as a
@@ -222,7 +222,7 @@ def launch_simc_commands(commands, is_last_stage):
         executor.shutdown()
         return True
     except KeyboardInterrupt:
-        logging.info("KeyboardInterrupt in simc executor. Stopping.")
+        logging.warning("KeyboardInterrupt in simc executor. Stopping.")
         for f in results:
             f.cancel()
         executor.shutdown(wait=False)
@@ -230,7 +230,7 @@ def launch_simc_commands(commands, is_last_stage):
     return False
 
 
-def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles):
+def _start_simulation(files_to_sim, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
 
     # some minor progress-bar-initialization
@@ -240,14 +240,13 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
             amount_of_generated_splits += 1
 
     num_files_to_sim = len(files_to_sim)
-    
     if num_files_to_sim == 0:
         raise ValueError("Number of files to sim in stage {} is 0. Check path (spaces? special chars?)".format(stage))
 
     # First generate global simc options
     base_path, _filename = os.path.split(files_to_sim[0])
     sim_options = os.path.join(base_path, "arguments.simc")
-    generate_sim_options(sim_options, simtype, simtype_value, is_last_stage, player_profile, num_files_to_sim)
+    _generate_sim_options(sim_options, simtype, simtype_value, is_last_stage, player_profile, num_files_to_sim)
 
     # Generate arguments for launching simc for each splitted file
     commands = []
@@ -259,15 +258,15 @@ def start_multi_sim(files_to_sim, player_profile, simtype, simtype_value, stage,
             if num_files_to_sim == 1 or is_last_stage:
                 html_file = os.path.join(base_path, str(output_time) + "-" + basename + ".html")
                 outputs.append('html={}'.format(html_file))
-            cmd = generateCommand(file,
+            cmd = _generateCommand(file,
                                   sim_options,
                                   outputs)
             commands.append(cmd)
-    return launch_simc_commands(commands, is_last_stage)
+    return _launch_simc_commands(commands, is_last_stage)
 
 
-# chooses settings and multi- or singlemode smartly
-def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
+def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
+    """Start the simulation process for a given stage/input"""
     logging.info("Starting simulation.")
     logging.debug("Started simulation with {}".format(locals()))
     subdir = os.path.join(os.getcwd(), subdir)
@@ -276,13 +275,13 @@ def sim(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, nu
     files = [os.path.join(subdir, f) for f in files]
 
     start = datetime.datetime.now()
-    result = start_multi_sim(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
+    result = _start_simulation(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end - start))
     return result
 
 
-def filter_by_length(metric_results, n):
+def _filter_by_length(metric_results, n):
     """
     filter metric(dps/hps/tmi) list to only contain n results
     dps_results is a pre-sorted list (dps, name) in descending order
@@ -290,7 +289,7 @@ def filter_by_length(metric_results, n):
     return metric_results[:n]
 
 
-def filter_by_target_error(metric_results, target_error):
+def _filter_by_target_error(metric_results):
     """
     remove all profiles not within the errorrange of the best player
     metric_results is a pre-sorted list (dps/hps/tmi, name) in descending order
@@ -313,12 +312,8 @@ def filter_by_target_error(metric_results, target_error):
     return output
 
 
-# determine best n dps-simulations and grabs their profiles for further simming
-# targeterror: the span which removes all profile-dps not fulfilling it (see settings.py)
-# source_subdir: directory of .result-files
-# target_subdir: directory to store the resulting .sim-file
-# origin: path to the originally in autosimc generated output-file containing all valid profiles
 def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin, split_optimally=True):
+    """Determine best simulations and grabs their profiles for further simming"""
     print("Grabbest:")
     print("Variables: filter by: " + str(filter_by))
     print("Variables: filter_criterium: " + str(filter_criterium))
@@ -370,9 +365,9 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     logging.debug("Result from parsing {} with metric '{}' len={}".format(metric, metric, len(best)))
 
     if filter_by == "target_error":
-        filterd_best = filter_by_target_error(best, filter_criterium)
+        filterd_best = _filter_by_target_error(best)
     elif filter_by == "count":
-        filterd_best = filter_by_length(best, filter_criterium)
+        filterd_best = _filter_by_length(best, filter_criterium)
     else:
         raise ValueError("Invalid filter")
 
@@ -410,8 +405,8 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     logging.debug("Getting sim input from file {}.".format(origin))
     with open(origin, "r") as source:
         subfolder = target_subdir
-        purge_subfolder(subfolder)
-        for profile in parse_profiles_from_file(source, user_class):
+        _purge_subfolder(subfolder)
+        for profile in _parse_profiles_from_file(source, user_class):
             _classname, profilename = profile[0].split("=")
             if profilename in sortednames:
                 profile.append("")  # Add tailing empty line
@@ -421,14 +416,14 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
                 # If we reached chunk length, dump collected profiles and reset, so we do not store everything in memory
                 if len(bestprofiles) >= chunk_length:
                     outfile = os.path.join(target_subdir, "best" + str(outfile_count) + ".simc")
-                    dump_profiles_to_file(outfile, bestprofiles)
+                    _dump_profiles_to_file(outfile, bestprofiles)
                     bestprofiles.clear()
                     outfile_count += 1
 
     # Write tail
     if len(bestprofiles):
         outfile = os.path.join(target_subdir, "best" + str(outfile_count) + ".simc")
-        dump_profiles_to_file(outfile, bestprofiles)
+        _dump_profiles_to_file(outfile, bestprofiles)
         outfile_count += 1
 
     logging.info(_("Got {} best profiles written to {} files..").format(num_profiles, outfile_count))

@@ -1,13 +1,17 @@
 import sys
 import warnings
 
+_item_acronyms = {154172: "Aman",
+                  }
+
 
 def getAcronymForID(item_id):
+    if item_id in _item_acronyms:
+        return _item_acronyms[item_id]
     # TODO: convert this to a big dict and remove all these elif ;)
-    # shared
-    if item_id == "154172":
-        return "Aman"
-    elif item_id == "133976":
+    # Please add new entries to _item_acronyms above!
+    item_id = str(item_id)
+    if item_id == "133976":
         return "Cind"
     elif item_id == "137015":
         return "Eko"
