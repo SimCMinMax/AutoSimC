@@ -151,8 +151,8 @@ def _generateCommand(file, global_option_file, outputs):
     """Generate command line arguments to invoke SimulationCraft"""
     cmd = []
     cmd.append(os.path.normpath(settings.simc_path))
-    cmd.append(global_option_file)
-    cmd.append(file)
+    cmd.append("input={}".format(global_option_file))
+    cmd.append("input={}".format(file))
     for output in outputs:
         cmd.append(output)
     return cmd
