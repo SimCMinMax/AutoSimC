@@ -333,7 +333,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     start = datetime.datetime.now()
     metric = settings.select_by_metric
     logging.info("Selecting by metric: '{}'.".format(metric))
-    metric_regex = re.compile("\s*{metric}: (\d+\.\d+)  {metric}-error=(\d+\.\d+)/(\d+\.\d+)%".format(metric=metric), re.IGNORECASE)
+    metric_regex = re.compile("\s*{metric}=(\d+\.\d+) {metric}-error=(\d+\.\d+)/(\d+\.\d+)%".format(metric=metric), re.IGNORECASE)
     for file in files:
         if os.stat(file).st_size <= 0:
             raise RuntimeError("Error: result file '{}' is empty, exiting.".format(file))
