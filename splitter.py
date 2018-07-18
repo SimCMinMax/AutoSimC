@@ -144,7 +144,7 @@ def _generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, p
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
     logging.info("Commandline: {}".format(cmd))
     with open(output_file, "w") as f:
-        f.write(" ".join(cmd))
+        f.write("\n".join(cmd))
 
 
 def _generateCommand(file, global_option_file, outputs):
