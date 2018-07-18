@@ -109,7 +109,7 @@ def _prepare_fight_style(player_profile, cmd):
             for entry in player_profile.fightstyle:
                 if entry.startswith("line"):
                     file.write(player_profile.fightstyle[entry]+"\n")
-            cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
+            cmd.append('input=\"{}\"'.format(os.path.join(os.getcwd(), settings.additional_input_file)))
     return cmd
 
 
