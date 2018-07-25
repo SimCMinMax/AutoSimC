@@ -945,15 +945,20 @@ class Item:
             name, value = s.split("=")
             name = name.lower()
             if name == "id":
-                self.item_id = int(value)
+                if len(value):
+                    self.item_id = int(value)
             elif name == "bonus_id":
-                self.bonus_ids = [int(v) for v in value.split("/")]
+                if len(value):
+                    self.bonus_ids = [int(v) for v in value.split("/")]
             elif name == "enchant_id":
-                self.enchant_ids = [int(v) for v in value.split("/")]
+                if len(value):
+                    self.enchant_ids = [int(v) for v in value.split("/")]
             elif name == "gem_id":
-                self.gem_ids = [int(v) for v in value.split("/")]
+                if len(value):
+                    self.gem_ids = [int(v) for v in value.split("/")]
             elif name == "relic_id":
-                self.relic_ids = [v for v in value.split("/")]
+                if len(value):
+                    self.relic_ids = [v for v in value.split("/")]
             else:
                 if name not in self.extra_options:
                     self.extra_options[name] = []
