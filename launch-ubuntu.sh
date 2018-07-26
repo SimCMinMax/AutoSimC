@@ -67,6 +67,16 @@ download_and_compile_simc_zip() {
   mv temp $auto_simc_pwd/settings_local.py # use a local settings file so we don't have to overwrite the original.
 }
 
+check_dependency_fedora() {
+	for dep in openssl-devel autoconf automake binutils bison flex gcc gcc-c++ gdb glibc-devel libtool make pkgconfig strace; do
+		rpm -q ${dep} > /dev/null
+		echo Checking Dependency ${dep}
+		if [ $? -ne 0 ] ; then
+			yum install -y ${dep}
+		fi
+	done
+}
+
 prompt() {
   prompt=""
   while [[ $prompt != Y ]]; do
@@ -77,7 +87,12 @@ prompt() {
 
     case $prompt in
       Y)
-        check_dependency
+		cat /etc/redhat-release | grep Fedora > /dev/null
+		if [ $? -eq 0 ] ; then
+			check_dependency_fedora
+		else
+			check_dependency
+		fi
         download_and_compile_simc_zip
         ;;
       N)
