@@ -69,8 +69,8 @@ download_and_compile_simc_zip() {
 
 check_dependency_fedora() {
 	for dep in openssl-devel autoconf automake binutils bison flex gcc gcc-c++ gdb glibc-devel libtool make pkgconfig strace; do
-		rpm -q ${dep} > /dev/null
 		echo Checking Dependency ${dep}
+		rpm -q ${dep} > /dev/null
 		if [ $? -ne 0 ] ; then
 			yum install -y ${dep}
 		fi
