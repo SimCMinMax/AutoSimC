@@ -34,14 +34,6 @@ class settings():
     # standard error file
     errorFileName = "error.txt"
 
-    # Minimal/Maximal amount of legendaries for a profile combination to be valid.
-    # If min=max=2, it never simulates combinations with fewer legendaries, therefore rapidly decreasing the total
-    # amount of valid combinations
-    # You can override these settings via command-line (-min_leg and -max_leg), as described in the Readme.
-    # Enter max=3 only if you want to include the new Amanthul-Trinket
-    default_leg_min = 2
-    default_leg_max = 3
-
     # set the amount of tier-items you want to include in your output
     # this reduces the number of permutations generated if you know what you want to sim
     # if you have no clue which items do what (= sim every combination), set all txx_min to 0 and txx_max to 6

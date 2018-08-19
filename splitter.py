@@ -109,7 +109,7 @@ def _prepare_fight_style(player_profile, cmd):
             for entry in player_profile.fightstyle:
                 if entry.startswith("line"):
                     file.write(player_profile.fightstyle[entry]+"\n")
-            cmd.append('input=\"{}\"'.format(os.path.join(os.getcwd(), settings.additional_input_file)))
+            cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
     return cmd
 
 
@@ -144,7 +144,7 @@ def _generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, p
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
     logging.info("Commandline: {}".format(cmd))
     with open(output_file, "w") as f:
-        f.write("\n".join(cmd))
+        f.write(" ".join(cmd))
 
 
 def _generateCommand(file, global_option_file, outputs):
@@ -333,7 +333,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     start = datetime.datetime.now()
     metric = settings.select_by_metric
     logging.info("Selecting by metric: '{}'.".format(metric))
-    metric_regex = re.compile("\s*{metric}=(\d+\.\d+) {metric}-error=(\d+\.\d+)/(\d+\.\d+)%".format(metric=metric), re.IGNORECASE)
+    metric_regex = re.compile("\s*{metric}=(\d+\.\d+) {metric}-Error=(\d+\.\d+)/(\d+\.\d+)%".format(metric=metric), re.IGNORECASE)
     for file in files:
         if os.stat(file).st_size <= 0:
             raise RuntimeError("Error: result file '{}' is empty, exiting.".format(file))

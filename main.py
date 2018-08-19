@@ -16,6 +16,7 @@ import copy
 import subprocess
 import hashlib
 import re
+from urllib.error import URLError
 from urllib.request import urlopen, urlretrieve
 import platform
 import locale
@@ -28,7 +29,7 @@ except ImportError:
 import specdata
 import splitter
 
-__version__ = "7.3.5"
+__version__ = "8.0.1a"
 
 import gettext
 gettext.install('AutoSimC')
@@ -121,37 +122,6 @@ def stable_unique(seq):
     return [x for x in seq if not (x in seen or seen_add(x))]
 
 
-def add_legendary(legendary_split, gear_list):
-    """
-    Parse --legendaries arguments, create Items and add them to gear list for permutation.
-    """
-    logging.info(_("Adding legendary: {}").format(legendary_split))
-    try:
-        slot, item_id, *tail = legendary_split
-        bonus_id = tail[0] if len(tail) > 0 else None
-        enchant_id = tail[1] if len(tail) > 1 else None
-        gem_id = tail[2] if len(tail) > 2 else None
-
-        legendary_string = "L,id={}".format(item_id)
-        if bonus_id:
-            legendary_string += ",bonus_id={}".format(bonus_id)
-        if enchant_id:
-            legendary_string += ",enchant_id={}".format(enchant_id)
-        if gem_id:
-            legendary_string += ",gem_id={}".format(gem_id)
-
-        logging.debug(_("Legendary string: {}").format(legendary_string))
-        if slot in gear_list.keys():
-            gear_list[slot].append(Item(slot, legendary_string))
-            logging.info(_("Added legendary '{}' to {}.").format(legendary_string,
-                                                                 slot))
-        else:
-            raise ValueError(_("Invalid legendary gear slot '{}' not in {}").format(slot,
-                                                                                    list(gear_list.keys())))
-    except Exception as e:
-        raise Exception(_("Could not add legendary: {}").format(e)) from e
-
-
 def build_gem_list(gem_lists):
     """Build list of unique gem ids from --gems argument"""
     sorted_gem_list = []
@@ -169,10 +139,6 @@ def build_gem_list(gem_lists):
         sorted_gem_list += gems
     logging.debug("Parsed gem list to permutate: {}".format(sorted_gem_list))
     return sorted_gem_list
-
-
-# Antorus trinket item ids
-antorusTrinkets = {154172, 154173, 154174, 154175, 154176, 154177}
 
 
 def str2bool(v):
@@ -258,26 +224,6 @@ def parse_command_line_args():
                                'when enabling this.'
                                '- additonally you can specify a empty list of gems, which will permutate the existing gems'
                                'in your input gear.').format(list(gem_ids.keys())))
-
-    parser.add_argument('-l', _('--legendaries'),
-                        dest="legendaries",
-                        required=False,
-                        help=_('List of legendaries to add to the template. Format:\n'
-                               '"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,..."'))
-
-    parser.add_argument('-min_leg', _('--legendary_min'),
-                        dest="legendary_min",
-                        default=settings.default_leg_min,
-                        type=int,
-                        required=False,
-                        help=_('Minimum number of legendaries in the permutations.'))
-
-    parser.add_argument('-max_leg', _('--legendary_max'),
-                        dest="legendary_max",
-                        default=settings.default_leg_max,
-                        type=int,
-                        required=False,
-                        help=_('Maximum number of legendaries in the permutations.'))
 
     parser.add_argument('-unique_jewelry', _('--unique_jewelry'),
                         dest='unique_jewelry',
@@ -509,18 +455,6 @@ def validateSettings(args):
             raise RuntimeError(_("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.").
                                format(analyzer_path))
 
-    # validate amount of legendaries
-    if args.legendary_min > args.legendary_max:
-        raise ValueError(_("Legendary min '{}' > legendary max '{}'").format(args.legendary_min, args.legendary_max))
-    if args.legendary_max > 3:
-        raise ValueError(_("Legendary Max '{}' too large (>3).").format(args.legendary_max))
-    if args.legendary_min > 3:
-        raise ValueError(_("Legendary Min '{}' too large (>3).").format(args.legendary_min))
-    if args.legendary_min < 0:
-        raise ValueError(_("Legendary Min '{}' is negative.").format(args.legendary_min))
-    if args.legendary_max < 0:
-        raise ValueError(_("Legendary Max '{}' is negative.").format(args.legendary_max))
-
     # validate tier-set
     min_tier_sets = 0
     max_tier_sets = 6
@@ -698,15 +632,11 @@ class PermutationData:
     def update_talents(self, talents):
         self.talents = talents
 
-    def count_leg_and_tier(self):
-        self.legendaries = []
+    def count_tier(self):
         self.t19 = 0
         self.t20 = 0
         self.t21 = 0
         for item in self.items.values():
-            if item.is_legendary:
-                self.legendaries.append(item)
-                continue
             if item.tier_19:
                 self.t19 += 1
             elif item.tier_20:
@@ -715,21 +645,11 @@ class PermutationData:
                 self.t21 += 1
 
     def check_usable_before_talents(self):
-        self.count_leg_and_tier()
-        """Check if profile is un-usable. Return None if ok, otherwise return reason"""
-        if len(self.legendaries) < self.profile.args.legendary_min:
-            return "too few legendaries {} < {}".format(len(self.legendaries), self.profile.args.legendary_min)
-        if len(self.legendaries) > self.profile.args.legendary_max:
-            return "too many legendaries"
+        self.count_tier()
 
         trinket1itemID = self.items["trinket1"].item_id
         trinket2itemID = self.items["trinket2"].item_id
 
-        # check if amanthuls-trinket is the 3rd trinket; otherwise its an invalid profile
-        # because 3 other legs have been equipped
-        if len(self.legendaries) == 3:
-            if not trinket1itemID == 154172 and not trinket2itemID == 154172:
-                return " 3 legs equipped, but no Amanthul-Trinket found"
 
         if self.t19 < t19min:
             return "too few tier 19 items"
@@ -748,17 +668,9 @@ class PermutationData:
 
     def get_profile_name(self, valid_profile_number):
         # namingdata contains info for the profile-name
-        namingData = {"Leg0": "None",
-                      "Leg1": "None",
-                      "Leg2": "None",
-                      "T19": "",
+        namingData = {"T19": "",
                       "T20": "",
                       "T21": ""}
-        # if a valid profile was detected, fill namingData; otherwise its pointless
-        for i in range(1, 4):
-            if len(self.legendaries) == i:
-                for j in range(i):
-                    namingData['Leg' + str(j)] = specdata.getAcronymForID(self.legendaries[j].item_id)
 
         for tier in (19, 20, 21):
             count = getattr(self, "t" + str(tier))
@@ -771,12 +683,7 @@ class PermutationData:
                     pieces = 4
                     namingData[tiername] = "_{}_{}p".format(tiername, pieces)
 
-        # example: "Uther_Soul_T19-2p_T20-2p_T21-2p"
-        # scpout later adds a increment for multiple versions of this
-        template = "{Leg0}_{Leg1}_{Leg2}{T19}{T20}{T21}_". \
-            format(**namingData)
-
-        return template + str(valid_profile_number).rjust(self.max_profile_chars, "0")
+        return str(valid_profile_number).rjust(self.max_profile_chars, "0")
 
     def get_profile(self):
         items = []
@@ -887,10 +794,6 @@ class Item:
         self.relic_ids = []
         self.tier_set = {}
         self.extra_options = {}
-        self.is_legendary = False
-        if self.name.startswith("L"):
-            self.is_legendary = True
-            self.name = self.name[1:]
 
         for tier in self.tiers:
             n = "T{}".format(tier)
@@ -925,9 +828,6 @@ class Item:
     def parse_input(self, input_string):
         parts = input_string.split(",")
         self.name = parts[0]
-        if self.name.startswith("L"):
-            self.is_legendary = True
-            self.name = self.name[1:]
 
         for tier in self.tiers:
             n = "T{}".format(tier)
@@ -945,20 +845,15 @@ class Item:
             name, value = s.split("=")
             name = name.lower()
             if name == "id":
-                if len(value):
-                    self.item_id = int(value)
+                self.item_id = int(value)
             elif name == "bonus_id":
-                if len(value):
-                    self.bonus_ids = [int(v) for v in value.split("/")]
+                self.bonus_ids = [int(v) for v in value.split("/")]
             elif name == "enchant_id":
-                if len(value):
-                    self.enchant_ids = [int(v) for v in value.split("/")]
+                self.enchant_ids = [int(v) for v in value.split("/")]
             elif name == "gem_id":
-                if len(value):
-                    self.gem_ids = [int(v) for v in value.split("/")]
+                self.gem_ids = [int(v) for v in value.split("/")]
             elif name == "relic_id":
-                if len(value):
-                    self.relic_ids = [v for v in value.split("/")]
+                self.relic_ids = [v for v in value.split("/")]
             else:
                 if name not in self.extra_options:
                     self.extra_options[name] = []
@@ -1024,7 +919,6 @@ def permutate(args, player_profile):
                   ("wrists", "wrist"),
                   ("hands",),
                   ("waist",),
-                  ("legs",),
                   ("feet",),
                   ("finger", "finger1", "finger2"),
                   ("trinket", "trinket1", "trinket2",),
@@ -1045,23 +939,14 @@ def permutate(args, player_profile):
             # We havent found any items for that slot, add empty dummy item
             parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
 
-    logging.debug(_("Parsed gear before legendaries: {}").format(parsed_gear))
+    logging.debug(_("Parsed gear: {}").format(parsed_gear))
 
     if args.gems is not None:
         splitted_gems = build_gem_list(args.gems)
 
-    # Filter each slot to only have unique items, before doing any gem/legendary permutation.
+    # Filter each slot to only have unique items, before doing any gem permutation.
     for key, value in parsed_gear.items():
         parsed_gear[key] = stable_unique(value)
-
-    # Add legendaries
-    if args.legendaries is not None:
-        for legendary in args.legendaries.split(','):
-            add_legendary(legendary.split("/"), parsed_gear)
-
-    logging.info(_("Parsed gear including legendaries:"))
-    for slot, item in parsed_gear.items():
-        logging.info("{:10s}: {}".format(slot, item))
 
     # This represents a dict of all options which will be permutated fully with itertools.product
     normal_permutation_options = collections.OrderedDict({})
@@ -1144,12 +1029,6 @@ def permutate(args, player_profile):
 
     # Exclude antorus trinkets
     p_trinkets = special_permutations["trinket"][2]
-    p_trinkets = [p for p in p_trinkets if p[0].item_id not in antorusTrinkets or p[1].item_id not in antorusTrinkets]
-    special_permutations["trinket"][2] = p_trinkets
-    logging.info(_("Got {num} permutations for trinkets after Antorus filter.").
-                 format(num=len(special_permutations["trinket"][2])))
-    for p in special_permutations["trinket"][2]:
-        logging.debug(p)
 
     # Calculate & Display number of permutations
     max_nperm = 1
