@@ -26,8 +26,7 @@ Python (>=3.5) is required for this to work.
 ## Command Line Interface
     python main.py [-h] [-i INPUTFILE] [-o OUTPUTFILE]
 						[-sim {permutate_only,all,stage1,stage2,stage3,stage4,stage5}]
-						[--stages STAGES] [-gems [GEMS [GEMS ...]]] [-l LEGENDARIES]
-						[-min_leg LEGENDARY_MIN] [-max_leg LEGENDARY_MAX]
+						[--stages STAGES] [-gems [GEMS [GEMS ...]]]
 						[--unique_jewelry UNIQUE_JEWELRY] [--debug] [-quiet]
 						[--version]
 
@@ -75,12 +74,12 @@ Python (>=3.5) is required for this to work.
 								Enables permutation of gem-combinations in your gear.
 								With e.g. gems crit,haste,int you can add all
 								combinations of the corresponding gems (epic gems:
-								200, rare: 150, uncommon greens are not supported) in
+								40, rare: 40, green: 30) in
 								addition to the ones you have currently equipped.
-								Valid gems: ['150haste', '200haste', 'haste',
-								'150crit', '200crit', 'crit', '150vers', '200vers',
-								'vers', '150mast', '200mast', 'mast', '200str', 'str',
-								'200agi', 'agi', '200int', 'int']- Example: You have
+								Valid gems: ['30haste', '40haste', 'haste',
+								'30crit', '40crit', 'crit', '30vers', '40vers',
+								'vers', '30mast', '40mast', 'mast', '40str', 'str',
+								'40agi', 'agi', '40int', 'int']- Example: You have
 								equipped 1 int and 2 mastery-gems. If you enter <-gems
 								"crit,haste,int"> (without <>) into the commandline,
 								the permutation process uses the single int- and
@@ -99,16 +98,6 @@ Python (>=3.5) is required for this to work.
 								you can specify a empty list of gems, which will
 								permutate the existing gemsin your input gear.
 								(default: None)
-		  -l LEGENDARIES, --legendaries LEGENDARIES
-								List of legendaries to add to the template. Format: "l
-								eg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2
-								,..." (default: None)
-		  -min_leg LEGENDARY_MIN, --legendary_min LEGENDARY_MIN
-								Minimum number of legendaries in the permutations.
-								(default: 2)
-		  -max_leg LEGENDARY_MAX, --legendary_max LEGENDARY_MAX
-								Maximum number of legendaries in the permutations.
-								(default: 3)
 		  --unique_jewelry UNIQUE_JEWELRY
 								Assume ring and trinkets are unique-equipped, and only
 								a single item id can be equipped. (default: true)
@@ -134,10 +123,6 @@ To specify Tier set and item names, use the following syntax:
 
     neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
 
-To specify a legendary, use the following syntax:
-
-    waist=L--Mangazas_Madness,id=132864,bonus_id=1811/3630
-
 (item name is not necessary)
 
 You can also use [SimPermut](#simpermut-complementarity) to generate the string directly with the gear you have equipped and in your bag.
@@ -155,7 +140,7 @@ For talent permutation, just replace the talent row your want to permutate (tale
 
 ## settings.py
 You can/have to finetune your settings in the settings.py file:
-- set min/max amount of tier-items and legendaries
+- set min/max amount of tier-items
 - default number of iterations or target_error for each stage
 - change default for type of fight (patchwerk, LightMovement etc.)
 - and several more
@@ -241,6 +226,9 @@ AutoSimC has experimental support for localization/translation using the [gettex
 - In settings.py there is a option *localization_language* to control the language to which AutoSimC is translated. Default is "auto", selecting the language based on your system setting.
 
 ## Changelog
+
+- 8.0.1:
+ - Support for BfA
 
 - 7.3.2a:
   - Autosimc seems to be stable, therefore bumping version to match compatibility with the current WoW-Patch.

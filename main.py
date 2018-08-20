@@ -86,24 +86,24 @@ t20max = int(settings.default_equip_t20_max)
 t21min = int(settings.default_equip_t21_min)
 t21max = int(settings.default_equip_t21_max)
 
-gem_ids = {"150haste": 130220,
-           "200haste": 151583,
-           "haste": 151583,  # always contains maximum quality
-           "150crit": 130219,
-           "200crit": 151580,
-           "crit": 151580,  # always contains maximum quality
-           "150vers": 130221,
-           "200vers": 151585,
-           "vers": 151585,  # always contains maximum quality
-           "150mast": 130222,
-           "200mast": 151584,
-           "mast": 151584,  # always contains maximum quality
-           "200str": 130246,
-           "str": 130246,
-           "200agi": 130247,
-           "agi": 130247,
-           "200int": 130248,
-           "int": 130248,
+gem_ids = {"30haste": 153711,
+           "40haste": 154127,
+           "haste": 154127,  # always contains available maximum quality
+           "30crit": 153710,
+           "40crit": 154126,
+           "crit": 154126,  # always contains available maximum quality
+           "30vers": 153712,
+           "40vers": 154128,
+           "vers": 154128,  # always contains available maximum quality
+           "30mast": 153713,
+           "40mast": 154129,
+           "mast": 154129,  # always contains available maximum quality
+           "40str": 153707,
+           "str": 153707,
+           "40agi": 153708,
+           "agi": 153708,
+           "40int": 153709,
+           "int": 153709,
            }
 
 # Global logger instance
@@ -646,10 +646,6 @@ class PermutationData:
 
     def check_usable_before_talents(self):
         self.count_tier()
-
-        trinket1itemID = self.items["trinket1"].item_id
-        trinket2itemID = self.items["trinket2"].item_id
-
 
         if self.t19 < t19min:
             return "too few tier 19 items"
