@@ -915,6 +915,7 @@ def permutate(args, player_profile):
                   ("wrists", "wrist"),
                   ("hands",),
                   ("waist",),
+                  ("legs",),
                   ("feet",),
                   ("finger", "finger1", "finger2"),
                   ("trinket", "trinket1", "trinket2",),
