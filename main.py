@@ -22,6 +22,7 @@ import platform
 import locale
 
 from settings import settings
+
 try:
     from settings_local import settings
 except ImportError:
@@ -32,12 +33,30 @@ import splitter
 __version__ = "8.0.1a"
 
 import gettext
+
 gettext.install('AutoSimC')
 translator = gettext.translation('AutoSimC', fallback=True)
+
+# Items to parse. First entry is the "correct" name
+gear_slots = [("head",),
+              ("neck",),
+              ("shoulder", "shoulders"),
+              ("back",),
+              ("chest",),
+              ("wrist", "wrists"),
+              ("hands",),
+              ("waist",),
+              ("legs",),
+              ("feet",),
+              ("finger", "finger1", "finger2"),
+              ("trinket", "trinket1", "trinket2",),
+              ("main_hand",),
+              ("off_hand",)]
 
 
 class TranslatedText(str):
     """Represents a translatable text string, while also keeping a reference to the original (englisch) string"""
+
     def __new__(cls, message, translate=True):
         if translate:
             return super(TranslatedText, cls).__new__(cls, translator.gettext(message))
@@ -697,29 +716,7 @@ class PermutationData:
         filehandler.write("\n\n")
 
 
-def build_profile(args):
-    # Read input.txt to init vars
-    config = configparser.ConfigParser()
-
-    # use read_file to get a error when input file is not available
-
-    input_encoding = 'utf-8'
-    try:
-        with open(args.inputfile, encoding=input_encoding) as f:
-            config.read_file(f)
-    except UnicodeDecodeError as e:
-        raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
-Please make sure that your text editor encodes the file as '{enc}',
-or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
-                                                                                    enc=input_encoding)) from e
-
-    profile = config['Profile']
-
-    if 'class' in profile:
-        raise RuntimeError("You input class format is wrong, please update SimPermut or your input file.")
-
-    # Read input.txt
-    #   Profile
+def build_profile_simc_addon(args):
     valid_classes = ["priest",
                      "druid",
                      "warrior",
@@ -733,39 +730,83 @@ or as a quick fix remove any special characters from your character name.""".for
                      "shaman",
                      "warlock",
                      ]
-    for wow_class in valid_classes:
-        if config.has_option('Profile', wow_class):
-            c_class = wow_class
-            c_profilename = profile[wow_class]
-            break
-    else:
-        raise RuntimeError("No valid wow class found in Profile section of input file. Valid classes are: {}".
-                           format(valid_classes))
-    player_profile = Profile()
-    player_profile.args = args
-    player_profile.config = config
-    player_profile.simc_options = {}
-    player_profile.wow_class = c_class
-    player_profile.profile_name = c_profilename
-
     # Parse general profile options
     simc_profile_options = ["race",
                             "level",
+                            "server",
+                            "region",
                             "spec",
                             "role",
+                            "talents",
                             "position",
-                            "artifact",
-                            "crucible",
                             "potion",
                             "flask",
                             "food",
                             "augmentation"]
-    for opt in simc_profile_options:
-        if opt in profile:
-            player_profile.simc_options[opt] = profile[opt].strip("\"")
 
-    player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
-    player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
+    # will contain any gear in file for each slot, divided by |
+    gear = {}
+    for slot in gear_slots:
+        gear[slot[0]] = []
+    gearInBags = {}
+    for slot in gear_slots:
+        gearInBags[slot[0]] = []
+
+    # no sections available, so parse each line individually
+    input_encoding = 'utf-8'
+    c_class = ""
+    try:
+        with open(args.inputfile, "r", encoding=input_encoding) as f:
+            player_profile = Profile()
+            player_profile.args = args
+            player_profile.simc_options = {}
+            for line in f:
+                if line == "\n":
+                    continue
+                if line.startswith("#"):
+                    if line.startswith("# SimC Addon") or line.startswith(
+                            "# 8.0 Note:") or line == "" or line == "\n":
+                        continue
+                    else:
+                        # gear-in-bag handling
+                        splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
+                        for gearslot in gear_slots:
+                            if splittedLine[0].replace("\n", "") == gearslot[0]:
+                                gearInBags[splittedLine[0].replace("\n", "")].append(
+                                    splittedLine[1].replace("\n", "").lstrip().rstrip())
+                            # trinket and finger-handling
+                            trinketOrRing = splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")
+                            if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[
+                                0]:
+                                gearInBags[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
+                                    splittedLine[1].lstrip().rstrip())
+                else:
+                    splittedLine = line.split("=", 1)
+                    if splittedLine[0].replace("\n", "") in valid_classes:
+                        c_class = splittedLine[0].replace("\n", "").lstrip().rstrip()
+                        player_profile.wow_class = c_class
+                        player_profile.profile_name = splittedLine[1].replace("\n", "").lstrip().rstrip()
+                    if splittedLine[0].replace("\n", "") in simc_profile_options:
+                        player_profile.simc_options[splittedLine[0].replace("\n", "")] = splittedLine[1].replace("\n",
+                                                                                                                 "").lstrip().rstrip()
+                    for gearslot in gear_slots:
+                        if splittedLine[0].replace("\n", "") == gearslot[0]:
+                            gear[splittedLine[0].replace("\n", "")].append(
+                                splittedLine[1].replace("\n", "").lstrip().rstrip())
+                        # trinket and finger-handling
+                        trinketOrRing = splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")
+                        if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[0]:
+                            gear[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
+                                splittedLine[1].lstrip().rstrip())
+
+    except UnicodeDecodeError as e:
+        raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
+        Please make sure that your text editor encodes the file as '{enc}',
+        or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
+                                                                                            enc=input_encoding)) from e
+    if c_class != "":
+        player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
+        player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
 
     # Build 'general' profile options which do not permutate once into a simc-string
     logging.info("SimC options: {}".format(player_profile.simc_options))
@@ -773,8 +814,11 @@ or as a quick fix remove any special characters from your character name.""".for
                                                 player_profile.simc_options.items()])
     logging.debug("Built simc general options string: {}".format(player_profile.general_options))
 
-    return player_profile
+    # Parse gear
+    player_profile.simc_options["gear"] = gear
+    player_profile.simc_options["gearInBag"] = gearInBags
 
+    return player_profile
 
 class Item:
     """WoW Item"""
@@ -906,25 +950,21 @@ def product(*iterables):
 def permutate(args, player_profile):
     print(_("Combinations in progress..."))
 
-    # Items to parse. First entry is the "correct" name
-    gear_slots = [("head",),
-                  ("neck",),
-                  ("shoulders", "shoulder"),
-                  ("back",),
-                  ("chest",),
-                  ("wrists", "wrist"),
-                  ("hands",),
-                  ("waist",),
-                  ("legs",),
-                  ("feet",),
-                  ("finger", "finger1", "finger2"),
-                  ("trinket", "trinket1", "trinket2",),
-                  ("main_hand",),
-                  ("off_hand",)]
-
-    # Parse gear
-    gear = player_profile.config['Gear']
     parsed_gear = collections.OrderedDict({})
+
+    gear = player_profile.simc_options.get('gear')
+    gearInBags = player_profile.simc_options.get('gearInBag')
+
+    # concatenate gear in bags to normal gear-list
+    for b in gearInBags:
+        if b in gear:
+            currentGear = gear[b][0]
+            if b == "finger" or b == "trinket":
+                currentGear = currentGear + "|" + gear[b][1]
+            for foundGear in gearInBags.get(b):
+                currentGear = currentGear + "|" + foundGear
+            gear[b] = currentGear
+
     for gear_slot in gear_slots:
         slot_base_name = gear_slot[0]  # First mentioned "correct" item name
         parsed_gear[slot_base_name] = []
@@ -949,7 +989,8 @@ def permutate(args, player_profile):
     normal_permutation_options = collections.OrderedDict({})
 
     # Add talents to permutations
-    l_talents = player_profile.config['Profile'].get("talents", "")
+    # l_talents = player_profile.config['Profile'].get("talents", "")
+    l_talents = player_profile.simc_options.get("talents")
     talent_permutations = permutate_talents(l_talents)
 
     # Calculate max number of gem slots in equip. Will be used if we do gem permutations.
@@ -1023,9 +1064,6 @@ def permutate(args, player_profile):
 
         entry_dict = {v: None for v in values}
         special_permutations[name] = [name, entry_dict, permutations]
-
-    # Exclude antorus trinkets
-    p_trinkets = special_permutations["trinket"][2]
 
     # Calculate & Display number of permutations
     max_nperm = 1
@@ -1181,11 +1219,11 @@ def check_profiles(stage):
 
 
 def prepare_profiles(player_profile, stage):
-#     profiles_valid = check_profiles(stage)
-#     if profiles_valid:
-#         logging.info(_("Got {} existing profiles to simulate for stage {}.")
-#                      .format(profiles_valid, stage))
-#         return None
+    #     profiles_valid = check_profiles(stage)
+    #     if profiles_valid:
+    #         logging.info(_("Got {} existing profiles to simulate for stage {}.")
+    #                      .format(profiles_valid, stage))
+    #         return None
     return grab_profiles(player_profile, stage)
 
 
@@ -1244,8 +1282,9 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     # If we do not have a target_error in settings, get target_error from user input
     if target_error is None:
         if settings.skip_questions:
-            raise ValueError(_("Cannot run dynamic mode and skip questions without default target_error set for stage {}.")
-                             .format(stage))
+            raise ValueError(
+                _("Cannot run dynamic mode and skip questions without default target_error set for stage {}.")
+                    .format(stage))
         else:
             calc_choice = input(_("Please enter the type of calculation to perform (q to quit): "))
             if calc_choice == "q":
@@ -1314,9 +1353,11 @@ def start_stage(player_profile, num_generated_profiles, stage):
     print(_("1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})").
           format(num_iterations=settings.default_iterations))
     print(_("   It is however faster if simulating huge amounts of profiles"))
-    print(_("2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."))
-    print(_("   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}")
-          .format(settings.default_target_error))
+    print(_(
+        "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."))
+    print(
+        _("   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}")
+            .format(settings.default_target_error))
     if settings.skip_questions:
         mode_choice = int(settings.auto_choose_static_or_dynamic)
     else:
@@ -1349,9 +1390,9 @@ def check_interpreter():
         if minor >= required_minor:
             return
     raise RuntimeError(_("Python-Version too old! You are running Python {}. Please install at least "
-                       "Python-Version {}.{}.x").format(sys.version,
-                                                        required_major,
-                                                        required_minor))
+                         "Python-Version {}.{}.x").format(sys.version,
+                                                          required_major,
+                                                          required_minor))
 
 
 def addFightStyle(profile):
@@ -1407,6 +1448,7 @@ def addFightStyle(profile):
 
 class UntranslatedFileHandler(logging.FileHandler):
     """File Handler which logs messages untranslated"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
@@ -1463,11 +1505,11 @@ def main():
                 ondisc = determineSimcVersionOnDisc();
                 if latest != ondisc:
                     logging.info(_("A newer SimCraft-version might be available for download! Version: {}").
-                                    format(filename))
+                                 format(filename))
         autoDownloadSimc()
     validateSettings(args)
 
-    player_profile = build_profile(args)
+    player_profile = build_profile_simc_addon(args)
 
     # can always be rerun since it is now deterministic
     outputGenerated = False
@@ -1478,7 +1520,8 @@ def main():
         logging.info(_("Permutating took {}.").format(datetime.datetime.now() - start))
         outputGenerated = True
     elif args.sim == "stage1":
-        if input(_("Do you want to generate {outfile} again? Press y to regenerate: ").format(outfile=args.outputfile)) == "y":
+        if input(_("Do you want to generate {outfile} again? Press y to regenerate: ").format(
+                outfile=args.outputfile)) == "y":
             num_generated_profiles = permutate(args, player_profile)
             outputGenerated = True
 
@@ -1490,8 +1533,9 @@ def main():
         if args.sim:
             if not settings.skip_questions:
                 if num_generated_profiles and num_generated_profiles > 50000:
-                    if input(_("Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
-                               "(Press Enter to continue, q to quit)")) == "q":
+                    if input(_(
+                            "Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!"
+                            "(Press Enter to continue, q to quit)")) == "q":
                         logging.info(_("Program exit by user"))
                         sys.exit(0)
 
