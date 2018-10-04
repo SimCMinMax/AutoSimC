@@ -764,6 +764,9 @@ def build_profile_simc_addon(args):
                 if line == "\n":
                     continue
                 if line.startswith("#"):
+                    if line.startswith("# bfa.reorigination_array_stacks"):
+                        splitted = line.split("=", 1)[1].rstrip().lstrip()
+                        player_profile.simc_options["bfa.reorigination_array_stacks"] = splitted
                     if line.startswith("# SimC Addon") or line.startswith(
                             "# 8.0 Note:") or line == "" or line == "\n":
                         continue
@@ -972,7 +975,7 @@ def permutate(args, player_profile):
         parsed_gear[slot_base_name] = []
         for entry in gear_slot:
             if entry in gear:
-                if len(gear[entry]) >0:
+                if len(gear[entry]) > 0:
                     for s in gear[entry].split("|"):
                         parsed_gear[slot_base_name].append(Item(slot_base_name, s))
         if len(parsed_gear[slot_base_name]) == 0:
