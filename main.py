@@ -820,6 +820,7 @@ def build_profile_simc_addon(args):
 
     return player_profile
 
+
 class Item:
     """WoW Item"""
     tiers = [19, 20, 21]
@@ -958,20 +959,22 @@ def permutate(args, player_profile):
     # concatenate gear in bags to normal gear-list
     for b in gearInBags:
         if b in gear:
-            currentGear = gear[b][0]
-            if b == "finger" or b == "trinket":
-                currentGear = currentGear + "|" + gear[b][1]
-            for foundGear in gearInBags.get(b):
-                currentGear = currentGear + "|" + foundGear
-            gear[b] = currentGear
+            if len(gear[b]) > 0:
+                currentGear = gear[b][0]
+                if b == "finger" or b == "trinket":
+                    currentGear = currentGear + "|" + gear[b][1]
+                for foundGear in gearInBags.get(b):
+                    currentGear = currentGear + "|" + foundGear
+                gear[b] = currentGear
 
     for gear_slot in gear_slots:
         slot_base_name = gear_slot[0]  # First mentioned "correct" item name
         parsed_gear[slot_base_name] = []
         for entry in gear_slot:
             if entry in gear:
-                for s in gear[entry].split("|"):
-                    parsed_gear[slot_base_name].append(Item(slot_base_name, s))
+                if len(gear[entry]) >0:
+                    for s in gear[entry].split("|"):
+                        parsed_gear[slot_base_name].append(Item(slot_base_name, s))
         if len(parsed_gear[slot_base_name]) == 0:
             # We havent found any items for that slot, add empty dummy item
             parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
