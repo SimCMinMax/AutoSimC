@@ -5,7 +5,6 @@ Python script to create multiple profiles for SimulationCraft to find Best-in-Sl
 
 Don't hesitate to go on the [SimcMinMax](https://discordapp.com/invite/tFR2uvK) Discord in the #simpermut-autosimc Channel to ask about specific stuff.
 
-
 ## How does it work ?
 AutoSimC works in two parts:
 1. Generating Permutations: Given a input.txt file and certain settings, an output .simc file is generated containing all possible permutations specified, filtered down to "valid profiles" fullfilling certain requirements. This output file can then be run with SimulationCraft.
@@ -90,7 +89,6 @@ Python (>=3.5) is required for this to work.
 								that.
 								- Gems have to fulfil the following syntax in
 								your profile: gem_id=123456[[/234567]/345678]
-								Simpermut usually creates this for you.
 								- WARNING: If you have many items with sockets and/or
 								use a vast gem-combination-setup as command, the number
 								of combinations will go through the roof VERY quickly.
@@ -124,8 +122,6 @@ To specify Tier set and item names, use the following syntax:
     neck=T21--chain_of_the_unmaker,id=152283,enchant_id=5890
 
 (item name is not necessary)
-
-You can also use [SimPermut](#simpermut-complementarity) to generate the string directly with the gear you have equipped and in your bag.
 
 If you want to add rotations, stance or others advanced SimulationCraft feature, add them with the "other=" field :
 Example :
@@ -166,10 +162,6 @@ If you want to expand them, e.g. simulate two Patchwerks in cleave-range, simply
 If you want to expand already existing fights, e.g. Beastlord: Create a new Profile, remove the "command"-line and put into "line1":"fight_style=Beastlord". All lines after that can now contain your overrides etc.
 
 *WARNING*: Currently it is therefore NOT advised to touch additional_input.txt AT ALL. For now leave it empty and create a new profile with your custom commands.
-
-## SimPermut complementarity
-SimPermut ([On GitHub](https://github.com/Kutikuti/SimPermut)) allows you to extract a profile-set file to directly calculate the profiles with the items you have in your bags.
-Just copy the text you get in SimPermut and paste it in your input.txt file (erase what was already in it) and launch the script as described above.
 
 ## Known issues and developement plan
 - Bugfixing and expanding simulation-options
@@ -226,6 +218,9 @@ AutoSimC has experimental support for localization/translation using the [gettex
 - In settings.py there is a option *localization_language* to control the language to which AutoSimC is translated. Default is "auto", selecting the language based on your system setting.
 
 ## Changelog
+
+- 8.0.1a:
+ - removed Simpermut-import, now uses Simulationcraft-Addon [https://wow.curseforge.com/projects/simulationcraft]
 
 - 8.0.1:
  - Support for BfA
