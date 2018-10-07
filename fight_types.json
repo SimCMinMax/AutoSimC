@@ -5,6 +5,11 @@
     "description": "Tank-n-Spank"
   },
   {
+    "name": "Default_HeroDungeon",
+    "command": "HeroDungeon",
+    "description": "One Boss-add, 2 big adds, 5 small adds, without any buffs"
+  },
+  {
     "name": "Default_LightMovement",
     "command": "LightMovement",
     "description": "Fight with infrequent movement"
