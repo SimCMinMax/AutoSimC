@@ -709,7 +709,7 @@ class PermutationData:
 
     def write_to_file(self, filehandler, valid_profile_number):
         profile_name = self.get_profile_name(valid_profile_number)
-        filehandler.write("{}={}\n".format(self.profile.wow_class, profile_name))
+        filehandler.write("{}={}\n".format(self.profile.wow_class, str.replace(self.profile.profile_name, "\"","")+"_"+profile_name))
         filehandler.write(self.profile.general_options)
         filehandler.write("\ntalents={}\n".format(self.talents))
         filehandler.write(self.get_profile())
