@@ -5,8 +5,8 @@
     "description": "Tank-n-Spank"
   },
   {
-    "name": "Default_HeroDungeon",
-    "command": "HeroDungeon",
+    "name": "Default_DungeonSlice",
+    "command": "DungeonSlice",
     "description": "One Boss-add, 2 big adds, 5 small adds, without any buffs"
   },
   {
