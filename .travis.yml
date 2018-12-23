@@ -11,7 +11,7 @@ script:
 #    - py.test
     - python3 main.py -sim permutate_only
     - python3 main.py -sim permutate_only --debug
-    - python3 main.py -sim permutate_only -i input.txt -o out.simc -l legs/102/103/104/105
+    - python3 main.py -sim permutate_only -i input.txt -o out.simc
     - python3 main.py -sim permutate_only -gems
     - python3 main.py -sim permutate_only --unique_jewelry False
 branches:
