@@ -336,7 +336,8 @@ def determineLatestSimcVersion():
         html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
-    filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
     head, _tail = os.path.splitext(filename)
     latest_git_version = head.split("-")[-1]
     logging.debug(_("Latest version available: {}").format(latest_git_version))
@@ -371,7 +372,8 @@ def autoDownloadSimc():
         html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
-    filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
     print(_("Latest simc: {filename}").format(filename=filename))
 
     # Download latest build of simc
