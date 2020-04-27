@@ -305,9 +305,9 @@ def _filter_by_target_error(metric_results):
         for entry in metric_results:
             metric = entry["metric"]
             err = entry["metric_error"]
-            # if dps difference is less than sqrt(err_best**2+err**2) * error_mult, keep result
+            # if dps difference is less than sqrt(err_best**2+err**2), keep result
             if metric_best_player - metric < math.sqrt(
-                    err ** 2 + metric_error_best_player ** 2) * settings.default_error_rate_multiplier:
+                    err ** 2 + metric_error_best_player ** 2) * settings.default_error_rate_multiplier / 1.96:
                 output.append(entry)
     return output
 
