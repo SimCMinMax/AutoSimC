@@ -79,7 +79,7 @@ def install_translation():
     # Based on: (1) https://docs.python.org/3/library/gettext.html
     # (2) https://inventwithpython.com/blog/2014/12/20/translate-your-python-3-program-with-the-gettext-module/
     # Also see Readme.md#Localization for more info
-    if settings.localization_language is "auto":
+    if settings.localization_language == "auto":
         # get the default locale using the locale module
         default_lang, _default_enc = locale.getdefaultlocale()
     else:
