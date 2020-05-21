@@ -387,7 +387,7 @@ def autoDownloadSimc():
         logging.debug(_("Latest simc version already downloaded at {}.").format(filename))
 
     # Unpack downloaded build and set simc_path
-    settings.simc_path = os.path.join(download_dir, filename[:filename.find("win64") + len("win64")], "simc.exe")
+    settings.simc_path = os.path.join(download_dir, filename[:filename.find(".7z")], "simc.exe")
     splitter.simc_path = settings.simc_path
     if not os.path.exists(settings.simc_path):
         seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
