@@ -876,6 +876,8 @@ class Item:
                 self.enchant_ids = [int(v) for v in value.split("/")]
             elif name == "gem_id":
                 self.gem_ids = [int(v) for v in value.split("/")]
+            elif name == "drop_level":
+                self.drop_level = int(value)
             else:
                 if name not in self.extra_options:
                     self.extra_options[name] = []
