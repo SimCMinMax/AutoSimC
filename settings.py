@@ -38,12 +38,8 @@ class settings():
     # this reduces the number of permutations generated if you know what you want to sim
     # if you have no clue which items do what (= sim every combination), set all txx_min to 0 and txx_max to 6
     # common errors are setting min=max=0 for a particular tier, which result in no tier-sets being equipped at all
-    default_equip_t19_min = 0
-    default_equip_t19_max = 6
-    default_equip_t20_min = 0
-    default_equip_t20_max = 6
-    default_equip_t21_min = 0
-    default_equip_t21_max = 6
+    default_equip_t26_min = 0
+    default_equip_t26_max = 6
 
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output

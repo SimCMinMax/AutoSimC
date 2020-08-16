@@ -30,7 +30,7 @@ except ImportError:
 import specdata
 import splitter
 
-__version__ = "8.0.1a"
+__version__ = "9.0.1"
 
 import gettext
 
@@ -98,31 +98,23 @@ def install_translation():
 install_translation()
 
 # Var init with default value
-t19min = int(settings.default_equip_t19_min)
-t19max = int(settings.default_equip_t19_max)
-t20min = int(settings.default_equip_t20_min)
-t20max = int(settings.default_equip_t20_max)
-t21min = int(settings.default_equip_t21_min)
-t21max = int(settings.default_equip_t21_max)
+t26min = int(settings.default_equip_t26_min)
+t26max = int(settings.default_equip_t26_max)
 
-gem_ids = {"30haste": 153711,
-           "40haste": 154127,
-           "haste": 154127,  # always contains available maximum quality
-           "30crit": 153710,
-           "40crit": 154126,
-           "crit": 154126,  # always contains available maximum quality
-           "30vers": 153712,
-           "40vers": 154128,
-           "vers": 154128,  # always contains available maximum quality
-           "30mast": 153713,
-           "40mast": 154129,
-           "mast": 154129,  # always contains available maximum quality
-           "40str": 153707,
-           "str": 153707,
-           "40agi": 153708,
-           "agi": 153708,
-           "40int": 153709,
-           "int": 153709,
+gem_ids = {"50haste": 168641,
+           "haste": 168641,  # always contains available maximum quality
+           "50crit": 168639,
+           "crit": 168639,  # always contains available maximum quality
+           "50vers": 168642,
+           "vers": 168642,  # always contains available maximum quality
+           "50mast": 168640,
+           "mast": 168640,  # always contains available maximum quality
+           "120str": 168636,
+           "str": 168636,  # always contains available maximum quality
+           "120agi": 168637,
+           "agi": 168637,  # always contains available maximum quality
+           "120int": 168638,
+           "int": 168638,  # always contains available maximum quality
            }
 
 # Global logger instance
@@ -479,9 +471,7 @@ def validateSettings(args):
     # validate tier-set
     min_tier_sets = 0
     max_tier_sets = 6
-    tier_sets = {"Tier19": (t19min, t19max),
-                 "Tier20": (t20min, t20max),
-                 "Tier21": (t21min, t21max),
+    tier_sets = {"Tier26": (t26min, t26max)
                  }
 
     total_min = 0
@@ -654,42 +644,26 @@ class PermutationData:
         self.talents = talents
 
     def count_tier(self):
-        self.t19 = 0
-        self.t20 = 0
-        self.t21 = 0
+        self.t26 = 0
         for item in self.items.values():
-            if item.tier_19:
-                self.t19 += 1
-            elif item.tier_20:
-                self.t20 += 1
-            elif item.tier_21:
-                self.t21 += 1
+            if item.tier_26:
+                self.t26 += 1
 
     def check_usable_before_talents(self):
         self.count_tier()
 
-        if self.t19 < t19min:
-            return "too few tier 19 items"
-        if self.t19 > t19max:
-            return "too many tier 19 items"
-        if self.t20 < t20min:
-            return "too few tier 20 items"
-        if self.t20 > t20max:
-            return "too many tier 20 items"
-        if self.t21 < t21min:
-            return "too few tier 21 items"
-        if self.t21 > t21max:
-            return "too many tier 21 items"
+        if self.t26 < t26min:
+            return "too few tier 26 items"
+        if self.t26 > t26max:
+            return "too many tier 26 items"
 
         return None
 
     def get_profile_name(self, valid_profile_number):
         # namingdata contains info for the profile-name
-        namingData = {"T19": "",
-                      "T20": "",
-                      "T21": ""}
+        namingData = {"T26": ""}
 
-        for tier in (19, 20, 21):
+        for tier in ([26]):
             count = getattr(self, "t" + str(tier))
             tiername = "T" + str(tier)
             if count:
@@ -737,10 +711,14 @@ def build_profile_simc_addon(args):
                             "level",
                             "server",
                             "region",
+                            "professions",
                             "spec",
                             "role",
                             "talents",
                             "position",
+                            "azerite_essences",
+                            "covenant",
+                            "soulbind",
                             "potion",
                             "flask",
                             "food",
@@ -828,7 +806,7 @@ def build_profile_simc_addon(args):
 
 class Item:
     """WoW Item"""
-    tiers = [19, 20, 21]
+    tiers = [26]
 
     def __init__(self, slot, input_string=""):
         self._slot = slot
@@ -837,7 +815,6 @@ class Item:
         self.bonus_ids = []
         self.enchant_ids = []
         self._gem_ids = []
-        self.relic_ids = []
         self.tier_set = {}
         self.extra_options = {}
 
@@ -898,8 +875,6 @@ class Item:
                 self.enchant_ids = [int(v) for v in value.split("/")]
             elif name == "gem_id":
                 self.gem_ids = [int(v) for v in value.split("/")]
-            elif name == "relic_id":
-                self.relic_ids = [v for v in value.split("/")]
             else:
                 if name not in self.extra_options:
                     self.extra_options[name] = []
@@ -916,8 +891,6 @@ class Item:
             self.output_str += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
         if len(self.gem_ids):
             self.output_str += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
-        if len(self.relic_ids):
-            self.output_str += ",relic_id=" + "/".join([str(v) for v in self.relic_ids])
         for name, values in self.extra_options.items():
             for value in values:
                 self.output_str += ",{}={}".format(name, value)

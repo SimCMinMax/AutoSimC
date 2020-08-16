@@ -1,29 +1,70 @@
 [Profile]
-priest=TestProfile
-spec=shadow
-level=110
-race=goblin
+mage="Jeiwel"
+level=120
+race=troll
+region=eu
+server=ysondre
 role=spell
-position=back
-talents=1211231
-artifact=47:0:0:0:0:764:1:765:1:766:1:767:4:768:1:769:1:770:1:771:4:772:4:773:4:774:4:775:4:776:4:777:4:778:4:779:1:1347:1:1381:1:1573:4:1574:1:1575:1:1576:25:1650:1
-crucible=1739:1770:1573/1739:1770:1573/1739:1780:773
+professions=alchemy=175/herbalism=173
+talents=1211123
+spec=frost
+
+azerite_essences=27:3/300573/35:3/300575/300576/5:3/300577/312927/37:3/312928
 
 
 [Gear]
-head=T21--,id=152156,bonus_id=3610/1472/3528|T20--,id=147165,bonus_id=3563/41/1512/3528
-neck=,id=137536,enchant_id=5437,bonus_id=3418/1587/3337
-shoulder=,id=152354,enchant_id=5929,bonus_id=3614/1492/3337
-back=T21--,id=152154,enchant_id=5436,bonus_id=3610/1472/3528|T20--,id=147163,enchant_id=5436,bonus_id=3562/1808/1497/3528,gem_id=151583
-chest=,id=151947,bonus_id=3610/1502/3337
-wrist=,id=134437,bonus_id=3418/1607/3337
-hands=T21--,id=152155,bonus_id=3611/40/1497/3336|T20--,id=147164,enchant_id=5444,bonus_id=3563/1517/3336
-waist=L--,id=132864,bonus_id=1811/3630
-legs=T21--,id=152157,bonus_id=3611/1487/3528|T20--,id=147166,bonus_id=3564/1497/3337
-feet=,id=136774,bonus_id=3418/1808/1597/3337,gem_id=151583
-finger1=,id=152284,enchant_id=5428,bonus_id=3610/1808/1477/3336,gem_id=151583
-finger2=L--,id=132452,enchant_id=5428,bonus_id=3459/3630,gem_id=151583
-trinket1=,id=154177,bonus_id=3984/3988
-trinket2=,id=151971,bonus_id=3611/41/1487/3528
-main_hand=,id=128827,bonus_id=740,relic_id=3611:1487:3528/3611:1487:3528/3418:1607:3337,gem_id=152055/152028/151294
-off_hand=,id=133958,relic_id=0/0,gem_id=0/0/0/0
+head=,id=159236,bonus_id=5448/1647/4786/6511/4775,context=35,azerite_powers=380/170/30/83/13
+neck=,id=158075,bonus_id=4932/4933/6316/1658,context=11,azerite_level=94
+shoulder=,id=174120,bonus_id=4824/1517/4786/6512/4775,context=6,azerite_powers=170/582/459/15/13
+back=,id=169223,bonus_id=6597/1472,context=11
+chest=,id=174119,bonus_id=4824/1517/4786/6510/4775,context=6,azerite_powers=170/582/18/83/13
+wrist=,id=159275,gem_id=168640,bonus_id=6536/4802/6578/6515/1647/4786/6516,context=35
+hands=,id=174130,enchant_id=5932,gem_id=168640,bonus_id=4824/1517/4786/6473/6470/6514,context=6
+waist=,id=174124,gem_id=168640,bonus_id=4824/1517/4786/6473/6470/6514,context=6
+legs=,id=174127,gem_id=168640,bonus_id=4824/1517/4786/6514/6473/6470,context=6
+feet=,id=169049,bonus_id=6536/6578/6579/6564/6515/1532/4786,context=35
+finger1=,id=162544,enchant_id=6110,gem_id=168640,bonus_id=6536/6578/1647/4786/6473/6470/6514,context=35
+finger2=,id=174531,enchant_id=6110,gem_id=168640,bonus_id=4824/1517/4786/6514/6473/6470,context=6
+trinket1=,id=174103,gem_id=168640,bonus_id=4823/1502/4786/6514,context=5
+trinket2=,id=174500,bonus_id=4823/6515/1502/4786,context=5
+main_hand=,id=160216,enchant_id=5949,bonus_id=6536/6578/6515/1647/4786/6516,context=35
+off_hand=,id=175009,gem_id=168640,bonus_id=4824/6578/1517/4786/6514/6473/6470,context=6
+
+### Gear from Bags
+#
+# Grasping Crown of the Deep (480)
+# head=,id=159252,bonus_id=5448/1647/4786/6511/4775,context=35,azerite_powers=170/479/30/15/13
+#
+# Cowl of Unspeakable Horrors (480)
+# head=,id=174116,bonus_id=4824/1517/4786/6511/4775,context=6,azerite_powers=215/582/459/15/13
+#
+# Mask of the Daredevil (1)
+# head=,id=173955,context=9
+#
+# Mask of the Burned Bridge (1)
+# head=,id=174342,context=9
+#
+# Mask of the Dark Imagination (1)
+# head=,id=173953,context=9
+#
+# Mask of the Long Night (1)
+# head=,id=172952,context=9
+#
+# Mask of the Pained (1)
+# head=,id=173524,context=9
+#
+# Void Ascendant's Mantle (480)
+# shoulder=,id=174120,bonus_id=4824/1517/4786/6512/4775,context=6,azerite_powers=215/582/459/15/13
+#
+# Robe of the Fallen Keeper (475)
+# chest=,id=174115,bonus_id=4824/1517/4786/6510,context=6,azerite_powers=
+#
+# Loa Betrayer's Vestments (480)
+# chest=,id=159233,bonus_id=5448/1647/4786/6510/4775,context=35,azerite_powers=215/168/21/15/13
+#
+# Void-Drenched Wristwraps (475)
+# wrist=,id=174122,bonus_id=4824/6516/6513/1517/4786,context=6
+#
+# Vile Manipulator's Cuffs (470)
+# wrist=,id=173471,bonus_id=6412/6515/6578/1527/4786/6473/6470,context=55
+#
