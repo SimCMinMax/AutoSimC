@@ -815,6 +815,7 @@ class Item:
         self.bonus_ids = []
         self.enchant_ids = []
         self._gem_ids = []
+        self.drop_level = 0
         self.tier_set = {}
         self.extra_options = {}
 
@@ -891,6 +892,8 @@ class Item:
             self.output_str += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
         if len(self.gem_ids):
             self.output_str += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
+        if self.drop_level>0:
+            self.output_str += ",drop_level=" + drop_level
         for name, values in self.extra_options.items():
             for value in values:
                 self.output_str += ",{}={}".format(name, value)
