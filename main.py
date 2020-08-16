@@ -132,6 +132,22 @@ def stable_unique(seq):
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
 
+def get_additional_input():
+    input_encoding = 'utf-8'
+    options = []
+    try:
+        with open(additionalFileName, "r", encoding=input_encoding) as f:
+            for line in f:
+                if not line.startswith("#"):
+                    options.append(line)
+            
+    except UnicodeDecodeError as e:
+        raise RuntimeError("""AutoSimC could not decode your additional input file '{file}' with encoding '{enc}'.
+        Please make sure that your text editor encodes the file as '{enc}',
+        or as a quick fix remove any special characters from your character name.""".format(file=additionalFileName,
+                                                                                            enc=input_encoding)) from e
+    
+    return "".join(options)
 
 def build_gem_list(gem_lists):
     """Build list of unique gem ids from --gems argument"""
@@ -180,6 +196,12 @@ def parse_command_line_args():
                         default=settings.default_outputFileName,
                         required=False,
                         help=_("Output file containing the generated profiles used for the simulation."))
+
+    parser.add_argument('-a', _('--additionalfile'),
+                        dest="additionalfile",
+                        default=settings.default_additionalFileName,
+                        required=False,
+                        help=_("Additional input file containing the options to add to each profile."))
 
     parser.add_argument('-sim', _("--sim"),
                         dest="sim",
@@ -271,6 +293,9 @@ def handleCommandLine():
     # For now, just write command line arguments into globals
     global outputFileName
     outputFileName = args.outputfile
+
+    global additionalFileName
+    additionalFileName = args.additionalfile
 
     global num_stages
     num_stages = args.stages
@@ -683,13 +708,15 @@ class PermutationData:
             items.append(item.output_str)
         return "\n".join(items)
 
-    def write_to_file(self, filehandler, valid_profile_number):
+    def write_to_file(self, filehandler, valid_profile_number, additional_options):
         profile_name = self.get_profile_name(valid_profile_number)
+
         filehandler.write("{}={}\n".format(self.profile.wow_class, str.replace(self.profile.profile_name, "\"","")+"_"+profile_name))
         filehandler.write(self.profile.general_options)
         filehandler.write("\ntalents={}\n".format(self.talents))
         filehandler.write(self.get_profile())
-        filehandler.write("\n\n")
+        filehandler.write("\n{}".format(additional_options))
+        filehandler.write("\n")
 
 
 def build_profile_simc_addon(args):
@@ -895,7 +922,7 @@ class Item:
         if len(self.gem_ids):
             self.output_str += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
         if self.drop_level>0:
-            self.output_str += ",drop_level=" + self.drop_level
+            self.output_str += ",drop_level=" + str(self.drop_level)
         for name, values in self.extra_options.items():
             for value in values:
                 self.output_str += ",{}={}".format(name, value)
@@ -1075,6 +1102,9 @@ def permutate(args, player_profile):
     logging.info(_("Number of permutations: {}").format(permutations_product))
     max_profile_chars = len(str(max_nperm))  # String length of max_nperm
 
+    # Get Additional options string
+    additional_options = get_additional_input()
+
     # Start the permutation!
     processed = 0
     progress = 0  # Separate progress variable not counting gem and talent combinations
@@ -1104,7 +1134,7 @@ def permutate(args, player_profile):
                             for t in talent_permutations:
                                 data.update_talents(t)
                                 # Additional talent usable check could be inserted here.
-                                data.write_to_file(output_file, valid_profiles)
+                                data.write_to_file(output_file, valid_profiles, additional_options)
                                 valid_profiles += 1
                                 processed += 1
                     else:
