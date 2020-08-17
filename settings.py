@@ -28,6 +28,9 @@ class settings():
     # standard-output
     default_outputFileName = "out.simc"
 
+    # standard-additional_input
+    default_additionalFileName = "additional_input.txt"
+
     # standard log file
     logFileName = "logs.txt"
 
