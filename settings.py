@@ -77,14 +77,12 @@ class settings():
     # This value can also be change through command line argument --stages.
     num_stages = 3
 
-    # Automatic delete of the temp folders
-    delete_temp_default = False
-
     # set to False if you want to keep intermediate files
     # moves the final .html-result into the specified subfolder before deletion
     # the resulting html will be renamed to: <Timestamp - best.html>
     clean_up = True
 
+    # Folder in which simulations results are created.
     result_subfolder = "results"
 
     # Define which metric to use to select & filter profiles.
@@ -147,12 +145,7 @@ class settings():
     # https://github.com/simulationcraft/simc/wiki/RaidEvents
     # The fighttypes are stored in fight_types.json
     # You can specify your own fights there by simply extending the list with your own
-    # If you set choose_fightstyle to True, a menu pops up before simulation-begin where you can choose the fight to
-    # simulate.
-    # If set it to False, the entry you declare in the json, e.g. "name":"Default_Patchwerk", has to match default_fightstyle
     file_fightstyle = "fight_types.json"
-    choose_fightstyle = True
-    default_fightstyle = "Default_Patchwerk"
 
     # SimulationCraft process priority.
     # This can make your system more/less responsive. We recommend leaving this at 'low'.
@@ -219,7 +212,16 @@ class settings():
     # ----------------------------------------------------------------------
     skip_questions = False
 
-    # automation of dialogs
+    # If you set choose_fightstyle to True, a menu pops up before simulation-begin where you can choose the fight to
+    # simulate.
+    # If set it to False, the entry you declare in the json, e.g. "name":"Default_Patchwerk", has to match default_fightstyle
+    choose_fightstyle = False
+    default_fightstyle = "Default_Patchwerk"
+
+    # Automatic delete of the temp folders
+    delete_temp_default = False
+
+    # automation of grabbing method
     # 1 or 2
     auto_choose_static_or_dynamic = 2
 
