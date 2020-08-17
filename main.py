@@ -715,7 +715,7 @@ class PermutationData:
         filehandler.write(self.profile.general_options)
         filehandler.write("\ntalents={}\n".format(self.talents))
         filehandler.write(self.get_profile())
-        filehandler.write("\n{}".format(additional_options))
+        filehandler.write("\n{}\n".format(additional_options))
         filehandler.write("\n")
 
 
