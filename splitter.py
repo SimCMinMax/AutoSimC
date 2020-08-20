@@ -70,7 +70,7 @@ def split(inputfile, destination_folder, size, wow_class):
     if size <= 0:
         raise ValueError("Invalid split size {} <= 0.".format(size))
     logging.info("Splitting profiles in {} into chunks of size {}.".format(inputfile, size))
-    logging.info("This may take a while...")
+    print("This may take a while...")
     logging.debug("wow_class={}".format(wow_class))
 
     num_profiles = 0
@@ -130,7 +130,7 @@ def _generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, p
     # For simulations with a high target_error, we want to get a faster execution (eg. only 47 iterations)
     # instead of the default minimum of ~100 iterations. This options tells SimC to more often check target_error
     # condition while simulating.
-    if sim_type == "target_error" and simtype_value > 0.1:
+    if sim_type is "target_error" and simtype_value > 0.1:
         cmd.append('analyze_error_interval=10')
 
     if is_last_stage:
@@ -159,12 +159,11 @@ def _generateCommand(file, global_option_file, outputs):
 
 
 def _worker(command, counter, maximum, starttime, num_workers):
-    if not quietMode:
-        print("-----------------------------------------------------------------")
-        print("Currently processing: {}".format(command[2]))
-        print("Processing: {}/{} ({}%)".format(counter + 1,
-                                            maximum,
-                                            round(100 * float(int(counter) / int(maximum)), 1)))
+    print("-----------------------------------------------------------------")
+    print("Currently processing: {}".format(command[2]))
+    print("Processing: {}/{} ({}%)".format(counter + 1,
+                                           maximum,
+                                           round(100 * float(int(counter) / int(maximum)), 1)))
     try:
         if counter > 0 and counter % num_workers == 0:
             duration = datetime.datetime.now() - starttime
@@ -195,7 +194,7 @@ def _launch_simc_commands(commands, is_last_stage):
         num_workers = 1
     else:
         num_workers = settings.number_of_instances
-    logging.info("-----------------------------------------------------------------")
+    print("-----------------------------------------------------------------")
     logging.info("Starting multi-process simulation.")
     logging.info("Number of work items: {}.".format(len(commands)))
     logging.info("Number of worker instances: {}.".format(num_workers))
@@ -266,7 +265,7 @@ def _start_simulation(files_to_sim, player_profile, simtype, simtype_value, stag
     return _launch_simc_commands(commands, is_last_stage)
 
 
-def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles, quiet):
+def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
     """Start the simulation process for a given stage/input"""
     logging.info("Starting simulation.")
     logging.debug("Started simulation with {}".format(locals()))
@@ -274,9 +273,6 @@ def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stag
     files = os.listdir(subdir)
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
-
-    global quietMode
-    quietMode = quiet
 
     start = datetime.datetime.now()
     result = _start_simulation(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
@@ -318,19 +314,17 @@ def _filter_by_target_error(metric_results):
 
 def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin, split_optimally=True):
     """Determine best simulations and grabs their profiles for further simming"""
+    print("Grabbest:")
+    print("Variables: filter by: " + str(filter_by))
+    print("Variables: filter_criterium: " + str(filter_criterium))
+    print("Variables: target_subdir: " + str(target_subdir))
+    print("Variables: origin: " + str(origin))
+
     user_class = ""
 
     best = []
     source_subdir = os.path.join(os.getcwd(), source_subdir)
-
-    if not quietMode:
-        print("Grabbest:")
-        print("Variables: filter by: " + str(filter_by))
-        print("Variables: filter_criterium: " + str(filter_criterium))
-        print("Variables: target_subdir: " + str(target_subdir))
-        print("Variables: origin: " + str(origin))
-        print("Variables: source_subdir: " + str(source_subdir))
-
+    print("Variables: source_subdir: " + str(source_subdir))
     files = os.listdir(source_subdir)
     files = [f for f in files if f.endswith(".result")]
     files = [os.path.join(source_subdir, f) for f in files]
@@ -391,6 +385,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     bestprofiles = []
     outfile_count = 0
     num_profiles = 0
+    # print(str(bestprofiles))
 
     # Determine chunk length we want to split the profiles
     if split_optimally:
