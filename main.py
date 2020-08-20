@@ -92,7 +92,7 @@ def install_translation():
         global translator
         translator = lang
     except FileNotFoundError:
-        print("No translation for {} available.".format(default_lang))
+        logging.warning("No translation for {} available.".format(default_lang))
 
 
 install_translation()
@@ -269,11 +269,10 @@ def parse_command_line_args():
                         action='store_true',
                         help='Write debug information to log file.')
 
-    # TODO Handle quiet argument in the code
     parser.add_argument('-quiet', _("--quiet"),
                         dest="quiet",
                         action='store_true',
-                        help='Run quietly. /!\ Not implemented yet')
+                        help='Run quietly. Set quiet level in settings. /!\ Does not quiet simc output.')
 
     parser.add_argument('-version', _('--version'),
                         action='version', version='%(prog)s {}'.format(__version__))
@@ -296,6 +295,9 @@ def handleCommandLine():
 
     global additionalFileName
     additionalFileName = args.additionalfile
+
+    global quietMode
+    quietMode = args.quiet
 
     global num_stages
     num_stages = args.stages
@@ -371,7 +373,7 @@ def autoDownloadSimc():
     try:
         if settings.auto_download_simc:
             if platform.system() != "Windows" or not platform.machine().endswith('64'):
-                print(_("Sorry autodownloading only supported for 64bit windows"))
+                logging.error(_("Sorry autodownloading only supported for 64bit windows"))
                 return
     except AttributeError:
         return
@@ -391,7 +393,7 @@ def autoDownloadSimc():
         logging.info("Could not access download directory on simulationcraft.org")
     #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
-    print(_("Latest simc: {filename}").format(filename=filename))
+    logging.info(_("Latest simc: {filename}").format(filename=filename))
 
     # Download latest build of simc
     filepath = os.path.join(download_dir, filename)
@@ -421,17 +423,17 @@ def autoDownloadSimc():
                 files = glob.glob(download_dir + '/simc*win64*7z')
                 for f in files:
                     if not os.path.basename(f) == filename:
-                        print(_("Removing old simc from '{}'.").format(os.path.basename(f)))
+                        logging.info(_("Removing old simc from '{}'.").format(os.path.basename(f)))
                         os.remove(f)
                 break
             except Exception as e:
-                print(_("Exception when unpacking: {}").format(e))
+                logging.critical(_("Exception when unpacking: {}").format(e))
         else:
             raise RuntimeError(_("Could not unpack the auto downloaded SimulationCraft executable."
                                  "Please note that you need 7Zip installed at one of the following locations: {}.").
                                format(seven_zip_executables))
     else:
-        print(_("Simc already exists at '{}'.").format(repr(settings.simc_path)))
+        logging.error(_("Simc already exists at '{}'.").format(repr(settings.simc_path)))
 
 
 def cleanup_subdir(subdir):
@@ -959,7 +961,7 @@ def product(*iterables):
 
 
 def permutate(args, player_profile):
-    print(_("Combinations in progress..."))
+    logging.info(_("Combinations in progress..."))
 
     parsed_gear = collections.OrderedDict({})
 
@@ -1246,7 +1248,7 @@ def prepare_profiles(player_profile, stage):
 def static_stage(player_profile, stage):
     if stage > num_stages:
         return
-    print("\n")
+    logging.info("\n")
     logging.info(_("***Entering static mode, STAGE {}***").format(stage))
     num_generated_profiles = prepare_profiles(player_profile, stage)
     is_last_stage = (stage == num_stages)
@@ -1264,25 +1266,25 @@ def static_stage(player_profile, stage):
             sys.exit(0)
         num_iterations = int(iterations_choice)
     splitter.simulate(get_subdir(stage), "iterations", num_iterations,
-                      player_profile, stage, is_last_stage, num_generated_profiles)
+                      player_profile, stage, is_last_stage, num_generated_profiles, quietMode)
     static_stage(player_profile, stage + 1)
 
 
 def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
     if stage > num_stages:
         return
-    print("\n")
+    logging.info("\n")
     logging.info(_("***Entering dynamic mode, STAGE {}***").format(stage))
 
     num_generated_profiles = prepare_profiles(player_profile, stage)
 
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
-    print(_("Estimated calculation times for stage {} based on your data:").format(stage))
+    logging.info(_("Estimated calculation times for stage {} based on your data:").format(stage))
     for i, (target_error, iterations, elapsed_time_seconds) in enumerate(result_data):
         elapsed_time = datetime.timedelta(seconds=elapsed_time_seconds)
         estimated_time = chop_microseconds(elapsed_time * num_generated_profiles) if num_generated_profiles else None
-        print(_("({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) ").
+        logging.info(_("({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) ").
               format(i,
                      target_error,
                      estimated_time,
@@ -1318,7 +1320,7 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     # if the user chose a target_error which is higher than one chosen in the previous stage
     # he is given an option to adjust it.
     if previous_target_error is not None and previous_target_error <= target_error:
-        print(_("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}").
+        logging.warning(_("Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}").
               format(stage - 1, previous_target_error, stage, target_error))
         new_value = input(
             _("Do you want to continue anyway (Enter), quit (q) or enter a new target_error"
@@ -1357,23 +1359,25 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
             logging.warning(_("Could not provide any estimated calculation time."))
     is_last_stage = (stage == num_stages)
     splitter.simulate(get_subdir(stage), "target_error", target_error, player_profile,
-                      stage, is_last_stage, num_generated_profiles)
+                      stage, is_last_stage, num_generated_profiles, quietMode)
     dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
 
 
 def start_stage(player_profile, num_generated_profiles, stage):
     logging.info(_("Starting at stage {}").format(stage))
     logging.info(_("You selected grabbing method '{}'.").format(settings.default_grabbing_method))
-    print("")
-    print(_("You have to choose one of the following modes for calculation:"))
-    print(_("1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})").
-          format(num_iterations=settings.default_iterations))
-    print(_("   It is however faster if simulating huge amounts of profiles"))
-    print(_(
-        "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."))
-    print(
-        _("   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}")
-            .format(settings.default_target_error))
+    if not quietMode and not settings.skip_questions:
+        print("")
+        print(_("You have to choose one of the following modes for calculation:"))
+        print(_("1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})").
+            format(num_iterations=settings.default_iterations))
+        print(_("   It is however faster if simulating huge amounts of profiles"))
+        print(_(
+            "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."))
+        print(
+            _("   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}")
+                .format(settings.default_target_error))
+
     if settings.skip_questions:
         mode_choice = int(settings.auto_choose_static_or_dynamic)
     else:
@@ -1422,14 +1426,22 @@ def addFightStyle(profile):
             if len(fights) > 0:
                 # generate table to choose fightstyle
                 if settings.choose_fightstyle:
-                    print("")
-                    print(_("Choose fightstyle:"))
-                    for i, f in enumerate(fights):
-                        print("({index:2n}) - {name}: {desc}"
-                              .format(index=i,
-                                      name=f["name"],
-                                      desc=f["description"]))
-                    fightstylechoose = int(input(_("Enter the number for your fightstyle: ")))
+                    if not quietMode :
+                        print("")
+                        print(_("Choose fightstyle:"))
+                        for i, f in enumerate(fights):
+                            print("({index:2n}) - {name}: {desc}"
+                                .format(index=i,
+                                        name=f["name"],
+                                        desc=f["description"]))
+
+                    fightstyleinput = input(_("Enter the number for your fightstyle  (Enter to exit): "))
+                    
+                    if not len(fightstyleinput):
+                        logging.info(_("User exit."))
+                        sys.exit(0)
+                    
+                    fightstylechoose = int(fightstyleinput)
                     if fightstylechoose < 0 or fightstylechoose >= len(fights):
                         raise ValueError(_("Wrong number ({}) for fightstyles chosen."
                                            " Must be greater between {} and {}.")
@@ -1503,13 +1515,27 @@ def main():
     # check version of python-interpreter running the script
     check_interpreter()
 
-    logging.debug("----------------------------------------------------------------------------")
-    logging.info(_("AutoSimC - Supported WoW-Version: {}").format(__version__))
-
     args = handleCommandLine()
     if args.debug:
         log_handler.setLevel(logging.DEBUG)
         stdout_handler.setLevel(logging.DEBUG)
+
+    if args.quiet:
+        if settings.quietMode == 0:
+            log_handler.setLevel(logging.INFO)
+            stdout_handler.setLevel(logging.INFO)
+        if settings.quietMode == 1:
+            log_handler.setLevel(logging.WARNING)
+            stdout_handler.setLevel(logging.WARNING)
+        if settings.quietMode == 2:
+            log_handler.setLevel(logging.ERROR)
+            stdout_handler.setLevel(logging.ERROR)
+        if settings.quietMode == 3:
+            log_handler.setLevel(logging.CRITICAL)
+            stdout_handler.setLevel(logging.CRITICAL)
+
+    logging.debug("----------------------------------------------------------------------------")
+    logging.info(_("AutoSimC - Supported WoW-Version: {}").format(__version__))
 
     logging.debug(_("Parsed command line arguments: {}").format(args))
     logging.debug(_("Parsed settings: {}").format(vars(settings)))

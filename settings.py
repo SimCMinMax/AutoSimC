@@ -44,11 +44,6 @@ class settings():
     default_equip_t26_min = 0
     default_equip_t26_max = 6
 
-    # quiet_mode for faster output; console is very slow
-    # default 0; 1 for reduced console-output
-    # No longer used for main.py
-    b_quiet = 0
-
     # Number of profiles to split simulation work into.
     # This means that each SimulationCraft instance will simulate at most this many profiles.
     #
@@ -224,6 +219,14 @@ class settings():
     # automation of grabbing method
     # 1 or 2
     auto_choose_static_or_dynamic = 2
+
+    # quiet_mode for faster output; console is very slow
+    # default: 0
+    # 0: for infos
+    # 1: for only warnings
+    # 2: for only errors
+    # 3: for no output (except simc output)
+    quietMode = 0
 
     # ----------------------------------------------------------------------
     #       ALL OPTIONS BELOW THIS ARE USED FOR THE PROFILE GENERATOR
