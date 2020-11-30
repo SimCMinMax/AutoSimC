@@ -101,20 +101,14 @@ install_translation()
 t26min = int(settings.default_equip_t26_min)
 t26max = int(settings.default_equip_t26_max)
 
-gem_ids = {"50haste": 168641,
-           "haste": 168641,  # always contains available maximum quality
-           "50crit": 168639,
-           "crit": 168639,  # always contains available maximum quality
-           "50vers": 168642,
-           "vers": 168642,  # always contains available maximum quality
-           "50mast": 168640,
-           "mast": 168640,  # always contains available maximum quality
-           "120str": 168636,
-           "str": 168636,  # always contains available maximum quality
-           "120agi": 168637,
-           "agi": 168637,  # always contains available maximum quality
-           "120int": 168638,
-           "int": 168638,  # always contains available maximum quality
+gem_ids = {"16haste": 311865,
+           "haste": 311865,  # always contains available maximum quality
+           "16crit": 311863,
+           "crit": 311863,  # always contains available maximum quality
+           "16vers": 311859,
+           "vers": 311859,  # always contains available maximum quality
+           "16mast": 311864,
+           "mast": 311864,  # always contains available maximum quality
            }
 
 # Global logger instance
