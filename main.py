@@ -344,7 +344,7 @@ def determineSimcVersionOnDisc():
 def determineLatestSimcVersion():
     """gets the version of the latest binaries available on the net"""
     try:
-        html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
+        html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
     #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
