@@ -380,7 +380,7 @@ def autoDownloadSimc():
 
     # Get filename of latest build of simc
     try:
-        html = urlopen('http://downloads.simulationcraft.org/?C=M;O=D').read().decode('utf-8')
+        html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
     #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
@@ -390,7 +390,7 @@ def autoDownloadSimc():
     # Download latest build of simc
     filepath = os.path.join(download_dir, filename)
     if not os.path.exists(filepath):
-        url = 'http://downloads.simulationcraft.org/' + filename
+        url = 'http://downloads.simulationcraft.org/nightly/' + filename
         logging.info(_("Retrieving simc from url {} to {}.").format(url,
                                                                     filepath))
         urlretrieve(url, filepath)
