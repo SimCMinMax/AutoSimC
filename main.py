@@ -1,7 +1,6 @@
 # pylint: disable=C0103
 # pylint: disable=C0301
 
-import configparser
 import sys
 import datetime
 import os
@@ -19,6 +18,8 @@ import re
 from urllib.error import URLError
 from urllib.request import urlopen, urlretrieve
 import platform
+
+import AddonImporter
 import locale
 
 from settings import settings
@@ -713,118 +714,6 @@ class PermutationData:
         filehandler.write("\n")
 
 
-def build_profile_simc_addon(args):
-    valid_classes = ["priest",
-                     "druid",
-                     "warrior",
-                     "paladin",
-                     "hunter",
-                     "deathknight",
-                     "demonhunter",
-                     "mage",
-                     "monk",
-                     "rogue",
-                     "shaman",
-                     "warlock",
-                     ]
-    # Parse general profile options
-    simc_profile_options = ["race",
-                            "level",
-                            "server",
-                            "region",
-                            "professions",
-                            "spec",
-                            "role",
-                            "talents",
-                            "position",
-                            "azerite_essences",
-                            "covenant",
-                            "soulbind",
-                            "potion",
-                            "flask",
-                            "food",
-                            "augmentation"]
-
-    # will contain any gear in file for each slot, divided by |
-    gear = {}
-    for slot in gear_slots:
-        gear[slot[0]] = []
-    gearInBags = {}
-    for slot in gear_slots:
-        gearInBags[slot[0]] = []
-
-    # no sections available, so parse each line individually
-    input_encoding = 'utf-8'
-    c_class = ""
-    try:
-        with open(args.inputfile, "r", encoding=input_encoding) as f:
-            player_profile = Profile()
-            player_profile.args = args
-            player_profile.simc_options = {}
-            for line in f:
-                if line == "\n":
-                    continue
-                if line.startswith("#"):
-                    if line.startswith("# bfa.reorigination_array_stacks"):
-                        splitted = line.split("=", 1)[1].rstrip().lstrip()
-                        player_profile.simc_options["bfa.reorigination_array_stacks"] = splitted
-                    if line.startswith("# SimC Addon") or line.startswith(
-                            "# 8.0 Note:") or line == "" or line == "\n":
-                        continue
-                    else:
-                        # gear-in-bag handling
-                        splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
-                        for gearslot in gear_slots:
-                            if splittedLine[0].replace("\n", "") == gearslot[0]:
-                                gearInBags[splittedLine[0].replace("\n", "")].append(
-                                    splittedLine[1].replace("\n", "").lstrip().rstrip())
-                            # trinket and finger-handling
-                            trinketOrRing = splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")
-                            if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[
-                                0]:
-                                gearInBags[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
-                                    splittedLine[1].lstrip().rstrip())
-                else:
-                    splittedLine = line.split("=", 1)
-                    if splittedLine[0].replace("\n", "") in valid_classes:
-                        c_class = splittedLine[0].replace("\n", "").lstrip().rstrip()
-                        player_profile.wow_class = c_class
-                        player_profile.profile_name = splittedLine[1].replace("\n", "").lstrip().rstrip()
-                    if splittedLine[0].replace("\n", "") in simc_profile_options:
-                        player_profile.simc_options[splittedLine[0].replace("\n", "")] = splittedLine[1].replace("\n",
-                                                                                                                 "").lstrip().rstrip()
-                    for gearslot in gear_slots:
-                        if splittedLine[0].replace("\n", "") == gearslot[0]:
-                            gear[splittedLine[0].replace("\n", "")].append(
-                                splittedLine[1].replace("\n", "").lstrip().rstrip())
-                        # trinket and finger-handling
-                        trinketOrRing = splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")
-                        if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[0]:
-                            gear[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
-                                splittedLine[1].lstrip().rstrip())
-
-    except UnicodeDecodeError as e:
-        raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
-        Please make sure that your text editor encodes the file as '{enc}',
-        or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
-                                                                                            enc=input_encoding)) from e
-    if c_class != "":
-        player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
-        player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
-
-    # Build 'general' profile options which do not permutate once into a simc-string
-    logging.info("SimC options: {}".format(player_profile.simc_options))
-    player_profile.general_options = "\n".join(["{}={}".format(key, value) for key, value in
-                                                player_profile.simc_options.items()])
-    logging.debug("Built simc general options string: {}".format(player_profile.general_options))
-
-    # Parse gear
-    player_profile.simc_options["gear"] = gear
-    player_profile.simc_options["gearInBag"] = gearInBags
-
-    return player_profile
-
-
 class Item:
     """WoW Item"""
     tiers = [26]
@@ -1511,15 +1400,15 @@ def main():
     if args.sim:
         if not settings.auto_download_simc:
             if settings.check_simc_version:
-                filename, latest = determineLatestSimcVersion();
-                ondisc = determineSimcVersionOnDisc();
+                filename, latest = determineLatestSimcVersion()
+                ondisc = determineSimcVersionOnDisc()
                 if latest != ondisc:
                     logging.info(_("A newer SimCraft-version might be available for download! Version: {}").
                                  format(filename))
         autoDownloadSimc()
     validateSettings(args)
 
-    player_profile = build_profile_simc_addon(args)
+    player_profile = AddonImporter.build_profile_simc_addon(args, gear_slots, Profile(), specdata)
 
     # can always be rerun since it is now deterministic
     outputGenerated = False
