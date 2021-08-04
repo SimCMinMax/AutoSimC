@@ -99,8 +99,8 @@ def install_translation():
 install_translation()
 
 # Var init with default value
-t26min = int(settings.default_equip_t26_min)
-t26max = int(settings.default_equip_t26_max)
+t27min = int(settings.default_equip_t27_min)
+t27max = int(settings.default_equip_t27_max)
 
 gem_ids = {"16haste": 311865,
            "haste": 311865,  # always contains available maximum quality
@@ -399,7 +399,7 @@ def autoDownloadSimc():
         logging.debug(_("Latest simc version already downloaded at {}.").format(filename))
 
     # Unpack downloaded build and set simc_path
-    settings.simc_path = os.path.join(download_dir, filename[:filename.find(".7z")], "simc.exe")
+    settings.simc_path = os.path.join(download_dir, filename[:filename.find(".7z")][:-8], "simc.exe")
     splitter.simc_path = settings.simc_path
     if not os.path.exists(settings.simc_path):
         seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
@@ -491,7 +491,7 @@ def validateSettings(args):
     # validate tier-set
     min_tier_sets = 0
     max_tier_sets = 6
-    tier_sets = {"Tier26": (t26min, t26max)
+    tier_sets = {"Tier27": (t27min, t27max)
                  }
 
     total_min = 0
@@ -664,26 +664,26 @@ class PermutationData:
         self.talents = talents
 
     def count_tier(self):
-        self.t26 = 0
+        self.t27 = 0
         for item in self.items.values():
-            if item.tier_26:
-                self.t26 += 1
+            if item.tier_27:
+                self.t27 += 1
 
     def check_usable_before_talents(self):
         self.count_tier()
 
-        if self.t26 < t26min:
-            return "too few tier 26 items"
-        if self.t26 > t26max:
-            return "too many tier 26 items"
+        if self.t27 < t27min:
+            return "too few tier 27 items"
+        if self.t27 > t27max:
+            return "too many tier 27 items"
 
         return None
 
     def get_profile_name(self, valid_profile_number):
         # namingdata contains info for the profile-name
-        namingData = {"T26": ""}
+        namingData = {"T27": ""}
 
-        for tier in ([26]):
+        for tier in ([27]):
             count = getattr(self, "t" + str(tier))
             tiername = "T" + str(tier)
             if count:
@@ -716,7 +716,7 @@ class PermutationData:
 
 class Item:
     """WoW Item"""
-    tiers = [26]
+    tiers = [27]
 
     def __init__(self, slot, input_string=""):
         self._slot = slot
@@ -1339,6 +1339,33 @@ def addFightStyle(profile):
 
     return profile
 
+# generate map of id->type pairs
+def parseWeaponData():
+    # weapondata is directly derived from blizzard-datatables;
+    # type is important:
+    # 13: onehand -mh, oh
+    # 14: shield -oh
+    # 15: bow -mh
+    # 17: twohand (two twohanders are allowed for fury-warriors) -mh, oh
+    # 23: offhand -oh
+    # 26: gun -mh
+    #
+    # WE REALLY DONT CARE if you can equip it or not, if it has str or int
+    # we only use it to distinguish whether to put it into main_hand or off_hand slot
+    #
+    # therefore, if a warrior tries to sim a polearm, it would be assigned to the main_Hand (possibly two, if fury), but
+    # the stats etc. would not be taken into account by simulationcraft
+    # similar to weird combinations like bow and offhand or onehand and shield for druids
+    # => disable those items or sell them, or implement a validation-check
+
+    weapondata = {}
+    with open('weapondata.json', "r", encoding='utf-8') as data_file:
+        weapondata_json = json.load(data_file)
+
+        for weapon in weapondata_json:
+            weapondata[weapon['id']] = weapon['type']
+
+    return weapondata
 
 ########################
 #     Program Start    #
@@ -1408,7 +1435,7 @@ def main():
         autoDownloadSimc()
     validateSettings(args)
 
-    player_profile = AddonImporter.build_profile_simc_addon(args, gear_slots, Profile(), specdata)
+    player_profile = AddonImporter.build_profile_simc_addon(args, gear_slots, Profile(), specdata, parseWeaponData())
 
     # can always be rerun since it is now deterministic
     outputGenerated = False

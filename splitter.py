@@ -128,7 +128,7 @@ def _generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, p
     # For simulations with a high target_error, we want to get a faster execution (eg. only 47 iterations)
     # instead of the default minimum of ~100 iterations. This options tells SimC to more often check target_error
     # condition while simulating.
-    if sim_type is "target_error" and simtype_value > 0.1:
+    if sim_type == "target_error" and simtype_value > 0.1:
         cmd.append('analyze_error_interval=10')
 
     if is_last_stage:

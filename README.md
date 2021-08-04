@@ -219,11 +219,14 @@ AutoSimC has experimental support for localization/translation using the [gettex
 
 ## Changelog
 
+- 9.1.0a:
+- added basic functionality for Shadowlands
+
 - 8.0.1a:
- - removed Simpermut-import, now uses Simulationcraft-Addon [https://wow.curseforge.com/projects/simulationcraft]
+- removed Simpermut-import, now uses Simulationcraft-Addon [https://wow.curseforge.com/projects/simulationcraft]
 
 - 8.0.1:
- - Support for BfA
+- Support for BfA
 
 - 7.3.2a:
   - Autosimc seems to be stable, therefore bumping version to match compatibility with the current WoW-Patch.

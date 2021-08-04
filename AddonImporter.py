@@ -45,7 +45,7 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata, weapondata):
     for slot in gear_slots:
         gearInBags[slot[0]] = []
     weeklyRewards = {}
-    for reward in weeklyRewards:
+    for slot in gear_slots:
         weeklyRewards[slot[0]] = []
 
     # no sections available, so parse each line individually
@@ -55,6 +55,7 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata, weapondata):
         with open(args.inputfile, "r", encoding=input_encoding) as f:
             player_profile = profile
             player_profile.args = args
+
             player_profile.simc_options = {}
             # idea: in default-mode all #-lines are being ignored
             # once a ###-line is parsed, all following #-lines are assigned to the corresponding usage
@@ -83,7 +84,8 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata, weapondata):
                         active_mode = Mode.WEEKLY_REWARD
                         continue
 
-                    # parse #-lines
+                    # parse #-lines, here we distinguish between class-capabilities, since standard-"else-path" below
+                    # already contains valid items
                     splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
                     for gearslot in gear_slots:
                         if splittedLine[0].replace("\n", "") == gearslot[0]:
