@@ -18,6 +18,7 @@ import re
 from urllib.error import URLError
 from urllib.request import urlopen, urlretrieve
 import platform
+from enum import Enum, auto
 
 import AddonImporter
 import locale
@@ -31,7 +32,7 @@ except ImportError:
 import specdata
 import splitter
 
-__version__ = "9.0.1"
+__version__ = "9.1.0"
 
 import gettext
 
@@ -53,6 +54,18 @@ gear_slots = [("head",),
               ("trinket", "trinket1", "trinket2",),
               ("main_hand",),
               ("off_hand",)]
+
+
+class WeaponType(Enum):
+    DUMMY = -1
+    ONEHAND = 13
+    SHIELD = 14
+    BOW = 15
+    TWOHAND = 17
+    OFFHAND_WEAPON = 21
+    OFFHAND_SPECIAL_WEAPON = 22
+    OFFHAND = 23
+    GUN = 26
 
 
 class TranslatedText(str):
@@ -127,6 +140,7 @@ def stable_unique(seq):
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
 
+
 def get_additional_input():
     input_encoding = 'utf-8'
     options = []
@@ -135,14 +149,15 @@ def get_additional_input():
             for line in f:
                 if not line.startswith("#"):
                     options.append(line)
-            
+
     except UnicodeDecodeError as e:
         raise RuntimeError("""AutoSimC could not decode your additional input file '{file}' with encoding '{enc}'.
         Please make sure that your text editor encodes the file as '{enc}',
         or as a quick fix remove any special characters from your character name.""".format(file=additionalFileName,
                                                                                             enc=input_encoding)) from e
-    
+
     return "".join(options)
+
 
 def build_gem_list(gem_lists):
     """Build list of unique gem ids from --gems argument"""
@@ -348,7 +363,7 @@ def determineLatestSimcVersion():
         html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
-    #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    # filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
     head, _tail = os.path.splitext(filename)
     latest_git_version = head.split("-")[-1]
@@ -384,7 +399,7 @@ def autoDownloadSimc():
         html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
-    #filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
+    # filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
     filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
     print(_("Latest simc: {filename}").format(filename=filename))
 
@@ -706,7 +721,8 @@ class PermutationData:
     def write_to_file(self, filehandler, valid_profile_number, additional_options):
         profile_name = self.get_profile_name(valid_profile_number)
 
-        filehandler.write("{}={}\n".format(self.profile.wow_class, str.replace(self.profile.profile_name, "\"","")+"_"+profile_name))
+        filehandler.write("{}={}\n".format(self.profile.wow_class,
+                                           str.replace(self.profile.profile_name, "\"", "") + "_" + profile_name))
         filehandler.write(self.profile.general_options)
         filehandler.write("\ntalents={}\n".format(self.talents))
         filehandler.write(self.get_profile())
@@ -804,7 +820,7 @@ class Item:
             self.output_str += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
         if len(self.gem_ids):
             self.output_str += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
-        if self.drop_level>0:
+        if self.drop_level > 0:
             self.output_str += ",drop_level=" + str(self.drop_level)
         for name, values in self.extra_options.items():
             for value in values:
@@ -841,6 +857,70 @@ def product(*iterables):
                 yield (item,) + items
 
 
+# generate map of id->type pairs
+def initWeaponData():
+    # weapondata is directly derived from blizzard-datatables
+    # Thanks to Theunderminejournal.com for providing the database:
+    # http://newswire.theunderminejournal.com/phpMyAdmin
+    # SELECT id, type
+    # FROM `tblDBCItem`
+    # WHERE type = 13 or type = 14 or type = 15 or type = 17
+    # or type = 21 or type = 22 or type = 23 or type = 26
+    #
+    # type is important:
+    # 13: onehand                                                   -mh, oh
+    # 14: shield                                                    -oh
+    # 15: bow                                                       -mh
+    # 17: twohand (two twohanders are allowed for fury-warriors)    -mh, oh
+    # 21: offhand-weapon                                            -oh
+    # 22: offhand special stuff                                     -oh
+    # 23: offhand                                                   -oh
+    # 26: gun                                                       -mh
+    #
+    # WE REALLY DONT CARE if you can equip it or not, if it has str or int
+    # we only use it to distinguish whether to put it into main_hand or off_hand slot
+    #
+    # therefore, if a warrior tries to sim a polearm, it would be assigned to the main_Hand (possibly two, if fury), but
+    # the stats etc. would not be taken into account by simulationcraft
+    # similar to weird combinations like bow and offhand or onehand and shield for druids
+    # => disable those items or sell them, or implement a validation-check, no hunter needs a shield...
+
+    global weapondata
+    weapondata = {}
+    with open('weapondata.json', "r", encoding='utf-8') as data_file:
+        weapondata_json = json.load(data_file)
+
+        for weapon in weapondata_json:
+            weapondata[weapon['id']] = WeaponType(int(weapon['type']))
+    # always create one offhand-item which is used as dummy for twohand-permutations
+    weapondata["-1"] = WeaponType.DUMMY
+
+
+def isValidWeaponPermutation(permutation, player_profile):
+    mh_type = weapondata[str(permutation[10].item_id)]
+    oh_type = weapondata[str(permutation[11].item_id)]
+    print("isValidWeaponPermutation")
+    print(mh_type)
+    print(oh_type)
+
+    # only gun or bow is equippable
+    if (mh_type is WeaponType.BOW or mh_type is WeaponType.GUN) and oh_type is None:
+        return True
+    if player_profile.wow_class != "hunter" and (mh_type is WeaponType.BOW or mh_type is WeaponType.GUN):
+        return False
+    # only warriors can wield twohanders in offhand
+    if player_profile.wow_class != "warrior" and oh_type is WeaponType.TWOHAND:
+        return False
+    # no true offhand in mainhand possible
+    if mh_type is WeaponType.SHIELD or mh_type is WeaponType.OFFHAND:
+        return False
+    if player_profile.wow_class != "warrior" and mh_type is WeaponType.TWOHAND and (
+            oh_type is WeaponType.OFFHAND or oh_type is WeaponType.SHIELD):
+        return False
+
+    return True
+
+
 def permutate(args, player_profile):
     print(_("Combinations in progress..."))
 
@@ -859,10 +939,16 @@ def permutate(args, player_profile):
                 for foundGear in gearInBags.get(b):
                     currentGear = currentGear + "|" + foundGear
                 gear[b] = currentGear
+            else:
+                gear[b] = gearInBags.get(b)[0]
 
     for gear_slot in gear_slots:
         slot_base_name = gear_slot[0]  # First mentioned "correct" item name
         parsed_gear[slot_base_name] = []
+        if slot_base_name == "off_hand":
+            item = Item("off_hand")
+            item.item_id = -1
+            parsed_gear["off_hand"] = [item]
         for entry in gear_slot:
             if entry in gear:
                 if len(gear[entry]) > 0:
@@ -871,6 +957,7 @@ def permutate(args, player_profile):
         if len(parsed_gear[slot_base_name]) == 0:
             # We havent found any items for that slot, add empty dummy item
             parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
+
 
     logging.debug(_("Parsed gear: {}").format(parsed_gear))
 
@@ -885,7 +972,6 @@ def permutate(args, player_profile):
     normal_permutation_options = collections.OrderedDict({})
 
     # Add talents to permutations
-    # l_talents = player_profile.config['Profile'].get("talents", "")
     l_talents = player_profile.simc_options.get("talents")
     talent_permutations = permutate_talents(l_talents)
 
@@ -997,37 +1083,38 @@ def permutate(args, player_profile):
     unusable_histogram = {}  # Record not usable reasons
     with open(args.outputfile, 'w') as output_file:
         for perm_normal in normal_permutations:
-            for perm_finger in special_permutations["finger"][2]:
-                for perm_trinket in special_permutations["trinket"][2]:
-                    entries = perm_normal
-                    entries += perm_finger
-                    entries += perm_trinket
-                    items = {e.slot: e for e in entries if type(e) is Item}
-                    data = PermutationData(items, player_profile, max_profile_chars)
-                    is_unusable_before_talents = data.check_usable_before_talents()
-                    if not is_unusable_before_talents:
-                        # add gem-permutations to gear
-                        if args.gems is not None:
-                            gem_permutations = data.permutate_gems(items, splitted_gems)
+            if isValidWeaponPermutation(perm_normal, player_profile):
+                for perm_finger in special_permutations["finger"][2]:
+                    for perm_trinket in special_permutations["trinket"][2]:
+                        entries = perm_normal
+                        entries += perm_finger
+                        entries += perm_trinket
+                        items = {e.slot: e for e in entries if type(e) is Item}
+                        data = PermutationData(items, player_profile, max_profile_chars)
+                        is_unusable_before_talents = data.check_usable_before_talents()
+                        if not is_unusable_before_talents:
+                            # add gem-permutations to gear
+                            if args.gems is not None:
+                                gem_permutations = data.permutate_gems(items, splitted_gems)
+                            else:
+                                gem_permutations = (items,)
+                            for gem_permutation in gem_permutations:
+                                data.items = gem_permutation
+                                # Permutate talents after is usable check, since it is independent of the talents
+                                for t in talent_permutations:
+                                    data.update_talents(t)
+                                    # Additional talent usable check could be inserted here.
+                                    data.write_to_file(output_file, valid_profiles, additional_options)
+                                    valid_profiles += 1
+                                    processed += 1
                         else:
-                            gem_permutations = (items,)
-                        for gem_permutation in gem_permutations:
-                            data.items = gem_permutation
-                            # Permutate talents after is usable check, since it is independent of the talents
-                            for t in talent_permutations:
-                                data.update_talents(t)
-                                # Additional talent usable check could be inserted here.
-                                data.write_to_file(output_file, valid_profiles, additional_options)
-                                valid_profiles += 1
-                                processed += 1
-                    else:
-                        processed += len(talent_permutations) * gem_perms
-                        if is_unusable_before_talents not in unusable_histogram:
-                            unusable_histogram[is_unusable_before_talents] = 0
-                        unusable_histogram[is_unusable_before_talents] += len(talent_permutations) * gem_perms
-                    progress += 1
-                    print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
-                                               progress, max_progress)
+                            processed += len(talent_permutations) * gem_perms
+                            if is_unusable_before_talents not in unusable_histogram:
+                                unusable_histogram[is_unusable_before_talents] = 0
+                            unusable_histogram[is_unusable_before_talents] += len(talent_permutations) * gem_perms
+                        progress += 1
+                        print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
+                                                   progress, max_progress)
 
     result = _("Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)"). \
         format(valid_profiles,
@@ -1339,33 +1426,6 @@ def addFightStyle(profile):
 
     return profile
 
-# generate map of id->type pairs
-def parseWeaponData():
-    # weapondata is directly derived from blizzard-datatables;
-    # type is important:
-    # 13: onehand -mh, oh
-    # 14: shield -oh
-    # 15: bow -mh
-    # 17: twohand (two twohanders are allowed for fury-warriors) -mh, oh
-    # 23: offhand -oh
-    # 26: gun -mh
-    #
-    # WE REALLY DONT CARE if you can equip it or not, if it has str or int
-    # we only use it to distinguish whether to put it into main_hand or off_hand slot
-    #
-    # therefore, if a warrior tries to sim a polearm, it would be assigned to the main_Hand (possibly two, if fury), but
-    # the stats etc. would not be taken into account by simulationcraft
-    # similar to weird combinations like bow and offhand or onehand and shield for druids
-    # => disable those items or sell them, or implement a validation-check
-
-    weapondata = {}
-    with open('weapondata.json', "r", encoding='utf-8') as data_file:
-        weapondata_json = json.load(data_file)
-
-        for weapon in weapondata_json:
-            weapondata[weapon['id']] = weapon['type']
-
-    return weapondata
 
 ########################
 #     Program Start    #
@@ -1435,7 +1495,8 @@ def main():
         autoDownloadSimc()
     validateSettings(args)
 
-    player_profile = AddonImporter.build_profile_simc_addon(args, gear_slots, Profile(), specdata, parseWeaponData())
+    initWeaponData()
+    player_profile = AddonImporter.build_profile_simc_addon(args, gear_slots, Profile(), specdata)
 
     # can always be rerun since it is now deterministic
     outputGenerated = False

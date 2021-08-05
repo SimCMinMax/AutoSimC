@@ -36,7 +36,7 @@ simc_profile_options = ["race",
                         "flask",
                         "food"]
 
-def build_profile_simc_addon(args, gear_slots, profile, specdata, weapondata):
+def build_profile_simc_addon(args, gear_slots, profile, specdata):
     # will contain any gear in file for each slot, divided by |
     gear = {}
     for slot in gear_slots:
@@ -88,42 +88,40 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata, weapondata):
                     # already contains valid items
                     splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
                     for gearslot in gear_slots:
-                        if splittedLine[0].replace("\n", "") == gearslot[0]:
+                        cleaned_line = splittedLine[0].replace("\n", "")
+                        if cleaned_line == gearslot[0]:
                             if active_mode is Mode.GEAR_FROM_BAGS:
-                                gearInBags[splittedLine[0].replace("\n", "")].append(
+                                gearInBags[cleaned_line].append(
                                     splittedLine[1].replace("\n", "").lstrip().rstrip())
                             if active_mode is Mode.WEEKLY_REWARD:
-                                weeklyRewards[splittedLine[0].replace("\n", "")].append(
+                                weeklyRewards[cleaned_line].append(
                                     splittedLine[1].replace("\n", "").lstrip().rstrip())
                         # trinket and finger-handling
-                        trinketOrRing = splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")
-                        if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[
-                            0]:
+                        trinketOrRing = cleaned_line.replace("1", "").replace("2", "")
+                        if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[0]:
                             if active_mode is Mode.GEAR_FROM_BAGS:
-                                gearInBags[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
+                                gearInBags[cleaned_line.replace("1", "").replace("2", "")].append(
                                     splittedLine[1].lstrip().rstrip())
                             if active_mode is Mode.WEEKLY_REWARD:
-                                weeklyRewards[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
+                                weeklyRewards[cleaned_line.replace("1", "").replace("2", "")].append(
                                     splittedLine[1].lstrip().rstrip())
                 else:
                     # parse active gear etc.
                     splittedLine = line.split("=", 1)
-                    if splittedLine[0].replace("\n", "") in valid_classes:
-                        c_class = splittedLine[0].replace("\n", "").lstrip().rstrip()
+                    cleaned_line = splittedLine[0].replace("\n", "")
+                    if cleaned_line in valid_classes:
+                        c_class = cleaned_line.lstrip().rstrip()
                         player_profile.wow_class = c_class
                         player_profile.profile_name = splittedLine[1].replace("\n", "").lstrip().rstrip()
-                    if splittedLine[0].replace("\n", "") in simc_profile_options:
-                        player_profile.simc_options[splittedLine[0].replace("\n", "")] = splittedLine[1].replace("\n",
-                                                                                                                 "").lstrip().rstrip()
+                    if cleaned_line in simc_profile_options:
+                        player_profile.simc_options[cleaned_line] = splittedLine[1].replace("\n", "").lstrip().rstrip()
                     for gearslot in gear_slots:
-                        if splittedLine[0].replace("\n", "") == gearslot[0]:
-                            gear[splittedLine[0].replace("\n", "")].append(
-                                splittedLine[1].replace("\n", "").lstrip().rstrip())
+                        if cleaned_line == gearslot[0]:
+                            gear[cleaned_line].append(splittedLine[1].replace("\n", "").lstrip().rstrip())
                         # trinket and finger-handling
-                        trinketOrRing = splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")
+                        trinketOrRing = cleaned_line.replace("1", "").replace("2", "")
                         if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[0]:
-                            gear[splittedLine[0].replace("\n", "").replace("1", "").replace("2", "")].append(
-                                splittedLine[1].lstrip().rstrip())
+                            gear[cleaned_line.replace("1", "").replace("2", "")].append(splittedLine[1].lstrip().rstrip())
 
     except UnicodeDecodeError as e:
         raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
