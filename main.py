@@ -762,7 +762,6 @@ class Item:
                 self.name = self.name[len(n):]
             else:
                 setattr(self, "tier_{}".format(tier), False)
-        print("test: "+slot)
         if len(input_string):
             self.parse_input(input_string.strip("\""))
 
