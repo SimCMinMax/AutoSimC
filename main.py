@@ -678,6 +678,12 @@ class PermutationData:
     def update_talents(self, talents):
         self.talents = talents
 
+    def count_weekly_rewards(self):
+        self.weeklyRewardCount = 0
+        for item in self.items.values():
+            if item.isWeeklyReward:
+                self.weeklyRewardCount += 1
+
     def count_tier(self):
         self.t27 = 0
         for item in self.items.values():
@@ -686,7 +692,10 @@ class PermutationData:
 
     def check_usable_before_talents(self):
         self.count_tier()
+        self.count_weekly_rewards()
 
+        if self.weeklyRewardCount > 1:
+            return "too many weekly reward items equipped"
         if self.t27 < t27min:
             return "too few tier 27 items"
         if self.t27 > t27max:
@@ -734,7 +743,7 @@ class Item:
     """WoW Item"""
     tiers = [27]
 
-    def __init__(self, slot, input_string=""):
+    def __init__(self, slot, is_weekly_reward, input_string=""):
         self._slot = slot
         self.name = ""
         self.item_id = 0
@@ -744,6 +753,7 @@ class Item:
         self.drop_level = 0
         self.tier_set = {}
         self.extra_options = {}
+        self._isWeeklyReward = is_weekly_reward
 
         for tier in self.tiers:
             n = "T{}".format(tier)
@@ -752,6 +762,7 @@ class Item:
                 self.name = self.name[len(n):]
             else:
                 setattr(self, "tier_{}".format(tier), False)
+        print("test: "+slot)
         if len(input_string):
             self.parse_input(input_string.strip("\""))
 
@@ -764,6 +775,15 @@ class Item:
     @slot.setter
     def slot(self, value):
         self._slot = value
+        self._build_output_str()
+
+    @property
+    def isWeeklyReward(self):
+        return self._isWeeklyReward
+
+    @isWeeklyReward.setter
+    def isWeeklyReward(self, value):
+        self._isWeeklyReward = value
         self._build_output_str()
 
     @property
@@ -899,9 +919,6 @@ def initWeaponData():
 def isValidWeaponPermutation(permutation, player_profile):
     mh_type = weapondata[str(permutation[10].item_id)]
     oh_type = weapondata[str(permutation[11].item_id)]
-    print("isValidWeaponPermutation")
-    print(mh_type)
-    print(oh_type)
 
     # only gun or bow is equippable
     if (mh_type is WeaponType.BOW or mh_type is WeaponType.GUN) and oh_type is None:
@@ -928,6 +945,7 @@ def permutate(args, player_profile):
 
     gear = player_profile.simc_options.get('gear')
     gearInBags = player_profile.simc_options.get('gearInBag')
+    weeklyRewards = player_profile.simc_options.get('weeklyRewards')
 
     # concatenate gear in bags to normal gear-list
     for b in gearInBags:
@@ -940,23 +958,40 @@ def permutate(args, player_profile):
                     currentGear = currentGear + "|" + foundGear
                 gear[b] = currentGear
             else:
-                gear[b] = gearInBags.get(b)[0]
+                gear[b] = gearInBags.get(b)
+
+    # concatenate weekly rewards to normal gear-list
+    for b in weeklyRewards:
+        if b in gear:
+            if len(gear[b]) > 0:
+                currentGear = gear[b]
+                if b == "finger" or b == "trinket":
+                    currentGear = currentGear + "|" + gear[b][1]
+                for foundGear in weeklyRewards.get(b):
+                    currentGear = currentGear + "|" + foundGear
+                gear[b] = currentGear
+            else:
+                gear[b] = weeklyRewards.get(b)
 
     for gear_slot in gear_slots:
         slot_base_name = gear_slot[0]  # First mentioned "correct" item name
         parsed_gear[slot_base_name] = []
+        # create a dummy-item so no_offhand-combinations are not being dismissed later in the product-function
         if slot_base_name == "off_hand":
-            item = Item("off_hand")
+            item = Item("off_hand", False, "")
             item.item_id = -1
             parsed_gear["off_hand"] = [item]
         for entry in gear_slot:
             if entry in gear:
                 if len(gear[entry]) > 0:
                     for s in gear[entry].split("|"):
-                        parsed_gear[slot_base_name].append(Item(slot_base_name, s))
+                        in_weekly_rewards = False
+                        if s in weeklyRewards[slot_base_name]:
+                            in_weekly_rewards = True
+                        parsed_gear[slot_base_name].append(Item(slot_base_name, in_weekly_rewards, s))
         if len(parsed_gear[slot_base_name]) == 0:
             # We havent found any items for that slot, add empty dummy item
-            parsed_gear[slot_base_name] = [Item(slot_base_name, "")]
+            parsed_gear[slot_base_name] = [Item(slot_base_name, False, "")]
 
 
     logging.debug(_("Parsed gear: {}").format(parsed_gear))

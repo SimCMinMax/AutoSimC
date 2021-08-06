@@ -77,15 +77,13 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata):
 
                 if line.startswith("#"):
                     if line.startswith("### Gear from Bags"):
-                        # gear-in-bag handling
                         active_mode = Mode.GEAR_FROM_BAGS
                         continue
                     if line.startswith("### Weekly Reward Choices"):
                         active_mode = Mode.WEEKLY_REWARD
                         continue
 
-                    # parse #-lines, here we distinguish between class-capabilities, since standard-"else-path" below
-                    # already contains valid items
+                    # parse #-lines
                     splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
                     for gearslot in gear_slots:
                         cleaned_line = splittedLine[0].replace("\n", "")
