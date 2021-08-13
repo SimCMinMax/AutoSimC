@@ -55,6 +55,12 @@ gear_slots = [("head",),
               ("main_hand",),
               ("off_hand",)]
 
+shadowlands_legendary_ids = [171412, 171413, 171414, 171415, 171416, 171417, 171418, 171419,            #plate
+                             172314, 172315, 172316, 172317, 172318, 172319, 172320, 172321,            #leather
+                             172322, 172323, 172324, 172325, 172326, 172327, 172328, 172329,            #mail
+                             173241, 173242, 173243, 173244, 173245, 173246, 173247, 173248, 173249,    #cloth
+                             178926, 178927                                                             #ring, neck
+                             ]
 
 class WeaponType(Enum):
     DUMMY = -1
@@ -690,10 +696,19 @@ class PermutationData:
             if item.tier_27:
                 self.t27 += 1
 
+    def count_legendaries(self):
+        self.legendaries_equipped = 0
+        for item in self.items.values():
+            if item.item_id in shadowlands_legendary_ids:
+                self.legendaries_equipped += 1
+
     def check_usable_before_talents(self):
         self.count_tier()
         self.count_weekly_rewards()
+        self.count_legendaries()
 
+        if self.legendaries_equipped > 1:
+            return "too many legendaries equipped"
         if self.weeklyRewardCount > 1:
             return "too many weekly reward items equipped"
         if self.t27 < t27min:
