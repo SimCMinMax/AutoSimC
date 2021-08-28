@@ -1,6 +1,10 @@
 import logging
 from enum import Enum, auto
 
+from item import GEAR_SLOTS
+from profile import Profile
+
+
 class Mode(Enum):
     DEFAULT = auto()
     GEAR_FROM_BAGS = auto()
@@ -36,16 +40,16 @@ simc_profile_options = ["race",
                         "flask",
                         "food"]
 
-def build_profile_simc_addon(args, gear_slots, profile, specdata):
+def build_profile_simc_addon(args, specdata):
     # will contain any gear in file for each slot, divided by |
     gear = {}
-    for slot in gear_slots:
+    for slot in GEAR_SLOTS:
         gear[slot[0]] = []
     gearInBags = {}
-    for slot in gear_slots:
+    for slot in GEAR_SLOTS:
         gearInBags[slot[0]] = []
     weeklyRewards = {}
-    for slot in gear_slots:
+    for slot in GEAR_SLOTS:
         weeklyRewards[slot[0]] = []
 
     # no sections available, so parse each line individually
@@ -53,7 +57,7 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata):
     c_class = ""
     try:
         with open(args.inputfile, "r", encoding=input_encoding) as f:
-            player_profile = profile
+            player_profile = Profile()
             player_profile.args = args
 
             player_profile.simc_options = {}
@@ -85,7 +89,7 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata):
 
                     # parse #-lines
                     splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
-                    for gearslot in gear_slots:
+                    for gearslot in GEAR_SLOTS:
                         cleaned_line = splittedLine[0].replace("\n", "")
                         if cleaned_line == gearslot[0]:
                             if active_mode is Mode.GEAR_FROM_BAGS:
@@ -113,7 +117,7 @@ def build_profile_simc_addon(args, gear_slots, profile, specdata):
                         player_profile.profile_name = splittedLine[1].replace("\n", "").lstrip().rstrip()
                     if cleaned_line in simc_profile_options:
                         player_profile.simc_options[cleaned_line] = splittedLine[1].replace("\n", "").lstrip().rstrip()
-                    for gearslot in gear_slots:
+                    for gearslot in GEAR_SLOTS:
                         if cleaned_line == gearslot[0]:
                             gear[cleaned_line].append(splittedLine[1].replace("\n", "").lstrip().rstrip())
                         # trinket and finger-handling
