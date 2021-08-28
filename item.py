@@ -19,6 +19,18 @@ GEAR_SLOTS = [("head",),
               ("main_hand",),
               ("off_hand",)]
 
+SIMPLE_GEAR_SLOTS = [x[0] for x in GEAR_SLOTS]
+COMPLEX_GEAR_SLOTS = ['finger1', 'finger2', 'trinket1', 'trinket2']
+
+def canonical_slot_name(slot: str) -> str:
+    if slot in SIMPLE_GEAR_SLOTS:
+        return slot
+    elif slot in ('finger1', 'finger2'):
+        return 'finger'
+    elif slot in ('trinket1', 'trinket2'):
+        return 'trinket'
+    raise ValueError(f'Unknown gear slot {slot}')
+
 
 class WeaponType(Enum):
     DUMMY = -1
@@ -196,23 +208,20 @@ def _read_weapon_data() -> Dict[int, WeaponType]:
 _WEAPONDATA = _read_weapon_data()
 
 
-def isValidWeaponPermutation(permutation, player_profile):
+def isValidWeaponPermutation(permutation: Dict[int, Item], wow_class: str) -> bool:
     mh_type = _WEAPONDATA[permutation[10].item_id]
     oh_type = _WEAPONDATA[permutation[11].item_id]
 
     # only gun or bow is equippable
-    if (mh_type is WeaponType.BOW or mh_type is WeaponType.GUN) and oh_type is None:
+    if wow_class == 'hunter' and mh_type in (WeaponType.BOW, WeaponType.GUN) and oh_type is None:
         return True
-    if player_profile.wow_class != "hunter" and (mh_type is WeaponType.BOW or mh_type is WeaponType.GUN):
-        return False
     # only warriors can wield twohanders in offhand
-    if player_profile.wow_class != "warrior" and oh_type is WeaponType.TWOHAND:
+    if wow_class != "warrior" and oh_type == WeaponType.TWOHAND:
         return False
     # no true offhand in mainhand possible
-    if mh_type is WeaponType.SHIELD or mh_type is WeaponType.OFFHAND:
+    if mh_type in (WeaponType.SHIELD, WeaponType.OFFHAND):
         return False
-    if player_profile.wow_class != "warrior" and mh_type is WeaponType.TWOHAND and (
-            oh_type is WeaponType.OFFHAND or oh_type is WeaponType.SHIELD):
+    if wow_class != "warrior" and mh_type == WeaponType.TWOHAND and oh_type in (WeaponType.OFFHAND, WeaponType.SHIELD):
         return False
 
     return True

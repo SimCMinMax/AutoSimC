@@ -13,9 +13,7 @@ try:
 except ImportError:
     pass
 
-import gettext
-gettext.install('AutoSimC')
-
+from i18n import _
 
 def _parse_profiles_from_file(fd, user_class):
     """Parse a simc file, and yield each player entry (between two class=name lines)"""

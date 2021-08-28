@@ -76,7 +76,7 @@ _CLASS_SPECS = {
 }
 
 # Healer Specializations
-_HEALERS = frozenset({
+HEALERS = frozenset({
     'Restoration Druid',
     'Discipline Priest',
     'Holy Priest',
@@ -86,7 +86,7 @@ _HEALERS = frozenset({
 })
 
 # Tank specializations
-_TANKS = frozenset({
+TANKS = frozenset({
     'Blood Death Knight',
     'Vengeance Demon Hunter',
     'Guardian Druid',
@@ -94,6 +94,8 @@ _TANKS = frozenset({
     'Brewmaster Monk',
     'Protection Warrior',
 })
+
+ALL_CLASSES = frozenset(_CLASS_SPECS.keys())
 
 _ALL_SPECS = list(itertools.chain(*(s.values()
                                     for s in _CLASS_SPECS.values())))
@@ -107,7 +109,7 @@ def getClassSpec(c_class: str, c_spec: str):
         raise ValueError(
             f'Unsupported class/spec-combination: {c_class} - {c_spec}')
 
-    if class_spec in _HEALERS or class_spec in _TANKS:
+    if class_spec in HEALERS or class_spec in TANKS:
         warnings.warn(
             'You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete '
             'results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a '

@@ -28,6 +28,7 @@ try:
     from settings_local import settings
 except ImportError:
     pass
+from profile import Profile
 from specdata import get_analyzer_data
 import splitter
 from i18n import _, UntranslatedFileHandler
@@ -672,61 +673,9 @@ def product(*iterables):
 
 
 
-def permutate(args, player_profile):
+def permutate(args, player_profile: Profile) -> int:
     print(_("Combinations in progress..."))
-
-    parsed_gear = collections.OrderedDict({})
-
-    gear = player_profile.simc_options.get('gear')
-    gearInBags = player_profile.simc_options.get('gearInBag')
-    weeklyRewards = player_profile.simc_options.get('weeklyRewards')
-
-    # concatenate gear in bags to normal gear-list
-    for b in gearInBags:
-        if b in gear:
-            if len(gear[b]) > 0:
-                currentGear = gear[b][0]
-                if b == "finger" or b == "trinket":
-                    currentGear = currentGear + "|" + gear[b][1]
-                for foundGear in gearInBags.get(b):
-                    currentGear = currentGear + "|" + foundGear
-                gear[b] = currentGear
-            else:
-                gear[b] = gearInBags.get(b)
-
-    # concatenate weekly rewards to normal gear-list
-    for b in weeklyRewards:
-        if b in gear:
-            if len(gear[b]) > 0:
-                currentGear = gear[b]
-                if b == "finger" or b == "trinket":
-                    currentGear = currentGear + "|" + gear[b][1]
-                for foundGear in weeklyRewards.get(b):
-                    currentGear = currentGear + "|" + foundGear
-                gear[b] = currentGear
-            else:
-                gear[b] = weeklyRewards.get(b)
-
-    for gear_slot in GEAR_SLOTS:
-        slot_base_name = gear_slot[0]  # First mentioned "correct" item name
-        parsed_gear[slot_base_name] = []
-        # create a dummy-item so no_offhand-combinations are not being dismissed later in the product-function
-        if slot_base_name == "off_hand":
-            item = Item("off_hand", False, "")
-            item.item_id = -1
-            parsed_gear["off_hand"] = [item]
-        for entry in gear_slot:
-            if entry in gear:
-                if len(gear[entry]) > 0:
-                    for s in gear[entry].split("|"):
-                        in_weekly_rewards = False
-                        if s in weeklyRewards[slot_base_name]:
-                            in_weekly_rewards = True
-                        parsed_gear[slot_base_name].append(Item(slot_base_name, in_weekly_rewards, s))
-        if len(parsed_gear[slot_base_name]) == 0:
-            # We havent found any items for that slot, add empty dummy item
-            parsed_gear[slot_base_name] = [Item(slot_base_name, False, "")]
-
+    parsed_gear = player_profile.simc_options.all_gear()
 
     logging.debug(_("Parsed gear: {}").format(parsed_gear))
 
@@ -741,7 +690,7 @@ def permutate(args, player_profile):
     normal_permutation_options = collections.OrderedDict({})
 
     # Add talents to permutations
-    l_talents = player_profile.simc_options.get("talents")
+    l_talents = player_profile.simc_options.talents
     talent_permutations = permutate_talents(l_talents)
 
     # Calculate max number of gem slots in equip. Will be used if we do gem permutations.
@@ -852,7 +801,7 @@ def permutate(args, player_profile):
     unusable_histogram = {}  # Record not usable reasons
     with open(args.outputfile, 'w') as output_file:
         for perm_normal in normal_permutations:
-            if isValidWeaponPermutation(perm_normal, player_profile):
+            if isValidWeaponPermutation(perm_normal, player_profile.wow_class):
                 for perm_finger in special_permutations["finger"][2]:
                     for perm_trinket in special_permutations["trinket"][2]:
                         entries = perm_normal

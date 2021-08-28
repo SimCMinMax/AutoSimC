@@ -1,28 +1,15 @@
 import logging
 from enum import Enum, auto
 
-from item import GEAR_SLOTS
+from item import SIMPLE_GEAR_SLOTS, COMPLEX_GEAR_SLOTS, canonical_slot_name, Item
 from profile import Profile
-from specdata import getClassSpec, getRole
+from specdata import ALL_CLASSES
 
 class Mode(Enum):
     DEFAULT = auto()
     GEAR_FROM_BAGS = auto()
     WEEKLY_REWARD = auto()
 
-valid_classes = ["priest",
-                 "druid",
-                 "warrior",
-                 "paladin",
-                 "hunter",
-                 "deathknight",
-                 "demonhunter",
-                 "mage",
-                 "monk",
-                 "rogue",
-                 "shaman",
-                 "warlock",
-                 ]
 # Parse general profile options
 simc_profile_options = ["race",
                         "level",
@@ -38,46 +25,27 @@ simc_profile_options = ["race",
                         "renown",
                         "potion",
                         "flask",
-                        "food"]
+                        "food",
+                        "renown",
+                        "covenant",
+                        "soulbind"]
 
 def build_profile_simc_addon(args) -> Profile:
-    # will contain any gear in file for each slot, divided by |
-    gear = {}
-    for slot in GEAR_SLOTS:
-        gear[slot[0]] = []
-    gearInBags = {}
-    for slot in GEAR_SLOTS:
-        gearInBags[slot[0]] = []
-    weeklyRewards = {}
-    for slot in GEAR_SLOTS:
-        weeklyRewards[slot[0]] = []
+    player_profile = Profile()
 
     # no sections available, so parse each line individually
     input_encoding = 'utf-8'
-    c_class = ""
     try:
         with open(args.inputfile, "r", encoding=input_encoding) as f:
-            player_profile = Profile()
             player_profile.args = args
-
-            player_profile.simc_options = {}
             # idea: in default-mode all #-lines are being ignored
             # once a ###-line is parsed, all following #-lines are assigned to the corresponding usage
             active_mode = Mode.DEFAULT
 
             for line in f:
-                if line == "\n":
+                line = line.strip()
+                if line == "":
                     continue
-                # Shadowlands
-                if line.startswith("renown"):
-                    splitted = line.split("=", 1)[1].rstrip().lstrip()
-                    player_profile.simc_options["renown"] = splitted
-                if line.startswith("covenant"):
-                    splitted = line.split("=", 1)[1].rstrip().lstrip()
-                    player_profile.simc_options["covenant"] = splitted
-                if line.startswith("soulbind"):
-                    splitted = line.split("=", 1)[1].rstrip().lstrip()
-                    player_profile.simc_options["soulbind"] = splitted
 
                 if line.startswith("#"):
                     if line.startswith("### Gear from Bags"):
@@ -88,61 +56,41 @@ def build_profile_simc_addon(args) -> Profile:
                         continue
 
                     # parse #-lines
-                    splittedLine = line.replace("#", "").replace("\n", "").lstrip().rstrip().split("=", 1)
-                    for gearslot in GEAR_SLOTS:
-                        cleaned_line = splittedLine[0].replace("\n", "")
-                        if cleaned_line == gearslot[0]:
-                            if active_mode is Mode.GEAR_FROM_BAGS:
-                                gearInBags[cleaned_line].append(
-                                    splittedLine[1].replace("\n", "").lstrip().rstrip())
-                            if active_mode is Mode.WEEKLY_REWARD:
-                                weeklyRewards[cleaned_line].append(
-                                    splittedLine[1].replace("\n", "").lstrip().rstrip())
-                        # trinket and finger-handling
-                        trinketOrRing = cleaned_line.replace("1", "").replace("2", "")
-                        if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[0]:
-                            if active_mode is Mode.GEAR_FROM_BAGS:
-                                gearInBags[cleaned_line.replace("1", "").replace("2", "")].append(
-                                    splittedLine[1].lstrip().rstrip())
-                            if active_mode is Mode.WEEKLY_REWARD:
-                                weeklyRewards[cleaned_line.replace("1", "").replace("2", "")].append(
-                                    splittedLine[1].lstrip().rstrip())
+                    if '=' in line[1:]:
+                        key, value = line[1:].split('=', 1)
+                        key = key.replace('\n', '').strip()
+                        value = value.replace('\n', '').strip()
+
+                        if key in SIMPLE_GEAR_SLOTS or key in COMPLEX_GEAR_SLOTS:
+                            slot = canonical_slot_name(key)
+                            item = Item(slot, active_mode == Mode.WEEKLY_REWARD, value)
+                            if active_mode == Mode.GEAR_FROM_BAGS:
+                                player_profile.simc_options.gear_in_bags[slot].append(item)
+                            elif active_mode == Mode.WEEKLY_REWARD:
+                                player_profile.simc_options.weekly_rewards[slot].append(item)
                 else:
                     # parse active gear etc.
-                    splittedLine = line.split("=", 1)
-                    cleaned_line = splittedLine[0].replace("\n", "")
-                    if cleaned_line in valid_classes:
-                        c_class = cleaned_line.lstrip().rstrip()
-                        player_profile.wow_class = c_class
-                        player_profile.profile_name = splittedLine[1].replace("\n", "").lstrip().rstrip()
-                    if cleaned_line in simc_profile_options:
-                        player_profile.simc_options[cleaned_line] = splittedLine[1].replace("\n", "").lstrip().rstrip()
-                    for gearslot in GEAR_SLOTS:
-                        if cleaned_line == gearslot[0]:
-                            gear[cleaned_line].append(splittedLine[1].replace("\n", "").lstrip().rstrip())
-                        # trinket and finger-handling
-                        trinketOrRing = cleaned_line.replace("1", "").replace("2", "")
-                        if (trinketOrRing == "finger" or trinketOrRing == "trinket") and trinketOrRing == gearslot[0]:
-                            gear[cleaned_line.replace("1", "").replace("2", "")].append(splittedLine[1].lstrip().rstrip())
+                    key, value = line.split('=', 1)
+                    key = key.replace('\n', '').strip()
+                    value = value.replace('\n', '').strip()
 
+                    if key in ALL_CLASSES:
+                        player_profile.wow_class = key
+                        player_profile.profile_name = value
+                    elif key in simc_profile_options:
+                        setattr(player_profile.simc_options, key, value)
+                    elif key in SIMPLE_GEAR_SLOTS or key in COMPLEX_GEAR_SLOTS:
+                        slot = canonical_slot_name(key)
+                        item = Item(slot, False, value)
+                        player_profile.simc_options.gear[slot].append(item)
     except UnicodeDecodeError as e:
         raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
         Please make sure that your text editor encodes the file as '{enc}',
         or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
                                                                                             enc=input_encoding)) from e
-    if c_class != "":
-        player_profile.class_spec = getClassSpec(c_class, player_profile.simc_options["spec"])
-        player_profile.class_role = getRole(c_class, player_profile.simc_options["spec"])
 
     # Build 'general' profile options which do not permutate once into a simc-string
-    logging.info("SimC options: {}".format(player_profile.simc_options))
-    player_profile.general_options = "\n".join(["{}={}".format(key, value) for key, value in
-                                                player_profile.simc_options.items()])
-    logging.debug("Built simc general options string: {}".format(player_profile.general_options))
-
-    # Parse gear
-    player_profile.simc_options["gear"] = gear
-    player_profile.simc_options["gearInBag"] = gearInBags
-    player_profile.simc_options["weeklyRewards"] = weeklyRewards
+    logging.info(f'SimC options: {player_profile.simc_options}')
+    logging.debug(f'Built simc general options string: {player_profile.general_options}')
 
     return player_profile
