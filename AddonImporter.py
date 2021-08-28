@@ -3,7 +3,7 @@ from enum import Enum, auto
 
 from item import GEAR_SLOTS
 from profile import Profile
-
+from specdata import getClassSpec, getRole
 
 class Mode(Enum):
     DEFAULT = auto()
@@ -40,7 +40,7 @@ simc_profile_options = ["race",
                         "flask",
                         "food"]
 
-def build_profile_simc_addon(args, specdata):
+def build_profile_simc_addon(args) -> Profile:
     # will contain any gear in file for each slot, divided by |
     gear = {}
     for slot in GEAR_SLOTS:
@@ -131,8 +131,8 @@ def build_profile_simc_addon(args, specdata):
         or as a quick fix remove any special characters from your character name.""".format(file=args.inputfile,
                                                                                             enc=input_encoding)) from e
     if c_class != "":
-        player_profile.class_spec = specdata.getClassSpec(c_class, player_profile.simc_options["spec"])
-        player_profile.class_role = specdata.getRole(c_class, player_profile.simc_options["spec"])
+        player_profile.class_spec = getClassSpec(c_class, player_profile.simc_options["spec"])
+        player_profile.class_role = getRole(c_class, player_profile.simc_options["spec"])
 
     # Build 'general' profile options which do not permutate once into a simc-string
     logging.info("SimC options: {}".format(player_profile.simc_options))

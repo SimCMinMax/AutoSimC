@@ -28,7 +28,7 @@ try:
     from settings_local import settings
 except ImportError:
     pass
-import specdata
+from specdata import get_analyzer_data
 import splitter
 from i18n import _, UntranslatedFileHandler
 from item import Item, isValidWeaponPermutation, GEAR_SLOTS
@@ -242,26 +242,6 @@ def handleCommandLine():
     num_stages = args.stages
 
     return args
-
-
-def get_analyzer_data(class_spec):
-    """
-    Get precomputed analysis data (target_error, iterations, elapsed_time_seconds) for a given class_spec
-    """
-    result = []
-    filename = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
-    with open(filename, "r") as f:
-        file = json.load(f)
-        for variant in file[0]:
-            for p in variant["playerdata"]:
-                if p["specialization"] == class_spec:
-                    for s in range(len(p["specdata"])):
-                        item = (float(variant["target_error"]),
-                                int(p["specdata"][s]["iterations"]),
-                                float(p["specdata"][s]["elapsed_time_seconds"])
-                                )
-                        result.append(item)
-    return result
 
 
 def determineSimcVersionOnDisc():
@@ -1222,8 +1202,6 @@ def addFightStyle(profile):
 
 
 def main():
-    global class_spec
-
     error_handler = UntranslatedFileHandler(settings.errorFileName, encoding="utf-8")
     error_handler.setLevel(logging.ERROR)
 
@@ -1265,7 +1243,7 @@ def main():
         autoDownloadSimc()
     validateSettings(args)
 
-    player_profile = AddonImporter.build_profile_simc_addon(args, specdata)
+    player_profile = AddonImporter.build_profile_simc_addon(args)
 
     # can always be rerun since it is now deterministic
     outputGenerated = False
