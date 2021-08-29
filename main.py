@@ -26,8 +26,7 @@ from profile import Profile
 from specdata import get_analyzer_data
 import splitter
 from i18n import _, UntranslatedFileHandler
-from item import Item, isValidWeaponPermutation
-from permutation import PermutationData, permute_talents
+from permutation import generate_permutations, max_permutation_count
 from simc import get_simc_version, download_simc, get_latest_simc_version
 from utils import chop_microseconds, cleanup_subdir, file_checksum, stable_unique, str2bool
 
@@ -296,197 +295,25 @@ def validateSettings(args):
                          format(settings.default_grabbing_method, valid_grabbing_methods))
 
 
-
-
-def print_permutation_progress(valid_profiles, current, maximum, start_time, max_profile_chars, progress, max_progress):
-    # output status every 5000 permutations, user should get at least a minor progress shown; also does not slow down
-    # computation very much
-    print_every_n = max(int(50000 / (maximum / max_progress)), 1)
-    if progress % print_every_n == 0 or progress == max_progress:
-        pct = 100.0 * current / maximum
-        elapsed = datetime.datetime.now() - start_time
-        bandwith = current / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
-        bandwith_valid = valid_profiles / 1000 / elapsed.total_seconds() if elapsed.total_seconds() else 0.0
-        elapsed = chop_microseconds(elapsed)
-        remaining_time = elapsed * (100.0 / pct - 1.0) if current else "nan"
-        if current > maximum:
-            remaining_time = datetime.timedelta(seconds=0)
-        if type(remaining_time) is datetime.timedelta:
-            remaining_time = chop_microseconds(remaining_time)
-        valid_pct = 100.0 * valid_profiles / current if current else 0.0
-        logging.info("Processed {}/{} ({:5.2f}%) valid {} ({:5.2f}%) elapsed_time {} "
-                     "remaining {} bw {:.0f}k/s bw(valid) {:.0f}k/s"
-                     .format(str(current).rjust(max_profile_chars),
-                             maximum,
-                             pct,
-                             valid_profiles,
-                             valid_pct,
-                             elapsed,
-                             remaining_time,
-                             bandwith,
-                             bandwith_valid))
-
-
-
-def permutate(args, player_profile: Profile) -> int:
-    print(_("Combinations in progress..."))
-    parsed_gear = player_profile.simc_options.all_gear()
-
-    logging.debug(_("Parsed gear: {}").format(parsed_gear))
-
-    if args.gems is not None:
-        splitted_gems = build_gem_list(args.gems)
-
-    # Filter each slot to only have unique items, before doing any gem permutation.
-    for key, value in parsed_gear.items():
-        parsed_gear[key] = stable_unique(value)
-
-    # This represents a dict of all options which will be permutated fully with itertools.product
-    normal_permutation_options = collections.OrderedDict({})  # type: Dict[str, Sequence[Item]]
-
-    # Add talents to permutations
-    talent_permutations = permute_talents(player_profile.simc_options.talents)
-
-    # Calculate max number of gem slots in equip. Will be used if we do gem permutations.
-    if args.gems is not None:
-        max_gem_slots = 0
-        for _slot, items in parsed_gear.items():
-            max_gem_on_item_slot = 0
-            for item in items:
-                if len(item.gem_ids) > max_gem_on_item_slot:
-                    max_gem_on_item_slot = len(item.gem_ids)
-            max_gem_slots += max_gem_on_item_slot
-
-    # Add 'normal' gear to normal permutations, excluding trinket/rings
-    gear_normal = {k: v for k, v in parsed_gear.items()
-                   if k not in ('finger', 'trinket')} # type: Dict[str, Sequence[Item]]
-    normal_permutation_options.update(gear_normal)
-
-    # Calculate normal permutations
-    normal_permutations = product(*normal_permutation_options.values())
-    logging.debug(_("Building permutations matrix finished."))
-
-    special_permutations_config = {"finger": ("finger1", "finger2"),
-                                   "trinket": ("trinket1", "trinket2")
-                                   }
-    special_permutations = {}
-    for name, values in special_permutations_config.items():
-        # Get entries from parsed gear, exclude empty finger/trinket lines
-        entries = [v for k, v in parsed_gear.items() if k.startswith(name)]
-        entries = list(itertools.chain(*entries))
-
-        # Remove empty (id=0) items from trinket/rings, except if there are 0 ring/trinkets specified. Then we need
-        # the single dummy item
-        remove_empty_entries = [item for item in entries if item.item_id != 0]
-        if len(remove_empty_entries):
-            entries = remove_empty_entries
-
-        logging.debug(_("Input list for special permutation '{}': {}").format(name,
-                                                                              entries))
-        if args.unique_jewelry:
-            # Unique finger/trinkets.
-            permutations = itertools.combinations(entries, len(values))
-        else:
-            permutations = itertools.combinations_with_replacement(entries, len(values))
-        permutations = list(permutations)
-        for i, (item1, item2) in enumerate(permutations):
-            new_item1 = copy.deepcopy(item1)
-            new_item1.slot = values[0]
-            new_item2 = copy.deepcopy(item2)
-            new_item2.slot = values[1]
-            permutations[i] = (new_item1, new_item2)
-
-        logging.debug(_("Got {num} permutations for {item_name}.").format(num=len(permutations),
-                                                                          item_name=name))
-        for p in permutations:
-            logging.debug(p)
-
-        # Remove equal id's
-        if args.unique_jewelry:
-            permutations = [p for p in permutations if p[0].item_id != p[1].item_id]
-            logging.debug(_("Got {num} permutations for {item_name} after id filter.")
-                          .format(num=len(permutations),
-                                  item_name=name))
-            for p in permutations:
-                logging.debug(p)
-        # Make unique
-        permutations = stable_unique(permutations)
-        logging.info(_("Got {num} permutations for {item_name} after unique filter.")
-                     .format(num=len(permutations),
-                             item_name=name))
-        for p in permutations:
-            logging.debug(p)
-
-        entry_dict = {v: None for v in values}
-        special_permutations[name] = [name, entry_dict, permutations]
-
-    # Calculate & Display number of permutations
-    max_nperm = 1
-    for name, perm in normal_permutation_options.items():
-        max_nperm *= len(perm)
-    permutations_product = {_("normal gear&talents"): "{} ({})".format(max_nperm,
-                                                                       {name: len(items) for name, items in
-                                                                        normal_permutation_options.items()}
-                                                                       )
-                            }
-    for name, _entries, opt in special_permutations.values():
-        max_nperm *= len(opt)
-        permutations_product[name] = len(opt)
-    max_nperm *= len(talent_permutations)
-    gem_perms = 1
-    if args.gems is not None:
-        max_num_gems = max_gem_slots + len(splitted_gems)
-        gem_perms = len(list(itertools.combinations_with_replacement(range(max_gem_slots), max_num_gems)))
-        max_nperm *= gem_perms
-        permutations_product["gems"] = gem_perms
-    permutations_product["talents"] = len(talent_permutations)
-    logging.info(_("Max number of normal permutations: {}").format(max_nperm))
-    logging.info(_("Number of permutations: {}").format(permutations_product))
-    max_profile_chars = len(str(max_nperm))  # String length of max_nperm
-
-    # Get Additional options string
-    additional_options = get_additional_input(args.additionalfile)
-
-    # Start the permutation!
-    processed = 0
-    progress = 0  # Separate progress variable not counting gem and talent combinations
-    max_progress = max_nperm / gem_perms / len(talent_permutations)
+def permutate(args, profile: Profile) -> int:
+    max_nperm = max_permutation_count(profile)
+    logging.info(_("Generating up to {:n} loadouts...").format(max_nperm))
+    max_perm_strlen = len(str(max_nperm))
     valid_profiles = 0
-    start_time = datetime.datetime.now()
+
     with open(args.outputfile, 'w') as output_file:
-        for perm_normal in normal_permutations:
-            if isValidWeaponPermutation(perm_normal, player_profile.wow_class):
-                for perm_finger in special_permutations["finger"][2]:
-                    for perm_trinket in special_permutations["trinket"][2]:
-                        entries = perm_normal
-                        entries += perm_finger
-                        entries += perm_trinket
-                        items = {e.slot: e for e in entries if type(e) is Item}
-                        data = PermutationData(items, player_profile, max_profile_chars)
-                        if data.is_usable_before_talents:
-                            # add gem-permutations to gear
-                            if args.gems is not None:
-                                gem_permutations = data.permute_gems(splitted_gems)
-                            else:
-                                gem_permutations = (items,)
-                            for gem_permutation in gem_permutations:
-                                data.items = gem_permutation
-                                # Permutate talents after is usable check, since it is independent of the talents
-                                for t in talent_permutations:
-                                    data.talents = t
-                                    # Additional talent usable check could be inserted here.
-                                    output_file.write(data.simc_input(valid_profiles, additional_options))
-                                    valid_profiles += 1
-                                    processed += 1
-                        else:
-                            processed += len(talent_permutations) * gem_perms
-                        progress += 1
-                        print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
-                                                   progress, max_progress)
+        for perm in generate_permutations(profile):
+            profile_id = str(valid_profiles).rjust(max_perm_strlen, '0')
+            output_file.write(f'''\
+{profile.player_class}="{profile.profile_name}_{profile_id}"
+{profile.general_options}
+{perm.simc_input}
+''')
+            valid_profiles += 1
 
     result = _("Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)"). \
         format(valid_profiles,
-               processed,
+               max_nperm,
                100.0 * valid_profiles / max_nperm if max_nperm else 0.0)
     logging.info(result)
 
@@ -531,7 +358,7 @@ def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_f
     subdir_previous_stage = get_subdir(stage - 1)
     if stage == 1:
         num_generated_profiles = splitter.split(output_file_name, get_subdir(stage),
-                                                settings.splitting_size, player_profile.wow_class)
+                                                settings.splitting_size, player_profile.player_class)
     else:
         try:
             checkResultFiles(subdir_previous_stage)
@@ -685,11 +512,13 @@ def dynamic_stage(player_profile: Profile,
     is_last_stage = (stage == num_stages)
     splitter.simulate(get_subdir(stage), "target_error", target_error, player_profile,
                       stage, is_last_stage, num_generated_profiles)
-    dynamic_stage(player_profile=player_profile,
-                  previous_target_error=target_error,
-                  stage=stage + 1,
-                  num_stages=num_stages,
-                  output_file_name=output_file_name)
+
+    if not is_last_stage:
+        dynamic_stage(player_profile=player_profile,
+                    previous_target_error=target_error,
+                    stage=stage + 1,
+                    num_stages=num_stages,
+                    output_file_name=output_file_name)
 
 
 def start_stage(player_profile: Profile, stage: int, num_stages: int, output_file_name: str):

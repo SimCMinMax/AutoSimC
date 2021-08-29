@@ -6,6 +6,7 @@ import logging
 import concurrent.futures
 import re
 import math
+from typing import Optional
 
 from settings import settings
 try:
@@ -14,6 +15,8 @@ except ImportError:
     pass
 
 from i18n import _
+from profile import Profile, load_multiple_profiles
+
 
 def _parse_profiles_from_file(fd, user_class):
     """Parse a simc file, and yield each player entry (between two class=name lines)"""
@@ -21,12 +24,12 @@ def _parse_profiles_from_file(fd, user_class):
     for line in fd:
         line = line.rstrip()  # Remove trailing \n
         if line.startswith(user_class + "="):
-            if len(current_profile):
+            if current_profile:
                 yield current_profile
                 current_profile = []
         current_profile.append(line)
     # Add tail
-    if len(current_profile):
+    if current_profile:
         yield current_profile
 
 
@@ -269,6 +272,25 @@ def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stag
     result = _start_simulation(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end - start))
+
+    if is_last_stage:
+        baseline = None
+        for fn in files:
+            with open(fn, 'r') as fd:
+                for p in load_multiple_profiles(fd):
+                    if baseline is None:
+                        baseline = p
+                    else:
+                        logging.info(f'Diff between {baseline.profile_name} and {p.profile_name}:')
+                        diff = baseline.baseline.diff(p.baseline)
+                        if diff:
+                            only_base, only_p = diff
+                            logging.info(f'< {baseline.profile_name}: {only_base}')
+                            logging.info(f'> {p.profile_name}: {only_p}')
+                        if baseline.talents[0] != p.talents[0]:
+                            logging.info(f'< {baseline.profile_name}: talents={baseline.talents[0]}')
+                            logging.info(f'> {p.profile_name}: talents={p.talents[0]}')
+
     return result
 
 
@@ -324,7 +346,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     start = datetime.datetime.now()
     metric = settings.select_by_metric
     logging.info("Selecting by metric: '{}'.".format(metric))
-    metric_regex = re.compile("\s*{metric}=(\d+\.\d+) {metric}-Error=(\d+\.\d+)/(\d+\.\d+)%".format(metric=metric), re.IGNORECASE)
+    metric_regex = re.compile(f"\s*{metric}=(\d+\.\d+) {metric}-Error=(\d+\.\d+)/(\d+\.\d+)%", re.IGNORECASE)
     for file in files:
         if os.stat(file).st_size <= 0:
             raise RuntimeError("Error: result file '{}' is empty, exiting.".format(file))
@@ -351,6 +373,8 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
 
     logging.debug("Parsing input files for {} took: {}".format(metric, datetime.datetime.now() - start))
 
+    # Retain the baseline
+    baseline = best[0]
     # sort best metric, descending order
     best = list(reversed(sorted(best, key=lambda entry: entry["metric"])))
     logging.debug("Result from parsing {} with metric '{}' len={}".format(metric, metric, len(best)))
@@ -367,6 +391,8 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
         logging.debug("{}".format(entry))
 
     sortednames = [entry["name"] for entry in filterd_best]
+    if baseline['name'] not in sortednames:
+        sortednames.insert(0, baseline['name'])
 
     if len(filterd_best) == 0:
         raise RuntimeError(_("Could not grab any valid profiles from previous run."
@@ -399,6 +425,7 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
         _purge_subfolder(subfolder)
         for profile in _parse_profiles_from_file(source, user_class):
             _classname, profilename = profile[0].split("=")
+            profilename = profilename.strip('"')
             if profilename in sortednames:
                 profile.append("")  # Add tailing empty line
                 bestprofiles.append("\n".join(profile))

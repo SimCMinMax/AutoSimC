@@ -1,35 +1,103 @@
 from enum import Enum
 import json
 import os.path
-from typing import Dict
+from typing import Dict, Iterable, Iterator, Optional, Sequence, cast
 
-# Items to parse. First entry is the "correct" name
-GEAR_SLOTS = [("head",),
-              ("neck",),
-              ("shoulder", "shoulders"),
-              ("back",),
-              ("chest",),
-              ("wrist", "wrists"),
-              ("hands",),
-              ("waist",),
-              ("legs",),
-              ("feet",),
-              ("finger", "finger1", "finger2"),
-              ("trinket", "trinket1", "trinket2",),
-              ("main_hand",),
-              ("off_hand",)]
+SHADOWLANDS_LEGENDARY_IDS = frozenset({
+    # Plate
+    171412,
+    171413,
+    171414,
+    171415,
+    171416,
+    171417,
+    171418,
+    171419,
+    # Leather
+    172314,
+    172315,
+    172316,
+    172317,
+    172318,
+    172319,
+    172320,
+    172321,
+    # Mail
+    172322,
+    172323,
+    172324,
+    172325,
+    172326,
+    172327,
+    172328,
+    172329,
+    # Cloth
+    173241,
+    173242,
+    173243,
+    173244,
+    173245,
+    173246,
+    173247,
+    173248,
+    173249,
+    # Ring, neck
+    178926,
+    178927,
+})
 
-SIMPLE_GEAR_SLOTS = [x[0] for x in GEAR_SLOTS]
-COMPLEX_GEAR_SLOTS = ['finger1', 'finger2', 'trinket1', 'trinket2']
 
-def canonical_slot_name(slot: str) -> str:
-    if slot in SIMPLE_GEAR_SLOTS:
-        return slot
-    elif slot in ('finger1', 'finger2'):
-        return 'finger'
-    elif slot in ('trinket1', 'trinket2'):
-        return 'trinket'
-    raise ValueError(f'Unknown gear slot {slot}')
+class GearType(Enum):
+    """Gear types, which match the naming used by SimulationCraft."""
+    UNKNOWN = 0
+    HEAD = 1
+    NECK = 2
+    SHOULDER = 3
+    BACK = 4
+    CHEST = 5
+    SHIRT = 6
+    TABARD = 7
+    WRIST = 8
+    HANDS = 9
+    WAIST = 10
+    LEGS = 11
+    FEET = 12
+
+    MAIN_HAND = 13
+    OFF_HAND = 14
+
+    # Finger and Trinket can each have two items equipped
+    FINGER = FINGER1 = FINGER2 = 15
+    TRINKET = TRINKET1 = TRINKET2 = 16
+
+    @staticmethod
+    def from_simc(name: str) -> 'Optional[GearType]':
+        name = name.upper()
+        o = cast(Optional[GearType], GearType.__members__.get(name))
+        if o == GearType.UNKNOWN:
+            o = None
+        return o
+
+    @staticmethod
+    def all_names() -> Sequence[str]:
+        return [n.lower() for n in GearType.__members__.keys()
+                if n not in _GEARTYPE_SPECIAL_NAMES]
+
+    @staticmethod
+    def all_slots() -> 'Iterator[GearType]':
+        return (cast(GearType, GearType.__members__[k])
+                for k in GearType.__members__.keys()
+                if k not in _GEARTYPE_SPECIAL_NAMES)
+
+    def __str__(self):
+        return self.name.lower()
+
+
+_GEARTYPE_SPECIAL_NAMES = frozenset({
+    'UNKNOWN',
+    'FINGER1', 'FINGER2',
+    'TRINKET1', 'TRINKET2',
+})
 
 
 class WeaponType(Enum):
@@ -46,9 +114,8 @@ class WeaponType(Enum):
 
 class Item:
     """WoW Item"""
-    tiers = [27]
 
-    def __init__(self, slot, is_weekly_reward, input_string=""):
+    def __init__(self, slot: GearType, is_weekly_reward: bool, input_string: str = ""):
         self._slot = slot
         self.name = ""
         self.item_id = 0
@@ -60,13 +127,6 @@ class Item:
         self.extra_options = {}
         self._isWeeklyReward = is_weekly_reward
 
-        for tier in self.tiers:
-            n = "T{}".format(tier)
-            if self.name.startswith(n):
-                setattr(self, "tier_{}".format(tier), True)
-                self.name = self.name[len(n):]
-            else:
-                setattr(self, "tier_{}".format(tier), False)
         if len(input_string):
             self.parse_input(input_string.strip("\""))
 
@@ -103,14 +163,6 @@ class Item:
         parts = input_string.split(",")
         self.name = parts[0]
 
-        for tier in self.tiers:
-            n = "T{}".format(tier)
-            if self.name.startswith(n):
-                setattr(self, "tier_{}".format(tier), True)
-                self.name = self.name[len(n):]
-            else:
-                setattr(self, "tier_{}".format(tier), False)
-
         splitted_name = self.name.split("--")
         if len(splitted_name) > 1:
             self.name = splitted_name[1]
@@ -134,10 +186,7 @@ class Item:
                 self.extra_options[name].append(value)
 
     def _build_output_str(self):
-        self.output_str = "{}={},id={}". \
-            format(self.slot,
-                   self.name,
-                   self.item_id)
+        self.output_str = f'{self.name},id={self.item_id}'
         if len(self.bonus_ids):
             self.output_str += ",bonus_id=" + "/".join([str(v) for v in self.bonus_ids])
         if len(self.enchant_ids):
@@ -151,7 +200,7 @@ class Item:
                 self.output_str += ",{}={}".format(name, value)
 
     def __str__(self):
-        return "Item({})".format(self.output_str)
+        return f'Item({self.slot}; {self.output_str})'
 
     def __repr__(self):
         return self.__str__()
@@ -162,6 +211,11 @@ class Item:
     def __hash__(self):
         # We are just lazy and use __str__ to avoid all the complexity about having mutable members, etc.
         return hash(str(self.__dict__))
+
+    def __lt__(self, other: 'Item'):
+        if not isinstance(other, Item):
+            raise TypeError(f'Cannot compare {type(other)} with Item')
+        return self.item_id < other.item_id
 
 
 # generate map of id->type pairs
@@ -207,22 +261,7 @@ def _read_weapon_data() -> Dict[int, WeaponType]:
 
 _WEAPONDATA = _read_weapon_data()
 
-
-def isValidWeaponPermutation(permutation: Dict[int, Item], wow_class: str) -> bool:
-    mh_type = _WEAPONDATA[permutation[10].item_id]
-    oh_type = _WEAPONDATA[permutation[11].item_id]
-
-    # only gun or bow is equippable
-    if wow_class == 'hunter' and mh_type in (WeaponType.BOW, WeaponType.GUN) and oh_type is None:
-        return True
-    # only warriors can wield twohanders in offhand
-    if wow_class != "warrior" and oh_type == WeaponType.TWOHAND:
-        return False
-    # no true offhand in mainhand possible
-    if mh_type in (WeaponType.SHIELD, WeaponType.OFFHAND):
-        return False
-    if wow_class != "warrior" and mh_type == WeaponType.TWOHAND and oh_type in (WeaponType.OFFHAND, WeaponType.SHIELD):
-        return False
-
-    return True
-
+def get_weapon_type(item: Optional[Item]) -> Optional[WeaponType]:
+    if item is None:
+        return
+    return _WEAPONDATA.get(item.item_id)

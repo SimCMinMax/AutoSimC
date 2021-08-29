@@ -6,7 +6,7 @@ import hashlib
 import logging
 import os.path
 import shutil
-from typing import TypeVar, Sequence
+from typing import List, TypeVar, Sequence
 
 from settings import settings
 try:
@@ -20,7 +20,7 @@ from i18n import _
 _T = TypeVar('_T')
 
 
-def stable_unique(seq: Sequence[_T]) -> Sequence[_T]:
+def stable_unique(seq: Sequence[_T]) -> List[_T]:
     """
     Filter sequence to only contain unique elements, in a stable order
     This is a replacement for x = list(set(x)), which does not lead to
