@@ -148,9 +148,9 @@ def getRole(c_class: str, c_spec: str) -> str:
 
 
 
-def _read_analyzer_data() -> Dict[str, Tuple[float, int, float]]:
+def _read_analyzer_data() -> Dict[str, List[Tuple[float, int, float]]]:
     """Reads spec simulation data from profiles/Analysis.json"""
-    specs = defaultdict(list)
+    specs = defaultdict(list)  # type: Dict[str, List[Tuple[float, int, float]]]
     filename = os.path.join(os.path.dirname(__file__), settings.analyzer_path,
                             settings.analyzer_filename)
     with open(filename, 'r') as f:

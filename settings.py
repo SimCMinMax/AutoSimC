@@ -1,7 +1,7 @@
 import multiprocessing
 
 
-class settings():
+class settings:
     # Path to your SimulationCraft command line binary (simc.exe on Windows, or simc on linux/mac).
     # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
     # Dont point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!

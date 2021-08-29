@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional, Sequence
 
 from item import SIMPLE_GEAR_SLOTS, Item
 from specdata import getClassSpec, getRole
@@ -17,7 +17,6 @@ _GENERAL_OPTIONS = [
     'professions',
     'spec',
     'role',
-    'talents',
     'position',
     'flask',
     'food',
@@ -45,7 +44,7 @@ class SimcOptions:
     gear_in_bags: Dict[str, List[Item]] = field(default_factory=lambda: defaultdict(list))
     weekly_rewards: Dict[str, List[Item]] = field(default_factory=lambda: defaultdict(list))
 
-    def all_gear(self) -> Dict[str, List[Item]]:
+    def all_gear(self) -> Dict[str, Sequence[Item]]:
         """Get a list of all possible gear, regardless of feasibility."""
         o = {}
         for k in SIMPLE_GEAR_SLOTS:
@@ -67,6 +66,7 @@ class Profile:
     simc_options: SimcOptions = field(default_factory=SimcOptions)
     wow_class: str = ''
     profile_name: str = ''
+    fightstyle: Optional[Dict[str, str]] = None
 
     @property
     def class_spec(self) -> str:

@@ -178,27 +178,23 @@ def _worker(command, counter, maximum, starttime, num_workers):
     if p.returncode != 0:
         logging.error("SimulationCraft error! Worker #{} returned error code {}.".format(counter, p.returncode))
         if settings.multi_sim_disable_console_output and maximum > 1 and num_workers > 1:
-            logging.info("SimulationCraft #{} stderr: \n{}".format(counter, p.stderr.read().decode()))
-            logging.debug("SimulationCraft #{} stdout: \n{}".format(counter, p.stdout.read().decode()))
+            logging.info("SimulationCraft #{} stderr: \n{}".format(counter, p.stderr.decode()))
+            logging.debug("SimulationCraft #{} stdout: \n{}".format(counter, p.stdout.decode()))
     return p.returncode
 
 
 def _launch_simc_commands(commands, is_last_stage):
     starttime = datetime.datetime.now()
-
-    if is_last_stage:
-        num_workers = 1
-    else:
-        num_workers = settings.number_of_instances
+    results = []
+    num_workers = 1 if is_last_stage else settings.number_of_instances
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
     print("-----------------------------------------------------------------")
     logging.info("Starting multi-process simulation.")
     logging.info("Number of work items: {}.".format(len(commands)))
     logging.info("Number of worker instances: {}.".format(num_workers))
     logging.debug("Starting simc with commands={}".format(commands))
     try:
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         counter = 0
-        results = []
         for command in commands:
             results.append(executor.submit(_worker, command, counter, len(commands), starttime, num_workers))
             counter += 1
@@ -223,7 +219,6 @@ def _launch_simc_commands(commands, is_last_stage):
             f.cancel()
         executor.shutdown(wait=False)
         raise
-    return False
 
 
 def _start_simulation(files_to_sim, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles):

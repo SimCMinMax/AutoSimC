@@ -1,6 +1,6 @@
-'''
+"""
 Internationalization functionality for AutoSimC.
-'''
+"""
 import gettext
 import locale
 import logging
@@ -16,7 +16,7 @@ gettext.install('AutoSimC')
 translator = gettext.translation('AutoSimC', fallback=True)
 
 class TranslatedText(str):
-    """Represents a translatable text string, while also keeping a reference to the original (englisch) string"""
+    """Represents a translatable text string, while also keeping a reference to the original (English) string"""
 
     def __new__(cls, message, translate=True):
         if translate:
@@ -53,7 +53,7 @@ def install_translation():
         global translator
         translator = lang
     except FileNotFoundError:
-        print("No translation for {} available.".format(default_lang))
+        logging.debug("No translation for {} available.".format(default_lang))
 
 
 install_translation()
@@ -63,6 +63,7 @@ class UntranslatedFileHandler(logging.FileHandler):
     """File Handler which logs messages untranslated"""
 
     def __init__(self, *args, **kwargs):
+        kwargs['encoding'] = 'utf-8'
         super().__init__(*args, **kwargs)
         self.setFormatter(logging.Formatter("%(asctime)-15s %(levelname)s %(message)s"))
 

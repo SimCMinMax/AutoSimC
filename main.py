@@ -4,21 +4,15 @@
 import sys
 import datetime
 import os
-import glob
 import json
 import shutil
 import argparse
 import logging
 import itertools
+from itertools import product
 import collections
 import copy
-import subprocess
-import hashlib
-import re
-from urllib.error import URLError
-from urllib.request import urlopen, urlretrieve
-import platform
-from enum import Enum, auto
+from typing import Dict, Generator, List, Optional, Sequence
 
 import AddonImporter
 
@@ -32,16 +26,12 @@ from profile import Profile
 from specdata import get_analyzer_data
 import splitter
 from i18n import _, UntranslatedFileHandler
-from item import Item, isValidWeaponPermutation, GEAR_SLOTS
+from item import Item, isValidWeaponPermutation
+from permutation import PermutationData, permute_talents
+from simc import get_simc_version, download_simc, get_latest_simc_version
+from utils import chop_microseconds, cleanup_subdir, file_checksum, stable_unique, str2bool
 
 __version__ = "9.1.0"
-
-shadowlands_legendary_ids = [171412, 171413, 171414, 171415, 171416, 171417, 171418, 171419,            #plate
-                             172314, 172315, 172316, 172317, 172318, 172319, 172320, 172321,            #leather
-                             172322, 172323, 172324, 172325, 172326, 172327, 172328, 172329,            #mail
-                             173241, 173242, 173243, 173244, 173245, 173246, 173247, 173248, 173249,    #cloth
-                             178926, 178927                                                             #ring, neck
-                             ]
 
 # Var init with default value
 t27min = int(settings.default_equip_t27_min)
@@ -61,19 +51,7 @@ gem_ids = {"16haste": 311865,
 logger = logging.getLogger()
 
 
-def stable_unique(seq):
-    """
-    Filter sequence to only contain unique elements, in a stable order
-    This is a replacement for x = list(set(x)), which does not lead to
-    deterministic or 'stable' output.
-    Credit to https://stackoverflow.com/a/480227
-    """
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
-
-
-def get_additional_input():
+def get_additional_input(additionalFileName: str) -> str:
     input_encoding = 'utf-8'
     options = []
     try:
@@ -108,10 +86,6 @@ def build_gem_list(gem_lists):
         sorted_gem_list += gems
     logging.debug("Parsed gem list to permutate: {}".format(sorted_gem_list))
     return sorted_gem_list
-
-
-def str2bool(v):
-    return v.lower() in ("yes", "true", "t", "1")
 
 
 def parse_command_line_args():
@@ -231,138 +205,7 @@ def handleCommandLine():
     args.sim = args.sim[0]
     if args.sim == _("permutate_only"):
         args.sim = None
-
-    # For now, just write command line arguments into globals
-    global outputFileName
-    outputFileName = args.outputfile
-
-    global additionalFileName
-    additionalFileName = args.additionalfile
-
-    global num_stages
-    num_stages = args.stages
-
     return args
-
-
-def determineSimcVersionOnDisc():
-    """gets the version of our simc installation on disc"""
-    try:
-        p = subprocess.run([settings.simc_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        match = None
-        for raw_line in p.stdout.decode():
-            decoded_line = raw_line
-            try:
-                # git build <branch> <git-ref>
-                match = re.search(r'git build \S* (\S+)\)', decoded_line).group(1)
-                if match:
-                    logging.debug(_("Found program in {}: Git_Version: {}")
-                                  .format(settings.simc_path,
-                                          match))
-                    return match
-            except AttributeError:
-                # should only contain other lines from simc_standard-output
-                pass
-        if match is None:
-            logging.info(_("Found no git-string in simc.exe, self-compiled?"))
-    except FileNotFoundError:
-        logging.info(_("Did not find program in '{}'.").format(settings.simc_path))
-
-
-def determineLatestSimcVersion():
-    """gets the version of the latest binaries available on the net"""
-    try:
-        html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
-    except URLError:
-        logging.info("Could not access download directory on simulationcraft.org")
-    # filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
-    filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
-    head, _tail = os.path.splitext(filename)
-    latest_git_version = head.split("-")[-1]
-    logging.debug(_("Latest version available: {}").format(latest_git_version))
-
-    if not len(latest_git_version):
-        logging.info(_("Found no git-string in filename, new or changed format?"))
-
-    return (filename, latest_git_version)
-
-
-def autoDownloadSimc():
-    if not settings.auto_download_simc:
-        return
-    try:
-        if settings.auto_download_simc:
-            if platform.system() != "Windows" or not platform.machine().endswith('64'):
-                print(_("Sorry autodownloading only supported for 64bit windows"))
-                return
-    except AttributeError:
-        return
-
-    logging.info(_("Starting auto download check of SimulationCraft."))
-
-    # Application root path, and destination path
-    rootpath = os.path.dirname(os.path.realpath(__file__))
-    download_dir = os.path.join(rootpath, "auto_download")
-    if not os.path.exists(download_dir):
-        os.makedirs(download_dir)
-
-    # Get filename of latest build of simc
-    try:
-        html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
-    except URLError:
-        logging.info("Could not access download directory on simulationcraft.org")
-    # filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
-    filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
-    print(_("Latest simc: {filename}").format(filename=filename))
-
-    # Download latest build of simc
-    filepath = os.path.join(download_dir, filename)
-    if not os.path.exists(filepath):
-        url = 'http://downloads.simulationcraft.org/nightly/' + filename
-        logging.info(_("Retrieving simc from url {} to {}.").format(url,
-                                                                    filepath))
-        urlretrieve(url, filepath)
-    else:
-        logging.debug(_("Latest simc version already downloaded at {}.").format(filename))
-
-    # Unpack downloaded build and set simc_path
-    settings.simc_path = os.path.join(download_dir, filename[:filename.find(".7z")][:-8], "simc.exe")
-    splitter.simc_path = settings.simc_path
-    if not os.path.exists(settings.simc_path):
-        seven_zip_executables = ["7z.exe", "C:/Program Files/7-Zip/7z.exe"]
-        for seven_zip_executable in seven_zip_executables:
-            try:
-                if not os.path.exists(seven_zip_executable):
-                    logging.info(_("7Zip executable at '{}' does not exist.").format(seven_zip_executable))
-                    continue
-                cmd = seven_zip_executable + ' x "' + filepath + '" -aoa -o"' + download_dir + '"'
-                logging.debug(_("Running unpack command '{}'").format(cmd))
-                subprocess.call(cmd)
-
-                # keep the latest 7z to remember current version, but clean up any other ones
-                files = glob.glob(download_dir + '/simc*win64*7z')
-                for f in files:
-                    if not os.path.basename(f) == filename:
-                        print(_("Removing old simc from '{}'.").format(os.path.basename(f)))
-                        os.remove(f)
-                break
-            except Exception as e:
-                print(_("Exception when unpacking: {}").format(e))
-        else:
-            raise RuntimeError(_("Could not unpack the auto downloaded SimulationCraft executable."
-                                 "Please note that you need 7Zip installed at one of the following locations: {}.").
-                               format(seven_zip_executables))
-    else:
-        print(_("Simc already exists at '{}'.").format(repr(settings.simc_path)))
-
-
-def cleanup_subdir(subdir):
-    if os.path.exists(subdir):
-        if not settings.delete_temp_default and not settings.skip_questions:
-            if input(_("Do you want to remove subfolder: {}? (Press y to confirm): ").format(subdir)) != _("y"):
-                return
-        logging.info(_("Removing subdir '{}'.").format(subdir))
-        shutil.rmtree(subdir)
 
 
 def copy_result_file(last_subdir):
@@ -387,7 +230,7 @@ def copy_result_file(last_subdir):
                         .format(last_subdir))
 
 
-def cleanup():
+def cleanup(num_stages):
     logging.info(_("Cleaning up"))
     subdirs = [get_subdir(stage) for stage in range(1, num_stages + 1)]
     copy_result_file(subdirs[-1])
@@ -453,50 +296,6 @@ def validateSettings(args):
                          format(settings.default_grabbing_method, valid_grabbing_methods))
 
 
-def file_checksum(filename):
-    h = hashlib.sha256()
-    with open(filename, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def get_gem_combinations(gems_to_use, num_gem_slots):
-    if num_gem_slots <= 0:
-        return []
-    combinations = itertools.combinations_with_replacement(gems_to_use, r=num_gem_slots)
-    return list(combinations)
-
-
-def permutate_talents(talents_list):
-    talents_list = talents_list.split('|')
-    all_talent_combinations = []  # List for each talents input
-    for talents in talents_list:
-        current_talents = []
-        for talent in talents:
-            if talent == "0":
-                # We permutate the talent row, adding ['1', '2', '3'] to that row
-                current_talents.append([str(x) for x in range(1, 4)])
-            else:
-                # Do not permutate the talent row, just add the talent from the profile
-                current_talents.append([talent])
-        all_talent_combinations.append(current_talents)
-        logging.debug("Talent combination input: {}".format(current_talents))
-
-    # Use some itertools magic to unpack the product of all talent combinations
-    product = [itertools.product(*t) for t in all_talent_combinations]
-    product = list(itertools.chain(*product))
-
-    # Format each permutation back to a nice talent string.
-    permuted_talent_strings = ["".join(s) for s in product]
-    permuted_talent_strings = stable_unique(permuted_talent_strings)
-    logging.debug("Talent combinations: {}".format(permuted_talent_strings))
-    return permuted_talent_strings
-
-
-def chop_microseconds(delta):
-    """Chop microseconds from a timedelta object"""
-    return delta - datetime.timedelta(microseconds=delta.microseconds)
 
 
 def print_permutation_progress(valid_profiles, current, maximum, start_time, max_profile_chars, progress, max_progress):
@@ -528,150 +327,6 @@ def print_permutation_progress(valid_profiles, current, maximum, start_time, max
                              bandwith_valid))
 
 
-class TierCheck:
-
-    def __init__(self, n, minimum, maximum):
-        self.name = "T{}".format(n)
-        self.n = n
-        self.minimum = minimum
-        self.maximum = maximum
-        self.count = 0
-
-
-class PermutationData:
-    """Data for each permutation"""
-
-    def __init__(self, items, profile, max_profile_chars):
-        self.profile = profile
-        self.max_profile_chars = max_profile_chars
-        self.items = items
-
-    def permutate_gems(self, items, gem_list):
-        gems_on_gear = []
-        gear_with_gems = {}
-        for slot, gear in items.items():
-            gems_on_gear += gear.gem_ids
-            gear_with_gems[slot] = len(gear.gem_ids)
-
-        # logging.debug("gems on gear: {}".format(gems_on_gear))
-        if len(gems_on_gear) == 0:
-            return
-
-        # Combine existing gems of the item with the gems supplied by --gems
-        combined_gem_list = gems_on_gear
-        combined_gem_list += gem_list
-        combined_gem_list = stable_unique(combined_gem_list)
-        # logging.debug("Combined gem list: {}".format(combined_gem_list))
-        new_gems = get_gem_combinations(combined_gem_list, len(gems_on_gear))
-        # logging.debug("New Gems: {}".format(new_gems))
-        new_combinations = []
-        for gems in new_gems:
-            new_items = copy.deepcopy(items)
-            gems_used = 0
-            for _i, (slot, num_gem_slots) in enumerate(gear_with_gems.items()):
-                copied_item = copy.deepcopy(new_items[slot])
-                copied_item.gem_ids = gems[gems_used:gems_used + num_gem_slots]
-                new_items[slot] = copied_item
-                gems_used += num_gem_slots
-            new_combinations.append(new_items)
-        #         logging.debug("Gem permutations:")
-        #         for i, comb in enumerate(new_combinations):
-        #             logging.debug("Combination {}".format(i))
-        #             for slot, item in comb.items():
-        #                 logging.debug("{}: {}".format(slot, item))
-        #             logging.debug("")
-        return new_combinations
-
-    def update_talents(self, talents):
-        self.talents = talents
-
-    def count_weekly_rewards(self):
-        self.weeklyRewardCount = 0
-        for item in self.items.values():
-            if item.isWeeklyReward:
-                self.weeklyRewardCount += 1
-
-    def count_tier(self):
-        self.t27 = 0
-        for item in self.items.values():
-            if item.tier_27:
-                self.t27 += 1
-
-    def count_legendaries(self):
-        self.legendaries_equipped = 0
-        for item in self.items.values():
-            if item.item_id in shadowlands_legendary_ids:
-                self.legendaries_equipped += 1
-
-    def check_usable_before_talents(self):
-        self.count_tier()
-        self.count_weekly_rewards()
-        self.count_legendaries()
-
-        if self.legendaries_equipped > 1:
-            return "too many legendaries equipped"
-        if self.weeklyRewardCount > 1:
-            return "too many weekly reward items equipped"
-        if self.t27 < t27min:
-            return "too few tier 27 items"
-        if self.t27 > t27max:
-            return "too many tier 27 items"
-
-        return None
-
-    def get_profile_name(self, valid_profile_number):
-        # namingdata contains info for the profile-name
-        namingData = {"T27": ""}
-
-        for tier in ([27]):
-            count = getattr(self, "t" + str(tier))
-            tiername = "T" + str(tier)
-            if count:
-                pieces = 0
-                if count >= 2:
-                    pieces = 2
-                if count >= 4:
-                    pieces = 4
-                    namingData[tiername] = "_{}_{}p".format(tiername, pieces)
-
-        return str(valid_profile_number).rjust(self.max_profile_chars, "0")
-
-    def get_profile(self):
-        items = []
-        # Hack for now to get Txx and L strings removed from items
-        for item in self.items.values():
-            items.append(item.output_str)
-        return "\n".join(items)
-
-    def write_to_file(self, filehandler, valid_profile_number, additional_options):
-        profile_name = self.get_profile_name(valid_profile_number)
-
-        filehandler.write("{}={}\n".format(self.profile.wow_class,
-                                           str.replace(self.profile.profile_name, "\"", "") + "_" + profile_name))
-        filehandler.write(self.profile.general_options)
-        filehandler.write("\ntalents={}\n".format(self.talents))
-        filehandler.write(self.get_profile())
-        filehandler.write("\n{}\n".format(additional_options))
-        filehandler.write("\n")
-
-
-def product(*iterables):
-    """
-    Custom product function as a generator, instead of itertools.product
-    This uses way less memory than itertools.product, because it is a generator only yielding a single item at a time.
-    requirement for this is that each iterable can be restarted.
-    Thanks to https://stackoverflow.com/a/12094519
-    """
-    if len(iterables) == 0:
-        yield ()
-    else:
-        iterables = iterables
-        it = iterables[0]
-        for item in iter(it):
-            for items in product(*iterables[1:]):
-                yield (item,) + items
-
-
 
 def permutate(args, player_profile: Profile) -> int:
     print(_("Combinations in progress..."))
@@ -687,11 +342,10 @@ def permutate(args, player_profile: Profile) -> int:
         parsed_gear[key] = stable_unique(value)
 
     # This represents a dict of all options which will be permutated fully with itertools.product
-    normal_permutation_options = collections.OrderedDict({})
+    normal_permutation_options = collections.OrderedDict({})  # type: Dict[str, Sequence[Item]]
 
     # Add talents to permutations
-    l_talents = player_profile.simc_options.talents
-    talent_permutations = permutate_talents(l_talents)
+    talent_permutations = permute_talents(player_profile.simc_options.talents)
 
     # Calculate max number of gem slots in equip. Will be used if we do gem permutations.
     if args.gems is not None:
@@ -704,7 +358,8 @@ def permutate(args, player_profile: Profile) -> int:
             max_gem_slots += max_gem_on_item_slot
 
     # Add 'normal' gear to normal permutations, excluding trinket/rings
-    gear_normal = {k: v for k, v in parsed_gear.items() if (not k == "finger" and not k == "trinket")}
+    gear_normal = {k: v for k, v in parsed_gear.items()
+                   if k not in ('finger', 'trinket')} # type: Dict[str, Sequence[Item]]
     normal_permutation_options.update(gear_normal)
 
     # Calculate normal permutations
@@ -790,7 +445,7 @@ def permutate(args, player_profile: Profile) -> int:
     max_profile_chars = len(str(max_nperm))  # String length of max_nperm
 
     # Get Additional options string
-    additional_options = get_additional_input()
+    additional_options = get_additional_input(args.additionalfile)
 
     # Start the permutation!
     processed = 0
@@ -798,7 +453,6 @@ def permutate(args, player_profile: Profile) -> int:
     max_progress = max_nperm / gem_perms / len(talent_permutations)
     valid_profiles = 0
     start_time = datetime.datetime.now()
-    unusable_histogram = {}  # Record not usable reasons
     with open(args.outputfile, 'w') as output_file:
         for perm_normal in normal_permutations:
             if isValidWeaponPermutation(perm_normal, player_profile.wow_class):
@@ -809,27 +463,23 @@ def permutate(args, player_profile: Profile) -> int:
                         entries += perm_trinket
                         items = {e.slot: e for e in entries if type(e) is Item}
                         data = PermutationData(items, player_profile, max_profile_chars)
-                        is_unusable_before_talents = data.check_usable_before_talents()
-                        if not is_unusable_before_talents:
+                        if data.is_usable_before_talents:
                             # add gem-permutations to gear
                             if args.gems is not None:
-                                gem_permutations = data.permutate_gems(items, splitted_gems)
+                                gem_permutations = data.permute_gems(splitted_gems)
                             else:
                                 gem_permutations = (items,)
                             for gem_permutation in gem_permutations:
                                 data.items = gem_permutation
                                 # Permutate talents after is usable check, since it is independent of the talents
                                 for t in talent_permutations:
-                                    data.update_talents(t)
+                                    data.talents = t
                                     # Additional talent usable check could be inserted here.
-                                    data.write_to_file(output_file, valid_profiles, additional_options)
+                                    output_file.write(data.simc_input(valid_profiles, additional_options))
                                     valid_profiles += 1
                                     processed += 1
                         else:
                             processed += len(talent_permutations) * gem_perms
-                            if is_unusable_before_talents not in unusable_histogram:
-                                unusable_histogram[is_unusable_before_talents] = 0
-                            unusable_histogram[is_unusable_before_talents] += len(talent_permutations) * gem_perms
                         progress += 1
                         print_permutation_progress(valid_profiles, processed, max_nperm, start_time, max_profile_chars,
                                                    progress, max_progress)
@@ -839,13 +489,6 @@ def permutate(args, player_profile: Profile) -> int:
                processed,
                100.0 * valid_profiles / max_nperm if max_nperm else 0.0)
     logging.info(result)
-
-    # Not usable histogram debug output
-    unusable_string = []
-    for key, value in unusable_histogram.items():
-        unusable_string.append("{:40s}: {:12b} ({:5.2f}%)".
-                               format(key, value, value * 100.0 / max_nperm if max_nperm else 0.0))
-    logging.info(_("Invalid profile statistics: [\n{}]").format("\n".join(unusable_string)))
 
     # Print checksum so we can check for equality when making changes in the code
     outfile_checksum = file_checksum(args.outputfile)
@@ -883,11 +526,11 @@ def get_subdir(stage):
     return subdir
 
 
-def grab_profiles(player_profile, stage):
+def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_file_name: str) -> int:
     """Parse output/result files from previous stage and get number of profiles to simulate"""
     subdir_previous_stage = get_subdir(stage - 1)
     if stage == 1:
-        num_generated_profiles = splitter.split(outputFileName, get_subdir(stage),
+        num_generated_profiles = splitter.split(output_file_name, get_subdir(stage),
                                                 settings.splitting_size, player_profile.wow_class)
     else:
         try:
@@ -904,13 +547,13 @@ def grab_profiles(player_profile, stage):
             filter_criterium = settings.default_top_n[stage - num_stages - 1]
         is_last_stage = (stage == num_stages)
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, subdir_previous_stage,
-                                                    get_subdir(stage), outputFileName, not is_last_stage)
+                                                    get_subdir(stage), output_file_name, not is_last_stage)
     if num_generated_profiles:
         logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
     return num_generated_profiles
 
 
-def check_profiles(stage):
+def check_profiles(stage: int) -> int:
     subdir = get_subdir(stage)
     if not os.path.exists(subdir):
         return False
@@ -922,21 +565,13 @@ def check_profiles(stage):
     return len(files)
 
 
-def prepare_profiles(player_profile, stage):
-    #     profiles_valid = check_profiles(stage)
-    #     if profiles_valid:
-    #         logging.info(_("Got {} existing profiles to simulate for stage {}.")
-    #                      .format(profiles_valid, stage))
-    #         return None
-    return grab_profiles(player_profile, stage)
-
-
-def static_stage(player_profile, stage):
+def static_stage(player_profile: Profile, stage: int, num_stages: int, output_file_name: str) -> None:
     if stage > num_stages:
         return
     print("\n")
     logging.info(_("***Entering static mode, STAGE {}***").format(stage))
-    num_generated_profiles = prepare_profiles(player_profile, stage)
+    num_generated_profiles = grab_profiles(
+        player_profile=player_profile, stage=stage, num_stages=num_stages, output_file_name=output_file_name)
     is_last_stage = (stage == num_stages)
     try:
         num_iterations = settings.default_iterations[stage]
@@ -953,16 +588,20 @@ def static_stage(player_profile, stage):
         num_iterations = int(iterations_choice)
     splitter.simulate(get_subdir(stage), "iterations", num_iterations,
                       player_profile, stage, is_last_stage, num_generated_profiles)
-    static_stage(player_profile, stage + 1)
+    static_stage(player_profile, stage + 1, num_stages, output_file_name)
 
 
-def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=None, stage=1):
+def dynamic_stage(player_profile: Profile,
+                  output_file_name: str,
+                  stage: int,
+                  num_stages: int,
+                  previous_target_error: Optional[float] = None) -> None:
     if stage > num_stages:
         return
     print("\n")
     logging.info(_("***Entering dynamic mode, STAGE {}***").format(stage))
 
-    num_generated_profiles = prepare_profiles(player_profile, stage)
+    num_generated_profiles = grab_profiles(player_profile, stage, num_stages, output_file_name)
 
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
@@ -1046,10 +685,14 @@ def dynamic_stage(player_profile, num_generated_profiles, previous_target_error=
     is_last_stage = (stage == num_stages)
     splitter.simulate(get_subdir(stage), "target_error", target_error, player_profile,
                       stage, is_last_stage, num_generated_profiles)
-    dynamic_stage(player_profile, num_generated_profiles, target_error, stage + 1)
+    dynamic_stage(player_profile=player_profile,
+                  previous_target_error=target_error,
+                  stage=stage + 1,
+                  num_stages=num_stages,
+                  output_file_name=output_file_name)
 
 
-def start_stage(player_profile, num_generated_profiles, stage):
+def start_stage(player_profile: Profile, stage: int, num_stages: int, output_file_name: str):
     logging.info(_("Starting at stage {}").format(stage))
     logging.info(_("You selected grabbing method '{}'.").format(settings.default_grabbing_method))
     print("")
@@ -1075,31 +718,14 @@ def start_stage(player_profile, num_generated_profiles, stage):
         raise RuntimeError(_("Invalid simulation mode '{}' selected. Valid modes: {}.")
                            .format(mode_choice, valid_modes))
     if mode_choice == 1:
-        static_stage(player_profile, stage)
+        static_stage(player_profile=player_profile, stage=stage, num_stages=num_stages, output_file_name=output_file_name)
     elif mode_choice == 2:
-        dynamic_stage(player_profile, num_generated_profiles, None, stage)
+        dynamic_stage(player_profile=player_profile, stage=stage, num_stages=num_stages, output_file_name=output_file_name)
     else:
-        assert (False)
+        raise Exception('unknown mode choice')
 
 
-def check_interpreter():
-    """Check interpreter for minimum requirements."""
-    # Does not really work in practice, since formatted string literals (3.6) lead to SyntaxError prior to execution of
-    # the program with older interpreters.
-    required_major, required_minor = (3, 5)
-    major, minor, _micro, _releaselevel, _serial = sys.version_info
-    if major > required_major:
-        return
-    elif major == required_major:
-        if minor >= required_minor:
-            return
-    raise RuntimeError(_("Python-Version too old! You are running Python {}. Please install at least "
-                         "Python-Version {}.{}.x").format(sys.version,
-                                                          required_major,
-                                                          required_minor))
-
-
-def addFightStyle(profile):
+def addFightStyle(profile: Profile) -> None:
     filepath = os.path.join(os.getcwd(), settings.file_fightstyle)
     filepath = os.path.abspath(filepath)
     logging.debug(_("Opening fight types data file at '{}'.").format(filepath))
@@ -1137,12 +763,11 @@ def addFightStyle(profile):
             logging.error(_("Error while decoding JSON file: {}").format(error), exc_info=True)
             sys.exit(1)
 
-    assert profile.fightstyle is not None
-    logger.info(_("Found fightstyle >>>{name}<<< in {file}")
+    if profile.fightstyle is None:
+        raise Exception('No fightstyle set')
+    logging.info(_("Found fightstyle >>>{name}<<< in {file}")
                 .format(name=profile.fightstyle["name"],
                         file=settings.file_fightstyle))
-
-    return profile
 
 
 ########################
@@ -1151,11 +776,11 @@ def addFightStyle(profile):
 
 
 def main():
-    error_handler = UntranslatedFileHandler(settings.errorFileName, encoding="utf-8")
+    error_handler = UntranslatedFileHandler(settings.errorFileName)
     error_handler.setLevel(logging.ERROR)
 
     # Handler to log messages to file
-    log_handler = UntranslatedFileHandler(settings.logFileName, encoding="utf-8")
+    log_handler = UntranslatedFileHandler(settings.logFileName)
     log_handler.setLevel(logging.DEBUG)
 
     # Handler for logging to stdout
@@ -1165,11 +790,7 @@ def main():
 
     logging.basicConfig(level=logging.DEBUG, handlers=[error_handler,
                                                        log_handler,
-                                                       stdout_handler])
-
-    # check version of python-interpreter running the script
-    check_interpreter()
-
+                                                       stdout_handler], force=True)
     logging.debug("----------------------------------------------------------------------------")
     logging.info(_("AutoSimC - Supported WoW-Version: {}").format(__version__))
 
@@ -1184,12 +805,12 @@ def main():
     if args.sim:
         if not settings.auto_download_simc:
             if settings.check_simc_version:
-                filename, latest = determineLatestSimcVersion()
-                ondisc = determineSimcVersionOnDisc()
+                filename, latest = get_latest_simc_version()
+                ondisc = get_simc_version()
                 if latest != ondisc:
                     logging.info(_("A newer SimCraft-version might be available for download! Version: {}").
                                  format(filename))
-        autoDownloadSimc()
+        download_simc()
     validateSettings(args)
 
     player_profile = AddonImporter.build_profile_simc_addon(args)
@@ -1223,16 +844,25 @@ def main():
                         sys.exit(0)
 
     if args.sim:
-        player_profile = addFightStyle(player_profile)
+        addFightStyle(player_profile)
         if args.sim == "stage1" or args.sim == "all":
-            start_stage(player_profile, num_generated_profiles, 1)
+            start_stage(player_profile=player_profile,
+                        stage=1,
+                        num_stages=args.stages,
+                        output_file_name=args.outputfile)
         if args.sim == "stage2":
-            start_stage(player_profile, None, 2)
+            start_stage(player_profile=player_profile,
+                        stage=2,
+                        num_stages=args.stages,
+                        output_file_name=args.outputfile)
         if args.sim == "stage3":
-            start_stage(player_profile, None, 3)
+            start_stage(player_profile,
+                        stage=3,
+                        num_stages=args.stages,
+                        output_file_name=args.outputfile)
 
         if settings.clean_up:
-            cleanup()
+            cleanup(num_stages=args.stages)
     logging.info(_("AutoSimC finished correctly."))
 
 
