@@ -5,40 +5,47 @@ from typing import Dict, List, Optional, Sequence
 from item import SIMPLE_GEAR_SLOTS, Item
 from specdata import getClassSpec, getRole
 
-
-_GENERAL_OPTIONS = [
-    'renown',
+# Options which we don't permute
+_GENERAL_OPTIONS = frozenset({
     'covenant',
-    'soulbind',
-    'race',
-    'level',
-    'server',
-    'region',
-    'professions',
-    'spec',
-    'role',
-    'position',
     'flask',
     'food',
-]
+    'level',
+    'position',
+    'potion',
+    'professions',
+    'race',
+    'region',
+    'renown',
+    'role',
+    'server',
+    'soulbind',
+    'spec',
+})
+
+# All possbile options
+ALL_OPTIONS = frozenset({
+    'talents',
+}) | _GENERAL_OPTIONS
 
 @dataclass()
 class SimcOptions:
     """Options to simulationcraft"""
-    renown: str = ''
     covenant: str = ''
-    soulbind: str = ''
-    race: str = ''
-    level: str = ''
-    server: str = ''
-    region: str = ''
-    professions: str = ''
-    spec: str = ''
-    role: str = ''
-    talents: str = ''
-    position: str = ''
     flask: str = ''
     food: str = ''
+    level: str = ''
+    position: str = ''
+    potion: str = ''
+    professions: str = ''
+    race: str = ''
+    region: str = ''
+    renown: str = ''
+    role: str = ''
+    server: str = ''
+    soulbind: str = ''
+    spec: str = ''
+    talents: str = ''
 
     gear: Dict[str, List[Item]] = field(default_factory=lambda: defaultdict(list))
     gear_in_bags: Dict[str, List[Item]] = field(default_factory=lambda: defaultdict(list))

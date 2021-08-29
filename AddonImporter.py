@@ -2,33 +2,15 @@ import logging
 from enum import Enum, auto
 
 from item import SIMPLE_GEAR_SLOTS, COMPLEX_GEAR_SLOTS, canonical_slot_name, Item
-from profile import Profile
+from profile import Profile, ALL_OPTIONS
 from specdata import ALL_CLASSES
+
 
 class Mode(Enum):
     DEFAULT = auto()
     GEAR_FROM_BAGS = auto()
     WEEKLY_REWARD = auto()
 
-# Parse general profile options
-simc_profile_options = ["race",
-                        "level",
-                        "server",
-                        "region",
-                        "professions",
-                        "spec",
-                        "role",
-                        "talents",
-                        "position",
-                        "covenant",
-                        "soulbind",
-                        "renown",
-                        "potion",
-                        "flask",
-                        "food",
-                        "renown",
-                        "covenant",
-                        "soulbind"]
 
 def build_profile_simc_addon(args) -> Profile:
     player_profile = Profile()
@@ -77,12 +59,13 @@ def build_profile_simc_addon(args) -> Profile:
                     if key in ALL_CLASSES:
                         player_profile.wow_class = key
                         player_profile.profile_name = value
-                    elif key in simc_profile_options:
+                    elif key in ALL_OPTIONS:
                         setattr(player_profile.simc_options, key, value)
                     elif key in SIMPLE_GEAR_SLOTS or key in COMPLEX_GEAR_SLOTS:
                         slot = canonical_slot_name(key)
-                        item = Item(slot, False, value)
-                        player_profile.simc_options.gear[slot].append(item)
+                        for item_str in value.split('|'):
+                            item = Item(slot, False, item_str)
+                            player_profile.simc_options.gear[slot].append(item)
     except UnicodeDecodeError as e:
         raise RuntimeError("""AutoSimC could not decode your input file '{file}' with encoding '{enc}'.
         Please make sure that your text editor encodes the file as '{enc}',
@@ -92,5 +75,4 @@ def build_profile_simc_addon(args) -> Profile:
     # Build 'general' profile options which do not permutate once into a simc-string
     logging.info(f'SimC options: {player_profile.simc_options}')
     logging.debug(f'Built simc general options string: {player_profile.general_options}')
-
     return player_profile
