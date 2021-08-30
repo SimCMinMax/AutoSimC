@@ -17,6 +17,7 @@ class _SimcReaderState(Enum):
 
 # Options which we don't permute
 _GENERAL_OPTIONS = frozenset({
+    'augmentation',
     'covenant',
     'flask',
     'food',
@@ -31,6 +32,7 @@ _GENERAL_OPTIONS = frozenset({
     'server',
     'soulbind',
     'spec',
+    'temporary_enchant',
 })
 
 # All possbile options
@@ -223,6 +225,7 @@ class Profile:
     profile_name: str = ''
     fightstyle: Optional[Dict[str, str]] = None
 
+    augmentation: str = ''
     covenant: str = ''
     flask: str = ''
     food: str = ''
@@ -238,6 +241,7 @@ class Profile:
     soulbind: str = ''
     spec: str = ''
     talents: List[str] = field(default_factory=list)
+    temporary_enchant: str = ''
 
     baseline: EquipmentLoadout = field(default_factory=EquipmentLoadout)
 
@@ -360,8 +364,11 @@ def load_multiple_profiles(f: Iterable[str]) -> Iterator[Profile]:
             if current_actor:
                 p = Profile()
                 p.load_simc(current_actor)
-                current_actor = []
-                yield p
+
+                # Check if that actually loaded something
+                if p.player_class:
+                    current_actor = []
+                    yield p
         current_actor.append(l)
 
     # Yield any remainder.

@@ -1,7 +1,7 @@
 from enum import Enum
 import json
 import os.path
-from typing import Dict, Iterable, Iterator, Optional, Sequence, cast
+from typing import Dict, Iterable, Iterator, List, Optional, Sequence, cast
 
 SHADOWLANDS_LEGENDARY_IDS = frozenset({
     # Plate
@@ -46,18 +46,37 @@ SHADOWLANDS_LEGENDARY_IDS = frozenset({
     178927,
 })
 
+# Fake enchants that we should ignore.
+_FAKE_ENCHANTS = frozenset({
+    # simc implements some of the Shards of Domination as gear enchants,
+    # which gets added whenever it saves a profile. We should ignore them.
+    #
+    # Shard of Oth
+    '30runspeed',
+    '37runspeed',
+    '45runspeed',
+    '52runspeed',
+    '60runspeed',
+    # Shard of Rev
+    '30leech',
+    '37leech',
+    '45leech',
+    '52leech',
+    '60leech',
+})
+
 
 class GearType(Enum):
     """Gear types, which match the naming used by SimulationCraft."""
     UNKNOWN = 0
     HEAD = 1
     NECK = 2
-    SHOULDER = 3
+    SHOULDER = SHOULDERS = 3
     BACK = 4
     CHEST = 5
     SHIRT = 6
     TABARD = 7
-    WRIST = 8
+    WRIST = WRISTS = 8
     HANDS = 9
     WAIST = 10
     LEGS = 11
@@ -97,6 +116,8 @@ _GEARTYPE_SPECIAL_NAMES = frozenset({
     'UNKNOWN',
     'FINGER1', 'FINGER2',
     'TRINKET1', 'TRINKET2',
+    # Synonyms supported by simc
+    'SHOULDERS', 'WRISTS',
 })
 
 
@@ -119,11 +140,11 @@ class Item:
         self._slot = slot
         self.name = ""
         self.item_id = 0
-        self.bonus_ids = []
-        self.enchant_ids = []
-        self._gem_ids = []
+        self.bonus_ids = []  # type: List[int]
+        self.enchant_ids = []  # type: List[int]
+        self.enchants = []  # type: List[str]
+        self._gem_ids = []  # type: List[int]
         self.drop_level = 0
-        self.tier_set = {}
         self.extra_options = {}
         self._isWeeklyReward = is_weekly_reward
 
@@ -174,6 +195,8 @@ class Item:
                 self.item_id = int(value)
             elif name == "bonus_id":
                 self.bonus_ids = [int(v) for v in value.split("/")]
+            elif name == 'enchant':
+                self.enchants = [v for v in value.split('/') if v not in _FAKE_ENCHANTS]
             elif name == "enchant_id":
                 self.enchant_ids = [int(v) for v in value.split("/")]
             elif name == "gem_id":
@@ -187,11 +210,13 @@ class Item:
 
     def _build_output_str(self):
         self.output_str = f'{self.name},id={self.item_id}'
-        if len(self.bonus_ids):
+        if self.bonus_ids:
             self.output_str += ",bonus_id=" + "/".join([str(v) for v in self.bonus_ids])
-        if len(self.enchant_ids):
+        if self.enchants:
+            self.output_str += ',enchant=' + '/'.join(self.enchants)
+        if self.enchant_ids:
             self.output_str += ",enchant_id=" + "/".join([str(v) for v in self.enchant_ids])
-        if len(self.gem_ids):
+        if self.gem_ids:
             self.output_str += ",gem_id=" + "/".join([str(v) for v in self.gem_ids])
         if self.drop_level > 0:
             self.output_str += ",drop_level=" + str(self.drop_level)
@@ -206,7 +231,26 @@ class Item:
         return self.__str__()
 
     def __eq__(self, other):
-        return self.__str__() == other.__str__()
+        if not isinstance(other, Item):
+            return False
+        if self.name and self.item_id == 0:
+            # We have only an item name, no ID.
+            if self.name != other.name:
+                return False
+
+            # Don't check the item_id, our name matched.
+        elif self.item_id != other.item_id:
+            return False
+
+        return (
+            self.slot == other.slot and
+            self.bonus_ids == other.bonus_ids and
+            self.enchants == other.enchants and
+            self.enchant_ids == other.enchant_ids and
+            self.gem_ids == other.gem_ids and
+            self.drop_level == other.drop_level and
+            self.extra_options == other.extra_options
+        )
 
     def __hash__(self):
         # We are just lazy and use __str__ to avoid all the complexity about having mutable members, etc.
