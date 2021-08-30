@@ -1,0 +1,8 @@
+[run]
+omit =
+    ./tests/*
+    ./settings.py
+    ./settings_local.py
+
+include =
+    ./*.py

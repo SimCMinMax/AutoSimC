@@ -22,4 +22,4 @@ out.simc
 .pydevproject
 auto_download/
 settings_local.py
-
+.coverage
