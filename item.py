@@ -184,10 +184,6 @@ class Item:
         parts = input_string.split(",")
         self.name = parts[0]
 
-        splitted_name = self.name.split("--")
-        if len(splitted_name) > 1:
-            self.name = splitted_name[1]
-
         for s in parts[1:]:
             name, value = s.split("=")
             name = name.lower()

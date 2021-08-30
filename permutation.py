@@ -18,9 +18,6 @@ from i18n import _
 from item import GearType
 from utils import stable_unique
 
-T27_MIN = int(settings.default_equip_t27_min)
-T27_MAX = int(settings.default_equip_t27_max)
-
 
 def get_gem_combinations(gems_to_use, num_gem_slots):
     if num_gem_slots <= 0:

@@ -37,13 +37,6 @@ class settings:
     # standard error file
     errorFileName = "error.txt"
 
-    # set the amount of tier-items you want to include in your output
-    # this reduces the number of permutations generated if you know what you want to sim
-    # if you have no clue which items do what (= sim every combination), set all txx_min to 0 and txx_max to 6
-    # common errors are setting min=max=0 for a particular tier, which result in no tier-sets being equipped at all
-    default_equip_t27_min = 0
-    default_equip_t27_max = 6
-
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
     # No longer used for main.py

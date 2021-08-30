@@ -32,10 +32,6 @@ from utils import chop_microseconds, cleanup_subdir, file_checksum, stable_uniqu
 
 __version__ = "9.1.0"
 
-# Var init with default value
-t27min = int(settings.default_equip_t27_min)
-t27max = int(settings.default_equip_t27_max)
-
 gem_ids = {"16haste": 311865,
            "haste": 311865,  # always contains available maximum quality
            "16crit": 311863,
@@ -256,29 +252,6 @@ def validateSettings(args):
         else:
             raise RuntimeError(_("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.").
                                format(analyzer_path))
-
-    # validate tier-set
-    min_tier_sets = 0
-    max_tier_sets = 6
-    tier_sets = {"Tier27": (t27min, t27max)
-                 }
-
-    total_min = 0
-    for tier_name, (tier_set_min, tier_set_max) in tier_sets.items():
-        if tier_set_min < min_tier_sets:
-            raise ValueError(_("Invalid tier set minimum ({} < {}) for tier '{}'").
-                             format(tier_set_min, min_tier_sets, tier_name))
-        if tier_set_max > max_tier_sets:
-            raise ValueError(_("Invalid tier set maximum ({} > {}) for tier '{}'").
-                             format(tier_set_max, max_tier_sets, tier_name))
-        if tier_set_min > tier_set_max:
-            raise ValueError(_("Tier set min > max ({} > {}) for tier '{}'")
-                             .format(tier_set_min, tier_set_max, tier_name))
-        total_min += tier_set_min
-
-    if total_min > max_tier_sets:
-        raise ValueError(_("All tier sets together have too much combined min sets ({}=sum({}) > {}).").
-                         format(total_min, [t[0] for t in tier_sets.values()], max_tier_sets))
 
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
