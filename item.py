@@ -257,6 +257,11 @@ class Item:
             raise TypeError(f'Cannot compare {type(other)} with Item')
         return self.item_id < other.item_id
 
+    @property
+    def weapon_type(self) -> Optional[WeaponType]:
+        if self.slot in (GearType.MAIN_HAND, GearType.OFF_HAND):
+            return get_weapon_type(self)
+
 
 # generate map of id->type pairs
 def _read_weapon_data() -> Dict[int, WeaponType]:

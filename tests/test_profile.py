@@ -2,6 +2,7 @@
 Tests for profile module
 """
 
+from item import WeaponType
 import os.path
 from parameterized import parameterized
 import unittest
@@ -173,6 +174,21 @@ class TestProfile(unittest.TestCase):
         self.assertEqual(legendaries[0].item_id, 173242)
 
         self.assertEqual(len(p.baseline.weekly_rewards()), 0)
+
+    def test_2h_warrior(self):
+        p = Profile()
+        with _open_t27('T27_Warrior_Fury.simc') as fd:
+            p.load_simc(fd)
+
+        # Expect two 2H weapons
+        self.assertEqual(p.baseline.main_hand.weapon_type, WeaponType.TWOHAND)
+        self.assertEqual(p.baseline.off_hand.weapon_type, WeaponType.TWOHAND)
+        self.assertTrue(p.baseline.valid_weapons(p.player_class, p.spec))
+
+        # Other specs should fail
+        self.assertFalse(p.baseline.valid_weapons('warrior', 'arms'))
+        self.assertFalse(p.baseline.valid_weapons('warrior', 'protection'))
+        self.assertFalse(p.baseline.valid_weapons('warlock', 'affliction'))
 
 
 if __name__ == '__main__':
