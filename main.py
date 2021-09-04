@@ -281,7 +281,7 @@ def validateSettings(args):
         raise ValueError(_("Invalid default_error_rate_multiplier ({}) <= 0").
                          format(settings.default_error_rate_multiplier))
 
-    valid_grabbing_methods = (_("target_error"), _("top_n"))
+    valid_grabbing_methods = ("target_error", "top_n")
     if settings.default_grabbing_method not in valid_grabbing_methods:
         raise ValueError(_("Invalid settings.default_grabbing_method '{}'. Valid options: {}").
                          format(settings.default_grabbing_method, valid_grabbing_methods))
@@ -355,10 +355,10 @@ def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_f
             msg = "Error while checking result files in {}: {}\nPlease restart AutoSimc at a previous stage.". \
                 format(subdir_previous_stage, e)
             raise RuntimeError(msg) from e
-        if settings.default_grabbing_method == _("target_error"):
+        if settings.default_grabbing_method == "target_error":
             filter_by = "target_error"
             filter_criterium = None
-        elif settings.default_grabbing_method == _("top_n"):
+        elif settings.default_grabbing_method == "top_n":
             filter_by = "count"
             filter_criterium = settings.default_top_n[stage - num_stages - 1]
         is_last_stage = (stage == num_stages)

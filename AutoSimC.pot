@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-09-04 03:32+0000\n"
+"POT-Creation-Date: 2021-09-04 03:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -93,14 +93,6 @@ msgstr ""
 
 #: main.py:281
 msgid "Invalid default_error_rate_multiplier ({}) <= 0"
-msgstr ""
-
-#: main.py:284 main.py:358
-msgid "target_error"
-msgstr ""
-
-#: main.py:284 main.py:361
-msgid "top_n"
 msgstr ""
 
 #: main.py:286
@@ -379,19 +371,15 @@ msgstr ""
 msgid "Simc already exists at '{}'."
 msgstr ""
 
-#: splitter.py:49
-msgid "Error creating subfolder '{}': {}."
-msgstr ""
-
-#: splitter.py:315
+#: splitter.py:294
 msgid "Metric error of best player {} is zero. Cannot filter by target_error."
 msgstr ""
 
-#: splitter.py:396
+#: splitter.py:377
 msgid "Could not grab any valid profiles from previous run. ({} profiles available before filtering, {} after filtering)"
 msgstr ""
 
-#: splitter.py:445
+#: splitter.py:424
 msgid "Got {} best profiles written to {} files.."
 msgstr ""
 
