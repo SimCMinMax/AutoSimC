@@ -8,12 +8,6 @@ import operator
 from profile import Profile, EquipmentLoadout
 from typing import Iterator
 
-from settings import settings
-try:
-    from settings_local import settings
-except ImportError:
-    pass
-
 from i18n import _
 from item import GearType
 from utils import stable_unique
