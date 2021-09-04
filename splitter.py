@@ -1,12 +1,10 @@
 import os
-import shutil
 import subprocess
 import datetime
 import logging
 import concurrent.futures
 import re
 import math
-from typing import Optional
 
 from settings import settings
 try:
@@ -40,24 +38,6 @@ def _dump_profiles_to_file(filename, profiles):
             out.write(line)
 
 
-def _purge_subfolder(subfolder):
-    """Deletes and creates needed subfolders"""
-    if not os.path.exists(subfolder):
-        try:
-            os.makedirs(subfolder)
-        except Exception as e:
-            raise RuntimeError(_("Error creating subfolder '{}': {}.").format(e)) from e
-    else:
-        # Avoid PermissionError when re-creating directory directly after deleting the tree.
-        # See https://stackoverflow.com/a/16375240
-        tmp_name = subfolder + "_tmp"
-        os.rename(subfolder, tmp_name)
-        try:
-            shutil.rmtree(tmp_name)
-        finally:
-            os.makedirs(subfolder)
-
-
 def split(inputfile, destination_folder, size, wow_class):
     """
     Split a .simc file into n pieces
@@ -75,7 +55,6 @@ def split(inputfile, destination_folder, size, wow_class):
     num_profiles = 0
     bestprofiles = []
     outfile_count = 0
-    _purge_subfolder(destination_folder)
     with open(inputfile, encoding='utf-8', mode="r") as src:
         for profile in _parse_profiles_from_file(src, wow_class):
             profile.append("")  # Add tailing empty line
@@ -325,7 +304,9 @@ def _filter_by_target_error(metric_results):
 
 
 def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin, split_optimally=True):
-    """Determine best simulations and grabs their profiles for further simming"""
+    """
+    Determine best simulations and grabs their profiles for further simming.
+    """
     print("Grabbest:")
     print("Variables: filter by: " + str(filter_by))
     print("Variables: filter_criterium: " + str(filter_criterium))
@@ -419,8 +400,6 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     # now parse our "database" and extract the profiles of our top n
     logging.debug("Getting sim input from file {}.".format(origin))
     with open(origin, "r") as source:
-        subfolder = target_subdir
-        _purge_subfolder(subfolder)
         for profile in _parse_profiles_from_file(source, user_class):
             _classname, profilename = profile[0].split("=")
             profilename = profilename.strip('"')
