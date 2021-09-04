@@ -76,23 +76,6 @@ def split(inputfile, destination_folder, size, wow_class):
     return num_profiles
 
 
-def _prepare_fight_style(player_profile: Profile, cmd: List[str]):
-    # for now i overwrite additional_input.txt as it is relatively easy to edit the .json containing the profiles
-    # maybe concatenation could be possible? imho it would lead to more problems if a custom profile was loaded
-    # while additional_input contains even more custom commands
-    # i see however the appeal for e.g. appending a additional_input_2.txt containing only overrides
-    # default_profiles do not contain any additional lines, so they can be appended to the command line easily
-    if player_profile.fightstyle["name"].startswith("Default"):
-        cmd.append('fight_style=' + str(player_profile.fightstyle["command"]))
-    else:
-        with open(settings.additional_input_file, "w") as file:
-            for entry in player_profile.fightstyle:
-                if entry.startswith("line"):
-                    file.write(player_profile.fightstyle[entry]+"\n")
-            cmd.append('input=' + os.path.join(os.getcwd(), settings.additional_input_file))
-    return cmd
-
-
 @dataclass
 class SimcOptions:
     player_profile: Profile
@@ -111,7 +94,7 @@ class SimcOptions:
             cmd.append(f'iterations={self.iterations}')
         else:
             raise ValueError('Either target_error or iterations must be set')
-        _prepare_fight_style(self.player_profile, cmd)
+        cmd.extend(self.player_profile.fight_style.simc_options)
         cmd.append(f'process_priority={settings.simc_priority}')
         cmd.append(f'single_actor_batch={settings.simc_single_actor_batch}')
 
@@ -209,7 +192,7 @@ def _start_simulation(files_to_sim: List[str],
                       iterations: Optional[int] = None):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
     # TODO: is this needed?
-    files_to_sim = [f for f in files_to_sim if f.endswith('simc')]
+    files_to_sim = [f for f in files_to_sim if f.endswith('.simc')]
 
     num_files_to_sim = len(files_to_sim)
     if num_files_to_sim == 0:

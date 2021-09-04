@@ -19,6 +19,8 @@ try:
     from settings_local import settings
 except ImportError:
     pass
+
+import fights
 from profile import Profile
 from specdata import get_analyzer_data
 import splitter
@@ -562,49 +564,42 @@ def start_stage(player_profile: Profile, stage: int, num_stages: int, output_fil
         copy_result_file(get_subdir(num_stages, d))
 
 
-def addFightStyle(profile: Profile) -> None:
-    filepath = os.path.join(os.getcwd(), settings.file_fightstyle)
-    filepath = os.path.abspath(filepath)
-    logging.debug(_("Opening fight types data file at '{}'.").format(filepath))
-    with open(filepath, encoding="utf-8") as file:
-        try:
-            profile.fightstyle = None
-            fights = json.load(file)
-            if len(fights) > 0:
-                # generate table to choose fightstyle
-                if settings.choose_fightstyle:
-                    print("")
-                    print(_("Choose fightstyle:"))
-                    for i, f in enumerate(fights):
-                        print("({index:2n}) - {name}: {desc}"
-                              .format(index=i,
-                                      name=f["name"],
-                                      desc=f["description"]))
-                    fightstylechoose = int(input(_("Enter the number for your fightstyle: ")))
-                    if fightstylechoose < 0 or fightstylechoose >= len(fights):
-                        raise ValueError(_("Wrong number ({}) for fightstyles chosen."
-                                           " Must be greater between {} and {}.")
-                                         .format(fightstylechoose, 0, len(fights)))
-                    profile.fightstyle = fights[fightstylechoose]
-                else:
-                    # fetch default_profile
-                    for f in fights:
-                        if f["name"] == settings.default_fightstyle:
-                            profile.fightstyle = f  # add the whole json-object, files will get created later
-                    if profile.fightstyle is None:
-                        raise ValueError(_("No fightstyle found in .json with name: {}, exiting.")
-                                         .format(settings.default_fightstyle))
-            else:
-                raise RuntimeError(_("Did not find entries in fight_style.json."))
-        except json.decoder.JSONDecodeError as error:
-            logging.error(_("Error while decoding JSON file: {}").format(error), exc_info=True)
-            sys.exit(1)
+def get_fight_style() -> fights.Fight:
+    choice = None  # type: Optional[fights.Fight]
 
-    if profile.fightstyle is None:
-        raise Exception('No fightstyle set')
-    logging.info(_("Found fightstyle >>>{name}<<< in {file}")
-                .format(name=profile.fightstyle["name"],
-                        file=settings.file_fightstyle))
+    if settings.choose_fightstyle:
+        print('')
+        print(_('Available fight styles:'))
+        choices = {}  # type: Dict[int, fights.Fight]
+        for i, f in enumerate(fights.all_fights()):
+            choices[i + 1] = f
+            print(f'({i + 1}) {f.name}: {f.description}')
+
+        while choice is None:
+            d = input(_('Choose a fight style: '))
+            # Look up by fight name
+            choice = fights.get_fight(d)
+            if choice:
+                return choice
+
+            # Look up by fight number
+            try:
+                d = int(d)
+                choice = choices.get(d)
+            except ValueError:
+                pass
+            if choice:
+                return choice
+
+            print(_('Invalid selection, please try again.'))
+
+    choice = fights.get_fight(settings.default_fightstyle)
+    if not choice:
+        raise ValueError(
+            _('default_fightstyle={!r} is not a valid fight name').format(
+                settings.default_fightstyle))
+
+    return choice
 
 
 ########################
@@ -681,7 +676,8 @@ def main():
                         sys.exit(0)
 
     if args.sim:
-        addFightStyle(player_profile)
+        player_profile.fight_style = get_fight_style()
+
         if args.sim == "stage1" or args.sim == "all":
             start_stage(player_profile=player_profile,
                         stage=1,

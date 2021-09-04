@@ -5,6 +5,7 @@ import itertools
 import logging
 from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Tuple, cast
 
+from fights import Fight
 from item import Item, GearType, SHADOWLANDS_LEGENDARY_IDS, WeaponType, get_weapon_type
 from specdata import ALL_CLASSES, getClassSpec, getRole
 from utils import stable_unique
@@ -223,7 +224,7 @@ class Profile:
     """Profile of options to simulationcraft"""
     player_class: str = ''
     profile_name: str = ''
-    fightstyle: Optional[Dict[str, str]] = None
+    fight_style: Optional[Fight] = None
 
     augmentation: str = ''
     covenant: str = ''

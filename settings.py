@@ -126,12 +126,6 @@ class settings:
     # use 1.96 for 95% confidence or 2.58 for 99% confidence
     default_error_rate_multiplier = 1.96
 
-    # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
-    # https://github.com/simulationcraft/simc/wiki/RaidEvents
-    # The fighttypes are stored in fight_types.json
-    # You can specify your own fights there by simply extending the list with your own
-    file_fightstyle = "fight_types.json"
-
     # SimulationCraft process priority.
     # This can make your system more/less responsive. We recommend leaving this at 'low'.
     # low, below_normal, normal, above_normal, highest
@@ -155,11 +149,6 @@ class settings:
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
     simc_single_actor_batch = 1
-
-    # additional input you might want to sim according to
-    # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
-    # the file must be present in the autosimc-folder
-    additional_input_file = "additional_input.txt"
 
     # For Analysis.py
     # set to "nul" if you are simulating healer or tanks
@@ -194,11 +183,11 @@ class settings:
     # ----------------------------------------------------------------------
     skip_questions = False
 
-    # If you set choose_fightstyle to True, a menu pops up before simulation-begin where you can choose the fight to
-    # simulate.
-    # If set it to False, the entry you declare in the json, e.g. "name":"Default_Patchwerk", has to match default_fightstyle
-    choose_fightstyle = False
-    default_fightstyle = "Default_Patchwerk"
+    # If True, you will be prompted to choose a fight style to simulate.
+    # If False, always use default_fightstyle.
+    # Fight styles are defined in fights.py.
+    choose_fightstyle = True
+    default_fightstyle = "Patchwerk"
 
     # Automatic delete of the temp folders
     delete_temp_default = False
