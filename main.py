@@ -344,8 +344,10 @@ def get_subdir(stage: int, tempdir: str) -> str:
 
 def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_file_name: str, tempdir: str) -> int:
     """Parse output/result files from previous stage and get number of profiles to simulate"""
+    stage_dir = get_subdir(stage, tempdir)
+    os.makedirs(stage_dir, exist_ok=True)
     if stage == 1:
-        num_generated_profiles = splitter.split(output_file_name, get_subdir(stage, tempdir),
+        num_generated_profiles = splitter.split(output_file_name, stage_dir,
                                                 settings.splitting_size, player_profile.player_class)
     else:
         subdir_previous_stage = get_subdir(stage - 1, tempdir)
@@ -363,7 +365,7 @@ def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_f
             filter_criterium = settings.default_top_n[stage - num_stages - 1]
         is_last_stage = (stage == num_stages)
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, subdir_previous_stage,
-                                                    get_subdir(stage, tempdir), output_file_name, not is_last_stage)
+                                                    stage_dir, output_file_name, not is_last_stage)
     if num_generated_profiles:
         logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
     return num_generated_profiles
@@ -394,8 +396,8 @@ def static_stage(player_profile: Profile, stage: int, num_stages: int,
             logging.info(_("Quitting application"))
             sys.exit(0)
         num_iterations = int(iterations_choice)
-    splitter.simulate(get_subdir(stage, tempdir), "iterations", num_iterations,
-                      player_profile, stage, is_last_stage, num_generated_profiles)
+    splitter.simulate(get_subdir(stage, tempdir),
+                      player_profile, stage, is_last_stage, iterations=num_iterations)
 
     if not is_last_stage:
         static_stage(player_profile=player_profile,
@@ -502,8 +504,8 @@ def dynamic_stage(player_profile: Profile,
         else:
             logging.warning(_("Could not provide any estimated calculation time."))
     is_last_stage = (stage == num_stages)
-    splitter.simulate(get_subdir(stage, tempdir), "target_error", target_error, player_profile,
-                      stage, is_last_stage, num_generated_profiles)
+    splitter.simulate(get_subdir(stage, tempdir), player_profile,
+                      stage, is_last_stage, target_error=target_error)
 
     if not is_last_stage:
         dynamic_stage(player_profile=player_profile,

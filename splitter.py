@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 import subprocess
 import datetime
@@ -5,6 +6,7 @@ import logging
 import concurrent.futures
 import re
 import math
+from typing import List, Optional
 
 from settings import settings
 try:
@@ -74,7 +76,7 @@ def split(inputfile, destination_folder, size, wow_class):
     return num_profiles
 
 
-def _prepare_fight_style(player_profile, cmd):
+def _prepare_fight_style(player_profile: Profile, cmd: List[str]):
     # for now i overwrite additional_input.txt as it is relatively easy to edit the .json containing the profiles
     # maybe concatenation could be possible? imho it would lead to more problems if a custom profile was loaded
     # while additional_input contains even more custom commands
@@ -91,49 +93,45 @@ def _prepare_fight_style(player_profile, cmd):
     return cmd
 
 
-def _generate_sim_options(output_file, sim_type, simtype_value, is_last_stage, player_profile, num_files_to_sim):
-    """Generate global (per stage) simc options and write them to .simc output file"""
-    cmd = []
-    if bool(settings.simc_ptr):
-        cmd.append('ptr=' + str(int(settings.simc_ptr)))
-    cmd.append("{}={}".format(sim_type, simtype_value))
-    if num_files_to_sim > 1 and not is_last_stage:
-        cmd.append('threads=' + str(settings.number_of_threads))
-    else:
-        cmd.append('threads=' + str(settings.simc_threads))
-    cmd = _prepare_fight_style(player_profile, cmd)
-    cmd.append('process_priority=' + str(settings.simc_priority))
-    cmd.append('single_actor_batch=' + str(settings.simc_single_actor_batch))
+@dataclass
+class SimcOptions:
+    player_profile: Profile
+    is_last_stage: bool
+    target_error: Optional[float] = None
+    iterations: Optional[int] = None
 
-    # For simulations with a high target_error, we want to get a faster execution (eg. only 47 iterations)
-    # instead of the default minimum of ~100 iterations. This options tells SimC to more often check target_error
-    # condition while simulating.
-    if sim_type == "target_error" and simtype_value > 0.1:
-        cmd.append('analyze_error_interval=10')
+    @property
+    def sim_options(self) -> str:
+        cmd = []
+        if settings.simc_ptr:
+            cmd.append('ptr=1')
+        if self.target_error:
+            cmd.append(f'target_error={self.target_error}')
+        elif self.iterations:
+            cmd.append(f'iterations={self.iterations}')
+        else:
+            raise ValueError('Either target_error or iterations must be set')
+        _prepare_fight_style(self.player_profile, cmd)
+        cmd.append(f'process_priority={settings.simc_priority}')
+        cmd.append(f'single_actor_batch={settings.simc_single_actor_batch}')
 
-    if is_last_stage:
-        if settings.simc_scale_factors_last_stage:
+        # For simulations with a high target_error, we want to get a faster
+        # execution (eg. only 47 iterations) instead of the default minimum of
+        # ~100 iterations. This options tells SimC to more often check
+        # target_error condition while simulating.
+        if self.target_error and self.target_error > 0.1:
+            cmd.append('analyze_error_interval=10')
+
+        if self.is_last_stage and settings.simc_scale_factors_last_stage:
             cmd.append('calculate_scale_factors=1')
-            if player_profile.class_role == "strattack":
+            if self.player_profile.class_role == 'strattack':
                 cmd.append('scale_only=str,crit,haste,mastery,vers')
-            elif player_profile.class_role == "agiattack":
+            elif self.player_profile.class_role == 'agiattack':
                 cmd.append('scale_only=agi,crit,haste,mastery,vers')
-            elif player_profile.class_role == "spell":
+            elif self.player_profile.class_role == 'spell':
                 cmd.append('scale_only=int,crit,haste,mastery,vers')
-    logging.info("Commandline: {}".format(cmd))
-    with open(output_file, "w") as f:
-        f.write(" ".join(cmd))
 
-
-def _generateCommand(file, global_option_file, outputs):
-    """Generate command line arguments to invoke SimulationCraft"""
-    cmd = []
-    cmd.append(os.path.normpath(settings.simc_path))
-    cmd.append("input={}".format(global_option_file))
-    cmd.append("input={}".format(file))
-    for output in outputs:
-        cmd.append(output)
-    return cmd
+        return ' '.join(cmd)
 
 
 def _worker(command, counter, maximum, starttime, num_workers):
@@ -203,42 +201,58 @@ def _launch_simc_commands(commands, is_last_stage):
         raise
 
 
-def _start_simulation(files_to_sim, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles):
+def _start_simulation(files_to_sim: List[str],
+                      player_profile: Profile,
+                      stage: int,
+                      is_last_stage: bool,
+                      target_error: Optional[float] = None,
+                      iterations: Optional[int] = None):
     output_time = "{:%Y-%m-%d_%H-%M-%S}".format(datetime.datetime.now())
-
-    # some minor progress-bar-initialization
-    amount_of_generated_splits = 0
-    for file in files_to_sim:
-        if file.endswith(".simc"):
-            amount_of_generated_splits += 1
+    # TODO: is this needed?
+    files_to_sim = [f for f in files_to_sim if f.endswith('simc')]
 
     num_files_to_sim = len(files_to_sim)
     if num_files_to_sim == 0:
-        raise ValueError("Number of files to sim in stage {} is 0. Check path (spaces? special chars?)".format(stage))
+        raise ValueError(
+            "Number of files to sim in stage {} is 0. Check path (spaces? special chars?)"
+            .format(stage))
 
     # First generate global simc options
-    base_path, _filename = os.path.split(files_to_sim[0])
-    sim_options = os.path.join(base_path, "arguments.simc")
-    _generate_sim_options(sim_options, simtype, simtype_value, is_last_stage, player_profile, num_files_to_sim)
+    opts = SimcOptions(
+        player_profile=player_profile,
+        is_last_stage=is_last_stage,
+        target_error=target_error,
+        iterations=iterations,
+    )
+    sim_options = os.path.join(os.path.dirname(files_to_sim[0]),
+                               'arguments.simc')
+    with open(sim_options, 'w') as f:
+        f.write(opts.sim_options)
 
     # Generate arguments for launching simc for each splitted file
     commands = []
     for file in files_to_sim:
-        if file.endswith(".simc"):
-            base_path, filename = os.path.split(file)
-            basename, _extension = os.path.splitext(filename)
-            outputs = ['output=' + os.path.join(base_path, basename + '.result')]
-            if num_files_to_sim == 1 or is_last_stage:
-                html_file = os.path.join(base_path, str(output_time) + "-" + basename + ".html")
-                outputs.append('html={}'.format(html_file))
-            cmd = _generateCommand(file,
-                                  sim_options,
-                                  outputs)
-            commands.append(cmd)
+        base_path, filename = os.path.split(file)
+        basename, _extension = os.path.splitext(filename)
+        result = os.path.join(base_path, f'b{basename}.result')
+
+        cmd = [
+            settings.simc_path,
+            f'input={sim_options}',
+            f'input={file}',
+            f'output={result}',
+        ]
+
+        if num_files_to_sim == 1 or is_last_stage:
+            html_file = os.path.join(base_path,
+                                     f'{output_time}-{basename}.html')
+            cmd.append(f'html={html_file}')
+
+        commands.append(cmd)
     return _launch_simc_commands(commands, is_last_stage)
 
 
-def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stage, num_profiles):
+def simulate(subdir, player_profile: Profile, stage, is_last_stage, target_error: Optional[float] = None, iterations: Optional[int] = None):
     """Start the simulation process for a given stage/input"""
     logging.info("Starting simulation.")
     logging.debug("Started simulation with {}".format(locals()))
@@ -247,7 +261,12 @@ def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stag
     files = [os.path.join(subdir, f) for f in files]
 
     start = datetime.datetime.now()
-    result = _start_simulation(files, player_profile, simtype, simtype_value, stage, is_last_stage, num_profiles)
+    result = _start_simulation(files_to_sim=files,
+                               player_profile=player_profile,
+                               stage=stage,
+                               is_last_stage=is_last_stage,
+                               target_error=target_error,
+                               iterations=iterations)
     end = datetime.datetime.now()
     logging.info("Simulation took {}.".format(end - start))
 
