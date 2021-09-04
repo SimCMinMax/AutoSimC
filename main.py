@@ -281,16 +281,16 @@ def validateSettings(args):
                          format(settings.default_grabbing_method, valid_grabbing_methods))
 
 
-def permutate(args, profile: Profile) -> int:
+def write_permutations(output_file: str, profile: Profile) -> int:
     max_nperm = max_permutation_count(profile)
     logging.info(_("Generating up to {:n} loadouts...").format(max_nperm))
     max_perm_strlen = len(str(max_nperm))
     valid_profiles = 0
 
-    with open(args.outputfile, 'w') as output_file:
+    with open(output_file, 'w') as f:
         for perm in generate_permutations(profile):
             profile_id = str(valid_profiles).rjust(max_perm_strlen, '0')
-            output_file.write(f'''\
+            f.write(f'''\
 {profile.player_class}="{profile.profile_name}_{profile_id}"
 {profile.general_options}
 {perm.simc_input}
@@ -304,7 +304,7 @@ def permutate(args, profile: Profile) -> int:
     logging.info(result)
 
     # Print checksum so we can check for equality when making changes in the code
-    outfile_checksum = file_checksum(args.outputfile)
+    outfile_checksum = file_checksum(output_file)
     logging.info(_("Output file checksum: {}").format(outfile_checksum))
 
     return valid_profiles
@@ -659,13 +659,13 @@ def main():
     num_generated_profiles = None
     if args.sim == "all" or args.sim is None:
         start = datetime.datetime.now()
-        num_generated_profiles = permutate(args, player_profile)
+        num_generated_profiles = write_permutations(args.outputfile, player_profile)
         logging.info(_("Permutating took {}.").format(datetime.datetime.now() - start))
         outputGenerated = True
     elif args.sim == "stage1":
         if input(_("Do you want to generate {outfile} again? Press y to regenerate: ").format(
                 outfile=args.outputfile)) == "y":
-            num_generated_profiles = permutate(args, player_profile)
+            num_generated_profiles = write_permutations(args.outputfile, player_profile)
             outputGenerated = True
 
     if outputGenerated:
