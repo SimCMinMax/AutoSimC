@@ -86,108 +86,138 @@ def build_gem_list(gem_lists):
 def parse_command_line_args():
     """Parse command line arguments using argparse. Also provides --help functionality, and default values for args"""
 
-    parser = argparse.ArgumentParser(prog="AutoSimC",
-                                     description=_("Python script to create multiple profiles for SimulationCraft to "
-                                                   "find Best-in-Slot and best enchants/gems/talents combinations."),
-                                     epilog=_("Don't hesitate to go on the SimcMinMax Discord "
-                                              "(https://discordapp.com/invite/tFR2uvK) "
-                                              "in the #simpermut-autosimc Channel to ask about specific stuff."),
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter  # Show default arguments
-                                     )
+    parser = argparse.ArgumentParser(
+        prog='AutoSimC',
+        description=_(
+            'Python script to create multiple profiles for SimulationCraft to '
+            'find Best-in-Slot and best enchants/gems/talents combinations.'),
+        epilog=_("Don't hesitate to go on the SimcMinMax Discord "
+                 "(https://discordapp.com/invite/tFR2uvK) "
+                 "in the #autosimc Channel to ask about specific stuff."),
+        formatter_class=argparse.
+        ArgumentDefaultsHelpFormatter  # Show default arguments
+    )
 
-    parser.add_argument('-i', _('--inputfile'),
-                        dest="inputfile",
-                        default=settings.default_inputFileName,
-                        required=False,
-                        help=_("Inputfile describing the permutation of SimC profiles to generate. See README for more "
-                               "details."))
+    parser.add_argument(
+        '-i',
+        '--input_file',
+        dest="inputfile",
+        default=settings.default_inputFileName,
+        required=False,
+        help=_(
+            'Input file describing the permutation of SimC profiles to generate. See README for more '
+            'details.'))
 
-    parser.add_argument('-o', _('--outputfile'),
-                        dest="outputfile",
-                        default=settings.default_outputFileName,
-                        required=False,
-                        help=_("Output file containing the generated profiles used for the simulation."))
+    parser.add_argument(
+        '-o',
+        '--output_file',
+        dest="outputfile",
+        default=settings.default_outputFileName,
+        required=False,
+        help=
+        _('Output file containing the generated profiles used for the simulation.'
+          ))
 
-    parser.add_argument('-a', _('--additionalfile'),
-                        dest="additionalfile",
-                        default=settings.default_additionalFileName,
-                        required=False,
-                        help=_("Additional input file containing the options to add to each profile."))
+    parser.add_argument(
+        '-a',
+        '--additional_file',
+        dest="additionalfile",
+        default=settings.default_additionalFileName,
+        required=False,
+        help=
+        _('Additional input file containing the options to add to each profile.'
+          ))
 
-    parser.add_argument('-sim', _("--sim"),
-                        dest="sim",
-                        required=False,
-                        nargs=1,
-                        default=[settings.default_sim_start_stage],
-                        choices=['permutate_only', 'all', 'stage1', 'stage2', 'stage3', 'stage4',
-                                 'stage5', 'stage6'],
-                        help=_("Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
-                               "Might take a long time, depending on number of permutations. "
-                               "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
-                               "will be saved in results-subfolder."
-                               "There are 2 modes available for calculating the possible huge amount of permutations: "
-                               "Static and dynamic mode:"
-                               "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
-                               "100, 1000 and 10000 for each stage."
-                               "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
-                               "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
-                               "target_error=0.2, and 0.05 for the final stage 3."
-                               "(These numbers might be changed in future versions)"
-                               "You have to set the simc path in the settings.py file."
-                               "- Resuming: It is also possible to resume at a stage, e.g. if simc.exe crashed during "
-                               "stage1, by launching with the parameter -sim stage1 (or stage2/3)."
-                               "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
-                               "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
-                               "or instabilities, edit settings.py and change the corresponding parameters or even disable it.")
-                        )
+    parser.add_argument(
+        '-s',
+        '--sim',
+        dest='sim',
+        required=False,
+        nargs=1,
+        default=[settings.default_sim_start_stage],
+        choices=[
+            'permute_only', 'all', 'stage1', 'stage2', 'stage3', 'stage4',
+            'stage5', 'stage6'
+        ],
+        help=
+        _("Enables automated simulation and ranking for the top 3 dps-gear-combinations. "
+          "Might take a long time, depending on number of permutations. "
+          "Edit the simcraft-path in settings.py to point to your simc-installation. The result.html "
+          "will be saved in results-subfolder."
+          "There are 2 modes available for calculating the possible huge amount of permutations: "
+          "Static and dynamic mode:"
+          "* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are "
+          "100, 1000 and 10000 for each stage."
+          "* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more "
+          "accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to "
+          "target_error=0.2, and 0.05 for the final stage 3."
+          "(These numbers might be changed in future versions)"
+          "You have to set the simc path in the settings.py file."
+          "- Resuming: It is also possible to resume at a stage, e.g. if simc.exe crashed during "
+          "stage1, by launching with the parameter -sim stage1 (or stage2/3)."
+          "- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, "
+          "which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems "
+          "or instabilities, edit settings.py and change the corresponding parameters or even disable it."
+          ))
 
-    parser.add_argument('-stages', _('--stages'),
+    parser.add_argument('-S',
+                        '--stages',
                         dest="stages",
                         required=False,
                         type=int,
                         default=settings.num_stages,
                         help=_("Number of stages to simulate."))
 
-    parser.add_argument('-gems', _('--gems'),
-                        dest="gems",
-                        required=False,
-                        nargs="*",
-                        help=_('Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
-                               'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
-                               'greens are not supported) in addition to the ones you have currently equipped.\n'
-                               'Valid gems: {}'
-                               '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
-                               '(without <>) into the commandline, the permutation process uses the single int- '
-                               'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
-                               'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
-                               'commandline reenables that.\n'
-                               '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
-                               'Simpermut usually creates this for you.\n'
-                               '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
-                               'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
-                               'when enabling this.'
-                               '- additonally you can specify a empty list of gems, which will permutate the existing gems'
-                               'in your input gear.').format(list(gem_ids.keys())))
+    parser.add_argument(
+        '-g',
+        '--gems',
+        dest='gems',
+        required=False,
+        nargs='*',
+        help=
+        _('Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int '
+          'you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon '
+          'greens are not supported) in addition to the ones you have currently equipped.\n'
+          'Valid gems: {}'
+          '- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems "crit,haste,int"> '
+          '(without <>) into the commandline, the permutation process uses the single int- '
+          'and mastery-gem-combination you have currrently equipped and adds ALL combinations from the '
+          'ones in the commandline, therefore mastery would be excluded. However, adding mastery to the '
+          'commandline reenables that.\n'
+          '- Gems have to fulfil the following syntax in your profile: gem_id=123456[[/234567]/345678] '
+          'Simpermut usually creates this for you.\n'
+          '- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as '
+          'command, the number of combinations will go through the roof VERY quickly. Please be cautious '
+          'when enabling this.'
+          '- additonally you can specify a empty list of gems, which will permutate the existing gems'
+          'in your input gear.').format(list(gem_ids.keys())))
 
-    parser.add_argument('-unique_jewelry', _('--unique_jewelry'),
-                        dest='unique_jewelry',
-                        type=str2bool,
-                        default="true",
-                        help='Assume ring and trinkets are unique-equipped, and only a single item id can be equipped.')
+    parser.add_argument(
+        '--unique_jewelry',
+        dest='unique_jewelry',
+        action='store_true',
+        default="true",
+        help=
+        'Assume ring and trinkets are unique-equipped, and only a single item id can be equipped.'
+    )
 
-    parser.add_argument('-d', _('--debug'),
+    parser.add_argument('-d',
+                        '--debug',
                         dest="debug",
                         action='store_true',
                         help='Write debug information to log file.')
 
     # TODO Handle quiet argument in the code
-    parser.add_argument('-quiet', _("--quiet"),
-                        dest="quiet",
+    parser.add_argument('-quiet',
+                        '--quiet',
+                        dest='quiet',
                         action='store_true',
                         help='Run quietly. /!\ Not implemented yet')
 
-    parser.add_argument('-version', _('--version'),
-                        action='version', version='%(prog)s {}'.format(__version__))
+    parser.add_argument('-version',
+                        '--version',
+                        action='version',
+                        version='%(prog)s {}'.format(__version__))
 
     return parser.parse_args()
 
@@ -198,7 +228,7 @@ def handleCommandLine():
 
     # Sim stage is always a list with 1 element, eg. ["all"], ['stage1'], ...
     args.sim = args.sim[0]
-    if args.sim == _("permutate_only"):
+    if args.sim == 'permute_only':
         args.sim = None
     return args
 

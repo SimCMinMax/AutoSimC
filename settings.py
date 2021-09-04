@@ -51,8 +51,8 @@ class settings:
     # Too large split size will require large amounts of memory for SimulationCraft and slow down the simulation.
     splitting_size = 50
 
-    # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3", ...
-    # 'permutate_only' will only generate profile combinations.
+    # Default sim start stage. Valid options: "permute_only", "all", "stage1", "stage2", "stage3", ...
+    # 'permute_only' will only generate profile combinations.
     # 'all' generates profiles & starts simulation process at stage1.
     # 'stageN' restarts simulation process at stage N.
     default_sim_start_stage = "all"
@@ -154,9 +154,6 @@ class settings:
 
     # Should ptr mode be used for SimC
     simc_ptr = False
-
-    # [[deprecated]] enable_talent_permutation
-    # Use talent character 0 in your input file to permutate a specific talent row
 
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole

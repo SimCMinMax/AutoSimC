@@ -5,81 +5,49 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-03-01 14:15+0100\n"
+"POT-Creation-Date: 2021-09-04 02:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=cp1252\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: main.py:111
-msgid "Adding legendary: {}"
+#: fights.py:27
+msgid "Tank-n-spank"
 msgstr ""
 
-#: main.py:126
-msgid "Legendary string: {}"
-msgstr ""
-
-#: main.py:129
-msgid "Added legendary '{}' to {}."
-msgstr ""
-
-#: main.py:132
-msgid "Invalid legendary gear slot '{}' not in {}"
-msgstr ""
-
-#: main.py:135
-msgid "Could not add legendary: {}"
-msgstr ""
-
-#: main.py:169
+#: main.py:91
 msgid "Python script to create multiple profiles for SimulationCraft to find Best-in-Slot and best enchants/gems/talents combinations."
 msgstr ""
 
-#: main.py:171
-msgid "Don't hesitate to go on the SimcMinMax Discord (https://discordapp.com/invite/tFR2uvK) in the #simpermut-autosimc Channel to ask about specific stuff."
+#: main.py:94
+msgid "Don't hesitate to go on the SimcMinMax Discord (https://discordapp.com/invite/tFR2uvK) in the #autosimc Channel to ask about specific stuff."
 msgstr ""
 
-#: main.py:177
-msgid "--inputfile"
+#: main.py:107
+msgid "Input file describing the permutation of SimC profiles to generate. See README for more details."
 msgstr ""
 
-#: main.py:181
-msgid "Inputfile describing the permutation of SimC profiles to generate. See README for more details."
-msgstr ""
-
-#: main.py:184
-msgid "--outputfile"
-msgstr ""
-
-#: main.py:188
+#: main.py:118
 msgid "Output file containing the generated profiles used for the simulation."
 msgstr ""
 
-#: main.py:190
-msgid "--sim"
+#: main.py:128
+msgid "Additional input file containing the options to add to each profile."
 msgstr ""
 
-#: main.py:197
+#: main.py:143
 msgid "Enables automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations. Edit the simcraft-path in settings.py to point to your simc-installation. The result.html will be saved in results-subfolder.There are 2 modes available for calculating the possible huge amount of permutations: Static and dynamic mode:* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are 100, 1000 and 10000 for each stage.* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.2, and 0.05 for the final stage 3.(These numbers might be changed in future versions)You have to set the simc path in the settings.py file.- Resuming: It is also possible to resume at a stage, e.g. if simc.exe crashed during stage1, by launching with the parameter -sim stage1 (or stage2/3).- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems or instabilities, edit settings.py and change the corresponding parameters or even disable it."
 msgstr ""
 
-#: main.py:217
-msgid "--stages"
-msgstr ""
-
-#: main.py:222
+#: main.py:169
 msgid "Number of stages to simulate."
 msgstr ""
 
-#: main.py:224
-msgid "--gems"
-msgstr ""
-
-#: main.py:228
+#: main.py:178
 msgid ""
 "Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon greens are not supported) in addition to the ones you have currently equipped.\n"
 "Valid gems: {}- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems \"crit,haste,int\"> (without <>) into the commandline, the permutation process uses the single int- and mastery-gem-combination you have currrently equipped and adds ALL combinations from the ones in the commandline, therefore mastery would be excluded. However, adding mastery to the commandline reenables that.\n"
@@ -87,467 +55,359 @@ msgid ""
 "- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as command, the number of combinations will go through the roof VERY quickly. Please be cautious when enabling this.- additonally you can specify a empty list of gems, which will permutate the existing gemsin your input gear."
 msgstr ""
 
-#: main.py:245
-msgid "--legendaries"
-msgstr ""
-
-#: main.py:248
-msgid ""
-"List of legendaries to add to the template. Format:\n"
-"\"leg1/id/bonus/gem/enchant,leg2/id2/bonus2/gem2/enchant2,...\""
-msgstr ""
-
-#: main.py:251
-msgid "--legendary_min"
-msgstr ""
-
-#: main.py:256
-msgid "Minimum number of legendaries in the permutations."
-msgstr ""
-
-#: main.py:258
-msgid "--legendary_max"
-msgstr ""
-
-#: main.py:263
-msgid "Maximum number of legendaries in the permutations."
-msgstr ""
-
-#: main.py:265
-msgid "--unique_jewelry"
-msgstr ""
-
-#: main.py:271
-msgid "--debug"
-msgstr ""
-
-#: main.py:277
-msgid "--quiet"
-msgstr ""
-
-#: main.py:282
-msgid "--version"
-msgstr ""
-
-#: main.py:294
-msgid "permutate_only"
-msgstr ""
-
-#: main.py:339
-msgid "Found program in {}: Git_Version: {}"
-msgstr ""
-
-#: main.py:347
-msgid "Found no git-string in simc.exe, self-compiled?"
-msgstr ""
-
-#: main.py:349
-msgid "Did not find program in '{}'."
-msgstr ""
-
-#: main.py:358
-msgid "Latest version available: {}"
-msgstr ""
-
-#: main.py:361
-msgid "Found no git-string in filename, new or changed format?"
-msgstr ""
-
-#: main.py:372
-msgid "Sorry autodownloading only supported for 64bit windows"
-msgstr ""
-
-#: main.py:377
-msgid "Starting auto download check of SimulationCraft."
-msgstr ""
-
-#: main.py:388
-msgid "Latest simc: {filename}"
-msgstr ""
-
-#: main.py:394
-msgid "Retrieving simc from url {} to {}."
-msgstr ""
-
-#: main.py:398
-msgid "Latest simc version already downloaded at {}."
-msgstr ""
-
-#: main.py:408
-msgid "7Zip executable at '{}' does not exist."
-msgstr ""
-
-#: main.py:411
-msgid "Running unpack command '{}'"
-msgstr ""
-
-#: main.py:418
-msgid "Removing old simc from '{}'."
-msgstr ""
-
-#: main.py:422
-msgid "Exception when unpacking: {}"
-msgstr ""
-
-#: main.py:424
-msgid "Could not unpack the auto downloaded SimulationCraft executable.Please note that you need 7Zip installed at one of the following locations: {}."
-msgstr ""
-
-#: main.py:428
-msgid "Simc already exists at '{}'."
-msgstr ""
-
-#: main.py:434
-msgid "Do you want to remove subfolder: {}? (Press y to confirm): "
-msgstr ""
-
-#: main.py:434
-msgid "y"
-msgstr ""
-
-#: main.py:436
-msgid "Removing subdir '{}'."
-msgstr ""
-
-#: main.py:443
+#: main.py:239
 msgid "Result-subfolder '{}' does not exist. Creating it."
 msgstr ""
 
-#: main.py:454
+#: main.py:250
 msgid "Moving file: {} to {}"
 msgstr ""
 
-#: main.py:458
+#: main.py:254
 msgid "Could not copy html result file, since there was no file found in '{}'."
 msgstr ""
 
-#: main.py:463
+#: main.py:259
 msgid "Cleaning up"
 msgstr ""
 
-#: main.py:475
+#: main.py:271
 msgid "Simc executable at '{}' does not exist."
 msgstr ""
 
-#: main.py:477
+#: main.py:273
 msgid "Simc executable exists at '{}', proceeding..."
 msgstr ""
 
-#: main.py:480
+#: main.py:276
 msgid "Simc executable must end with 'simc.exe', and '{}' does not.Please check your settings.py simc_path options."
 msgstr ""
 
-#: main.py:485
+#: main.py:281
 msgid "Analyzer-file found at '{}'."
 msgstr ""
 
-#: main.py:487
+#: main.py:283
 msgid "Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package."
 msgstr ""
 
-#: main.py:492
-msgid "Legendary min '{}' > legendary max '{}'"
-msgstr ""
-
-#: main.py:494
-msgid "Legendary Max '{}' too large (>3)."
-msgstr ""
-
-#: main.py:496
-msgid "Legendary Min '{}' too large (>3)."
-msgstr ""
-
-#: main.py:498
-msgid "Legendary Min '{}' is negative."
-msgstr ""
-
-#: main.py:500
-msgid "Legendary Max '{}' is negative."
-msgstr ""
-
-#: main.py:513
-msgid "Invalid tier set minimum ({} < {}) for tier '{}'"
-msgstr ""
-
-#: main.py:516
-msgid "Invalid tier set maximum ({} > {}) for tier '{}'"
-msgstr ""
-
-#: main.py:519
-msgid "Tier set min > max ({} > {}) for tier '{}'"
-msgstr ""
-
-#: main.py:524
-msgid "All tier sets together have too much combined min sets ({}=sum({}) > {})."
-msgstr ""
-
-#: main.py:529
+#: main.py:288
 msgid "Using Safe Mode as specified in settings."
 msgstr ""
 
-#: main.py:533
+#: main.py:292
 msgid "Invalid default_error_rate_multiplier ({}) <= 0"
 msgstr ""
 
-#: main.py:536 main.py:1254
+#: main.py:295 main.py:372
 msgid "target_error"
 msgstr ""
 
-#: main.py:536 main.py:1257
+#: main.py:295 main.py:375
 msgid "top_n"
 msgstr ""
 
-#: main.py:538
+#: main.py:297
 msgid "Invalid settings.default_grabbing_method '{}'. Valid options: {}"
 msgstr ""
 
-#: main.py:989
-msgid "Combinations in progress..."
+#: main.py:303
+msgid "Generating up to {:n} loadouts..."
 msgstr ""
 
-#: main.py:1021
-msgid "Parsed gear before legendaries: {}"
-msgstr ""
-
-#: main.py:1035
-msgid "Parsed gear including legendaries:"
-msgstr ""
-
-#: main.py:1062
-msgid "Building permutations matrix finished."
-msgstr ""
-
-#: main.py:1079
-msgid "Input list for special permutation '{}': {}"
-msgstr ""
-
-#: main.py:1094
-msgid "Got {num} permutations for {item_name}."
-msgstr ""
-
-#: main.py:1102
-msgid "Got {num} permutations for {item_name} after id filter."
-msgstr ""
-
-#: main.py:1109
-msgid "Got {num} permutations for {item_name} after unique filter."
-msgstr ""
-
-#: main.py:1122
-msgid "Got {num} permutations for trinkets after Antorus filter."
-msgstr ""
-
-#: main.py:1131
-msgid "normal gear&talents"
-msgstr ""
-
-#: main.py:1147
-msgid "Max number of normal permutations: {}"
-msgstr ""
-
-#: main.py:1148
-msgid "Number of permutations: {}"
-msgstr ""
-
-#: main.py:1192
+#: main.py:317
 msgid "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)"
 msgstr ""
 
-#: main.py:1203
-msgid ""
-"Invalid profile statistics: [\n"
-"{}]"
-msgstr ""
-
-#: main.py:1207
+#: main.py:325
 msgid "Output file checksum: {}"
 msgstr ""
 
-#: main.py:1293
+#: main.py:402
 msgid "***Entering static mode, STAGE {}***"
 msgstr ""
 
-#: main.py:1302
+#: main.py:412
 msgid "Cannot run static mode and skip questions without default iterations set for stage {}."
 msgstr ""
 
-#: main.py:1304
+#: main.py:414
 msgid "Please enter the number of iterations to use (q to quit): "
 msgstr ""
 
-#: main.py:1306 main.py:1349 main.py:1370 main.py:1395
+#: main.py:416 main.py:464 main.py:485 main.py:510
 msgid "Quitting application"
 msgstr ""
 
-#: main.py:1318
+#: main.py:432
 msgid "***Entering dynamic mode, STAGE {}***"
 msgstr ""
 
-#: main.py:1324
+#: main.py:438
 msgid "Estimated calculation times for stage {} based on your data:"
 msgstr ""
 
-#: main.py:1328
+#: main.py:442
 msgid "({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) "
 msgstr ""
 
-#: main.py:1344
+#: main.py:459
 msgid "Cannot run dynamic mode and skip questions without default target_error set for stage {}."
 msgstr ""
 
-#: main.py:1347
+#: main.py:462
 msgid "Please enter the type of calculation to perform (q to quit): "
 msgstr ""
 
-#: main.py:1353
+#: main.py:468
 msgid "Invalid calc choice '{}' can only be from 0 to {}"
 msgstr ""
 
-#: main.py:1355
+#: main.py:470
 msgid "Sim: Number of permutations: "
 msgstr ""
 
-#: main.py:1356
+#: main.py:471
 msgid "Sim: Chosen calculation: {}"
 msgstr ""
 
-#: main.py:1363
+#: main.py:478
 msgid "Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}"
 msgstr ""
 
-#: main.py:1366
+#: main.py:481
 msgid "Do you want to continue anyway (Enter), quit (q) or enter a new target_error for the current stage (n)?: "
 msgstr ""
 
-#: main.py:1368
+#: main.py:483
 msgid "User chose: "
 msgstr ""
 
-#: main.py:1373
+#: main.py:488
 msgid "Enter new target_error (Format: 0.3): "
 msgstr ""
 
-#: main.py:1374
+#: main.py:489
 msgid "User entered target_error_secondpart: "
 msgstr ""
 
-#: main.py:1385
+#: main.py:500
 msgid "Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}"
 msgstr ""
 
-#: main.py:1393
+#: main.py:508
 msgid "Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )"
 msgstr ""
 
-#: main.py:1399
+#: main.py:514
 msgid "Could not provide any estimated calculation time."
 msgstr ""
 
-#: main.py:1407
+#: main.py:528
 msgid "Starting at stage {}"
 msgstr ""
 
-#: main.py:1408
+#: main.py:529
 msgid "You selected grabbing method '{}'."
 msgstr ""
 
-#: main.py:1410
+#: main.py:531
 msgid "You have to choose one of the following modes for calculation:"
 msgstr ""
 
-#: main.py:1411
+#: main.py:532
 msgid "1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})"
 msgstr ""
 
-#: main.py:1413
+#: main.py:534
 msgid "   It is however faster if simulating huge amounts of profiles"
 msgstr ""
 
-#: main.py:1414
+#: main.py:535
 msgid "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."
 msgstr ""
 
-#: main.py:1415
+#: main.py:538
 msgid "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}"
 msgstr ""
 
-#: main.py:1420
+#: main.py:543
 msgid "Please choose your mode (Enter to exit): "
 msgstr ""
 
-#: main.py:1422
+#: main.py:545
 msgid "User exit."
 msgstr ""
 
-#: main.py:1427
+#: main.py:550
 msgid "Invalid simulation mode '{}' selected. Valid modes: {}."
 msgstr ""
 
-#: main.py:1448
-msgid "Python-Version too old! You are running Python {}. Please install at least Python-Version {}.{}.x"
+#: main.py:563
+msgid "Opening fight types data file at '{}'."
 msgstr ""
 
-#: main.py:1463
+#: main.py:572
 msgid "Choose fightstyle:"
 msgstr ""
 
-#: main.py:1469
+#: main.py:578
 msgid "Enter the number for your fightstyle: "
 msgstr ""
 
-#: main.py:1471
-msgid "Wrong number for fightstyles chosen"
+#: main.py:580
+msgid "Wrong number ({}) for fightstyles chosen. Must be greater between {} and {}."
 msgstr ""
 
-#: main.py:1481
+#: main.py:590
 msgid "No fightstyle found in .json with name: {}, exiting."
 msgstr ""
 
-#: main.py:1485
+#: main.py:593
 msgid "Did not find entries in fight_style.json."
 msgstr ""
 
-#: main.py:1487
+#: main.py:595
 msgid "Error while decoding JSON file: {}"
 msgstr ""
 
-#: main.py:1491
+#: main.py:600
 msgid "Found fightstyle >>>{name}<<< in {file}"
 msgstr ""
 
-#: main.py:1531
+#: main.py:627
+msgid "AutoSimC - Supported WoW-Version: {}"
+msgstr ""
+
+#: main.py:634
 msgid "Parsed command line arguments: {}"
 msgstr ""
 
-#: main.py:1539
+#: main.py:635
+msgid "Parsed settings: {}"
+msgstr ""
+
+#: main.py:643
 msgid "A newer SimCraft-version might be available for download! Version: {}"
 msgstr ""
 
-#: main.py:1552
+#: main.py:656
 msgid "Permutating took {}."
 msgstr ""
 
-#: main.py:1555
+#: main.py:659
 msgid "Do you want to generate {outfile} again? Press y to regenerate: "
 msgstr ""
 
-#: main.py:1561
+#: main.py:666
 msgid "No valid profile combinations found. Please check the 'Invalid profile statistics' output and adjust your input.txt and settings.py."
 msgstr ""
 
-#: main.py:1567
+#: main.py:672
 msgid "Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!(Press Enter to continue, q to quit)"
 msgstr ""
 
-#: main.py:1569
+#: main.py:675
 msgid "Program exit by user"
 msgstr ""
 
-#: main.py:1584
+#: main.py:698
 msgid "AutoSimC finished correctly."
 msgstr ""
 
-#: splitter.py:422
+#: permutation.py:71
+msgid "Parsed gear: {}"
+msgstr ""
+
+#: simc.py:33
+msgid "Found program in {}: Git_Version: {}"
+msgstr ""
+
+#: simc.py:39
+msgid "Found no git-string in simc.exe, self-compiled?"
+msgstr ""
+
+#: simc.py:41
+msgid "Did not find program in '{}'."
+msgstr ""
+
+#: simc.py:54
+msgid "Latest version available: {}"
+msgstr ""
+
+#: simc.py:57
+msgid "Found no git-string in filename, new or changed format?"
+msgstr ""
+
+#: simc.py:68
+msgid "Sorry autodownloading only supported for 64bit windows"
+msgstr ""
+
+#: simc.py:73
+msgid "Starting auto download check of SimulationCraft."
+msgstr ""
+
+#: simc.py:83
+msgid "Latest simc: {filename}"
+msgstr ""
+
+#: simc.py:89
+msgid "Retrieving simc from url {} to {}."
+msgstr ""
+
+#: simc.py:93
+msgid "Latest simc version already downloaded at {}."
+msgstr ""
+
+#: simc.py:102
+msgid "7Zip executable at '{}' does not exist."
+msgstr ""
+
+#: simc.py:105
+msgid "Running unpack command '{}'"
+msgstr ""
+
+#: simc.py:112
+msgid "Removing old simc from '{}'."
+msgstr ""
+
+#: simc.py:116
+msgid "Exception when unpacking: {}"
+msgstr ""
+
+#: simc.py:118
+msgid "Could not unpack the auto downloaded SimulationCraft executable.Please note that you need 7Zip installed at one of the following locations: {}."
+msgstr ""
+
+#: simc.py:122
+msgid "Simc already exists at '{}'."
+msgstr ""
+
+#: splitter.py:49
+msgid "Error creating subfolder '{}': {}."
+msgstr ""
+
+#: splitter.py:316
+msgid "Metric error of best player {} is zero. Cannot filter by target_error."
+msgstr ""
+
+#: splitter.py:398
+msgid "Could not grab any valid profiles from previous run. ({} profiles available before filtering, {} after filtering)"
+msgstr ""
+
+#: splitter.py:447
 msgid "Got {} best profiles written to {} files.."
+msgstr ""
+
+#: utils.py:51
+msgid "Do you want to remove subfolder: {}? (Press y to confirm): "
+msgstr ""
+
+#: utils.py:52
+msgid "y"
+msgstr ""
+
+#: utils.py:54
+msgid "Removing subdir '{}'."
 msgstr ""
 
