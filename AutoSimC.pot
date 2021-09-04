@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-09-04 02:52+0000\n"
+"POT-Creation-Date: 2021-09-04 03:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,35 +19,35 @@ msgstr ""
 msgid "Tank-n-spank"
 msgstr ""
 
-#: main.py:91
+#: main.py:88
 msgid "Python script to create multiple profiles for SimulationCraft to find Best-in-Slot and best enchants/gems/talents combinations."
 msgstr ""
 
-#: main.py:94
+#: main.py:91
 msgid "Don't hesitate to go on the SimcMinMax Discord (https://discordapp.com/invite/tFR2uvK) in the #autosimc Channel to ask about specific stuff."
 msgstr ""
 
-#: main.py:107
+#: main.py:104
 msgid "Input file describing the permutation of SimC profiles to generate. See README for more details."
 msgstr ""
 
-#: main.py:118
+#: main.py:115
 msgid "Output file containing the generated profiles used for the simulation."
 msgstr ""
 
-#: main.py:128
+#: main.py:125
 msgid "Additional input file containing the options to add to each profile."
 msgstr ""
 
-#: main.py:143
+#: main.py:140
 msgid "Enables automated simulation and ranking for the top 3 dps-gear-combinations. Might take a long time, depending on number of permutations. Edit the simcraft-path in settings.py to point to your simc-installation. The result.html will be saved in results-subfolder.There are 2 modes available for calculating the possible huge amount of permutations: Static and dynamic mode:* Static uses a fixed amount of simc-iterations at the cost of quality; default-settings are 100, 1000 and 10000 for each stage.* Dynamic mode lets you set the target_error-parameter from simc, resulting in a more accurate ranking. Stage 1 can be entered at the beginning in the wizard. Stage 2 is set to target_error=0.2, and 0.05 for the final stage 3.(These numbers might be changed in future versions)You have to set the simc path in the settings.py file.- Resuming: It is also possible to resume at a stage, e.g. if simc.exe crashed during stage1, by launching with the parameter -sim stage1 (or stage2/3).- Parallel Processing: By default multiple simc-instances are launched for stage1 and 2, which is a major speedup on modern multicore-cpus like AMD Ryzen. If you encounter problems or instabilities, edit settings.py and change the corresponding parameters or even disable it."
 msgstr ""
 
-#: main.py:169
+#: main.py:166
 msgid "Number of stages to simulate."
 msgstr ""
 
-#: main.py:178
+#: main.py:175
 msgid ""
 "Enables permutation of gem-combinations in your gear. With e.g. gems crit,haste,int you can add all combinations of the corresponding gems (epic gems: 200, rare: 150, uncommon greens are not supported) in addition to the ones you have currently equipped.\n"
 "Valid gems: {}- Example: You have equipped 1 int and 2 mastery-gems. If you enter <-gems \"crit,haste,int\"> (without <>) into the commandline, the permutation process uses the single int- and mastery-gem-combination you have currrently equipped and adds ALL combinations from the ones in the commandline, therefore mastery would be excluded. However, adding mastery to the commandline reenables that.\n"
@@ -55,263 +55,259 @@ msgid ""
 "- WARNING: If you have many items with sockets and/or use a vast gem-combination-setup as command, the number of combinations will go through the roof VERY quickly. Please be cautious when enabling this.- additonally you can specify a empty list of gems, which will permutate the existing gemsin your input gear."
 msgstr ""
 
-#: main.py:239
+#: main.py:236
 msgid "Result-subfolder '{}' does not exist. Creating it."
 msgstr ""
 
-#: main.py:250
-msgid "Moving file: {} to {}"
+#: main.py:247
+msgid "Copying file: {} to {}"
 msgstr ""
 
-#: main.py:254
+#: main.py:251
 msgid "Could not copy html result file, since there was no file found in '{}'."
 msgstr ""
 
-#: main.py:259
-msgid "Cleaning up"
-msgstr ""
-
-#: main.py:271
+#: main.py:260
 msgid "Simc executable at '{}' does not exist."
 msgstr ""
 
-#: main.py:273
+#: main.py:262
 msgid "Simc executable exists at '{}', proceeding..."
 msgstr ""
 
-#: main.py:276
+#: main.py:265
 msgid "Simc executable must end with 'simc.exe', and '{}' does not.Please check your settings.py simc_path options."
 msgstr ""
 
-#: main.py:281
+#: main.py:270
 msgid "Analyzer-file found at '{}'."
 msgstr ""
 
-#: main.py:283
+#: main.py:272
 msgid "Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package."
 msgstr ""
 
-#: main.py:288
+#: main.py:277
 msgid "Using Safe Mode as specified in settings."
 msgstr ""
 
-#: main.py:292
+#: main.py:281
 msgid "Invalid default_error_rate_multiplier ({}) <= 0"
 msgstr ""
 
-#: main.py:295 main.py:372
+#: main.py:284 main.py:358
 msgid "target_error"
 msgstr ""
 
-#: main.py:295 main.py:375
+#: main.py:284 main.py:361
 msgid "top_n"
 msgstr ""
 
-#: main.py:297
+#: main.py:286
 msgid "Invalid settings.default_grabbing_method '{}'. Valid options: {}"
 msgstr ""
 
-#: main.py:303
+#: main.py:292
 msgid "Generating up to {:n} loadouts..."
 msgstr ""
 
-#: main.py:317
+#: main.py:306
 msgid "Finished permutations. Valid: {:n} of {:n} processed. ({:.2f}%)"
 msgstr ""
 
-#: main.py:325
+#: main.py:314
 msgid "Output file checksum: {}"
 msgstr ""
 
-#: main.py:402
+#: main.py:377
 msgid "***Entering static mode, STAGE {}***"
 msgstr ""
 
-#: main.py:412
+#: main.py:390
 msgid "Cannot run static mode and skip questions without default iterations set for stage {}."
 msgstr ""
 
-#: main.py:414
+#: main.py:392
 msgid "Please enter the number of iterations to use (q to quit): "
 msgstr ""
 
-#: main.py:416 main.py:464 main.py:485 main.py:510
+#: main.py:394 main.py:453 main.py:474 main.py:499
 msgid "Quitting application"
 msgstr ""
 
-#: main.py:432
+#: main.py:417
 msgid "***Entering dynamic mode, STAGE {}***"
 msgstr ""
 
-#: main.py:438
+#: main.py:427
 msgid "Estimated calculation times for stage {} based on your data:"
 msgstr ""
 
-#: main.py:442
+#: main.py:431
 msgid "({:2n}): Target Error: {:6.3f}%:  Est. calc. time: {} (time/profile: {:5.2f}s iterations: {:5n}) "
 msgstr ""
 
-#: main.py:459
+#: main.py:448
 msgid "Cannot run dynamic mode and skip questions without default target_error set for stage {}."
 msgstr ""
 
-#: main.py:462
+#: main.py:451
 msgid "Please enter the type of calculation to perform (q to quit): "
 msgstr ""
 
-#: main.py:468
+#: main.py:457
 msgid "Invalid calc choice '{}' can only be from 0 to {}"
 msgstr ""
 
-#: main.py:470
+#: main.py:459
 msgid "Sim: Number of permutations: "
 msgstr ""
 
-#: main.py:471
+#: main.py:460
 msgid "Sim: Chosen calculation: {}"
 msgstr ""
 
-#: main.py:478
+#: main.py:467
 msgid "Warning Target_Error chosen in stage {}: {} <= Default_Target_Error for stage {}: {}"
 msgstr ""
 
-#: main.py:481
+#: main.py:470
 msgid "Do you want to continue anyway (Enter), quit (q) or enter a new target_error for the current stage (n)?: "
 msgstr ""
 
-#: main.py:483
+#: main.py:472
 msgid "User chose: "
 msgstr ""
 
-#: main.py:488
+#: main.py:477
 msgid "Enter new target_error (Format: 0.3): "
 msgstr ""
 
-#: main.py:489
+#: main.py:478
 msgid "User entered target_error_secondpart: "
 msgstr ""
 
-#: main.py:500
+#: main.py:489
 msgid "Chosen Target Error: {:.3f}% <= {:.3f}%:  Time/Profile: {:5.2f} sec => Est. calc. time: {}"
 msgstr ""
 
-#: main.py:508
+#: main.py:497
 msgid "Warning: This might take a *VERY* long time ({}) (q to quit, Enter to continue: )"
 msgstr ""
 
-#: main.py:514
+#: main.py:503
 msgid "Could not provide any estimated calculation time."
 msgstr ""
 
-#: main.py:528
+#: main.py:518
 msgid "Starting at stage {}"
 msgstr ""
 
-#: main.py:529
+#: main.py:519
 msgid "You selected grabbing method '{}'."
 msgstr ""
 
-#: main.py:531
+#: main.py:521
 msgid "You have to choose one of the following modes for calculation:"
 msgstr ""
 
-#: main.py:532
+#: main.py:522
 msgid "1) Static mode uses a fixed number of iterations, with varying error per profile ({num_iterations})"
 msgstr ""
 
-#: main.py:534
+#: main.py:524
 msgid "   It is however faster if simulating huge amounts of profiles"
 msgstr ""
 
-#: main.py:535
+#: main.py:525
 msgid "2) Dynamic mode (preferred) lets you choose a specific 'correctness' of the calculation, but takes more time."
 msgstr ""
 
-#: main.py:538
+#: main.py:528
 msgid "   It uses the chosen target_error for the first part; in stage2 onwards, the following values are used: {}"
 msgstr ""
 
-#: main.py:543
+#: main.py:533
 msgid "Please choose your mode (Enter to exit): "
 msgstr ""
 
-#: main.py:545
+#: main.py:535
 msgid "User exit."
 msgstr ""
 
-#: main.py:550
+#: main.py:540
 msgid "Invalid simulation mode '{}' selected. Valid modes: {}."
 msgstr ""
 
-#: main.py:563
+#: main.py:566
 msgid "Opening fight types data file at '{}'."
 msgstr ""
 
-#: main.py:572
+#: main.py:575
 msgid "Choose fightstyle:"
 msgstr ""
 
-#: main.py:578
+#: main.py:581
 msgid "Enter the number for your fightstyle: "
 msgstr ""
 
-#: main.py:580
+#: main.py:583
 msgid "Wrong number ({}) for fightstyles chosen. Must be greater between {} and {}."
 msgstr ""
 
-#: main.py:590
+#: main.py:593
 msgid "No fightstyle found in .json with name: {}, exiting."
 msgstr ""
 
-#: main.py:593
+#: main.py:596
 msgid "Did not find entries in fight_style.json."
 msgstr ""
 
-#: main.py:595
+#: main.py:598
 msgid "Error while decoding JSON file: {}"
 msgstr ""
 
-#: main.py:600
+#: main.py:603
 msgid "Found fightstyle >>>{name}<<< in {file}"
 msgstr ""
 
-#: main.py:627
+#: main.py:630
 msgid "AutoSimC - Supported WoW-Version: {}"
 msgstr ""
 
-#: main.py:634
+#: main.py:637
 msgid "Parsed command line arguments: {}"
 msgstr ""
 
-#: main.py:635
+#: main.py:638
 msgid "Parsed settings: {}"
 msgstr ""
 
-#: main.py:643
+#: main.py:646
 msgid "A newer SimCraft-version might be available for download! Version: {}"
 msgstr ""
 
-#: main.py:656
+#: main.py:659
 msgid "Permutating took {}."
 msgstr ""
 
-#: main.py:659
+#: main.py:662
 msgid "Do you want to generate {outfile} again? Press y to regenerate: "
 msgstr ""
 
-#: main.py:666
+#: main.py:669
 msgid "No valid profile combinations found. Please check the 'Invalid profile statistics' output and adjust your input.txt and settings.py."
 msgstr ""
 
-#: main.py:672
+#: main.py:675
 msgid "Beware: Computation with Simcraft might take a VERY long time with this amount of profiles!(Press Enter to continue, q to quit)"
 msgstr ""
 
-#: main.py:675
+#: main.py:678
 msgid "Program exit by user"
 msgstr ""
 
-#: main.py:698
+#: main.py:699
 msgid "AutoSimC finished correctly."
 msgstr ""
 
@@ -387,27 +383,15 @@ msgstr ""
 msgid "Error creating subfolder '{}': {}."
 msgstr ""
 
-#: splitter.py:316
+#: splitter.py:315
 msgid "Metric error of best player {} is zero. Cannot filter by target_error."
 msgstr ""
 
-#: splitter.py:398
+#: splitter.py:396
 msgid "Could not grab any valid profiles from previous run. ({} profiles available before filtering, {} after filtering)"
 msgstr ""
 
-#: splitter.py:447
+#: splitter.py:445
 msgid "Got {} best profiles written to {} files.."
-msgstr ""
-
-#: utils.py:51
-msgid "Do you want to remove subfolder: {}? (Press y to confirm): "
-msgstr ""
-
-#: utils.py:52
-msgid "y"
-msgstr ""
-
-#: utils.py:54
-msgid "Removing subdir '{}'."
 msgstr ""
 

@@ -263,7 +263,6 @@ def simulate(subdir, simtype, simtype_value, player_profile, stage, is_last_stag
     """Start the simulation process for a given stage/input"""
     logging.info("Starting simulation.")
     logging.debug("Started simulation with {}".format(locals()))
-    subdir = os.path.join(os.getcwd(), subdir)
     files = os.listdir(subdir)
     files = [f for f in files if not f.endswith(".result")]
     files = [os.path.join(subdir, f) for f in files]
@@ -336,7 +335,6 @@ def grab_best(filter_by, filter_criterium, source_subdir, target_subdir, origin,
     user_class = ""
 
     best = []
-    source_subdir = os.path.join(os.getcwd(), source_subdir)
     print("Variables: source_subdir: " + str(source_subdir))
     files = os.listdir(source_subdir)
     files = [f for f in files if f.endswith(".result")]

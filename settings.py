@@ -57,9 +57,6 @@ class settings:
     # 'stageN' restarts simulation process at stage N.
     default_sim_start_stage = "all"
 
-    # Folder in which temporary files for simulation are created.
-    temporary_folder_basepath = "tmp"
-
     # Number of stages to simulate
     # It is recommended to have at least 2, better 3 stages to benefit from
     # increasing accuracy and filtering number of profiles down on each stage.
@@ -69,11 +66,6 @@ class settings:
     # If you want to use this with a value > 3 with skip_questions.
     # This value can also be change through command line argument --stages.
     num_stages = 3
-
-    # set to False if you want to keep intermediate files
-    # moves the final .html-result into the specified subfolder before deletion
-    # the resulting html will be renamed to: <Timestamp - best.html>
-    clean_up = True
 
     # Folder in which simulations results are created.
     result_subfolder = "results"

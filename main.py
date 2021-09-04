@@ -8,10 +8,7 @@ import json
 import shutil
 import argparse
 import logging
-import itertools
-from itertools import product
-import collections
-import copy
+import tempfile
 from typing import Dict, Generator, List, Optional, Sequence
 
 import AddonImporter
@@ -28,7 +25,7 @@ import splitter
 from i18n import _, UntranslatedFileHandler
 from permutation import generate_permutations, max_permutation_count
 from simc import get_simc_version, download_simc, get_latest_simc_version
-from utils import chop_microseconds, cleanup_subdir, file_checksum, stable_unique, str2bool
+from utils import chop_microseconds, file_checksum, stable_unique
 
 __version__ = "9.1.0"
 
@@ -247,20 +244,12 @@ def copy_result_file(last_subdir):
                 if file.endswith(".html"):
                     src = os.path.join(last_subdir, file)
                     dst = os.path.join(result_folder, file)
-                    logging.info(_("Moving file: {} to {}").format(src, dst))
-                    shutil.move(src, dst)
+                    logging.info(_("Copying file: {} to {}").format(src, dst))
+                    shutil.copy(src, dst)
                     found_html = True
     if not found_html:
         logging.warning(_("Could not copy html result file, since there was no file found in '{}'.")
                         .format(last_subdir))
-
-
-def cleanup(num_stages):
-    logging.info(_("Cleaning up"))
-    subdirs = [get_subdir(stage) for stage in range(1, num_stages + 1)]
-    copy_result_file(subdirs[-1])
-    for subdir in subdirs:
-        cleanup_subdir(subdir)
 
 
 def validateSettings(args):
@@ -327,9 +316,8 @@ def permutate(args, profile: Profile) -> int:
     return valid_profiles
 
 
-def checkResultFiles(subdir):
+def checkResultFiles(subdir: str):
     """Check the SimC result files of a previous stage for validity."""
-    subdir = os.path.join(os.getcwd(), subdir)
     logging.info("Checking Files in subdirectory: {}".format(subdir))
 
     if not os.path.exists(subdir):
@@ -349,20 +337,18 @@ def checkResultFiles(subdir):
     logging.info("Checked all files in " + str(subdir) + " : Everything seems to be alright.")
 
 
-def get_subdir(stage):
-    subdir = "stage_{:n}".format(stage)
-    subdir = os.path.join(settings.temporary_folder_basepath, subdir)
-    subdir = os.path.abspath(subdir)
-    return subdir
+def get_subdir(stage: int, tempdir: str) -> str:
+    """Returns the temporary path for a given stage"""
+    return os.path.abspath(os.path.join(tempdir, f'stage_{stage}'))
 
 
-def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_file_name: str) -> int:
+def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_file_name: str, tempdir: str) -> int:
     """Parse output/result files from previous stage and get number of profiles to simulate"""
-    subdir_previous_stage = get_subdir(stage - 1)
     if stage == 1:
-        num_generated_profiles = splitter.split(output_file_name, get_subdir(stage),
+        num_generated_profiles = splitter.split(output_file_name, get_subdir(stage, tempdir),
                                                 settings.splitting_size, player_profile.player_class)
     else:
+        subdir_previous_stage = get_subdir(stage - 1, tempdir)
         try:
             checkResultFiles(subdir_previous_stage)
         except Exception as e:
@@ -377,31 +363,23 @@ def grab_profiles(player_profile: Profile, stage: int, num_stages: int, output_f
             filter_criterium = settings.default_top_n[stage - num_stages - 1]
         is_last_stage = (stage == num_stages)
         num_generated_profiles = splitter.grab_best(filter_by, filter_criterium, subdir_previous_stage,
-                                                    get_subdir(stage), output_file_name, not is_last_stage)
+                                                    get_subdir(stage, tempdir), output_file_name, not is_last_stage)
     if num_generated_profiles:
         logging.info("Found {} profile(s) to simulate.".format(num_generated_profiles))
     return num_generated_profiles
 
 
-def check_profiles(stage: int) -> int:
-    subdir = get_subdir(stage)
-    if not os.path.exists(subdir):
-        return False
-    files = os.listdir(subdir
-                       )
-    files = [f for f in files if f.endswith(".simc")]
-    files = [f for f in files if not f.endswith("arguments.simc")]
-    files = [f for f in files if os.stat(os.path.join(subdir, f)).st_size > 0]
-    return len(files)
-
-
-def static_stage(player_profile: Profile, stage: int, num_stages: int, output_file_name: str) -> None:
+def static_stage(player_profile: Profile, stage: int, num_stages: int,
+                 output_file_name: str, tempdir: str) -> None:
     if stage > num_stages:
         return
     print("\n")
     logging.info(_("***Entering static mode, STAGE {}***").format(stage))
-    num_generated_profiles = grab_profiles(
-        player_profile=player_profile, stage=stage, num_stages=num_stages, output_file_name=output_file_name)
+    num_generated_profiles = grab_profiles(player_profile=player_profile,
+                                           stage=stage,
+                                           num_stages=num_stages,
+                                           output_file_name=output_file_name,
+                                           tempdir=tempdir)
     is_last_stage = (stage == num_stages)
     try:
         num_iterations = settings.default_iterations[stage]
@@ -416,13 +394,20 @@ def static_stage(player_profile: Profile, stage: int, num_stages: int, output_fi
             logging.info(_("Quitting application"))
             sys.exit(0)
         num_iterations = int(iterations_choice)
-    splitter.simulate(get_subdir(stage), "iterations", num_iterations,
+    splitter.simulate(get_subdir(stage, tempdir), "iterations", num_iterations,
                       player_profile, stage, is_last_stage, num_generated_profiles)
-    static_stage(player_profile, stage + 1, num_stages, output_file_name)
+
+    if not is_last_stage:
+        static_stage(player_profile=player_profile,
+                    stage=stage + 1,
+                    num_stages=num_stages,
+                    output_file_name=output_file_name,
+                    tempdir=tempdir)
 
 
 def dynamic_stage(player_profile: Profile,
                   output_file_name: str,
+                  tempdir: str,
                   stage: int,
                   num_stages: int,
                   previous_target_error: Optional[float] = None) -> None:
@@ -431,7 +416,11 @@ def dynamic_stage(player_profile: Profile,
     print("\n")
     logging.info(_("***Entering dynamic mode, STAGE {}***").format(stage))
 
-    num_generated_profiles = grab_profiles(player_profile, stage, num_stages, output_file_name)
+    num_generated_profiles = grab_profiles(player_profile=player_profile,
+                                           stage=stage,
+                                           num_stages=num_stages,
+                                           output_file_name=output_file_name,
+                                           tempdir=tempdir)
 
     # Display estimated simulation time information to user
     result_data = get_analyzer_data(player_profile.class_spec)
@@ -513,7 +502,7 @@ def dynamic_stage(player_profile: Profile,
         else:
             logging.warning(_("Could not provide any estimated calculation time."))
     is_last_stage = (stage == num_stages)
-    splitter.simulate(get_subdir(stage), "target_error", target_error, player_profile,
+    splitter.simulate(get_subdir(stage, tempdir), "target_error", target_error, player_profile,
                       stage, is_last_stage, num_generated_profiles)
 
     if not is_last_stage:
@@ -521,6 +510,7 @@ def dynamic_stage(player_profile: Profile,
                     previous_target_error=target_error,
                     stage=stage + 1,
                     num_stages=num_stages,
+                    tempdir=tempdir,
                     output_file_name=output_file_name)
 
 
@@ -549,12 +539,25 @@ def start_stage(player_profile: Profile, stage: int, num_stages: int, output_fil
     if mode_choice not in valid_modes:
         raise RuntimeError(_("Invalid simulation mode '{}' selected. Valid modes: {}.")
                            .format(mode_choice, valid_modes))
-    if mode_choice == 1:
-        static_stage(player_profile=player_profile, stage=stage, num_stages=num_stages, output_file_name=output_file_name)
-    elif mode_choice == 2:
-        dynamic_stage(player_profile=player_profile, stage=stage, num_stages=num_stages, output_file_name=output_file_name)
-    else:
-        raise Exception('unknown mode choice')
+
+    # TODO: handle intra-stage data sharing better
+    # TODO: have a way to rescue temporary directories for debugging
+    with tempfile.TemporaryDirectory() as d:
+        logging.debug(f'Temporary directory: {d}')
+        if mode_choice == 1:
+            static_stage(player_profile=player_profile,
+                         stage=stage, num_stages=num_stages,
+                         tempdir=d,
+                         output_file_name=output_file_name)
+        elif mode_choice == 2:
+            dynamic_stage(player_profile=player_profile, stage=stage, num_stages=num_stages,
+                          tempdir=d,
+                          output_file_name=output_file_name)
+        else:
+            raise Exception('unknown mode choice')
+        
+        # Get the results
+        copy_result_file(get_subdir(num_stages, d))
 
 
 def addFightStyle(profile: Profile) -> None:
@@ -693,8 +696,6 @@ def main():
                         num_stages=args.stages,
                         output_file_name=args.outputfile)
 
-        if settings.clean_up:
-            cleanup(num_stages=args.stages)
     logging.info(_("AutoSimC finished correctly."))
 
 
