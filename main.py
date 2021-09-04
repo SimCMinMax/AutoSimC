@@ -267,13 +267,6 @@ def validateSettings(args):
                 raise RuntimeError(_("Simc executable must end with 'simc.exe', and '{}' does not."
                                      "Please check your settings.py simc_path options.").format(settings.simc_path))
 
-        analyzer_path = os.path.join(os.getcwd(), settings.analyzer_path, settings.analyzer_filename)
-        if os.path.exists(analyzer_path):
-            logging.info(_("Analyzer-file found at '{}'.").format(analyzer_path))
-        else:
-            raise RuntimeError(_("Analyzer-file not found at '{}', make sure you have a complete AutoSimc-Package.").
-                               format(analyzer_path))
-
     # use a "safe mode", overwriting the values
     if settings.simc_safe_mode:
         logging.info(_("Using Safe Mode as specified in settings."))
