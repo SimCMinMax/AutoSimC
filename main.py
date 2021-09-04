@@ -4,12 +4,11 @@
 import sys
 import datetime
 import os
-import json
 import shutil
 import argparse
 import logging
 import tempfile
-from typing import Dict, Generator, List, Optional, Sequence
+from typing import Dict, Optional
 
 import AddonImporter
 
@@ -26,7 +25,7 @@ from specdata import get_analyzer_data
 import splitter
 from i18n import _, UntranslatedFileHandler
 from permutation import generate_permutations, max_permutation_count
-from simc import get_simc_version, download_simc, get_latest_simc_version
+from simc import SimcVersion, get_simc_version, download_simc, latest_simc_version
 from utils import chop_microseconds, file_checksum, stable_unique
 
 __version__ = "9.1.0"
@@ -628,14 +627,29 @@ def main():
     logging.debug(_("Parsed settings: {}").format(vars(settings)))
 
     if args.sim:
-        if not settings.auto_download_simc:
-            if settings.check_simc_version:
-                filename, latest = get_latest_simc_version()
-                ondisc = get_simc_version()
-                if latest != ondisc:
-                    logging.info(_("A newer SimCraft-version might be available for download! Version: {}").
-                                 format(filename))
-        download_simc()
+        ver = None  # type: Optional[SimcVersion]
+        if settings.auto_download_simc:
+            download_simc()
+            # download_simc updates settings.simc_path
+            ver = get_simc_version(settings.simc_path)
+        else:
+            ver = get_simc_version(settings.simc_path)
+        
+        if ver is None:
+            logging.error(_('Could not detect SimulationCraft version.'))
+            return
+        
+        logging.info(_('SimC {version} for WoW {wow_version}, Hotfix {hotfix_date}, git commit {git_commit}').format(**ver.__dict__))
+
+        if not ver.wow_version.startswith(__version__):
+            logging.error(_('Expected SimC for WoW {expected}, but your version supports {actual}').format(expected=__version__, actual=ver.wow_version))
+            return
+
+        if settings.check_simc_version:
+            latest = latest_simc_version()
+            if latest[1] != ver.git_commit:
+                logging.info(_("A newer version of SimulationCraft may be available: {}").
+                                format(latest[0]))
     validateSettings(args)
 
     player_profile = AddonImporter.build_profile_simc_addon(args)

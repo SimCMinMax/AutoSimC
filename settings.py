@@ -186,11 +186,8 @@ class settings:
     # If True, you will be prompted to choose a fight style to simulate.
     # If False, always use default_fightstyle.
     # Fight styles are defined in fights.py.
-    choose_fightstyle = True
+    choose_fightstyle = False
     default_fightstyle = "Patchwerk"
-
-    # Automatic delete of the temp folders
-    delete_temp_default = False
 
     # automation of grabbing method
     # 1 or 2
