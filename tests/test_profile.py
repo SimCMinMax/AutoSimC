@@ -123,8 +123,8 @@ class TestProfile(unittest.TestCase):
 
             # Look for a similarly named .simc file
             p2 = Profile()
-            with _open_t27(f'{p.profile_name}.simc') as fd:
-                p2.load_simc(fd)
+            p2.load_simc_file(
+                os.path.join(T27_PROFILE_PATH, f'{p.profile_name}.simc'))
 
             # Check that the profile has the same loadout
             diff = p.baseline.diff(p2.baseline)

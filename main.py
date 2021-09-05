@@ -10,10 +10,7 @@ import logging
 import tempfile
 from typing import Dict, Optional
 
-import AddonImporter
-
 from settings import settings
-
 try:
     from settings_local import settings
 except ImportError:
@@ -652,7 +649,10 @@ def main():
                                 format(latest[0]))
     validateSettings(args)
 
-    player_profile = AddonImporter.build_profile_simc_addon(args)
+    player_profile = Profile()
+    player_profile.load_simc_file(args.inputfile)
+    logging.info(f'SimC options: {player_profile}')
+    logging.debug(f'Built simc general options string: {player_profile.general_options}')
 
     # can always be rerun since it is now deterministic
     outputGenerated = False

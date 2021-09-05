@@ -269,6 +269,10 @@ class Profile:
                 o[k] = [Item(k, False, '')]
         return o
 
+    def load_simc_file(self, filename: str):
+        with open(filename, 'r', encoding='utf-8') as f:
+            return self.load_simc(f)
+
     def load_simc(self, f: Iterable[str]):
         """Loads input from simc addon."""
         reader_state = _SimcReaderState.NONE
