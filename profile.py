@@ -166,7 +166,7 @@ class EquipmentLoadout:
                 return False
             return off_hand_type is None
         elif main_hand_type == WeaponType.TWOHAND:
-            if off_hand_type is None:
+            if off_hand_type is None or off_hand_type == WeaponType.DUMMY:
                 # Nothing in off-hand slot is OK.
                 return True
             elif c_class != 'warrior' or c_spec != 'fury':
@@ -211,6 +211,12 @@ class EquipmentLoadout:
             b_slot, b_item = b
             if a_slot != b_slot:
                 raise ValueError('Unexpected slot mismatch')
+            if a_item is None and b_item is None:
+                continue
+            if a_item is None and b_item.item_id <= 0:
+                continue
+            if b_item is None and a_item.item_id <= 0:
+                continue
             if a_item != b_item:
                 setattr(a_only, a_slot, a_item)
                 setattr(b_only, b_slot, b_item)

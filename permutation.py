@@ -113,7 +113,7 @@ def generate_permutations(profile: Profile) -> Iterator[PermutedCharacter]:
                     loadout.equip(trinket)
 
                 # Check if this is a valid loadout
-                if not base_loadout.valid_loadout():
+                if not loadout.valid_loadout():
                     continue
 
                 for talent in profile.talents:

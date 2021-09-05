@@ -2,14 +2,17 @@
 Tests for profile module
 """
 
-from item import WeaponType
+from collections import defaultdict
+from item import GearType, WeaponType
 import os.path
 from parameterized import parameterized
 import unittest
 
+import permutation
 from profile import Profile, load_multiple_profiles
 
-T27_PROFILE_PATH = os.path.join(os.path.dirname(__file__), 'data', 't27')
+TEST_DATA_PATH = os.path.join(os.path.dirname(__file__), 'data')
+T27_PROFILE_PATH = os.path.join(TEST_DATA_PATH, 't27')
 
 # Simple profiles, which contain only one character definition.
 T27_SIMPLE_PROFILES = [
@@ -82,9 +85,18 @@ T27_GENERATE_PROFILES = [
 ]
 
 
+def _open_data(fn: str):
+    return open(os.path.join(TEST_DATA_PATH, fn), 'r')
+
+
 def _open_t27(fn: str):
     return open(os.path.join(T27_PROFILE_PATH, fn), 'r')
 
+
+def _get_gear(gear_list, item_id, is_weekly_reward):
+    for i in gear_list:
+        if i.item_id == item_id and i.isWeeklyReward == is_weekly_reward:
+            return i
 
 class TestProfile(unittest.TestCase):
     @parameterized.expand(T27_SIMPLE_PROFILES)
@@ -189,6 +201,146 @@ class TestProfile(unittest.TestCase):
         self.assertFalse(p.baseline.valid_weapons('warrior', 'arms'))
         self.assertFalse(p.baseline.valid_weapons('warrior', 'protection'))
         self.assertFalse(p.baseline.valid_weapons('warlock', 'affliction'))
+
+    def test_vault_choices(self):
+        p = Profile()
+        with _open_data('vault_choices.simc') as fd:
+            p.load_simc(fd)
+
+        self.assertEqual(p.profile_name, 'Mage_Vault_Choice')
+
+        # Expect that baseline contains currently equipped gear
+        # Only check the slots that may get other gear
+        self.assertEqual(p.baseline.neck.item_id, 186379)
+        self.assertEqual(p.baseline.trinket1.item_id, 178809)
+        self.assertIsNone(p.baseline.trinket2)
+        self.assertEqual(p.baseline.main_hand.item_id, 186406)
+
+        # Check the gear in bags (1 neck, 1 trinket, 1 MH) and vault (2 trinkets, 1 OH, 1 ring)
+        self.assertEqual(2, len(p.gear[GearType.NECK]))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.NECK],
+                      item_id=185954,
+                      is_weekly_reward=False))
+
+        self.assertEqual(4, len(p.gear[GearType.TRINKET]))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.TRINKET],
+                      item_id=187447,
+                      is_weekly_reward=False))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.TRINKET],
+                      item_id=178708,
+                      is_weekly_reward=True))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.TRINKET],
+                      item_id=186431,
+                      is_weekly_reward=True))
+
+        self.assertEqual(2, len(p.gear[GearType.MAIN_HAND]))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.MAIN_HAND],
+                      item_id=178753,
+                      is_weekly_reward=False))
+
+        self.assertEqual(3, len(p.gear[GearType.FINGER]))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.FINGER],
+                      item_id=186375,
+                      is_weekly_reward=True))
+
+        self.assertEqual(1, len(p.gear[GearType.OFF_HAND]))
+        self.assertIsNotNone(
+            _get_gear(p.gear[GearType.OFF_HAND],
+                      item_id=178868,
+                      is_weekly_reward=True))
+
+
+        # Permute gear
+        # 6 trinket combos * 3 ring combos * 2 necks * 2 MH * 2 OH
+        # (ignoring vault limits, and always picking 2 trinkets, 1 dummy OH)
+        self.assertEqual(144, permutation.max_permutation_count(p))
+
+        # Get a list of valid combos
+        combos = list(permutation.generate_permutations(p))
+        # Bags: 2 necks, 2 MH; Vault: 2 trinkets, 1 ring, 1 off-hand
+        # 2  = 2 neck combos
+        # 8  = 2 * 4 vault trinket combos (AC, AD, BC, BD)
+        # 4  = 2 * 2 vault ring combos (AC, BC)
+        # 2  = 2 * 1 one hand + vault off
+        # 10 = 2 * 5 one hand + no off + vault trinket combos
+        # 4  = 2 * 2 one hand + no off + vault ring combos
+        self.assertEqual(2 + 8 + 4 + 2 + 10 + 4, len(combos))
+
+        gv_ids = frozenset({178708, 186431, 186375, 178868})
+        seen_items = defaultdict(lambda: 0)
+
+        for combo in combos:
+            # We should always have 2 trinkets and main hand equipped
+            self.assertIsNotNone(combo.loadout.trinket1)
+            self.assertIsNotNone(combo.loadout.trinket2)
+            self.assertIsNotNone(combo.loadout.main_hand)
+
+            # Get all equipped gear IDs for rule checks
+            equipped_gear_ids = [
+                i.item_id for _slot, i in combo.loadout.all_items()
+            ]
+            for i in equipped_gear_ids:
+                seen_items[i] += 1
+
+            # Great vault rewards appear at most once in any loadout.
+            self.assertLessEqual(len(gv_ids & set(equipped_gear_ids)), 1)
+
+            if combo.loadout.main_hand.item_id == 178753:
+                # Main-hand 178753 must appear with off-hand 178868 or -1
+                self.assertIn(combo.loadout.off_hand.item_id, (178868, -1))
+            elif combo.loadout.main_hand.item_id == 186406:
+                # Main hand 186406 must appear with only dummy OH
+                self.assertEqual(combo.loadout.off_hand.item_id, -1)
+            else:
+                # Other things must not appear here
+                self.fail(
+                    f'Unexpected item {combo.loadout.main_hand} in main hand')
+
+        self.assertDictEqual(
+            seen_items,
+            # New dictionary based on seen_items, updated with expected values.
+            {
+                **seen_items,
+                # Items that should always be there
+                186325: 30,
+                186324: 30,
+                179349: 30,
+                186320: 30,
+                186321: 30,
+                173244: 30,
+                186322: 30,
+                186285: 30,
+                186354: 30,
+
+                # Necks
+                186379: 15,
+                185954: 15,
+
+                # Main-hand
+                186406: 14,
+                178753: 16,
+                # Off-hand (vault)
+                178868: 2,
+
+                # Trinkets
+                178809: 30 - 8,
+                187447: 30 - 8,
+                # Trinkets (vault)
+                178708: 8,
+                186431: 8,
+
+                # Rings
+                186377: 30 - 4,
+                186376: 30 - 4,
+                # Rings (vault)
+                186375: 8,
+            })
 
 
 if __name__ == '__main__':
