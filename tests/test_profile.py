@@ -186,6 +186,8 @@ class TestProfile(unittest.TestCase):
         self.assertEqual(legendaries[0].item_id, 173242)
 
         self.assertEqual(len(p.baseline.weekly_rewards()), 0)
+        self.assertEqual(p.class_spec, 'Unholy Death Knight')
+        self.assertEqual(p.class_role, 'strattack')
 
     def test_2h_warrior(self):
         p = Profile()
