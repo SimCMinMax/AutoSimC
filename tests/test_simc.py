@@ -1,7 +1,15 @@
 from datetime import date
+from io import BytesIO
+import os.path
 import unittest
+from unittest.mock import patch
 
+import simc
 from simc import SimcVersion
+
+with open(os.path.join(os.path.dirname(__file__), 'data', 'downloads.html'),
+          'rb') as f:
+    _DOWNLOADS_PAGE = f.read()
 
 
 class SimcTest(unittest.TestCase):
@@ -45,3 +53,58 @@ class SimcTest(unittest.TestCase):
             SimcVersion.parse(
                 'SimulationCraft 830-02 for World of Warcraft 8.3.0.34769 '
                 'Live (hotfix 2020-06-27/34769)'))
+
+    def test_parse_invalid(self):
+        self.assertIsNone(
+            SimcVersion.parse('Microsoft Windows [Version 10.0.19043.1165]'))
+
+    def test_get_version(self):
+        with patch.object(simc,
+                          'urlopen',
+                          return_value=BytesIO(_DOWNLOADS_PAGE)) as m:
+            self.assertEqual(simc.latest_simc_version(platform='win64'),
+                             ('simc-910-01-win64-5a43e33.7z', '5a43e33'))
+        m.assert_called_once_with(
+            'http://downloads.simulationcraft.org/nightly/?C=M;O=D')
+
+        with patch.object(simc,
+                          'urlopen',
+                          return_value=BytesIO(_DOWNLOADS_PAGE)):
+            self.assertEqual(simc.latest_simc_version(platform='win32'),
+                             ('simc-910-01-win32-5a43e33.7z', '5a43e33'))
+
+        with patch.object(simc,
+                          'urlopen',
+                          return_value=BytesIO(_DOWNLOADS_PAGE)):
+            self.assertEqual(simc.latest_simc_version(platform='macos'),
+                             ('simc-910-01-macos-5a43e33.dmg', '5a43e33'))
+
+        # Platform auto-detection
+        with (patch.object(simc, 'simc_platform', return_value='macos'),
+              patch.object(simc,
+                           'urlopen',
+                           return_value=BytesIO(_DOWNLOADS_PAGE))):
+            self.assertEqual(simc.latest_simc_version(),
+                             ('simc-910-01-macos-5a43e33.dmg', '5a43e33'))
+
+        # Platform auto-detection failure
+        with (patch.object(simc, 'simc_platform', return_value=None),
+              patch.object(simc,
+                           'urlopen',
+                           return_value=BytesIO(_DOWNLOADS_PAGE))):
+            self.assertIsNone(simc.latest_simc_version())
+
+        # Other versions
+        with patch.object(simc,
+                          'urlopen',
+                          return_value=BytesIO(_DOWNLOADS_PAGE)):
+            self.assertEqual(
+                simc.latest_simc_version(major_ver='830-02', platform='win64'),
+                ('simc-830-02-win64-8790a08.7z', '8790a08'))
+
+        # No match
+        with patch.object(simc,
+                          'urlopen',
+                          return_value=BytesIO(_DOWNLOADS_PAGE)):
+            self.assertIsNone(
+                simc.latest_simc_version(major_ver='810-01', platform='win64'))
