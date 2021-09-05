@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterator, Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 from i18n import _
 
@@ -17,7 +17,7 @@ class Fight:
 
     def __post_init__(self):
         if (self.style is None and self.custom is None) or (
-                self.style is None == self.custom is None):
+                (self.style is None) == (self.custom is None)):
             raise ValueError(f'Fight {self.name} must have exactly one of '
                              '"style" or "custom" set')
         _FIGHTS[self.name.lower()] = self
