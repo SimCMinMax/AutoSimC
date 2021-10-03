@@ -1,6 +1,6 @@
 [Profile]
 mage="Jeiwel"
-level=120
+level=60
 race=troll
 region=eu
 server=ysondre

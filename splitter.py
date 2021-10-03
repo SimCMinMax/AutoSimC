@@ -174,14 +174,14 @@ def _worker(command, counter, maximum, starttime, num_workers):
         logging.debug("Error while calculating progress time.", exc_info=True)
 
     if settings.multi_sim_disable_console_output and maximum > 1 and num_workers > 1:
-        p = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     else:
-        p = subprocess.run(command)
+        p = subprocess.run(command, text=True)
     if p.returncode != 0:
         logging.error("SimulationCraft error! Worker #{} returned error code {}.".format(counter, p.returncode))
         if settings.multi_sim_disable_console_output and maximum > 1 and num_workers > 1:
-            logging.info("SimulationCraft #{} stderr: \n{}".format(counter, p.stderr.read().decode()))
-            logging.debug("SimulationCraft #{} stdout: \n{}".format(counter, p.stdout.read().decode()))
+            logging.info("SimulationCraft #{} stderr: \n{}".format(counter, p.stderr))
+            logging.debug("SimulationCraft #{} stdout: \n{}".format(counter, p.stdout))
     return p.returncode
 
 
