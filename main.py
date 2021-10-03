@@ -405,8 +405,7 @@ def autoDownloadSimc():
         html = urlopen('http://downloads.simulationcraft.org/nightly/?C=M;O=D').read().decode('utf-8')
     except URLError:
         logging.info("Could not access download directory on simulationcraft.org")
-    # filename = re.search(r'<a href="(simc.+win64.+7z)">', html).group(1)
-    filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+win64.+7z)">', html)))[0]
+    filename = list(filter(None, re.findall(r'.+nonetwork.+|<a href="(simc.+-win64-.+7z)">', html)))[0]
     print(_("Latest simc: {filename}").format(filename=filename))
 
     # Download latest build of simc
