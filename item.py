@@ -1,7 +1,7 @@
 from enum import Enum
 import json
 import os.path
-from typing import Dict, Iterable, Iterator, List, Optional, Sequence, cast
+from typing import Dict, Iterator, List, Optional, Sequence, cast
 
 SHADOWLANDS_LEGENDARY_IDS = frozenset({
     # Plate
