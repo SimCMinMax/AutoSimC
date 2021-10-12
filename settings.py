@@ -1,7 +1,7 @@
 import multiprocessing
 
 
-class settings():
+class settings:
     # Path to your SimulationCraft command line binary (simc.exe on Windows, or simc on linux/mac).
     # If you enable the simulation-part, you need to either set simc_path, or enable auto_download on Windows.
     # Dont point to the gui-executable. If a window with buttons and tabs opens, you chose the wrong executable!
@@ -37,13 +37,6 @@ class settings():
     # standard error file
     errorFileName = "error.txt"
 
-    # set the amount of tier-items you want to include in your output
-    # this reduces the number of permutations generated if you know what you want to sim
-    # if you have no clue which items do what (= sim every combination), set all txx_min to 0 and txx_max to 6
-    # common errors are setting min=max=0 for a particular tier, which result in no tier-sets being equipped at all
-    default_equip_t27_min = 0
-    default_equip_t27_max = 6
-
     # quiet_mode for faster output; console is very slow
     # default 0; 1 for reduced console-output
     # No longer used for main.py
@@ -58,14 +51,11 @@ class settings():
     # Too large split size will require large amounts of memory for SimulationCraft and slow down the simulation.
     splitting_size = 50
 
-    # Default sim start stage. Valid options: "permutate_only", "all", "stage1", "stage2", "stage3", ...
-    # 'permutate_only' will only generate profile combinations.
+    # Default sim start stage. Valid options: "permute_only", "all", "stage1", "stage2", "stage3", ...
+    # 'permute_only' will only generate profile combinations.
     # 'all' generates profiles & starts simulation process at stage1.
     # 'stageN' restarts simulation process at stage N.
     default_sim_start_stage = "all"
-
-    # Folder in which temporary files for simulation are created.
-    temporary_folder_basepath = "tmp"
 
     # Number of stages to simulate
     # It is recommended to have at least 2, better 3 stages to benefit from
@@ -76,11 +66,6 @@ class settings():
     # If you want to use this with a value > 3 with skip_questions.
     # This value can also be change through command line argument --stages.
     num_stages = 3
-
-    # set to False if you want to keep intermediate files
-    # moves the final .html-result into the specified subfolder before deletion
-    # the resulting html will be renamed to: <Timestamp - best.html>
-    clean_up = True
 
     # Folder in which simulations results are created.
     result_subfolder = "results"
@@ -141,12 +126,6 @@ class settings():
     # use 1.96 for 95% confidence or 2.58 for 99% confidence
     default_error_rate_multiplier = 1.96
 
-    # Patchwerk, LightMovement, HeavyMovement, HelterSkelter, HecticAddCleave, Ultraxion, Beastlord, CastingPatchwerk
-    # https://github.com/simulationcraft/simc/wiki/RaidEvents
-    # The fighttypes are stored in fight_types.json
-    # You can specify your own fights there by simply extending the list with your own
-    file_fightstyle = "fight_types.json"
-
     # SimulationCraft process priority.
     # This can make your system more/less responsive. We recommend leaving this at 'low'.
     # low, below_normal, normal, above_normal, highest
@@ -162,9 +141,6 @@ class settings():
     # Should ptr mode be used for SimC
     simc_ptr = False
 
-    # [[deprecated]] enable_talent_permutation
-    # Use talent character 0 in your input file to permutate a specific talent row
-
     # if simc crashes, try to set this variable to "True"; it will set threads=1 and single_actor_batch=0
     # this might also output slightly different results because of single_actor_batch_now simming the input as whole
     # raid instead of single profiles
@@ -173,11 +149,6 @@ class settings():
     # you want this to be set to 1 most of the time; it is used if you want to simulate a whole raid instead of
     # single profiles,
     simc_single_actor_batch = 1
-
-    # additional input you might want to sim according to
-    # https://github.com/simulationcraft/simc/wiki/TextualConfigurationInterface
-    # the file must be present in the autosimc-folder
-    additional_input_file = "additional_input.txt"
 
     # For Analysis.py
     # set to "nul" if you are simulating healer or tanks
@@ -212,14 +183,11 @@ class settings():
     # ----------------------------------------------------------------------
     skip_questions = False
 
-    # If you set choose_fightstyle to True, a menu pops up before simulation-begin where you can choose the fight to
-    # simulate.
-    # If set it to False, the entry you declare in the json, e.g. "name":"Default_Patchwerk", has to match default_fightstyle
+    # If True, you will be prompted to choose a fight style to simulate.
+    # If False, always use default_fightstyle.
+    # Fight styles are defined in fights.py.
     choose_fightstyle = False
-    default_fightstyle = "Default_Patchwerk"
-
-    # Automatic delete of the temp folders
-    delete_temp_default = False
+    default_fightstyle = "Patchwerk"
 
     # automation of grabbing method
     # 1 or 2

@@ -1,0 +1,61 @@
+# Mage_Vault_Choice - Arcane - 2021-09-01 00:00 - US/Example
+# SimC Addon 9.1.0-01
+# Requires SimulationCraft 910-01 or newer
+
+mage="Mage_Vault_Choice"
+level=60
+race=troll
+region=us
+server=example
+role=spell
+professions=mining=100/skinning=100
+talents=1131121
+spec=arcane
+
+covenant=kyrian
+soulbind=pelagos,combat_meditation/magis_brand:9:1/ire_of_the_ascended:9:1/arcane_prodigy:9:1/better_together/newfound_resolve
+# soulbind=kleia:13,329791
+# soulbind=forgelite_prime_mikanikos:18,
+# conduits_available=17:9/18:9/20:9/21:9/30:9/32:9/34:9/36:9/40:9/51:9/53:9/55:9/249:9/23:9/26:9/29:9/58:9/45:9/48:9/61:9/283:9
+renown=80
+
+head=,id=186325,bonus_id=1498/7187/6935,gem_id=187319,enchant=60runspeed
+neck=,id=186379,bonus_id=1498/7187/6935,gem_id=173129
+shoulder=,id=186324,bonus_id=1498/7187,gem_id=187320
+back=,id=179349,bonus_id=1566/6536/6646
+chest=,id=186320,bonus_id=1498/7187,gem_id=187318,enchant=eternal_insight
+wrist=,id=186321,bonus_id=1498/7187/6935,gem_id=187315,enchant=eternal_intellect
+hands=,id=173244,bonus_id=6716/6926/6647/6648/1559
+waist=,id=186322,bonus_id=1498/7187/6935,gem_id=187312
+legs=,id=186285,bonus_id=1498/7187
+feet=,id=186354,bonus_id=1498/7187
+finger1=,id=186376,bonus_id=1498/7187/6935,gem_id=173128,enchant=tenet_of_haste
+finger2=,id=186377,bonus_id=1498/7187/6935,gem_id=173127,enchant=tenet_of_haste
+trinket1=,id=178809,bonus_id=1566/6536/6646
+# Only one trinket equipped (for testing)
+main_hand=,id=186406,bonus_id=1498/7187,enchant=sinful_revelation
+
+### Gear from Bags
+#
+# Passably-Forged Credentials (200)
+# neck=,id=185954,bonus_id=6652/7575
+#
+# Soul Cage Fragment (233)
+# trinket1=,id=187447,bonus_id=6652/1479/6646
+#
+# Surgical Pustule Extractor (252)
+# main_hand=,id=178753,bonus_id=3536/4786/1566
+
+### Weekly Reward Choices
+#
+# Unbound Changeling
+# trinket1=,id=178708,bonus_id=7608/7359/6652/6917/1566/6646
+#
+# Ebonsoul Vise
+# trinket1=,id=186431,bonus_id=7188/6652/1485/6646
+#
+# Miniature Breaking Wheel
+# finger1=,id=186375,bonus_id=7188/6652/7575/1485/6646
+#
+# Deathwalker's Promise
+# off_hand=,id=178868,bonus_id=7663/7359/6652/1563/6646

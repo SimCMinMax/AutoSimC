@@ -1,164 +1,181 @@
-import sys
+from collections import defaultdict
+import itertools
+import json
+import os.path
+from typing import Dict, List, Tuple
 import warnings
 
-def getClassSpec(c_class, c_spec):
-    b_heal = False
-    b_tank = False
-    if c_class == "deathknight":
-        if c_spec == "frost":
-            class_spec = "Frost Death Knight"
-        elif c_spec == "unholy":
-            class_spec = "Unholy Death Knight"
-        elif c_spec == "blood":
-            class_spec = "Blood Death Knight"
-            b_tank = True
-    elif c_class == "demonhunter":
-        if c_spec == "havoc":
-            class_spec = "Havoc Demon Hunter"
-        elif c_spec == "vengeance":
-            class_spec = "Vengeance Demon Hunter"
-            b_tank = True
-    elif c_class == "druid":
-        if c_spec == "balance":
-            class_spec = "Balance Druid"
-        elif c_spec == "feral":
-            class_spec = "Feral Druid"
-        elif c_spec == "guardian":
-            class_spec = "Guardian Druid"
-            b_tank = True
-        elif c_spec == "restoration":
-            class_spec = "Restoration Druid"
-            b_heal = True
-    elif c_class == "hunter":
-        if c_spec == "beast_mastery":
-            class_spec = "Beast Mastery Hunter"
-        elif c_spec == "survival":
-            class_spec = "Survival Hunter"
-        elif c_spec == "marksmanship":
-            class_spec = "Marksmanship Hunter"
-    elif c_class == "mage":
-        if c_spec == "frost":
-            class_spec = "Frost Mage"
-        elif c_spec == "arcane":
-            class_spec = "Arcane Mage"
-        elif c_spec == "fire":
-            class_spec = "Fire Mage"
-    elif c_class == "priest":
-        if c_spec == "shadow":
-            class_spec = "Shadow Priest"
-        elif c_spec == "diszipline":
-            class_spec = "Diszipline Priest"
-            b_heal = True
-        elif c_spec == "holy":
-            class_spec = "Holy Priest"
-            b_heal = True
-    elif c_class == "paladin":
-        if c_spec == "retribution":
-            class_spec = "Retribution Paladin"
-        elif c_spec == "holy":
-            class_spec = "Holy Paladin"
-            b_heal = True
-        elif c_spec == "protection":
-            class_spec = "Protection Paladin"
-            b_tank = True
-    elif c_class == "monk":
-        if c_spec == "windwalker":
-            class_spec = "Windwalker Monk"
-        elif c_spec == "brewmaster":
-            class_spec = "Brewmaster Monk"
-            b_tank = True
-        elif c_spec == "mistweaver":
-            class_spec = "Mistweaver Monk"
-            b_heal = True
-    elif c_class == "shaman":
-        if c_spec == "enhancement":
-            class_spec = "Enhancement Shaman"
-        elif c_spec == "elemental":
-            class_spec = "Elemental Shaman"
-        elif c_spec == "restoration":
-            class_spec = "Restoration Shaman"
-            b_heal = True
-    elif c_class == "rogue":
-        if c_spec == "subtlety":
-            class_spec = "Subtlety Rogue"
-        elif c_spec == "outlaw":
-            class_spec = "Outlaw Rogue"
-        elif c_spec == "assassination":
-            class_spec = "Assassination Rogue"
-    elif c_class == "warrior":
-        if c_spec == "fury":
-            class_spec = "Fury Warrior"
-        elif c_spec == "arms":
-            class_spec = "Arms Warrior"
-        elif c_spec == "protection":
-            class_spec = "Protection Warrior"
-            b_tank = True
-    elif c_class == "warlock":
-        if c_spec == "affliction":
-            class_spec = "Affliction Warlock"
-        elif c_spec == "demonology":
-            class_spec = "Demonology Warlock"
-        elif c_spec == "destruction":
-            class_spec = "Destruction Warlock"
-    else:
-        raise ValueError("Unsupported class/spec-combination: " + str(c_class) + " - " + str(c_spec) + "\n")
-        sys.exit(1)
-    if b_tank or b_heal:
-        warnings.warn("You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete "
-                      "results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a "
-                      "profile with your spec.")
+from settings import settings
+try:
+    from settings_local import settings
+except ImportError:
+    pass
+
+# dict of [class][spec] => to full name as appears in Analysis.json
+_CLASS_SPECS = {
+    'deathknight': {
+        'frost': 'Frost Death Knight',
+        'unholy': 'Unholy Death Knight',
+        'blood': 'Blood Death Knight',
+    },
+    'demonhunter': {
+        'havoc': 'Havoc Demon Hunter',
+        'vengance': 'Vengance Demon Hunter',
+    },
+    'druid': {
+        'balance': 'Balance Druid',
+        'feral': 'Feral Druid',
+        'guardian': 'Guardian Druid',
+        'restoration': 'Restoration Druid',
+    },
+    'hunter': {
+        'beast_mastery': 'Beast Mastery Hunter',
+        'marksmanship': 'Marksmanship Hunter',
+        'survival': 'Survival Hunter',
+    },
+    'mage': {
+        'arcane': 'Arcane Mage',
+        'fire': 'Fire Mage',
+        'frost': 'Frost Mage',
+    },
+    'paladin': {
+        'holy': 'Holy Paladin',
+        'protection': 'Protection Paladin',
+        'retribution': 'Retribution Paladin',
+    },
+    'priest': {
+        'discipline': 'Discipline Priest',
+        'holy': 'Holy Priest',
+        'shadow': 'Shadow Priest',
+    },
+    'monk': {
+        'brewmaster': 'Brewmaster Monk',
+        'mistweaver': 'Mistweaver Monk',
+        'windwalker': 'Windwalker Monk',
+    },
+    'rogue': {
+        'assassination': 'Assassination Rogue',
+        'outlaw': 'Outlaw Rogue',
+        'subtlety': 'Subtlety Rogue',
+    },
+    'shaman': {
+        'elemental': 'Elemental Shaman',
+        'enhancement': 'Enhancement Shaman',
+        'restoration': 'Restoration Shaman',
+    },
+    'warlock': {
+        'affliction': 'Affliction Warlock',
+        'demonology': 'Demonology Warlock',
+        'destruction': 'Destruction Warlock',
+    },
+    'warrior': {
+        'arms': 'Arms Warrior',
+        'fury': 'Fury Warrior',
+        'protection': 'Protection Warrior',
+    },
+}
+
+# Healer Specializations
+HEALERS = frozenset({
+    'Restoration Druid',
+    'Discipline Priest',
+    'Holy Priest',
+    'Holy Paladin',
+    'Mistweaver Monk',
+    'Restoration Shaman',
+})
+
+# Tank specializations
+TANKS = frozenset({
+    'Blood Death Knight',
+    'Vengeance Demon Hunter',
+    'Guardian Druid',
+    'Protection Paladin',
+    'Brewmaster Monk',
+    'Protection Warrior',
+})
+
+ALL_CLASSES = frozenset(_CLASS_SPECS.keys())
+
+_ALL_SPECS = list(itertools.chain(*(s.values()
+                                    for s in _CLASS_SPECS.values())))
+
+
+def getClassSpec(c_class: str, c_spec: str):
+    """Gets the full name of a simc character class and specialization."""
+    try:
+        class_spec = _CLASS_SPECS[c_class][c_spec]
+    except KeyError:
+        raise ValueError(
+            f'Unsupported class/spec-combination: {c_class} - {c_spec}')
+
+    if class_spec in HEALERS or class_spec in TANKS:
+        warnings.warn(
+            'You are trying to use a tank or heal-spec! Be aware that this may lead to no or incomplete '
+            'results!\n You may need to generate a new Analyzer.json using Analyzer.py which includes a '
+            'profile with your spec.')
     return class_spec
 
 
-def getRole(c_class, c_spec):
-    if c_class == "deathknight":
-        return "strattack"
-    elif c_class == "demonhunter":
-        return "agiattack"
-    elif c_class == "druid":
-        if c_spec == "balance":
-            return "spell"
-        elif c_spec == "feral":
-            return "agiattack"
-        elif c_spec == "guardian":
-            return "agiattack"
-        elif c_spec == "restoration":
-            return "spell"
-    elif c_class == "hunter":
-        return "agiattack"
-    elif c_class == "mage":
-        return "spell"
-    elif c_class == "priest":
-        return "spell"
-    elif c_class == "paladin":
-        if c_spec == "retribution":
-            return "strattack"
-        elif c_spec == "holy":
-            return "spell"
-        elif c_spec == "protection":
-            return "strattack"
-    elif c_class == "monk":
-        if c_spec == "windwalker":
-            return "agiattack"
-        elif c_spec == "brewmaster":
-            return "agiattack"
-        elif c_spec == "mistweaver":
-            return "spell"
-    elif c_class == "shaman":
-        if c_spec == "enhancement":
-            return "agiattack"
-        elif c_spec == "elemental":
-            return "spell"
-        elif c_spec == "restoration":
-            return "spell"
-    elif c_class == "rogue":
-        return "agiattack"
-    elif c_class == "warrior":
-        if c_spec == "fury":
-            return "strattack"
-        elif c_spec == "arms":
-            return "strattack"
-        elif c_spec == "protection":
-            return "strattack"
-    elif c_class == "warlock":
-        return "spell"
+def getRole(c_class: str, c_spec: str) -> str:
+    if c_class in ('deathknight', 'warrior'):
+        return 'strattack'
+    elif c_class in ('demonhunter', 'hunter', 'rogue'):
+        return 'agiattack'
+    elif c_class in ('mage', 'priest', 'warlock'):
+        return 'spell'
+    elif c_class == 'druid':
+        if c_spec in ('balance', 'restoration'):
+            return 'spell'
+        elif c_spec in ('feral', 'guardian'):
+            return 'agiattack'
+    elif c_class == 'paladin':
+        if c_spec in ('protection', 'retribution'):
+            return 'strattack'
+        elif c_spec == 'holy':
+            return 'spell'
+    elif c_class == 'monk':
+        if c_spec in ('brewmaster', 'windwalker'):
+            return 'agiattack'
+        elif c_spec == 'mistweaver':
+            return 'spell'
+    elif c_class == 'shaman':
+        if c_spec == 'enhancement':
+            return 'agiattack'
+        elif c_spec  in ('elemental', 'restoration'):
+            return 'spell'
+    raise ValueError(f'Unknown role for {c_class}/{c_spec}')
+
+
+
+def _read_analyzer_data() -> Dict[str, List[Tuple[float, int, float]]]:
+    """Reads spec simulation data from profiles/Analysis.json"""
+    specs = defaultdict(list)  # type: Dict[str, List[Tuple[float, int, float]]]
+    filename = os.path.join(os.path.dirname(__file__), settings.analyzer_path,
+                            settings.analyzer_filename)
+    with open(filename, 'r') as f:
+        for variant in json.load(f)[0]:
+            for p in variant['playerdata']:
+                if p['specialization'] not in _ALL_SPECS:
+                    raise ValueError(
+                        f'Unhandled class/spec in {filename}: {p["specialization"]}'
+                    )
+                if p['specialization'] not in specs:
+                    specs[p['specialization']] = []
+                for s in p['specdata']:
+                    specs[p['specialization']].append((
+                        float(variant['target_error']),
+                        int(s['iterations']),
+                        float(s['elapsed_time_seconds']),
+                    ))
+    return specs
+
+
+_ANALYZER_DATA = _read_analyzer_data()
+
+
+def get_analyzer_data(class_spec: str) -> List[Tuple[float, int, float]]:
+    """
+    Get precomputed analysis data (target_error, iterations, elapsed_time_seconds) for a given class_spec
+    """
+    return _ANALYZER_DATA.get(class_spec, [])

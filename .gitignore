@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 
-
 # PyBuilder
 target/
 results/
@@ -22,4 +21,5 @@ out.simc
 .pydevproject
 auto_download/
 settings_local.py
-
+.coverage
+htmlcov/
